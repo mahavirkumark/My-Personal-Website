@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Address Book</title>
+
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    nav {
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    nav .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #333;
+      font-size: 16px;
+    }
+
+    nav a:hover {
+      color: #007BFF;
+    }
+
+    #logoutBtn {
+      background-color: #dc2626;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 8px 14px;
+      margin-right: 5px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .saveBtn {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    .editBtn {
+      background-color: orange;
+      color: white;
+    }
+
+    .deleteBtn {
+      background-color: red;
+      color: white;
+    }
+
+    .address-item {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .top-right {
+      display: flex;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">My Personal Website</div>
+    <div>
+      <a href="home.html"><i class="fas fa-house"></i> Home</a>
+      <a href="password.html"><i class="fas fa-key"></i> Passwords</a>
+      <a href="income.html"><i class="fas fa-wallet"></i> Income</a>
+      <a href="links.html"><i class="fas fa-link"></i> Links</a>
+      <a href="calender.html"><i class="fas fa-calendar-alt"></i> Calendar</a>
+    </div>
+    <div class="top-right">
+      <div>
+        <p id="userName" style="margin: 0; font-size: 14px;">User Name</p>
+        <p id="userEmail" style="margin: 0; font-size: 12px;">user@example.com</p>
+        <p id="userId" style="display:none;"></p>
+      </div>
+      <img id="userPic" src="" width="40" style="border-radius: 50%;" />
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+ <div style="max-width: 600px; margin: 5px auto; padding: 10px;">
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Search place or landmark..."
+    oninput="filterAddresses()"
+    style="
+      width: 100%;
+      padding: 10px 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: border-color 0.3s ease;
+    "
+    onfocus="this.style.borderColor='#007bff'"
+    onblur="this.style.borderColor='#ccc'"
+  />
+</div>
+
+
+
+
+
+  <!-- Main Container -->
+  <div class="container">
+    <h2>Save Your Address</h2>
+    <input type="text" id="placeInput" placeholder="Enter place name..." />
+    <input type="text" id="landmarkInput" placeholder="Enter landmark..." />
+    <button class="saveBtn" onclick="saveAddress()">Save Address</button>
+
+    <div id="addressList"></div>
+  </div>
+
+  <!-- Firebase Script -->
+  <script>
+    // Firebase config
+    var firebaseConfig = {
+      apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+      authDomain: "sk12-58e9e.firebaseapp.com",
+      databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+      projectId: "sk12-58e9e",
+      storageBucket: "sk12-58e9e.appspot.com",
+      messagingSenderId: "470207874652",
+      appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Auth state
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        document.getElementById("userName").innerText = user.displayName || "No Name";
+        document.getElementById("userEmail").innerText = user.email;
+        document.getElementById("userId").innerText = user.uid;
+        document.getElementById("userPic").src = user.photoURL || "";
+        loadAddresses(user.uid);
+      } else {
+        window.location.href = "index.html"; // redirect if not logged in
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      firebase.auth().signOut().then(() => window.location.href = "index.html");
+    });
+
+    // Save address
+    function saveAddress() {
+      const uid = firebase.auth().currentUser.uid;
+      const place = document.getElementById("placeInput").value.trim();
+      const landmark = document.getElementById("landmarkInput").value.trim();
+      if (!place || !landmark) return alert("Please fill both place and landmark.");
+
+      const newRef = firebase.database().ref("addresses/" + uid).push();
+      newRef.set({
+        id: newRef.key,
+        place: place,
+        landmark: landmark
+      });
+
+      document.getElementById("placeInput").value = "";
+      document.getElementById("landmarkInput").value = "";
+    }
+
+    // Load addresses
+    function loadAddresses(uid) {
+      const list = document.getElementById("addressList");
+      firebase.database().ref("addresses/" + uid).on("value", (snapshot) => {
+        list.innerHTML = "";
+        snapshot.forEach((child) => {
+          const data = child.val();
+          const div = document.createElement("div");
+          div.className = "address-item";
+          div.innerHTML = `
+            <p><strong>Address:</strong> <span id="text-${data.id}">${data.place} – ${data.landmark}</span></p>
+            <button class="editBtn" onclick="editAddress('${uid}', '${data.id}', '${data.place}', '${data.landmark}')">Edit</button>
+            <button class="deleteBtn" onclick="deleteAddress('${uid}', '${data.id}')">Delete</button>
+          `;
+          list.appendChild(div);
+        });
+      });
+    }
+
+    // Edit address
+    function editAddress(uid, id, oldPlace, oldLandmark) {
+      const newPlace = prompt("Enter new place name:", oldPlace);
+      const newLandmark = prompt("Enter new landmark:", oldLandmark);
+      if (newPlace && newLandmark) {
+        firebase.database().ref("addresses/" + uid + "/" + id).update({
+          place: newPlace,
+          landmark: newLandmark
+        });
+      }
+    }
+
+    // Delete address
+    function deleteAddress(uid, id) {
+      if (confirm("Are you sure you want to delete this address?")) {
+        firebase.database().ref("addresses/" + uid + "/" + id).remove();
+      }
+    }
+  </script>
+
+
+
+<script>
+    let allAddresses = [];
+
+function loadAddresses(uid) {
+  const list = document.getElementById("addressList");
+  firebase.database().ref("addresses/" + uid).on("value", (snapshot) => {
+    allAddresses = [];
+    list.innerHTML = "";
+    snapshot.forEach((child) => {
+      const data = child.val();
+      allAddresses.push(data);
+    });
+    displayFilteredAddresses(allAddresses);
+  });
+}
+
+function displayFilteredAddresses(dataList) {
+  const list = document.getElementById("addressList");
+  list.innerHTML = "";
+
+  dataList.forEach((data) => {
+    const div = document.createElement("div");
+    div.className = "address-item";
+    div.style.cssText = "border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; background: #f9f9f9;";
+    div.innerHTML = `
+      <p><strong>Address:</strong> <span id="text-${data.id}">${data.place} – ${data.landmark}</span></p>
+      <button class="editBtn" style="margin-right: 10px;" onclick="editAddress('${firebase.auth().currentUser.uid}', '${data.id}', '${data.place}', '${data.landmark}')">Edit</button>
+      <button class="deleteBtn" onclick="deleteAddress('${firebase.auth().currentUser.uid}', '${data.id}')">Delete</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function filterAddresses() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = allAddresses.filter(item =>
+    item.place.toLowerCase().includes(query) || item.landmark.toLowerCase().includes(query)
+  );
+  displayFilteredAddresses(filtered);
+}
+
+</script>
+</body>
+</html>

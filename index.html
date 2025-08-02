@@ -1,0 +1,109 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Google OTP Login</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+
+
+
+
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <nav class="bg-white shadow-md p-4">
+    <div class="container mx-auto flex justify-between items-center">
+ <div class="text-xl font-bold text-black-600 flex items-center gap-2">
+  <i class="fas fa-user"></i>
+  My Personal Website
+</div>
+
+     
+      </div>
+    </div>
+  </nav>
+
+
+<!-- TailwindCSS Google Login Page -->
+<main class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
+  <div class="border-2 border-gray-300 rounded-xl p-10 shadow-xl bg-white max-w-md w-full text-center">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Login with Google</h2>
+
+    <button id="googleLoginBtn"
+      class="flex items-center justify-center gap-3 text-xl font-medium px-8 py-4 rounded-full bg-white text-gray-800 border-2 border-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition-all duration-300 ease-in-out mx-auto">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="w-7 h-7">
+      Sign in with Google
+    </button>
+  </div>
+</main>
+
+
+
+  <!-- Footer -->
+  <footer class="bg-white text-gray-700 text-center p-4 border-t">
+    &copy; 2025 MyFinance Tracker | All Rights Reserved.
+  </footer>
+
+  <!-- Firebase & Google Login Script (NOT module) -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  // Function to trigger Google login on button click
+  const googleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      alert(`Welcome ${user.displayName}!`);
+      window.location.href = "home.html";
+    } catch (error) {
+      alert(`Login Failed: ${error.code} - ${error.message}`);
+      console.error(error);
+    }
+  };
+
+  // Attach login function to the button after DOM loads
+  window.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.getElementById("googleLoginBtn");
+    if (loginBtn) {
+      loginBtn.addEventListener("click", googleLogin);
+    }
+  });
+</script>
+
+</body>
+</html>

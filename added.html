@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Login + Email OTP</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
+<body>
+  <h2>Login and Email OTP Verification</h2>
+  <button id="googleLoginBtn">Login with Google</button>
+
+  <script>
+    // ✅ Your Firebase Config (use your own keys here)
+    var firebaseConfig = {
+      apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+      authDomain: "sk12-58e9e.firebaseapp.com",
+      projectId: "sk12-58e9e",
+      storageBucket: "sk12-58e9e.appspot.com",
+      messagingSenderId: "419236149886",
+      appId: "1:419236149886:web:2ee3f42702b7a8318d948c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ✅ Google Login
+    document.getElementById("googleLoginBtn").addEventListener("click", () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider)
+        .then((result) => {
+          const user = result.user;
+
+          if (!user.emailVerified) {
+            user.sendEmailVerification({
+              url: window.location.href  // or a separate verify.html
+            }).then(() => {
+              alert("Verification email sent. Please check your inbox.");
+              auth.signOut(); // Sign out until they verify
+            }).catch((error) => {
+              alert("Error sending email: " + error.message);
+            });
+          } else {
+            alert("Email already verified. Redirecting...");
+            window.location.href = "index.html";
+          }
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+
+    // ✅ Auto redirect if coming from email verification
+    window.addEventListener('load', () => {
+      auth.getRedirectResult().then((result) => {
+        if (auth.currentUser && auth.currentUser.emailVerified) {
+          window.location.href = "index.html";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

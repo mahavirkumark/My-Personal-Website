@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Calendar</title>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+
+ /* Global Font & Background */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      color: #374151;
+      margin: 0;
+      color:black;
+    }
+
+    nav {
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 1rem;
+    }
+
+    nav a {
+      margin: 0 0.5rem;
+      color: #2563eb;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    #calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      padding: 1rem;
+    }
+
+    .calendar-cell {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 5px;
+      padding: 0.5rem;
+      min-height: 85px;
+      position: relative;
+      color:black
+    }
+
+    .calendar-cell:hover {
+      background-color: #e5e7eb;
+    }
+
+    .today {
+      border: 2px solid #3b82f6;
+    }
+
+    .sunday {
+      background-color: #f97316;
+      color: #fff;
+    }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    font-weight: bold;
+    z-index: 10;
+  }
+
+.sunday:hover{
+  background-color: #2563eb;
+}
+    .modal, .overlay {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+    }
+
+    .overlay {
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+    }
+
+    .modal {
+      background: #fff;
+      width: 300px;
+      padding: 1rem;
+      border-radius: 8px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    button {
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .btn {
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      border: none;
+      margin-right: 5px;
+       font-size: 15px;
+    }
+
+    .btn-blue { background: blue; color: white; }
+    .btn-red { background:darkgoldenrod; color: white; }
+    .btn-gray { background: orangered; }
+
+    .task-container {
+      max-width: 1560px;
+      margin: 1rem auto;
+      background: white;
+      padding: 1rem;
+      border-radius: 6px;
+      color: black;
+    }
+/* Overlay */
+.overlay {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* Modal Container */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  width: 90%;
+  max-width: 450px;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Modal Header */
+#modalDate {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+/* Input Fields */
+#taskTitle,
+#taskDesc,
+#taskType {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #f9fafb;
+  transition: border-color 0.3s;
+  color: black;
+}
+
+#taskTitle:focus,
+#taskDesc:focus,
+#taskType:focus {
+  border-color: #3b82f6;
+  outline: none;
+  background: #fff;
+}
+
+/* Textarea */
+#taskDesc {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Select */
+#taskType {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+}
+
+/* Optional: Add transition for smoothness */
+input, textarea, select {
+  transition: all 0.3s ease;
+}
+
+
+  </style>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home - Personal Website</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+
+
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow p-2 flex justify-between items-center">
+    <div class="text-xl font-bold text-black-800">My Personal Website</div>
+    <div class="flex items-center gap-130">
+    
+  <div >
+    
+    <div>
+
+    
+
+      <a href="home.html">🌍 Home</a>
+      <a href="task.html">💸 Task</a>
+      <a href="income.html">👛 Income</a>
+      <a href="links.html">🖼️ Links</a>
+           <a href="calender.html">🖼️ Calender</a>
+    </div>
+  </div>
+
+<div class="flex items-center gap-4 ml-[100px]">
+  <div class="text-right">
+    <p id="userName" class="font-medium text-gray-800"></p>
+    <p id="userEmail" class="text-sm text-gray-600"></p>
+  </div>
+  <img id="userPhoto" src="" alt="User Photo" class="w-10 h-10 rounded-full border" />
+  <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
+    Logout
+  </button>
+</div>
+
+
+  </nav>
+<style>
+  /* Container */
+  .search-container {
+    max-width: 500px;
+    margin: 10px auto;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+    font-family: Arial, sans-serif;
+  }
+
+  /* Search Bar */
+  #searchInput {
+    width: 100%;
+    padding: 10px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+
+  #searchInput:focus {
+    border-color: #007BFF;
+    outline: none;
+  }
+
+  /* Search Results */
+  #searchResults > div {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+    background: #f9f9f9;
+    transition: transform 0.2s ease;
+  }
+
+  #searchResults > div:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  .task-title {
+    font-weight: bold;
+    font-size: 18px;
+    color: #333;
+  }
+
+  .task-desc {
+    color: #666;
+    font-size: 14px;
+    margin: 5px 0;
+  }
+
+  .task-date {
+    font-style: italic;
+    color: #555;
+    font-size: 13px;
+  }
+
+  .go-btn {
+    margin-top: 8px;
+    padding: 6px 12px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .go-btn:hover {
+    background-color: #0056b3;
+  }
+</style>
+
+<div class="search-container">
+  <input type="text" id="searchInput" placeholder="Search tasks by title or description..." oninput="searchTasks()" />
+  <div id="searchResults"></div>
+</div>
+
+
+
+  <div id="taskSearchResults"></div>
+</div>
+  <div class="task-container">
+    <div style="display:flex; justify-content: space-between;">
+      <button onclick="changeMonth(-1)">← Prev</button>
+      <h2 id="monthYear"></h2>
+      <button onclick="changeMonth(1)">Next →</button>
+    </div>
+    <div id="calendar" style="width:1400px;"></div>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+  <div id="taskModal" class="modal">
+      <span id="closeModal" class="close-button">&times;</span>
+    <h3 id="modalDate"></h3>
+    <input id="taskTitle" placeholder="Task Title">
+    <textarea id="taskDesc" placeholder="Task Description"></textarea>
+    <select id="taskType">
+      <option value="temporary">Temporary</option>
+      <option value="permanent">Permanent</option>
+    </select>
+    <div>
+
+      <button onclick="saveTask()" class="btn btn-blue">Save</button>
+      <button onclick="closeModal()" class="btn btn-gray">Cancel</button>
+    </div>
+    <div id="existingTasks"></div>
+  </div>
+<input type="text" id="searchInput" placeholder="Search tasks..." oninput="searchTasks()">
+<div id="searchResults"></div>
+
+<style>
+
+  nav a {
+    text-decoration: none;
+    color: black; /* optional */
+    font-size: 17px;
+  padding: 5px;
+  }
+
+  nav a:hover {
+    text-decoration: none;
+    border: 3px solid goldenrod;
+    font-size: 17px;
+    padding: 5px;
+  }
+
+
+ 
+</style>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "608060704076",
+    appId: "1:608060704076:web:c98e275ae1f449bc2a5e5f"
+  };
+
+
+
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  let currentUser = null;
+  let currentDate = new Date();
+  let selectedDate = null;
+  let editTaskId = null;
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      currentUser = user;
+      document.getElementById("userName").textContent = user.displayName;
+      document.getElementById("userEmail").textContent = user.email;
+      document.getElementById("userPhoto").src = user.photoURL;
+      renderCalendar();
+      loadTodayTasks();
+    } else {
+      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    }
+  });
+
+function logout() {
+    signOut(auth).then(() => {
+      // Redirect to index.html after successful logout
+      window.location.href = "index.html";
+    }).catch((error) => {
+      console.error("Logout error:", error);
+      alert("Failed to log out.");
+    });
+  }
+
+
+  function changeMonth(offset) {
+    currentDate.setMonth(currentDate.getMonth() + offset);
+    renderCalendar();
+  }
+
+
+  
+
+  function renderCalendar() {
+    const calendar = document.getElementById("calendar");
+    calendar.innerHTML = "";
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const startDay = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    document.getElementById("monthYear").textContent = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
+
+    for (let i = 0; i < startDay; i++) {
+      const blank = document.createElement("div");
+      calendar.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      const dateStr = dateObj.toISOString().split("T")[0];
+      const cell = document.createElement("div");
+      cell.className = "calendar-cell";
+      if (dateObj.getDay() === 0) cell.classList.add("sunday");
+      cell.innerHTML = `
+        <div><strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}</div>
+        <div id="tasks-${dateStr}" style="font-size: small;"></div>
+        <button onclick="openModal('${dateStr}')" style="position:absolute; bottom:5px; right:5px; font-size:small; background:#10b981; color:white; border:none; padding:2px 5px; border-radius:3px;">See</button>
+      `;
+      calendar.appendChild(cell);
+      loadTasks(dateStr);
+    }
+  }
+
+  function openModal(date) {
+    selectedDate = date;
+    editTaskId = null;
+    document.getElementById("modalDate").textContent = `Tasks for ${date} (${new Date(date).toLocaleString('en-US', { weekday: 'long' })})`;
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskDesc").value = "";
+    document.getElementById("taskType").value = "temporary";
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("taskModal").style.display = "block";
+
+    const container = document.getElementById("existingTasks");
+    container.innerHTML = "";
+
+    db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value", snap => {
+      const data = snap.val();
+      if (data) {
+        Object.entries(data).forEach(([key, task]) => {
+          const div = document.createElement("div");
+          div.style.border = "1px solid #d1d5db";
+          div.style.padding = "5px";
+          div.style.marginBottom = "5px";
+          div.innerHTML = `
+            <div><strong>${task.title}</strong> (${task.type})</div>
+            <div>${task.desc}</div>
+            <button onclick='editTask("${key}", ${JSON.stringify(task)})' class="btn btn-blue">Edit</button>
+            <button onclick='deleteTask("${key}")' class="btn btn-red">Delete</button>
+          `;
+          container.appendChild(div);
+        });
+      } else {
+        container.textContent = "No tasks for this date.";
+      }
+    });
+  }
+
+    
+  function closeModal() {
+    selectedDate = null;
+    editTaskId = null;
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("taskModal").style.display = "none";
+  }
+
+  function saveTask() {
+    const title = document.getElementById("taskTitle").value.trim();
+    const desc = document.getElementById("taskDesc").value.trim();
+    const type = document.getElementById("taskType").value;
+    if (!title) return alert("Enter title.");
+    const taskData = { title, desc, type };
+    const refPath = `users/${currentUser.uid}/tasks/${selectedDate}`;
+
+    if (editTaskId) {
+      db.ref(`${refPath}/${editTaskId}`).set(taskData);
+    } else {
+      db.ref(refPath).push(taskData);
+    }
+    closeModal();
+    loadTasks(selectedDate);
+    loadTodayTasks();
+  }
+
+  function deleteTask(taskId) {
+    if (!confirm("Delete this task?")) return;
+    db.ref(`users/${currentUser.uid}/tasks/${selectedDate}/${taskId}`).remove().then(() => {
+      loadTasks(selectedDate);
+      loadTodayTasks();
+    });
+  }
+
+  function editTask(taskId, task) {
+    editTaskId = taskId;
+    document.getElementById("taskTitle").value = task.title;
+    document.getElementById("taskDesc").value = task.desc;
+    document.getElementById("taskType").value = task.type;
+  }
+
+  function loadTasks(date) {
+    const container = document.getElementById(`tasks-${date}`);
+    if (!container) return;
+    container.innerHTML = "";
+    db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value", snap => {
+      const data = snap.val();
+      if (data) {
+        Object.values(data).forEach(task => {
+          const div = document.createElement("div");
+          div.textContent = `• ${task.title}`;
+          container.appendChild(div);
+        });
+      }
+    });
+  }
+
+
+
+  function loadTodayTasks() {
+    const today = new Date().toISOString().split("T")[0];
+    const ul = document.getElementById("taskListToday");
+    ul.innerHTML = "";
+    db.ref(`users/${currentUser.uid}/tasks/${today}`).once("value", snap => {
+      const data = snap.val();
+      if (data) {
+        Object.values(data).forEach(task => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${task.title}</strong> (${task.type}): ${task.desc}`;
+          ul.appendChild(li);
+        });
+      } else {
+        ul.innerHTML = "<li>No tasks today.</li>";
+      }
+    });
+
+  }
+  
+  
+  
+</script>
+<script>
+let debounceTimeout;
+
+function searchTasks() {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+
+    if (!query) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
+      return;
+    }
+
+    const userId = user.uid;
+    const userTasksRef = firebase.database().ref(`users/${userId}/tasks`);
+
+    userTasksRef.once("value")
+      .then(snapshot => {
+        const allTasks = snapshot.val();
+        if (!allTasks) {
+          resultsContainer.innerHTML = "<p style='padding: 10px;'>No tasks found in your calendar.</p>";
+          return;
+        }
+
+        let found = 0;
+        const addedTasks = new Set();
+
+        Object.entries(allTasks).forEach(([date, tasks]) => {
+          Object.entries(tasks).forEach(([id, task]) => {
+            const titleMatch = task.title?.toLowerCase().includes(query);
+            const descMatch = task.desc?.toLowerCase().includes(query);
+
+            const uniqueKey = `${task.title}-${task.desc}-${date}`;
+            if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
+              found++;
+              addedTasks.add(uniqueKey);
+
+              const currentDate = new Date(date);
+              const nextDate = new Date(currentDate);
+              nextDate.setDate(currentDate.getDate() + 1);
+
+              const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
+                day: '2-digit', month: 'short', year: 'numeric'
+              });
+
+              const taskDiv = document.createElement("div");
+              taskDiv.style.border = "1px solid #ddd";
+              taskDiv.style.borderRadius = "8px";
+              taskDiv.style.padding = "12px";
+              taskDiv.style.marginBottom = "12px";
+              taskDiv.style.background = "#f2f7ff";
+              taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
+
+              taskDiv.innerHTML = `
+                <strong style="font-size: 1.1em;">${task.title}</strong>
+                <span style="color: #777;">(${task.type || 'No Type'})</span><br>
+                <div style="margin: 5px 0;">${task.desc || 'No Description'}</div>
+                <div style="color: #555;"><em> Date: ${formattedNextDate}</em></div>
+                <button onclick="openModal('${date}')" style="margin-top: 8px; padding: 6px 12px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Go to Date</button>
+              `;
+
+              resultsContainer.appendChild(taskDiv);
+            }
+          });
+        });
+
+        if (found === 0) {
+          resultsContainer.innerHTML = "<p style='padding: 10px;'>No matching tasks found.</p>";
+        }
+      })
+      .catch(error => {
+        console.error("Search error:", error);
+        resultsContainer.innerHTML = "<p style='padding: 10px;'>Error retrieving tasks.</p>";
+      });
+  }, 300);
+}
+</script>
+
+<script>
+  document.getElementById("closeModal").onclick = function () {
+    document.getElementById("taskModal").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+  };
+</script>
+
+
+
+
+
+</style>
+
+</body>
+</html>

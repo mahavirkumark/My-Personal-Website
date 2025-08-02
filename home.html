@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Home - Personal Website</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-400">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Navbar -->
+ <!-- Navbar -->
+<nav class="bg-white shadow p-4 flex justify-between items-center">
+  <div class="text-2xl font-bold text-black-400">My Personal Website</div>
+
+<div class="flex space-x-6 text-gray-700 text-lg">
+  <a href="home.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-house"></i> Home
+  </a>
+  <a href="adress.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-tasks"></i> Address
+  </a>
+  <a href="income.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-wallet"></i> Income
+  </a>
+  <a href="links.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-link"></i> Links
+  </a>
+  <a href="calender.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+    <i class="fas fa-calendar-days"></i> Calendar
+  </a>
+  <a href="password.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
+  <i class="fas fa-lock"></i> Passwords
+</a>
+
+</div>
+
+
+  <div class="flex items-center gap-4">
+    <div class="text-right">
+      <p id="userName" class="font-medium text-black text-sm">User Name</p>
+      <p id="userEmail" class="text-xs text-gray-600">user@example.com</p>
+    </div>
+    <img id="userPhoto" src="" alt="User Photo" class="w-10 h-10 rounded-full border" />
+    <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
+      Logout
+    </button>
+  </div>
+</nav>
+
+
+  <!-- Main Content -->
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h1 class="text-2xl font-semibold mb-4">Welcome to Your Dashboard</h1>
+    <p class="text-gray-700">You are logged in securely with Firebase Authentication.</p>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-10 bg-white text-gray-600 text-center p-4 border-t">
+    &copy; 2025 Personal Website | All rights reserved
+  </footer>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+ auth.onAuthStateChanged((user) => {
+  if (user) {
+    document.getElementById("userName").textContent = user.displayName || "No Name";
+    document.getElementById("userEmail").textContent = user.email || "No Email";
+    
+    const photo = user.photoURL;
+    document.getElementById("userPhoto").src = photo ? photo : "https://via.placeholder.com/100";
+  } else {
+    window.location.href = "index.html";
+  }
+});
+
+
+  // Logout function
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = "index.html";
+    }).catch((error) => {
+      console.error("Logout error:", error);
+    });
+  }
+</script>
+<style>
+  a{
+    padding-right: 25px;
+  }
+</style>
+
+
+</body>
+</html>
+

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Link Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<!-- Navbar -->
+<nav 
+class="bg-white shadow p-4 flex justify-between items-center">
+  <div class="text-2xl font-bold text-black-400">My Personal Website</div>
+  
+  <div class="flex space-x-6 text-gray-700 text-lg">
+    <a href="home.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
+      <i class="fas fa-house"></i> Home
+    </a>
+    <a href="password.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
+      <i class="fas fa-key"></i> Passwords
+    </a>
+    <a href="income.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
+      <i class="fas fa-wallet"></i> Income
+    </a>
+    <a href="links.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
+      <i class="fas fa-link"></i> Links
+    </a>
+    <a href="calender.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
+      <i class="fas fa-calendar-alt"></i> Calendar
+    </a>
+  </div>
+
+
+  <div class="flex items-center space-x-3">
+    <div class="text-right">
+      <p id="userName" class="font-medium text-black text-sm">User Name</p>
+      <p id="userEmail" class="text-xs text-gray-600">user@example.com</p>
+      <p id="userId" class="text-xs text-gray-400 hidden">UID here</p>
+    </div>
+   <img id="userPic" src="" alt="User Photo" width="40" style="border-radius: 50%;" />
+<button id="logoutBtn" style="background-color: #dc2626; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;">
+  Logout
+</button>
+  </div>
+</nav>
+
+<!-- Content Wrapper -->
+<div class="max-w-7xl mx-auto mt-10 p-4 flex flex-col lg:flex-row gap-6">
+
+  <!-- Left Column: Add Link Form -->
+  <div class="w-full lg:w-1/2 bg-white shadow p-6 rounded">
+    <h2 class="text-xl font-bold mb-4">Add a Link</h2>
+    <input id="linkInput" type="url" placeholder="Enter URL" class="w-full p-2 border rounded mb-2" />
+    <textarea id="descInput" rows="3" placeholder="Enter Description" class="w-full p-2 border rounded mb-4"></textarea>
+    <button id="addLinkBtn" class="bg-blue-600 text-white px-4 py-2 rounded w-full">Add Link</button>
+  </div>
+
+  <!-- Right Column: List of Links -->
+  <div class="w-full lg:w-1/2 bg-white shadow p-6 rounded">
+    <h2 class="text-xl font-bold mb-4">Your Links</h2>
+    <div id="linkList" class="space-y-4 overflow-y-auto max-h-[70vh] pr-2"></div>
+  </div>
+</div>
+
+<!-- Firebase JS SDKs (place in <head> or before this script) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- Firebase App Script -->
+<!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  // DOM references
+  const userName = document.getElementById("userName");
+  const userEmail = document.getElementById("userEmail");
+  const userPic = document.getElementById("userPic");
+  const userId = document.getElementById("userId");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  const linkInput = document.getElementById("linkInput");
+  const descInput = document.getElementById("descInput");
+  const addLinkBtn = document.getElementById("addLinkBtn");
+  const linkList = document.getElementById("linkList");
+
+  let currentUserId = "";
+
+  // Listen for auth state
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      currentUserId = user.uid;
+      userName.textContent = user.displayName || "No Name";
+      userEmail.textContent = user.email;
+      userId.textContent = user.uid;
+      userPic.src = user.photoURL || "";
+
+      loadLinks();
+    } else {
+      // Not signed in, redirect to login
+      window.location.href = "index.html"; // Optional redirect
+    }
+  });
+
+  // Add new link
+  addLinkBtn.addEventListener("click", () => {
+    const link = linkInput.value.trim();
+    const desc = descInput.value.trim();
+
+    if (!link || !desc) {
+      alert("Please enter both link and description.");
+      return;
+    }
+
+    const newLinkRef = db.ref(`users/${currentUserId}/links`).push();
+    newLinkRef.set({ link, desc }).then(() => {
+      linkInput.value = "";
+      descInput.value = "";
+    });
+  });
+
+  // Load user links
+  function loadLinks() {
+    db.ref(`users/${currentUserId}/links`).on("value", snapshot => {
+      linkList.innerHTML = "";
+
+      if (!snapshot.exists()) {
+        linkList.innerHTML = "<p class='text-gray-500'>No links added yet.</p>";
+        return;
+      }
+
+      snapshot.forEach(child => {
+        const { link, desc } = child.val();
+        const item = document.createElement("div");
+        item.className = "border-b pb-2 mt-2";
+        item.innerHTML = `
+          <p class="text-blue-600 underline cursor-pointer" onclick="window.open('${link}', '_blank')">${link}</p>
+          <p class="text-sm text-gray-600">${desc}</p>
+        `;
+        linkList.appendChild(item);
+      });
+    });
+  }
+
+  // Logout
+  logoutBtn.addEventListener("click", () => {
+    auth.signOut().then(() => {
+      window.location.href = "index.html";
+    }).catch(error => {
+      console.error("Logout error:", error);
+    });
+  });
+</script>
+
+
+
+</body>
+</html>
