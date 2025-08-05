@@ -411,9 +411,6 @@ input, textarea, select {
     appId: "1:608060704076:web:c98e275ae1f449bc2a5e5f"
   };
 
-
-
-
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
@@ -436,9 +433,8 @@ input, textarea, select {
     }
   });
 
-function logout() {
-    signOut(auth).then(() => {
-      // Redirect to index.html after successful logout
+  function logout() {
+    auth.signOut().then(() => {
       window.location.href = "index.html";
     }).catch((error) => {
       console.error("Logout error:", error);
@@ -446,14 +442,10 @@ function logout() {
     });
   }
 
-
   function changeMonth(offset) {
     currentDate.setMonth(currentDate.getMonth() + offset);
     renderCalendar();
   }
-
-
-  
 
   function renderCalendar() {
     const calendar = document.getElementById("calendar");
@@ -504,6 +496,7 @@ function logout() {
       if (data) {
         Object.entries(data).forEach(([key, task]) => {
           const div = document.createElement("div");
+          div.id = `task-${key}`;
           div.style.border = "1px solid #d1d5db";
           div.style.padding = "5px";
           div.style.marginBottom = "5px";
@@ -521,7 +514,6 @@ function logout() {
     });
   }
 
-    
   function closeModal() {
     selectedDate = null;
     editTaskId = null;
@@ -534,23 +526,52 @@ function logout() {
     const desc = document.getElementById("taskDesc").value.trim();
     const type = document.getElementById("taskType").value;
     if (!title) return alert("Enter title.");
+
     const taskData = { title, desc, type };
     const refPath = `users/${currentUser.uid}/tasks/${selectedDate}`;
 
     if (editTaskId) {
-      db.ref(`${refPath}/${editTaskId}`).set(taskData);
+      db.ref(`${refPath}/${editTaskId}`).set(taskData).then(() => {
+        const el = document.getElementById(`task-${editTaskId}`);
+        if (el) el.querySelector("div").innerHTML = `
+          <div><strong>${title}</strong> (${type})</div>
+          <div>${desc}</div>
+        `;
+        closeModal();
+        loadTasks(selectedDate);
+        loadTodayTasks();
+      });
     } else {
-      db.ref(refPath).push(taskData);
+      const newTaskRef = db.ref(refPath).push();
+      const taskId = newTaskRef.key;
+      newTaskRef.set(taskData).then(() => {
+        // Instantly add task to modal
+        const container = document.getElementById("existingTasks");
+        const div = document.createElement("div");
+        div.id = `task-${taskId}`;
+        div.style.border = "1px solid #d1d5db";
+        div.style.padding = "5px";
+        div.style.marginBottom = "5px";
+        div.innerHTML = `
+          <div><strong>${title}</strong> (${type})</div>
+          <div>${desc}</div>
+          <button onclick='editTask("${taskId}", ${JSON.stringify(taskData)})' class="btn btn-blue">Edit</button>
+          <button onclick='deleteTask("${taskId}")' class="btn btn-red">Delete</button>
+        `;
+        container.appendChild(div);
+
+        loadTasks(selectedDate); // Fast small UI update
+        loadTodayTasks();
+        closeModal();
+      });
     }
-    closeModal();
-    loadTasks(selectedDate);
-    loadTodayTasks();
   }
 
   function deleteTask(taskId) {
     if (!confirm("Delete this task?")) return;
+    document.getElementById(`task-${taskId}`)?.remove(); // Instant DOM removal
     db.ref(`users/${currentUser.uid}/tasks/${selectedDate}/${taskId}`).remove().then(() => {
-      loadTasks(selectedDate);
+      loadTasks(selectedDate); // Light reload
       loadTodayTasks();
     });
   }
@@ -561,47 +582,60 @@ function logout() {
     document.getElementById("taskDesc").value = task.desc;
     document.getElementById("taskType").value = task.type;
   }
+const taskListeners = {}; // Store listeners to avoid duplicates
 
-  function loadTasks(date) {
-    const container = document.getElementById(`tasks-${date}`);
-    if (!container) return;
+function loadTasks(date) {
+  const container = document.getElementById(`tasks-${date}`);
+  if (!container) return;
+
+  // Remove previous listener if exists
+  if (taskListeners[date]) {
+    db.ref(`users/${currentUser.uid}/tasks/${date}`).off("value", taskListeners[date]);
+  }
+
+  // Define and store new listener
+  const listener = db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
     container.innerHTML = "";
-    db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value", snap => {
-      const data = snap.val();
-      if (data) {
-        Object.values(data).forEach(task => {
-          const div = document.createElement("div");
-          div.textContent = `• ${task.title}`;
-          container.appendChild(div);
-        });
-      }
-    });
-  }
+    const data = snap.val();
+    if (data) {
+      Object.values(data).forEach(task => {
+        const div = document.createElement("div");
+        div.textContent = `• ${task.title}`;
+        container.appendChild(div);
+      });
+    }
+  });
 
+  taskListeners[date] = listener;
+}
 
+let todayListenerSet = false;
 
-  function loadTodayTasks() {
-    const today = new Date().toISOString().split("T")[0];
-    const ul = document.getElementById("taskListToday");
+function loadTodayTasks() {
+  const today = new Date().toISOString().split("T")[0];
+  const ul = document.getElementById("taskListToday");
+  if (todayListenerSet) return; // Avoid duplicate listeners
+
+  db.ref(`users/${currentUser.uid}/tasks/${today}`).on("value", snap => {
     ul.innerHTML = "";
-    db.ref(`users/${currentUser.uid}/tasks/${today}`).once("value", snap => {
-      const data = snap.val();
-      if (data) {
-        Object.values(data).forEach(task => {
-          const li = document.createElement("li");
-          li.innerHTML = `<strong>${task.title}</strong> (${task.type}): ${task.desc}`;
-          ul.appendChild(li);
-        });
-      } else {
-        ul.innerHTML = "<li>No tasks today.</li>";
-      }
-    });
+    const data = snap.val();
+    if (data) {
+      Object.entries(data).forEach(([key, task]) => {
+        const li = document.createElement("li");
+        li.id = `today-${key}`;
+        li.innerHTML = `<strong>${task.title}</strong> (${task.type}): ${task.desc}`;
+        ul.appendChild(li);
+      });
+    } else {
+      ul.innerHTML = "<li>No tasks today.</li>";
+    }
+  });
 
-  }
-  
-  
-  
+  todayListenerSet = true;
+}
+
 </script>
+
 <script>
 let debounceTimeout;
 
@@ -681,7 +715,7 @@ function searchTasks() {
         console.error("Search error:", error);
         resultsContainer.innerHTML = "<p style='padding: 10px;'>Error retrieving tasks.</p>";
       });
-  }, 300);
+  }, 10);
 }
 </script>
 
