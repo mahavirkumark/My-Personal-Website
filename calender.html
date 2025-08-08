@@ -673,7 +673,9 @@ function searchTasks() {
             const titleMatch = task.title?.toLowerCase().includes(query);
             const descMatch = task.desc?.toLowerCase().includes(query);
 
-          const uniqueKey = `${task.title?.toLowerCase() || ''}-${task.desc?.toLowerCase() || ''}`;
+    const normalize = str => (str || '').toLowerCase().trim();
+const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}`;
+
 if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
 
               found++;
@@ -735,4 +737,5 @@ if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
 
 </body>
 </html>
+
 
