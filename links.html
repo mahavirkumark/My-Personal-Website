@@ -7,30 +7,20 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
 
 <!-- Navbar -->
-<nav 
-class="bg-white shadow p-4 flex justify-between items-center">
-  <div class="text-2xl font-bold text-black-400">My Personal Website</div>
-  
-  <div class="flex space-x-6 text-gray-700 text-lg">
-    <a href="home.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
-      <i class="fas fa-house"></i> Home
-    </a>
-    <a href="password.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
-      <i class="fas fa-key"></i> Passwords
-    </a>
-    <a href="income.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
-      <i class="fas fa-wallet"></i> Income
-    </a>
-    <a href="links.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
-      <i class="fas fa-link"></i> Links
-    </a>
-    <a href="calender.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-1">
-      <i class="fas fa-calendar-alt"></i> Calendar
-    </a>
+<nav class="bg-white shadow px-6 py-4 flex justify-between items-center">
+  <div class="text-2xl font-bold text-black-100">My Personal Website</div>
+  <div class="flex space-x-8 text-gray-700 text-lg">
+    <a href="home.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
+    <a href="adress.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
+    <a href="password.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-key"></i> Passwords</a>
+    <a href="income.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
+    <a href="links.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
+    <a href="calender.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Calendar</a>
   </div>
 
 
@@ -40,16 +30,19 @@ class="bg-white shadow p-4 flex justify-between items-center">
       <p id="userEmail" class="text-xs text-gray-600">user@example.com</p>
       <p id="userId" class="text-xs text-gray-400 hidden">UID here</p>
     </div>
-   <img id="userPic" src="" alt="User Photo" width="40" style="border-radius: 50%;" />
-<button id="logoutBtn" style="background-color: #dc2626; color: white; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;">
-  Logout
-</button>
+    <img id="userPic" src="" alt="User Photo" width="40" class="rounded-full" />
+    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
   </div>
 </nav>
 
-<!-- Content Wrapper -->
-<div class="max-w-7xl mx-auto mt-10 p-4 flex flex-col lg:flex-row gap-6">
+<!-- Search Bar -->
+<div class="max-w-3xl mx-auto mt-4 px-4">
+  <input id="searchInput" type="text" placeholder="Search by description..." 
+    class="w-full p-2 border rounded focus:ring focus:ring-blue-300" />
+</div>
 
+<!-- Content Wrapper -->
+<div class="max-w-9xl mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6">
   <!-- Left Column: Add Link Form -->
   <div class="w-full lg:w-1/2 bg-white shadow p-6 rounded">
     <h2 class="text-xl font-bold mb-4">Add a Link</h2>
@@ -64,20 +57,7 @@ class="bg-white shadow p-4 flex justify-between items-center">
     <div id="linkList" class="space-y-4 overflow-y-auto max-h-[70vh] pr-2"></div>
   </div>
 </div>
-
-<!-- Firebase JS SDKs (place in <head> or before this script) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<!-- Firebase App Script -->
-<!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
-  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -88,12 +68,10 @@ class="bg-white shadow p-4 flex justify-between items-center">
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
   };
 
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
 
-  // DOM references
   const userName = document.getElementById("userName");
   const userEmail = document.getElementById("userEmail");
   const userPic = document.getElementById("userPic");
@@ -104,10 +82,11 @@ class="bg-white shadow p-4 flex justify-between items-center">
   const descInput = document.getElementById("descInput");
   const addLinkBtn = document.getElementById("addLinkBtn");
   const linkList = document.getElementById("linkList");
+  const searchInput = document.getElementById("searchInput");
 
   let currentUserId = "";
+  let allLinks = [];
 
-  // Listen for auth state
   auth.onAuthStateChanged(user => {
     if (user) {
       currentUserId = user.uid;
@@ -115,65 +94,134 @@ class="bg-white shadow p-4 flex justify-between items-center">
       userEmail.textContent = user.email;
       userId.textContent = user.uid;
       userPic.src = user.photoURL || "";
-
       loadLinks();
     } else {
-      // Not signed in, redirect to login
-      window.location.href = "index.html"; // Optional redirect
+      window.location.href = "index.html";
     }
   });
 
-  // Add new link
   addLinkBtn.addEventListener("click", () => {
     const link = linkInput.value.trim();
     const desc = descInput.value.trim();
-
     if (!link || !desc) {
       alert("Please enter both link and description.");
       return;
     }
-
     const newLinkRef = db.ref(`users/${currentUserId}/links`).push();
-    newLinkRef.set({ link, desc }).then(() => {
-      linkInput.value = "";
-      descInput.value = "";
-    });
+    newLinkRef.set({ link, desc });
+    linkInput.value = "";
+    descInput.value = "";
   });
 
-  // Load user links
   function loadLinks() {
+    linkList.innerHTML = "<p class='text-gray-500 italic'>Loading data...</p>";
     db.ref(`users/${currentUserId}/links`).on("value", snapshot => {
-      linkList.innerHTML = "";
-
-      if (!snapshot.exists()) {
-        linkList.innerHTML = "<p class='text-gray-500'>No links added yet.</p>";
-        return;
+      allLinks = [];
+      if (snapshot.exists()) {
+        snapshot.forEach(child => {
+          allLinks.push({ id: child.key, ...child.val() });
+        });
       }
-
-      snapshot.forEach(child => {
-        const { link, desc } = child.val();
-        const item = document.createElement("div");
-        item.className = "border-b pb-2 mt-2";
-        item.innerHTML = `
-          <p class="text-blue-600 underline cursor-pointer" onclick="window.open('${link}', '_blank')">${link}</p>
-          <p class="text-sm text-gray-600">${desc}</p>
-        `;
-        linkList.appendChild(item);
-      });
+      renderLinks(allLinks);
     });
   }
 
-  // Logout
-  logoutBtn.addEventListener("click", () => {
-    auth.signOut().then(() => {
-      window.location.href = "index.html";
-    }).catch(error => {
-      console.error("Logout error:", error);
+  function renderLinks(links) {
+    linkList.innerHTML = "";
+    if (links.length === 0) {
+      linkList.innerHTML = "<p class='text-gray-500'>No links found.</p>";
+      return;
+    }
+    links.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition";
+      div.innerHTML = `
+        <div>
+          <p class="text-blue-600 underline cursor-pointer" onclick="window.open('${item.link}', '_blank')">${item.link}</p>
+          <p class="text-sm text-gray-600">${item.desc}</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editLink('${item.id}', '${item.link}', '${item.desc}')" 
+            class="bg-yellow-500 hover:bg-yellow-600 transition text-white px-2 py-1 rounded">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button onclick="deleteLink('${item.id}')" 
+            class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 transition text-white px-3 py-1 rounded flex items-center gap-1">
+            <i class="fas fa-trash-alt"></i> Delete
+          </button>
+        </div>
+      `;
+      linkList.appendChild(div);
     });
+
+    // Smoothly scroll to top after rendering
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function editLink(id, oldLink, oldDesc) {
+    const newDesc = prompt("Edit description:", oldDesc);
+    if (newDesc !== null && newDesc.trim() !== "") {
+      db.ref(`users/${currentUserId}/links/${id}`).update({ desc: newDesc });
+    }
+  }
+
+  function deleteLink(id) {
+    if (confirm("Are you sure you want to delete this link?")) {
+      db.ref(`users/${currentUserId}/links/${id}`).remove();
+    }
+  }
+
+  searchInput.addEventListener("input", () => {
+    const term = searchInput.value.toLowerCase();
+    const filtered = allLinks.filter(l => l.desc.toLowerCase().includes(term));
+    renderLinks(filtered);
   });
+
+  logoutBtn.addEventListener("click", () => {
+    auth.signOut().then(() => window.location.href = "index.html");
+  });
+function renderLinks(links) {
+  // Save current scroll position
+  const currentScroll = window.scrollY;
+
+  linkList.innerHTML = "";
+  if (links.length === 0) {
+    linkList.innerHTML = "<p class='text-gray-500'>No links found.</p>";
+    return;
+  }
+  links.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition";
+    div.innerHTML = `
+      <div>
+        <p class="text-blue-600 underline cursor-pointer" onclick="window.open('${item.link}', '_blank')">${item.link}</p>
+        <p class="text-sm text-gray-600">${item.desc}</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="editLink('${item.id}', '${item.link}', '${item.desc}')" 
+          class="bg-yellow-500 hover:bg-yellow-600 transition text-white px-2 py-1 rounded">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button onclick="deleteLink('${item.id}')" 
+          class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 transition text-white px-3 py-1 rounded flex items-center gap-1">
+          <i class="fas fa-trash-alt"></i> Delete
+        </button>
+      </div>
+    `;
+    linkList.appendChild(div);
+  });
+
+  // Restore previous scroll position
+  window.scrollTo({ top: currentScroll, behavior: "instant" });
+}
+
+
+
+
+
 </script>
 
-
-
+</script>
 </body>
 </html>
+
