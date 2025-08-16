@@ -624,12 +624,20 @@ const loadTodayTasks = () => {
   todayListenerSet = true;
 };
 
-// --- Search ---
 const searchTasks = () => {
   const term = document.getElementById("searchInput").value.trim().toLowerCase();
   const resultsContainer = document.getElementById("searchResults");
   resultsContainer.innerHTML = "";
-  if (!term) return;
+
+  if (!term) {
+    // if search box is empty, you can either:
+    // 1. Clear results (do nothing)
+    resultsContainer.innerHTML = "";
+    return;
+    
+    // OR 2. Show today's tasks or all tasks
+    // loadTodayTasks(); // optional, if you want default tasks to appear
+  }
 
   db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
     const data = snap.val();
@@ -642,7 +650,7 @@ const searchTasks = () => {
             found = true;
             const div = document.createElement("div");
             div.className = "cursor-pointer hover:bg-blue-50 transition p-2 rounded-lg";
-            div.onclick = () => openModal(date); // opens modal for that date
+            div.onclick = () => openModal(date);
             div.innerHTML = `<strong>${task.title}</strong><br>${task.desc || ""}<br><small class="text-gray-500">${date}</small>`;
             resultsContainer.appendChild(div);
           }
@@ -653,6 +661,7 @@ const searchTasks = () => {
     if (!found) resultsContainer.innerHTML = `<div class="text-gray-500 p-2">No matching tasks found.</div>`;
   });
 };
+
 </script>
 
 
@@ -699,6 +708,5 @@ const searchTasks = () => {
 
 </body>
 </html>
-
 
 
