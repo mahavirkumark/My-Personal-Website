@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Task Calendar</title>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Firebase -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
-
- /* Global Font & Background */
+    /* Global Font & Background */
     body {
       font-family: Arial, sans-serif;
       background-color: #f3f4f6;
       color: #374151;
       margin: 0;
-      color:black;
     }
 
     nav {
@@ -54,7 +55,7 @@
       padding: 0.5rem;
       min-height: 85px;
       position: relative;
-      color:black
+      color: black;
     }
 
     .calendar-cell:hover {
@@ -70,20 +71,21 @@
       color: #fff;
     }
 
-  .close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-    font-weight: bold;
-    z-index: 10;
-  }
+    .sunday:hover {
+      background-color: #2563eb;
+    }
 
-.sunday:hover{
-  background-color: #2563eb;
-}
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #333;
+      font-weight: bold;
+      z-index: 10;
+    }
+
     .modal, .overlay {
       display: none;
       position: fixed;
@@ -96,21 +98,67 @@
       width: 100vw;
       height: 100vh;
       background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(2px);
     }
 
     .modal {
       background: #fff;
-      width: 300px;
-      padding: 1rem;
-      border-radius: 8px;
+      width: 90%;
+      max-width: 450px;
+      padding: 2rem; 
+      border-radius: 12px;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    button {
-      cursor: pointer;
-      font-size: 15px;
+    #modalDate {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #111827;
+    }
+
+    #taskTitle,
+    #taskDesc,
+    #taskType {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      background: #f9fafb;
+      transition: border-color 0.3s;
+      color: black;
+    }
+
+    #taskTitle:focus,
+    #taskDesc:focus,
+    #taskType:focus {
+      border-color: #3b82f6;
+      outline: none;
+      background: #fff;
+    }
+
+    #taskDesc {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    #taskType {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+    }
+
+    input, textarea, select {
+      transition: all 0.3s ease;
     }
 
     .btn {
@@ -118,197 +166,107 @@
       border-radius: 4px;
       border: none;
       margin-right: 5px;
-       font-size: 15px;
+      font-size: 15px;
     }
 
     .btn-blue { background: blue; color: white; }
-    .btn-red { background:darkgoldenrod; color: white; }
-    .btn-gray { background: orangered; }
+    .btn-red { background: darkgoldenrod; color: white; }
+    .btn-gray { background: orangered; color: white; }
 
     .task-container {
-      max-width: 1560px;
+      max-width: 1600px;
       margin: 1rem auto;
       background: white;
       padding: 1rem;
       border-radius: 6px;
       color: black;
     }
-/* Overlay */
-.overlay {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(2px);
-}
-
-/* Modal Container */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1001;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #ffffff;
-  width: 90%;
-  max-width: 450px;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Modal Header */
-#modalDate {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #111827;
-}
-
-/* Input Fields */
-#taskTitle,
-#taskDesc,
-#taskType {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  background: #f9fafb;
-  transition: border-color 0.3s;
-  color: black;
-}
-
-#taskTitle:focus,
-#taskDesc:focus,
-#taskType:focus {
-  border-color: #3b82f6;
-  outline: none;
-  background: #fff;
-}
-
-/* Textarea */
-#taskDesc {
-  min-height: 100px;
-  resize: vertical;
-}
-
-/* Select */
-#taskType {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1rem;
-}
-
-/* Optional: Add transition for smoothness */
-input, textarea, select {
-  transition: all 0.3s ease;
-}
-
-
   </style>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Home - Personal Website</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
-
-
-
-  <!-- Navbar -->
-  <nav class="bg-white shadow p-2 flex justify-between items-center">
-    <div class="text-xl font-bold text-black-800">My Personal Website</div>
-    <div class="flex items-center gap-130">
-    
-  <div >
-    
-    <div>
-
-    
-
-      <a href="home.html">🌍 Home</a>
-      <a href="task.html">💸 Task</a>
-      <a href="income.html">👛 Income</a>
-      <a href="links.html">🖼️ Links</a>
-           <a href="calender.html">🖼️ Calender</a>
-    </div>
-  </div>
-
-<div class="flex items-center gap-4 ml-[100px]">
-  <div class="text-right">
-    <p id="userName" class="font-medium text-gray-800"></p>
-    <p id="userEmail" class="text-sm text-gray-600"></p>
-  </div>
-  <img id="userPhoto" src="" alt="User Photo" class="w-10 h-10 rounded-full border" />
-  <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
-    Logout
-  </button>
+<body>
+<nav>
+<!-- Navbar -->
+<div class="container mx-auto flex justify-between items-center">
+ <div class="text-xl font-bold text-black-600 flex items-center gap-2">
+  <i class="fas fa-user"></i>
+  My Personal Website
 </div>
+
+  <!-- Center: Navigation Links -->
+  <div class="flex space-x-4">
+    <a href="home.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
+    <a href="adress.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
+    <a href="password.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-key"></i> Passwords</a>
+    <a href="income.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
+    <a href="links.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
+    <a href="calender.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Calendar</a>
+  </div>
+
+  <!-- Right: User Info -->
+  <div class="flex items-center gap-4">
+    <div class="text-right">
+      <p id="userName" class="font-medium text-gray-800"></p>
+      <p id="userEmail" class="text-sm text-gray-600"></p>
+    </div>
+    <img id="userPhoto" src="" alt="Profile" class="w-12 h-12 rounded-full">
+    <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
+      Logout
+    </button>
+  </div>
+</nav>
+<!-- Font Awesome Free -->
+
+
+
+  <!-- Your calendar / modal etc. goes here -->
+
+</body>
+</html>
 
 
   </nav>
 <style>
-  /* Container */
-  .search-container {
-    max-width: 500px;
-    margin: 10px auto;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    background-color: #ffffff;
-    font-family: Arial, sans-serif;
-  }
 
-  /* Search Bar */
-  #searchInput {
-    width: 100%;
-    padding: 10px 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease;
-  }
 
-  #searchInput:focus {
-    border-color: #007BFF;
-    outline: none;
-  }
+/* Search Results Container */
+#searchResults {
+width:400px;
 
-  /* Search Results */
-  #searchResults > div {
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: 12px;
-    margin-bottom: 15px;
-    background: #f9f9f9;
-    transition: transform 0.2s ease;
-  }
+  overflow-y: auto;
+  padding: 4px;
+}
 
-  #searchResults > div:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+/* Each Result Item */
+#searchResults > div {
+  border: 1px solid #e2e8f0;       /* soft gray border */
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  background: #ffffff;               /* clean white background */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* Hover Effect */
+#searchResults > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  background: #f0f9ff;              /* subtle highlight on hover */
+}
+
+/* Optional: Text Styling Inside Result */
+#searchResults > div strong {
+  color: #1e40af;                   /* blue title */
+  font-weight: 600;
+}
+
+#searchResults > div small {
+  color: #6b7280;                   /* gray date or extra info */
+  font-size: 0.8rem;
+}
+
 
   .task-title {
     font-weight: bold;
@@ -341,12 +299,24 @@ input, textarea, select {
   .go-btn:hover {
     background-color: #0056b3;
   }
-</style>
 
-<div class="search-container">
-  <input type="text" id="searchInput" placeholder="Search tasks by title or description..." oninput="searchTasks()" />
-  <div id="searchResults"></div>
+  
+</style>
+<div class="flex justify-center items-center mt-4">
+  <div class="w-full max-w-md">
+    <input
+      type="text"
+      id="searchInput"
+      placeholder="Search tasks..."
+      oninput="searchTasks()"
+      class="w-full p-2 pl-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-sm"
+    />
+    <div id="searchResults" class="mt-1 bg-white border border-gray-300 rounded-lg max-h-64 overflow-y-auto p-1 shadow-sm text-sm">
+      <!-- Search results appear here -->
+    </div>
+  </div>
 </div>
+
 
 
 
@@ -361,25 +331,40 @@ input, textarea, select {
     <div id="calendar" style="width:1400px;"></div>
   </div>
 
-  <div id="overlay" class="overlay"></div>
-  <div id="taskModal" class="modal">
-      <span id="closeModal" class="close-button">&times;</span>
-    <h3 id="modalDate"></h3>
-    <input id="taskTitle" placeholder="Task Title">
-    <textarea id="taskDesc" placeholder="Task Description"></textarea>
-    <select id="taskType">
-      <option value="temporary">Temporary</option>
-      <option value="permanent">Permanent</option>
-    </select>
-    <div>
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
 
-      <button onclick="saveTask()" class="btn btn-blue">Save</button>
-      <button onclick="closeModal()" class="btn btn-gray">Cancel</button>
+<div id="taskModal" class="fixed bg-white shadow-lg p-4 rounded-lg w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
+ <div class="flex justify-between items-center mb-4">
+  <h2 id="modalDate" class="text-lg font-semibold">Tasks for date</h2>
+  <button id="closeModal" class="text-gray-500 hover:text-red-500" style="font-size: 2rem; line-height: 1;">&times;</button>
+</div>
+
+
+  <!-- Two column layout -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <!-- Left: Add Task -->
+    <div>
+      <h3 class="text-md font-medium mb-2">Add Task</h3>
+      <input id="taskTitle" type="text" placeholder="Title" class="border border-gray-300 rounded p-2 w-full mb-2">
+      <textarea id="taskDesc" placeholder="Description" class="border border-gray-300 rounded p-2 w-full mb-3"></textarea>
+      <div class="mb-5">
+        <button onclick="saveTask()" class="bg-blue-600 text-white px-4 py-2 rounded mr-2">Save</button>
+        <button onclick="closeModal()" class="bg-gray-400 text-white px-4 py-2 rounded">Cancel</button>
+      </div>
     </div>
-    <div id="existingTasks"></div>
+
+    <!-- Right: Existing Tasks -->
+    <div>
+      <h3 class="text-md font-medium mb-2">Existing Tasks</h3>
+      <div id="existingTasks" class="border border-gray-300 rounded p-2 bg-gray-50" style="max-height: 550px; overflow-y: auto;">
+        <!-- Tasks will be loaded here -->
+      </div>
+    </div>
+
   </div>
-<input type="text" id="searchInput" placeholder="Search tasks..." oninput="searchTasks()">
-<div id="searchResults"></div>
+</div>
+
 
 <style>
 
@@ -396,338 +381,313 @@ input, textarea, select {
     font-size: 17px;
     padding: 5px;
   }
-
+  .task-container{
+    height: 900px;
+  }
 
  
 </style>
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "608060704076",
-    appId: "1:608060704076:web:c98e275ae1f449bc2a5e5f"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-
-  let currentUser = null;
-  let currentDate = new Date();
-  let selectedDate = null;
-  let editTaskId = null;
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      currentUser = user;
-      document.getElementById("userName").textContent = user.displayName;
-      document.getElementById("userEmail").textContent = user.email;
-      document.getElementById("userPhoto").src = user.photoURL;
-      renderCalendar();
-      loadTodayTasks();
-    } else {
-      auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    }
-  });
-
-  function logout() {
-    auth.signOut().then(() => {
-      window.location.href = "index.html";
-    }).catch((error) => {
-      console.error("Logout error:", error);
-      alert("Failed to log out.");
-    });
+// --- Scrollbar styling ---
+const style = document.createElement("style");
+style.innerHTML = `
+  #existingTasks {
+    height: 600px;
+    overflow-y: auto;
+    padding-right: 5px;
   }
-
-  function changeMonth(offset) {
-    currentDate.setMonth(currentDate.getMonth() + offset);
-    renderCalendar();
+  #existingTasks::-webkit-scrollbar {
+    width: 8px;
   }
-
-  function renderCalendar() {
-    const calendar = document.getElementById("calendar");
-    calendar.innerHTML = "";
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const startDay = (firstDay.getDay() + 6) % 7;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    document.getElementById("monthYear").textContent = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
-
-    for (let i = 0; i < startDay; i++) {
-      const blank = document.createElement("div");
-      calendar.appendChild(blank);
-    }
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateObj = new Date(year, month, day);
-      const dateStr = dateObj.toISOString().split("T")[0];
-      const cell = document.createElement("div");
-      cell.className = "calendar-cell";
-      if (dateObj.getDay() === 0) cell.classList.add("sunday");
-      cell.innerHTML = `
-        <div><strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}</div>
-        <div id="tasks-${dateStr}" style="font-size: small;"></div>
-        <button onclick="openModal('${dateStr}')" style="position:absolute; bottom:5px; right:5px; font-size:small; background:#10b981; color:white; border:none; padding:2px 5px; border-radius:3px;">See</button>
-      `;
-      calendar.appendChild(cell);
-      loadTasks(dateStr);
-    }
+  #existingTasks::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
   }
-
-  function openModal(date) {
-    selectedDate = date;
-    editTaskId = null;
-    document.getElementById("modalDate").textContent = `Tasks for ${date} (${new Date(date).toLocaleString('en-US', { weekday: 'long' })})`;
-    document.getElementById("taskTitle").value = "";
-    document.getElementById("taskDesc").value = "";
-    document.getElementById("taskType").value = "temporary";
-    document.getElementById("overlay").style.display = "block";
-    document.getElementById("taskModal").style.display = "block";
-
-    const container = document.getElementById("existingTasks");
-    container.innerHTML = "";
-
-    db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value", snap => {
-      const data = snap.val();
-      if (data) {
-        Object.entries(data).forEach(([key, task]) => {
-          const div = document.createElement("div");
-          div.id = `task-${key}`;
-          div.style.border = "1px solid #d1d5db";
-          div.style.padding = "5px";
-          div.style.marginBottom = "5px";
-          div.innerHTML = `
-            <div><strong>${task.title}</strong> (${task.type})</div>
-            <div>${task.desc}</div>
-            <button onclick='editTask("${key}", ${JSON.stringify(task)})' class="btn btn-blue">Edit</button>
-            <button onclick='deleteTask("${key}")' class="btn btn-red">Delete</button>
-          `;
-          container.appendChild(div);
-        });
-      } else {
-        container.textContent = "No tasks for this date.";
-      }
-    });
+  #existingTasks::-webkit-scrollbar-thumb:hover {
+    background: #888;
   }
+`;
+document.head.appendChild(style);
 
-  function closeModal() {
-    selectedDate = null;
-    editTaskId = null;
-    document.getElementById("overlay").style.display = "none";
-    document.getElementById("taskModal").style.display = "none";
-  }
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+  authDomain: "sk12-58e9e.firebaseapp.com",
+  databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+  projectId: "sk12-58e9e",
+  storageBucket: "sk12-58e9e.appspot.com",
+  messagingSenderId: "608060704076",
+  appId: "1:608060704076:web:c98e275ae1f449bc2a5e5f"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-  function saveTask() {
-    const title = document.getElementById("taskTitle").value.trim();
-    const desc = document.getElementById("taskDesc").value.trim();
-    const type = document.getElementById("taskType").value;
-    if (!title) return alert("Enter title.");
-
-    const taskData = { title, desc, type };
-    const refPath = `users/${currentUser.uid}/tasks/${selectedDate}`;
-
-    if (editTaskId) {
-      db.ref(`${refPath}/${editTaskId}`).set(taskData).then(() => {
-        const el = document.getElementById(`task-${editTaskId}`);
-        if (el) el.querySelector("div").innerHTML = `
-          <div><strong>${title}</strong> (${type})</div>
-          <div>${desc}</div>
-        `;
-        closeModal();
-        loadTasks(selectedDate);
-        loadTodayTasks();
-      });
-    } else {
-      const newTaskRef = db.ref(refPath).push();
-      const taskId = newTaskRef.key;
-      newTaskRef.set(taskData).then(() => {
-        // Instantly add task to modal
-        const container = document.getElementById("existingTasks");
-        const div = document.createElement("div");
-        div.id = `task-${taskId}`;
-        div.style.border = "1px solid #d1d5db";
-        div.style.padding = "5px";
-        div.style.marginBottom = "5px";
-        div.innerHTML = `
-          <div><strong>${title}</strong> (${type})</div>
-          <div>${desc}</div>
-          <button onclick='editTask("${taskId}", ${JSON.stringify(taskData)})' class="btn btn-blue">Edit</button>
-          <button onclick='deleteTask("${taskId}")' class="btn btn-red">Delete</button>
-        `;
-        container.appendChild(div);
-
-        loadTasks(selectedDate); // Fast small UI update
-        loadTodayTasks();
-        closeModal();
-      });
-    }
-  }
-
-  function deleteTask(taskId) {
-    if (!confirm("Delete this task?")) return;
-    document.getElementById(`task-${taskId}`)?.remove(); // Instant DOM removal
-    db.ref(`users/${currentUser.uid}/tasks/${selectedDate}/${taskId}`).remove().then(() => {
-      loadTasks(selectedDate); // Light reload
-      loadTodayTasks();
-    });
-  }
-
-  function editTask(taskId, task) {
-    editTaskId = taskId;
-    document.getElementById("taskTitle").value = task.title;
-    document.getElementById("taskDesc").value = task.desc;
-    document.getElementById("taskType").value = task.type;
-  }
-const taskListeners = {}; // Store listeners to avoid duplicates
-
-function loadTasks(date) {
-  const container = document.getElementById(`tasks-${date}`);
-  if (!container) return;
-
-  // Remove previous listener if exists
-  if (taskListeners[date]) {
-    db.ref(`users/${currentUser.uid}/tasks/${date}`).off("value", taskListeners[date]);
-  }
-
-  // Define and store new listener
-  const listener = db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
-    container.innerHTML = "";
-    const data = snap.val();
-    if (data) {
-      Object.values(data).forEach(task => {
-        const div = document.createElement("div");
-        div.textContent = `• ${task.title}`;
-        container.appendChild(div);
-      });
-    }
-  });
-
-  taskListeners[date] = listener;
-}
-
+let currentUser = null;
+let currentDate = new Date();
+let selectedDate = null;
+let editTaskId = null;
 let todayListenerSet = false;
 
-function loadTodayTasks() {
-  const today = new Date().toISOString().split("T")[0];
-  const ul = document.getElementById("taskListToday");
-  if (todayListenerSet) return; // Avoid duplicate listeners
+// --- Auth ---
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUser = user;
+    document.getElementById("userName").textContent = user.displayName || "User";
+    document.getElementById("userEmail").textContent = user.email || "";
+    if (user.photoURL) document.getElementById("userPhoto").src = user.photoURL;
+    renderCalendar();
+    loadTodayTasks();
+  } else {
+    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  }
+});
 
-  db.ref(`users/${currentUser.uid}/tasks/${today}`).on("value", snap => {
-    ul.innerHTML = "";
-    const data = snap.val();
-    if (data) {
-      Object.entries(data).forEach(([key, task]) => {
-        const li = document.createElement("li");
-        li.id = `today-${key}`;
-        li.innerHTML = `<strong>${task.title}</strong> (${task.type}): ${task.desc}`;
-        ul.appendChild(li);
-      });
-    } else {
-      ul.innerHTML = "<li>No tasks today.</li>";
-    }
-  });
-
-  todayListenerSet = true;
+function logout() {
+  auth.signOut().then(() => window.location.href = "index.html");
 }
 
-</script>
+// --- Calendar ---
+const changeMonth = offset => {
+  currentDate.setMonth(currentDate.getMonth() + offset);
+  renderCalendar();
+};
 
-<script>
-let debounceTimeout;
+const renderCalendar = () => {
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startDay = (firstDay.getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  document.getElementById("monthYear").textContent =
+    currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
-function searchTasks() {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    const query = document.getElementById("searchInput").value.toLowerCase();
-    const resultsContainer = document.getElementById("searchResults");
-    resultsContainer.innerHTML = "";
+  for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement("div"));
 
-    if (!query) return;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const dateStr = dateObj.toISOString().split("T")[0];
+    const cell = document.createElement("div");
+    cell.className = "calendar-cell";
+    if (dateObj.getDay() === 0) cell.classList.add("sunday");
+    cell.innerHTML = `
+      <div onclick="openModal('${dateStr}')">
+        <strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}
+        <div id="tasks-${dateStr}" style="font-size: small; min-height: 20px;">Loading...</div>
+      </div>
+    `;
+    calendar.appendChild(cell);
+    loadTasks(dateStr);
+  }
+};
 
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
+// --- Modal ---
+const openModal = date => {
+  selectedDate = date;
+  editTaskId = null;
+  document.getElementById("modalDate").textContent =
+    `Tasks for ${date} (${new Date(date).toLocaleString('en-US', { weekday: 'long' })})`;
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDesc").value = "";
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("taskModal").style.display = "block";
+  loadModalTasks(date);
+};
+
+const closeModal = () => {
+  selectedDate = null;
+  editTaskId = null;
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("taskModal").style.display = "none";
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDesc").value = "";
+  document.getElementById("existingTasks").innerHTML = "";
+};
+document.getElementById("closeModal")?.addEventListener("click", closeModal);
+
+// --- Edit Task ---
+const editTask = (taskId, task, date) => {
+  selectedDate = date; // ensure correct date for saving
+  editTaskId = taskId;
+  document.getElementById("taskTitle").value = task.title;
+  document.getElementById("taskDesc").value = task.desc || "";
+  document.getElementById("taskTitle").focus();
+};
+
+// --- Load tasks in modal ---
+const loadModalTasks = date => {
+  selectedDate = date;
+  const container = document.getElementById("existingTasks");
+  container.innerHTML = "<p>Loading tasks...</p>";
+
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
+    const data = snap.val();
+    container.innerHTML = "";
+
+    if (!data) {
+      container.textContent = "No tasks for this date.";
       return;
     }
 
-    const userId = user.uid;
-    const userTasksRef = firebase.database().ref(`users/${userId}/tasks`);
+    Object.entries(data).forEach(([key, task]) => {
+      const taskDiv = document.createElement("div");
+      taskDiv.style = "border:1px solid #d1d5db; padding:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;";
 
-    userTasksRef.once("value")
-      .then(snapshot => {
-        const allTasks = snapshot.val();
-        if (!allTasks) {
-          resultsContainer.innerHTML = "<p style='padding: 10px;'>No tasks found in your calendar.</p>";
-          return;
-        }
+      const infoDiv = document.createElement("div");
+      infoDiv.innerHTML = `<div><strong>${task.title}</strong></div><div>${task.desc || ""}</div>`;
+      taskDiv.appendChild(infoDiv);
 
-        let found = 0;
-        const addedTasks = new Set();
+      const btnDiv = document.createElement("div");
+      btnDiv.style.display = "flex";
+      btnDiv.style.gap = "5px";
 
-        Object.entries(allTasks).forEach(([date, tasks]) => {
-          Object.entries(tasks).forEach(([id, task]) => {
-            const titleMatch = task.title?.toLowerCase().includes(query);
-            const descMatch = task.desc?.toLowerCase().includes(query);
+      // Edit
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn btn-blue";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editTask(key, task, date));
+      btnDiv.appendChild(editBtn);
 
-    const normalize = str => (str || '').toLowerCase().trim();
-const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}`;
-
-if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
-
-              found++;
-              addedTasks.add(uniqueKey);
-
-              const currentDate = new Date(date);
-              const nextDate = new Date(currentDate);
-              nextDate.setDate(currentDate.getDate() + 1);
-
-              const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
-                day: '2-digit', month: 'short', year: 'numeric'
-              });
-
-              const taskDiv = document.createElement("div");
-              taskDiv.style.border = "1px solid #ddd";
-              taskDiv.style.borderRadius = "8px";
-              taskDiv.style.padding = "12px";
-              taskDiv.style.marginBottom = "12px";
-              taskDiv.style.background = "#f2f7ff";
-              taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
-
-              taskDiv.innerHTML = `
-                <strong style="font-size: 1.1em;">${task.title}</strong>
-                <span style="color: #777;">(${task.type || 'No Type'})</span><br>
-                <div style="margin: 5px 0;">${task.desc || 'No Description'}</div>
-                <div style="color: #555;"><em> Date: ${formattedNextDate}</em></div>
-                <button onclick="openModal('${date}')" style="margin-top: 8px; padding: 6px 12px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Go to Date</button>
-              `;
-
-              resultsContainer.appendChild(taskDiv);
-            }
+      // Delete
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-red";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", () => {
+        if (confirm("Delete this task?")) {
+          db.ref(`users/${currentUser.uid}/tasks/${date}/${key}`).remove().then(() => {
+            loadModalTasks(date);
+            loadTodayTasks();
           });
-        });
-
-        if (found === 0) {
-          resultsContainer.innerHTML = "<p style='padding: 10px;'>No matching tasks found.</p>";
         }
-      })
-      .catch(error => {
-        console.error("Search error:", error);
-        resultsContainer.innerHTML = "<p style='padding: 10px;'>Error retrieving tasks.</p>";
       });
-  }, 10);
-}
+      btnDiv.appendChild(delBtn);
+
+      taskDiv.appendChild(btnDiv);
+      container.appendChild(taskDiv);
+    });
+  });
+};
+
+// --- Save or Update ---
+const saveTask = () => {
+  const title = document.getElementById("taskTitle").value.trim();
+  const desc = document.getElementById("taskDesc").value.trim();
+  if (!title) return alert("Enter title.");
+
+  const taskData = { title, desc };
+  const refPath = `users/${currentUser.uid}/tasks/${selectedDate}`;
+
+  if (editTaskId) {
+    db.ref(`${refPath}/${editTaskId}`).set(taskData).then(() => {
+      editTaskId = null;
+      document.getElementById("taskTitle").value = "";
+      document.getElementById("taskDesc").value = "";
+      loadModalTasks(selectedDate);
+      loadTodayTasks();
+    });
+  } else {
+    db.ref(refPath).push(taskData).then(() => {
+      document.getElementById("taskTitle").value = "";
+      document.getElementById("taskDesc").value = "";
+      loadModalTasks(selectedDate);
+      loadTodayTasks();
+    });
+  }
+};
+
+// --- Calendar tasks ---
+const loadTasks = date => {
+  const container = document.getElementById(`tasks-${date}`);
+  if (!container) return;
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
+    const data = snap.val();
+    container.innerHTML = "";
+    if (data) {
+      Object.values(data).forEach(task => container.innerHTML += `<div>• ${task.title}</div>`);
+    } else container.textContent = "";
+  });
+};
+
+// --- Today tasks ---
+const loadTodayTasks = () => {
+  if (todayListenerSet) return;
+  const today = new Date().toISOString().split("T")[0];
+  const ul = document.getElementById("taskListToday");
+  db.ref(`users/${currentUser.uid}/tasks/${today}`).on("value", snap => {
+    const data = snap.val();
+    ul.innerHTML = "";
+    if (data) Object.values(data).forEach(task => ul.innerHTML += `<li><strong>${task.title}</strong>: ${task.desc || ""}</li>`);
+    else ul.innerHTML = "<li>No tasks today.</li>";
+  });
+  todayListenerSet = true;
+};
+
+// --- Search ---
+const searchTasks = () => {
+  const term = document.getElementById("searchInput").value.trim().toLowerCase();
+  const resultsContainer = document.getElementById("searchResults");
+  resultsContainer.innerHTML = "";
+  if (!term) return;
+
+  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
+    const data = snap.val();
+    let found = false;
+
+    if (data) {
+      Object.entries(data).forEach(([date, tasks]) => {
+        Object.entries(tasks).forEach(([key, task]) => {
+          if ((task.title.toLowerCase().includes(term) || (task.desc && task.desc.toLowerCase().includes(term)))) {
+            found = true;
+            const div = document.createElement("div");
+            div.className = "cursor-pointer hover:bg-blue-50 transition p-2 rounded-lg";
+            div.onclick = () => openModal(date); // opens modal for that date
+            div.innerHTML = `<strong>${task.title}</strong><br>${task.desc || ""}<br><small class="text-gray-500">${date}</small>`;
+            resultsContainer.appendChild(div);
+          }
+        });
+      });
+    }
+
+    if (!found) resultsContainer.innerHTML = `<div class="text-gray-500 p-2">No matching tasks found.</div>`;
+  });
+};
 </script>
 
-<script>
-  document.getElementById("closeModal").onclick = function () {
-    document.getElementById("taskModal").style.display = "none";
-    document.getElementById("overlay").style.display = "none";
-  };
-</script>
+
+
+<style>
+  /* Task Modal Container */
+#taskModal {
+  max-height: 90vh;           /* Prevents it from overflowing screen */
+  overflow-y: auto;
+  height: 700px;
+}
+
+/* Existing Tasks Container */
+#existingTasks {
+          /* Increased height */
+  overflow-y: auto;
+  padding-right: 5px;
+  background: #f9fafb;        /* light gray background */
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  height: 700px;
+}
+
+/* Scrollbar Styling */
+#existingTasks::-webkit-scrollbar {
+  width: 8px;
+    height: 700px;
+}
+#existingTasks::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 4px;
+}
+#existingTasks::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
 
 
 
@@ -735,7 +695,10 @@ if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
 
 </style>
 
+
+
 </body>
 </html>
+
 
 
