@@ -464,24 +464,36 @@ const renderCalendar = () => {
   document.getElementById("monthYear").textContent =
     currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
-  for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement("div"));
+  for (let i = 0; i < startDay; i++) {
+    calendar.appendChild(document.createElement("div"));
+  }
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateObj = new Date(year, month, day);
     const dateStr = dateObj.toISOString().split("T")[0];
     const cell = document.createElement("div");
-    cell.className = "calendar-cell";
+    cell.className = "calendar-cell cursor-pointer hover:bg-blue-50 transition rounded-lg p-1 text-black"; // ✅ force text black
     if (dateObj.getDay() === 0) cell.classList.add("sunday");
+
     cell.innerHTML = `
-      <div onclick="openModal('${dateStr}')">
-        <strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}
-        <div id="tasks-${dateStr}" style="font-size: small; min-height: 20px;">Loading...</div>
+      <div>
+        <div class="font-bold">
+          ${day} <span class="text-sm">${dateObj.toLocaleString('en-US', { weekday: 'short' })}</span>
+        </div>
+        <div id="tasks-${dateStr}" style="font-size: small; min-height: 20px; color: black;">
+          Loading...
+        </div>
       </div>
     `;
+
+    // 🔹 Whole cell clickable
+    cell.addEventListener("click", () => openModal(dateStr));
+
     calendar.appendChild(cell);
     loadTasks(dateStr);
   }
 };
+
 
 // --- Modal ---
 const openModal = date => {
