@@ -230,42 +230,58 @@
 
 /* Search Results Container */
 #searchResults {
-width:400px;
-
+  width: 420px;
+  max-height: 400px;
   overflow-y: auto;
-  padding: 4px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(12px);
 }
 
 /* Each Result Item */
 #searchResults > div {
-  border: 1px solid #e2e8f0;       /* soft gray border */
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 10px;
-  background: #ffffff;               /* clean white background */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 /* Hover Effect */
 #searchResults > div:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  background: #f0f9ff;              /* subtle highlight on hover */
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.12);
+  background: linear-gradient(135deg, #f0f9ff, #ffffff);
 }
 
-/* Optional: Text Styling Inside Result */
+/* Title Styling */
 #searchResults > div strong {
-  color: #1e40af;                   /* blue title */
+  color: #2563eb;   /* modern blue */
   font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+  font-size: 1.05rem;
 }
 
+/* Description */
+#searchResults > div p {
+  color: #374151;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+/* Date / Meta */
 #searchResults > div small {
-  color: #6b7280;                   /* gray date or extra info */
+  color: #6b7280;
   font-size: 0.8rem;
 }
+
 
 
   .task-title {
@@ -302,8 +318,9 @@ width:400px;
 
   
 </style>
-<div class="flex justify-center items-center mt-4">
-  <div class="w-full max-w-md">
+<div class="flex justify-center items-center mt-4 gap-3">
+  <!-- Search Bar -->
+  <div class="flex-1 max-w-md">
     <input
       type="text"
       id="searchInput"
@@ -311,11 +328,29 @@ width:400px;
       oninput="searchTasks()"
       class="w-full p-2 pl-3 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200 text-sm"
     />
-    <div id="searchResults" class="mt-1 bg-white border border-gray-300 rounded-lg max-h-64 overflow-y-auto p-1 shadow-sm text-sm">
-      <!-- Search results appear here -->
-    </div>
-  </div>
+    <div id="searchResults" class="mt-1 bg-white border-x border-t border-gray-300 rounded-t-lg max-h-64 overflow-y-auto p-1 shadow-sm text-sm">
+  <!-- Search results appear here -->
 </div>
+
+  </div>
+
+
+
+
+  <!-- Download Button -->
+  <button id="downloadMonthTasks" 
+          class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-md hover:bg-emerald-700 transition duration-200">
+    Download Month Tasks
+  </button>
+</div>
+
+<!-- Toast Message -->
+<div id="toastMessage" 
+  class="hidden fixed bottom-5 right-5 bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm opacity-0 transition-opacity duration-500">
+  📥 Downloading has started...
+</div>
+
+
 
 
 
@@ -377,7 +412,7 @@ width:400px;
 
   nav a:hover {
     text-decoration: none;
-    border: 3px solid goldenrod;
+  text-decoration-color: #007BFF;
     font-size: 17px;
     padding: 5px;
   }
@@ -387,6 +422,22 @@ width:400px;
 
  
 </style>
+<!-- Firebase compat libs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<!-- jsPDF + AutoTable for PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
 // --- Scrollbar styling ---
 const style = document.createElement("style");
@@ -409,7 +460,7 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// Firebase Config
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
   authDomain: "sk12-58e9e.firebaseapp.com",
@@ -423,11 +474,22 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+// --- Global Variables ---
 let currentUser = null;
 let currentDate = new Date();
 let selectedDate = null;
 let editTaskId = null;
 let todayListenerSet = false;
+
+// --- Helper: format date DD-MM-YYYY ---
+const formatDate = date => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+const toISODate = date => new Date(date).toISOString().split("T")[0];
 
 // --- Auth ---
 auth.onAuthStateChanged(user => {
@@ -464,48 +526,39 @@ const renderCalendar = () => {
   document.getElementById("monthYear").textContent =
     currentDate.toLocaleString("default", { month: "long", year: "numeric" });
 
-  for (let i = 0; i < startDay; i++) {
-    calendar.appendChild(document.createElement("div"));
-  }
+  for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement("div"));
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateObj = new Date(year, month, day);
-    const dateStr = dateObj.toISOString().split("T")[0];
+    const isoDate = toISODate(dateObj);
     const cell = document.createElement("div");
-    cell.className = "calendar-cell cursor-pointer hover:bg-blue-50 transition rounded-lg p-1 text-black"; // ✅ force text black
+    cell.className = "calendar-cell";
     if (dateObj.getDay() === 0) cell.classList.add("sunday");
+  cell.innerHTML = `
+  <strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}
+  <div id="tasks-${isoDate}" style="font-size: small; min-height: 20px;">Loading...</div>
+`;
 
-    cell.innerHTML = `
-      <div>
-        <div class="font-bold">
-          ${day} <span class="text-sm">${dateObj.toLocaleString('en-US', { weekday: 'short' })}</span>
-        </div>
-        <div id="tasks-${dateStr}" style="font-size: small; min-height: 20px; color: black;">
-          Loading...
-        </div>
-      </div>
-    `;
-
-    // 🔹 Whole cell clickable
-    cell.addEventListener("click", () => openModal(dateStr));
+// ✅ make the whole cell clickable
+cell.onclick = () => openModal(isoDate);
+cell.style.cursor = "pointer";
 
     calendar.appendChild(cell);
-    loadTasks(dateStr);
+    loadTasks(isoDate);
   }
 };
 
-
 // --- Modal ---
-const openModal = date => {
-  selectedDate = date;
+const openModal = dateISO => {
+  selectedDate = dateISO;
   editTaskId = null;
   document.getElementById("modalDate").textContent =
-    `Tasks for ${date} (${new Date(date).toLocaleString('en-US', { weekday: 'long' })})`;
+    `Tasks for ${formatDate(dateISO)} (${new Date(dateISO).toLocaleString('en-US', { weekday: 'long' })})`;
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDesc").value = "";
   document.getElementById("overlay").style.display = "block";
   document.getElementById("taskModal").style.display = "block";
-  loadModalTasks(date);
+  loadModalTasks(dateISO);
 };
 
 const closeModal = () => {
@@ -519,70 +572,15 @@ const closeModal = () => {
 };
 document.getElementById("closeModal")?.addEventListener("click", closeModal);
 
-// --- Edit Task ---
+// --- Edit / Save Task ---
 const editTask = (taskId, task, date) => {
-  selectedDate = date; // ensure correct date for saving
+  selectedDate = date;
   editTaskId = taskId;
   document.getElementById("taskTitle").value = task.title;
   document.getElementById("taskDesc").value = task.desc || "";
   document.getElementById("taskTitle").focus();
 };
 
-// --- Load tasks in modal ---
-const loadModalTasks = date => {
-  selectedDate = date;
-  const container = document.getElementById("existingTasks");
-  container.innerHTML = "<p>Loading tasks...</p>";
-
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
-    const data = snap.val();
-    container.innerHTML = "";
-
-    if (!data) {
-      container.textContent = "No tasks for this date.";
-      return;
-    }
-
-    Object.entries(data).forEach(([key, task]) => {
-      const taskDiv = document.createElement("div");
-      taskDiv.style = "border:1px solid #d1d5db; padding:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;";
-
-      const infoDiv = document.createElement("div");
-      infoDiv.innerHTML = `<div><strong>${task.title}</strong></div><div>${task.desc || ""}</div>`;
-      taskDiv.appendChild(infoDiv);
-
-      const btnDiv = document.createElement("div");
-      btnDiv.style.display = "flex";
-      btnDiv.style.gap = "5px";
-
-      // Edit
-      const editBtn = document.createElement("button");
-      editBtn.className = "btn btn-blue";
-      editBtn.textContent = "Edit";
-      editBtn.addEventListener("click", () => editTask(key, task, date));
-      btnDiv.appendChild(editBtn);
-
-      // Delete
-      const delBtn = document.createElement("button");
-      delBtn.className = "btn btn-red";
-      delBtn.textContent = "Delete";
-      delBtn.addEventListener("click", () => {
-        if (confirm("Delete this task?")) {
-          db.ref(`users/${currentUser.uid}/tasks/${date}/${key}`).remove().then(() => {
-            loadModalTasks(date);
-            loadTodayTasks();
-          });
-        }
-      });
-      btnDiv.appendChild(delBtn);
-
-      taskDiv.appendChild(btnDiv);
-      container.appendChild(taskDiv);
-    });
-  });
-};
-
-// --- Save or Update ---
 const saveTask = () => {
   const title = document.getElementById("taskTitle").value.trim();
   const desc = document.getElementById("taskDesc").value.trim();
@@ -609,25 +607,70 @@ const saveTask = () => {
   }
 };
 
-// --- Calendar tasks ---
+// --- Load Tasks ---
 const loadTasks = date => {
   const container = document.getElementById(`tasks-${date}`);
   if (!container) return;
   db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
     const data = snap.val();
     container.innerHTML = "";
-    if (data) {
-      Object.values(data).forEach(task => container.innerHTML += `<div>• ${task.title}</div>`);
-    } else container.textContent = "";
+    if (data) Object.values(data).forEach(task => container.innerHTML += `<div>• ${task.title}</div>`);
   });
 };
 
-// --- Today tasks ---
+const loadModalTasks = date => {
+  selectedDate = date;
+  const container = document.getElementById("existingTasks");
+  container.innerHTML = "<p>Loading tasks...</p>";
+
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
+    const data = snap.val();
+    container.innerHTML = "";
+    if (!data) return container.textContent = "No tasks for this date.";
+
+    Object.entries(data).forEach(([key, task]) => {
+      const taskDiv = document.createElement("div");
+      taskDiv.style = "border:1px solid #d1d5db; padding:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;";
+
+      const infoDiv = document.createElement("div");
+      infoDiv.innerHTML = `<div><strong>${task.title}</strong></div><div>${task.desc || ""}</div>`;
+      taskDiv.appendChild(infoDiv);
+
+      const btnDiv = document.createElement("div");
+      btnDiv.style.display = "flex";
+      btnDiv.style.gap = "5px";
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn btn-blue";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", () => editTask(key, task, date));
+      btnDiv.appendChild(editBtn);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-red";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", () => {
+        if (confirm("Delete this task?")) {
+          db.ref(`users/${currentUser.uid}/tasks/${date}/${key}`).remove().then(() => {
+            loadModalTasks(date);
+            loadTodayTasks();
+          });
+        }
+      });
+      btnDiv.appendChild(delBtn);
+
+      taskDiv.appendChild(btnDiv);
+      container.appendChild(taskDiv);
+    });
+  });
+};
+
+// --- Today Tasks ---
 const loadTodayTasks = () => {
   if (todayListenerSet) return;
-  const today = new Date().toISOString().split("T")[0];
+  const todayISO = toISODate(new Date());
   const ul = document.getElementById("taskListToday");
-  db.ref(`users/${currentUser.uid}/tasks/${today}`).on("value", snap => {
+  db.ref(`users/${currentUser.uid}/tasks/${todayISO}`).on("value", snap => {
     const data = snap.val();
     ul.innerHTML = "";
     if (data) Object.values(data).forEach(task => ul.innerHTML += `<li><strong>${task.title}</strong>: ${task.desc || ""}</li>`);
@@ -636,46 +679,105 @@ const loadTodayTasks = () => {
   todayListenerSet = true;
 };
 
+// ---// --- Format Date Helper ---
+
+// --- Search Tasks ---
+let latestSearchTerm = ""; // track latest query
+
 const searchTasks = () => {
   const term = document.getElementById("searchInput").value.trim().toLowerCase();
   const resultsContainer = document.getElementById("searchResults");
   resultsContainer.innerHTML = "";
+  latestSearchTerm = term;
 
+  // ✅ If input is empty, stop and clear results
   if (!term) {
-    // if search box is empty, you can either:
-    // 1. Clear results (do nothing)
     resultsContainer.innerHTML = "";
     return;
-    
-    // OR 2. Show today's tasks or all tasks
-    // loadTodayTasks(); // optional, if you want default tasks to appear
   }
 
   db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
+    // ✅ Prevent old async results from showing after input cleared/changed
+    if (latestSearchTerm !== term) return;
+
     const data = snap.val();
     let found = false;
 
     if (data) {
-      Object.entries(data).forEach(([date, tasks]) => {
+      Object.entries(data).forEach(([dateISO, tasks]) => {
         Object.entries(tasks).forEach(([key, task]) => {
-          if ((task.title.toLowerCase().includes(term) || (task.desc && task.desc.toLowerCase().includes(term)))) {
+          if (
+            task.title.toLowerCase().includes(term) ||
+            (task.desc && task.desc.toLowerCase().includes(term))
+          ) {
             found = true;
             const div = document.createElement("div");
             div.className = "cursor-pointer hover:bg-blue-50 transition p-2 rounded-lg";
-            div.onclick = () => openModal(date);
-            div.innerHTML = `<strong>${task.title}</strong><br>${task.desc || ""}<br><small class="text-gray-500">${date}</small>`;
+            div.onclick = () => openModal(dateISO);
+            div.innerHTML = `
+              <strong>${task.title}</strong><br>
+              ${task.desc || ""}<br>
+              <small class="text-gray-500">${formatDate(dateISO)}</small>
+            `;
             resultsContainer.appendChild(div);
           }
         });
       });
     }
 
-    if (!found) resultsContainer.innerHTML = `<div class="text-gray-500 p-2">No matching tasks found.</div>`;
+    if (!found) {
+      resultsContainer.innerHTML = `<div class="text-gray-500 p-2">No matching tasks found.</div>`;
+    }
   });
 };
 
-</script>
 
+// --- Download Tasks as PDF ---
+document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
+  if (!currentUser) return alert("User not logged in.");
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth(); 
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  const snapshot = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+  const allTasks = snapshot.val() || {};
+
+  const pdfData = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const isoDate = toISODate(dateObj);
+    const dateStr = formatDate(dateObj);
+
+    if (allTasks[isoDate]) {
+      Object.values(allTasks[isoDate]).forEach(task => {
+        pdfData.push([dateStr, task.title || "", task.desc || ""]);
+      });
+    }
+  }
+
+  if (!pdfData.length) return alert("No tasks for this month.");
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text(`Tasks for ${currentDate.toLocaleString("default",{ month:"long", year:"numeric"})}`, 14, 20);
+
+  doc.autoTable({
+    startY: 30,
+    head: [['Date', 'Title', 'Description']],
+    body: pdfData,
+    styles: { fontSize: 11, cellPadding: 5 },
+    headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillColor: [240, 248, 255] },
+    theme: 'grid'
+  });
+
+  const monthStr = String(month + 1).padStart(2, "0");
+  doc.save(`Tasks_${monthStr}-${year}.pdf`);
+});
+</script>
 
 
 <style>
@@ -720,5 +822,6 @@ const searchTasks = () => {
 
 </body>
 </html>
+
 
 
