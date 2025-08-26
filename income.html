@@ -83,39 +83,61 @@
     </div>
   </div>
 
-  <!-- Add Expense -->
-   <div class="bg-white p-4 rounded shadow mb-4">
-    <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <input type="text" id="expenseName" placeholder="Expense Name" class="border p-2 rounded" />
-      <input type="number" id="expenseAmount" placeholder="Amount" class="border p-2 rounded" />
-     
-      <button onclick="addExpense()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add</button>
-    </div>
-  </div>
-  <!-- Toggle Button -->
-
-
-  <!-- Expense List -->
-  <div class="bg-white p-4 rounded shadow mb-4">
-    <h2 class="text-lg font-semibold mb-2">Expenses</h2>
-    <input type="text" id="searchInput" placeholder="Search..." class="border p-2 mb-4 w-full" oninput="filterTable()" />
-    <table class="table-auto w-full text-center">
-      <thead class="bg-gray-200">
-        <tr>
-          <th class="p-2">#</th>
-          <th class="p-2">Name Of The Product </th>
-          <th class="p-2">Amount</th>
-          <th class="p-2">Date</th>
+ <!-- Add Expense -->
+<div class="bg-white p-4 rounded shadow mb-4">
+  <h2 class="text-lg font-semibold mb-2">Add Expense</h2>
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <input type="text" id="expenseName" placeholder="Expense Name" class="border p-2 rounded" />
+    <input type="number" id="expenseAmount" placeholder="Amount" class="border p-2 rounded" />
     
-          <th class="p-2">Actions</th>
+ 
+ <select id="expenseType" class="border p-2 rounded">
+    <option value="">-- Select Expense Type --</option>
+    <option value="Food">Food</option>
+    <option value="Clothes">Clothes</option>
+    <option value="Medicine">Medicine</option>
+    <option value="Necessity">Necessity</option>
+    <option value="Grocery">Grocery</option>
+    <option value="Home Maintenance">Home Maintenance</option>
+    <option value="TV/OTT Recharge">TV/OTT Recharge</option>
+    <option value="School/College Fee">School/College Fee</option>
+    <option value="Mobile Recharge">Mobile Recharge</option>
+    <option value="Gas">Gas</option>
+    <option value="Car/Bike Repair">Car/Bike Repair</option>
+    <option value="Entertainment">Entertainment</option>
+    <option value="Travel">Travel</option>
+    <option value="Dining Out">Dining Out</option>
+    <option value="Gym/Fitness">Gym/Fitness</option>
+    <option value="Insurance">Insurance</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Gifts">Gifts</option>
+    <option value="Miscellaneous">Miscellaneous</option>
+  </select>
 
 
-       
-      <tbody id="expenseTable"></tbody>
-    </table>
+    <button onclick="addExpense()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add</button>
   </div>
 </div>
+
+<!-- Expense List -->
+<div class="bg-white p-4 rounded shadow mb-4">
+  <h2 class="text-lg font-semibold mb-2">Expenses</h2>
+  <input type="text" id="searchInput" placeholder="Search..." class="border p-2 mb-4 w-full" oninput="filterTable()" />
+  <table class="table-auto w-full text-center">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="p-2">#</th>
+        <th class="p-2">Name Of The Product</th>
+        <th class="p-2">Amount</th>
+        <th class="p-2">Type</th> <!-- Added Type column -->
+        <th class="p-2">Date</th>
+        <th class="p-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="expenseTable"></tbody>
+  </table>
+</div>
+
   <div class="text-center my-6">
   <button onclick="printAllExpenses()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
     🖨️ Print All Expenses
@@ -256,7 +278,25 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 
 <script>
   const firebaseConfig = {
@@ -423,25 +463,26 @@
     table.innerHTML = "";
     let total = 0, index = 1;
 
-    if (expenseSnap.exists()) {
-      expenseSnap.forEach(child => {
-        const { name, amount, date } = child.val();
-        const id = child.key;
-        total += amount;
+  if (expenseSnap.exists()) {
+  expenseSnap.forEach(child => {
+    const { name, amount, type, date } = child.val(); // ✅ include type
+    const id = child.key;
+    total += amount;
 
-        table.innerHTML += `
-          <tr class="border-b">
-            <td class="p-2">${index++}</td>
-            <td class="p-2">${name}</td>
-            <td class="p-2">₹${amount}</td>
-            <td class="p-2">${date}</td>
-            <td class="p-2">
-              <button onclick="editExpense('${month}', '${id}', '${name}', ${amount})" class="bg-yellow-400 px-2 py-1 rounded">Edit</button>
-              <button onclick="deleteExpense('${month}', '${id}')" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Delete</button>
-            </td>
-          </tr>`;
-      });
-    }
+    table.innerHTML += `
+      <tr class="border-b">
+        <td class="p-2">${index++}</td>
+        <td class="p-2">${name}</td>
+        <td class="p-2">₹${amount}</td>
+        <td class="p-2">${type || ""}</td> <!-- Display type -->
+        <td class="p-2">${date}</td>
+        <td class="p-2">
+          <button onclick="editExpense('${month}', '${id}', '${name}', ${amount}, '${type}')" class="bg-yellow-400 px-2 py-1 rounded">Edit</button>
+          <button onclick="deleteExpense('${month}', '${id}')" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Delete</button>
+        </td>
+      </tr>`;
+  });
+}
 
     document.getElementById("monthExpense").textContent = `₹${total}`;
     document.getElementById("monthSaving").textContent = `₹${income - total}`;
@@ -602,21 +643,133 @@ window.addEventListener("load", () => {
 });
 
 </script>
-<style>
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+<script>
+async function addExpense() {
+  const name = document.getElementById("expenseName").value.trim();
+  const amount = parseFloat(document.getElementById("expenseAmount").value);
+  const type = document.getElementById("expenseType").value || ""; // optional
+  const month = getSelectedMonth();
+
+  if (!month || !name || isNaN(amount)) {
+    return alert("Please fill all required fields (name and amount)");
   }
-  th, td {
-    border: 1px solid black; /* ← adds border to every cell */
-    padding: 8px;
-    text-align: left;
+
+  try {
+    const newRef = db.ref(`users/${currentUID}/expenses/${month}`).push();
+    await newRef.set({
+      name,
+      amount,
+      type, // optional type
+      date: new Date().toLocaleDateString()
+    });
+
+    // Clear input fields
+    document.getElementById("expenseName").value = "";
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("expenseType").value = ""; // reset select
+
+    loadData(); // Refresh table
+  } catch (error) {
+    console.error("Error adding expense:", error);
+    alert("Failed to add expense. Check console for details.");
   }
-  th {
-    background-color: #f0f0f0;
+}
+
+// Function to get selected month
+function getSelectedMonth() {
+  return document.getElementById("monthSelector").value || null;
+}
+</script>
+<!--<!-- Centered Modern Pie Chart -->
+<div style="display: flex; justify-content: center; align-items: center; margin: 20px 0;">
+  <canvas id="expenseTypeChart" width="550" height="550"></canvas>
+</div>
+
+<script>
+let expenseChart = null; // global chart variable
+
+async function loadData() {
+  const month = getSelectedMonth();
+  if (!month || !currentUID) return;
+
+  const incomeSnap = await db.ref(`users/${currentUID}/income/${month}`).get();
+  const income = incomeSnap.exists() ? incomeSnap.val() : 0;
+  document.getElementById("incomeDisplay").textContent = `₹${income}`;
+
+  const expenseSnap = await db.ref(`users/${currentUID}/expenses/${month}`).get();
+  const table = document.getElementById("expenseTable");
+  table.innerHTML = "";
+  let total = 0, index = 1;
+
+  const typeTotals = {}; // for pie chart
+
+  if (expenseSnap.exists()) {
+    expenseSnap.forEach(child => {
+      const { name, amount, type = "Miscellaneous", date } = child.val(); 
+      const id = child.key;
+      total += amount;
+
+      if (!typeTotals[type]) typeTotals[type] = 0;
+      typeTotals[type] += amount;
+
+      table.innerHTML += `
+        <tr class="border-b">
+          <td class="p-2">${index++}</td>
+          <td class="p-2">${name}</td>
+          <td class="p-2">₹${amount}</td>
+          <td class="p-2">${type}</td>
+          <td class="p-2">${date}</td>
+          <td class="p-2">
+            <button onclick="editExpense('${month}', '${id}', '${name}', ${amount}, '${type}')" class="bg-yellow-400 px-2 py-1 rounded">Edit</button>
+            <button onclick="deleteExpense('${month}', '${id}')" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Delete</button>
+          </td>
+        </tr>`;
+    });
   }
-</style>
+
+  document.getElementById("monthExpense").textContent = `₹${total}`;
+  document.getElementById("monthSaving").textContent = `₹${income - total}`;
+
+  // Pie chart data
+  const labels = Object.keys(typeTotals);
+  const data = Object.values(typeTotals);
+  const ctx = document.getElementById('expenseTypeChart').getContext('2d');
+
+  if (expenseChart) expenseChart.destroy();
+
+  expenseChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: [
+          '#FF6384','#36A2EB','#FFCE56','#8BC34A','#FF9800',
+          '#9C27B0','#00BCD4','#E91E63','#3F51B5','#CDDC39'
+        ],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 12
+      }]
+    },
+    options: {
+      responsive: false, // fixed size
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 12, padding: 10, font: { size: 10 } } },
+        tooltip: {
+          callbacks: {
+            label: context => `${context.label}: ₹${context.raw}`
+          }
+        }
+      }
+    }
+  });
+}
+</script>
+
+
+
+
 
 </body>
 </html>
