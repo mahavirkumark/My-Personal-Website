@@ -1,68 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Home - Personal Website</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsive Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<style>
+  /* Animations */
+  .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+  .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
+  .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
+
+  @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+  @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+
+  nav a { transition: transform 0.3s; }
+  nav a:hover { transform: translateY(-2px); }
+</style>
 </head>
-<body class="bg-gray-100 text-gray-400">
+<body class="bg-gray-100 text-gray-700">
 
-<!-- Navbar -->
-<nav class="bg-white shadow p-4 flex justify-between items-center">
-  <div class="text-2xl font-bold text-black-400">My Personal Website</div>
-
-  <div class="flex space-x-6 text-gray-700 text-lg">
-    <a href="home.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-house"></i> Home
-    </a>
-    <a href="adress.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-tasks"></i> Address
-    </a>
-    <a href="income.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-wallet"></i> Income
-    </a>
-    <a href="links.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-link"></i> Links
-    </a>
-    <a href="calender.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-calendar-days"></i> Calendar
-    </a>
-    <a href="password.html" class="hover:text-blue-500 transition duration-300 flex items-center gap-2">
-      <i class="fas fa-lock"></i> Passwords
-    </a>
-  </div>
-
-  <div class="flex items-center gap-4">
-    <div class="text-right">
-      <p id="userName" class="font-medium text-black text-sm">User Name</p>
-      <p id="userEmail" class="text-xs text-gray-600">user@example.com</p>
+<!-- DESKTOP/LAPTOP LAYOUT -->
+<div class="hidden md:block fade-in">
+  <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+    <div class="text-2xl font-bold text-black flex items-center gap-2 slide-left">
+      <i class="fas fa-user-circle text-3xl text-blue-500"></i>
+      My Personal Website
     </div>
-    <img id="userPhoto" src="" alt="User Photo" class="w-10 h-10 rounded-full border" />
-    <button id="logout" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">
-      Logout
-    </button>
-  </div>
-</nav>
+    <div class="flex items-center gap-8 text-lg font-semibold slide-right">
+      <a href="home.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
+      <a href="adress.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
+      <a href="income.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
+      <a href="links.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
+      <a href="calender.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
+      <a href="password.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
+    </div>
+    <div class="flex items-center gap-4 slide-left">
+      <div class="text-right">
+        <p id="desktopUserName" class="font-medium text-black text-base">User Name</p>
+        <p id="desktopUserEmail" class="text-sm text-gray-500">user@example.com</p>
+      </div>
+      <img id="desktopUserPhoto" src="https://via.placeholder.com/100" alt="User Photo" class="w-12 h-12 rounded-full border" />
+      <button id="desktopLogout" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Logout</button>
+    </div>
+  </nav>
 
-<!-- Main Content -->
-<div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
-  <h1 class="text-2xl font-semibold mb-4">Welcome to Your Dashboard</h1>
-  <p class="text-gray-700">You are logged in securely with Firebase Authentication.</p>
+  <div class="max-w-6xl mx-auto mt-10 p-6 bg-white rounded shadow fade-in">
+    <h1 class="text-3xl font-semibold mb-4">Welcome to Your Dashboard</h1>
+    <p class="text-gray-700 text-base">You are logged in securely with Firebase Authentication.</p>
+    <p class="mt-4 text-gray-600 text-base">This dashboard allows you to manage your personal data, track income and expenses, save addresses, passwords, and links—all in one place.</p>
+  </div>
+
+  <!-- Info Section Desktop -->
+  <div class="max-w-6xl mx-auto mt-8 p-6 bg-white rounded shadow grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 fade-in">
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-wallet text-4xl text-green-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Manage Income</h3>
+      <p>Keep track of your income monthly and see detailed analytics to improve your savings.</p>
+    </div>
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-receipt text-4xl text-blue-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Track Expenses</h3>
+      <p>Record every expense, upload receipts, and categorize them for better financial management.</p>
+    </div>
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-link text-4xl text-purple-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Save Links</h3>
+      <p>Quick access to all your important links and resources directly from your dashboard.</p>
+    </div>
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-lock text-4xl text-red-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Save Passwords</h3>
+      <p>Store your passwords securely and access them when needed without worries.</p>
+    </div>
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-map-marker-alt text-4xl text-orange-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Save Addresses</h3>
+      <p>Maintain addresses for work, home, and others to auto-fill forms or quick reference.</p>
+    </div>
+    <div class="p-4 border rounded shadow hover:shadow-lg transition duration-300 text-center">
+      <i class="fas fa-calendar-days text-4xl text-indigo-500 mb-3"></i>
+      <h3 class="font-semibold text-xl mb-2">Plan Calendar</h3>
+      <p>Organize important dates, events, and reminders to keep your schedule on track.</p>
+    </div>
+  </div>
+
+  <footer class="mt-10 bg-white text-gray-600 text-center p-4 border-t text-base fade-in">
+    &copy; 2025 Personal Website | All rights reserved
+  </footer>
 </div>
 
-<!-- Footer -->
-<footer class="mt-10 bg-white text-gray-600 text-center p-4 border-t">
-  &copy; 2025 Personal Website | All rights reserved
-</footer>
+<!-- MOBILE LAYOUT -->
+<div class="block md:hidden fade-in">
+  <nav class="bg-white shadow-md">
+    <div class="flex justify-between items-center p-4">
+      <div class="text-xl font-bold text-black flex items-center gap-2 slide-left">
+        <i class="fas fa-user-circle text-2xl text-blue-500"></i>
+        My Website
+      </div>
+      <button id="menu-btn" class="text-gray-700 hover:text-blue-500 focus:outline-none">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
 
-<!-- Firebase Script -->
+    <div id="mobile-menu" class="hidden bg-white px-6 pb-6 space-y-3 text-lg font-semibold">
+      <a href="home.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
+      <a href="adress.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
+      <a href="income.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
+      <a href="links.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
+      <a href="calender.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
+      <a href="password.html" class="block hover:text-blue-500 flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
+
+      <div class="flex items-center gap-3 mt-4 border-t pt-3">
+        <i class="fas fa-user-circle text-2xl text-gray-600"></i>
+        <div>
+          <p id="mobileUserName" class="font-medium text-black text-sm">User Name</p>
+          <p id="mobileUserEmail" class="text-xs text-gray-500">user@example.com</p>
+        </div>
+        <button id="mobileLogout" class="ml-auto bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="max-w-md mx-auto mt-6 p-4 bg-white rounded shadow fade-in">
+    <h1 class="text-2xl font-semibold mb-3">Welcome to Your Dashboard</h1>
+    <p class="text-gray-700 text-sm">This is your mobile view. Access all your data quickly and navigate easily using the menu above.</p>
+  </div>
+
+  <!-- Info Section Mobile -->
+  <div class="max-w-md mx-auto mt-6 p-4 bg-white rounded shadow space-y-4 fade-in">
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-wallet text-3xl text-green-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Manage Income</h3>
+      <p>Track your monthly income easily and plan savings.</p>
+    </div>
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-receipt text-3xl text-blue-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Track Expenses</h3>
+      <p>Record expenses and receipts for better management.</p>
+    </div>
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-link text-3xl text-purple-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Save Links</h3>
+      <p>Keep all important links in one place.</p>
+    </div>
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-lock text-3xl text-red-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Save Passwords</h3>
+      <p>Store passwords securely for quick access.</p>
+    </div>
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-map-marker-alt text-3xl text-orange-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Save Addresses</h3>
+      <p>Maintain addresses for work, home, and other places.</p>
+    </div>
+    <div class="p-3 border rounded shadow text-center">
+      <i class="fas fa-calendar-days text-3xl text-indigo-500 mb-2"></i>
+      <h3 class="font-semibold text-lg mb-1">Plan Calendar</h3>
+      <p>Organize events and important dates efficiently.</p>
+    </div>
+  </div>
+
+  <footer class="mt-8 bg-white text-gray-600 text-center p-4 border-t text-sm fade-in">
+    &copy; 2025 Personal Website | All rights reserved
+  </footer>
+</div>
+<!-- Script -->
 <script>
+  // Firebase config
   const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -71,47 +181,40 @@
     messagingSenderId: "470207874652",
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
   };
-
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
 
-  // Check auth state
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      document.getElementById("userName").textContent = user.displayName || "No Name";
-      document.getElementById("userEmail").textContent = user.email || "No Email";
-      document.getElementById("userPhoto").src = user.photoURL || "https://via.placeholder.com/100";
+  // Mobile menu toggle
+  const btn = document.getElementById('menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  if(btn && menu){
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+  }
+
+  // Update user info on all elements
+  auth.onAuthStateChanged(user => {
+    if(user){
+      document.getElementById("desktopUserName").textContent = user.displayName || "No Name";
+      document.getElementById("desktopUserEmail").textContent = user.email || "No Email";
+      document.getElementById("desktopUserPhoto").src = user.photoURL || "https://via.placeholder.com/100";
+
+      document.getElementById("mobileUserName").textContent = user.displayName || "No Name";
+      document.getElementById("mobileUserEmail").textContent = user.email || "No Email";
+      document.getElementById("mobileUserPhoto").src = user.photoURL || "https://via.placeholder.com/100";
     } else {
-      // Redirect to login if not signed in
-      window.location.href = "index.html";
+      window.location.href = "index.html"; // redirect if not signed in
     }
   });
 
-  // Logout function
-  function logout() {
-    auth.signOut()
-      .then(() => {
-        console.log("User logged out");
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        console.error("Logout error:", error);
-      });
-  }
-
-  // Attach logout to button
-  document.getElementById("logout").addEventListener("click", logout);
+  // Logout
+  document.getElementById("desktopLogout").addEventListener("click", ()=> auth.signOut());
+  document.getElementById("mobileLogout").addEventListener("click", ()=> auth.signOut());
 </script>
-
-<style>
-  a {
-    padding-right: 25px;
-  }
-</style>
 
 </body>
 </html>
+
+
 
 
 
