@@ -10,11 +10,16 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
-
 <!-- Navbar -->
 <nav class="bg-white shadow px-6 py-4 flex justify-between items-center">
-  <div class="text-2xl font-bold text-black-100">My Personal Website</div>
-  <div class="flex space-x-8 text-gray-700 text-lg">
+  <!-- Brand / Logo -->
+  <div class="text-2xl font-bold text-black flex items-center gap-2">
+    <i class="fas fa-user text-black text-base"></i>
+    My Personal Website
+  </div>
+
+  <!-- Navigation Links -->
+  <div class="flex space-x-10 text-gray-900 text-lg">
     <a href="home.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
     <a href="adress.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
     <a href="password.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-key"></i> Passwords</a>
@@ -23,17 +28,20 @@
     <a href="calender.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Calendar</a>
   </div>
 
-
+  <!-- User Info -->
   <div class="flex items-center space-x-3">
     <div class="text-right">
-      <p id="userName" class="font-medium text-black text-sm">User Name</p>
+      <p id="userName" class="font-medium text-black text-xs">User Name</p>
       <p id="userEmail" class="text-xs text-gray-600">user@example.com</p>
       <p id="userId" class="text-xs text-gray-400 hidden">UID here</p>
     </div>
-    <img id="userPic" src="" alt="User Photo" width="40" class="rounded-full" />
-    <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded">Logout</button>
+    <img id="userPic" src="" alt="User Photo" width="35" class="rounded-full" />
+    <button id="logoutBtn" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Logout</button>
   </div>
 </nav>
+
+
+
 
 <!-- Search Bar -->
 <div class="max-w-3xl mx-auto mt-4 px-4">
@@ -41,10 +49,9 @@
     class="w-full p-2 border rounded focus:ring focus:ring-blue-300" />
 </div>
 
-<!-- Content Wrapper -->
 <div class="max-w-9xl mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6">
   <!-- Left Column: Add Link Form -->
-  <div class="w-full lg:w-1/2 bg-white shadow p-6 rounded">
+  <div class="w-full lg:w-5/12 bg-white shadow p-6 rounded">
     <h2 class="text-xl font-bold mb-4">Add a Link</h2>
     <input id="linkInput" type="url" placeholder="Enter URL" class="w-full p-2 border rounded mb-2" />
     <textarea id="descInput" rows="3" placeholder="Enter Description" class="w-full p-2 border rounded mb-4"></textarea>
@@ -52,11 +59,13 @@
   </div>
 
   <!-- Right Column: List of Links -->
-  <div class="w-full lg:w-1/2 bg-white shadow p-6 rounded">
+  <div class="w-full lg:w-7/12 bg-white shadow p-6 rounded">
     <h2 class="text-xl font-bold mb-4">Your Links</h2>
     <div id="linkList" class="space-y-4 overflow-y-auto max-h-[70vh] pr-2"></div>
   </div>
 </div>
+
+
 <script>
   const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -181,7 +190,6 @@
     auth.signOut().then(() => window.location.href = "index.html");
   });
 function renderLinks(links) {
-  // Save current scroll position
   const currentScroll = window.scrollY;
 
   linkList.innerHTML = "";
@@ -189,13 +197,18 @@ function renderLinks(links) {
     linkList.innerHTML = "<p class='text-gray-500'>No links found.</p>";
     return;
   }
+
   links.forEach(item => {
     const div = document.createElement("div");
     div.className = "border p-3 rounded flex justify-between items-center hover:bg-gray-50 transition";
     div.innerHTML = `
       <div>
-        <p class="text-blue-600 underline cursor-pointer" onclick="window.open('${item.link}', '_blank')">${item.link}</p>
-        <p class="text-sm text-gray-600">${item.desc}</p>
+        <span class="text-blue-600 underline cursor-pointer inline-block" 
+              onclick="window.open('${item.link}', '_blank')">${item.link}</span>
+        <button class="copy-btn ml-2" data-copy="${encodeURIComponent(item.link)}">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+        <p class="text-sm text-gray-600 mt-1">${item.desc}</p>
       </div>
       <div class="flex gap-2">
         <button onclick="editLink('${item.id}', '${item.link}', '${item.desc}')" 
@@ -211,8 +224,30 @@ function renderLinks(links) {
     linkList.appendChild(div);
   });
 
-  // Restore previous scroll position
-  window.scrollTo({ top: currentScroll, behavior: "instant" });
+  // Attach event listeners for copy buttons
+  const copyButtons = linkList.querySelectorAll(".copy-btn");
+  copyButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const text = decodeURIComponent(btn.getAttribute("data-copy") || "");
+      if (!text) return;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const badge = document.createElement("span");
+        badge.className = "copied-badge";
+        badge.textContent = "Copied";
+        btn.parentNode.insertBefore(badge, btn.nextSibling);
+
+        requestAnimationFrame(() => badge.classList.add("visible"));
+
+        setTimeout(() => {
+          badge.classList.remove("visible");
+          setTimeout(() => badge.remove(), 180);
+        }, 1600);
+      });
+    });
+  });
+
+  window.scrollTo({ top: currentScroll, behavior: "auto" });
 }
 
 
@@ -221,7 +256,43 @@ function renderLinks(links) {
 
 </script>
 
-</script>
+<style>
+  .copy-btn {
+  border: 1px solid rgba(15,23,42,0.08);
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.copy-btn i { font-size: 12px; }
+.copied-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  font-size: 12px;
+  line-height: 1;
+  background: #10B981;
+  color: white;
+  box-shadow: 0 4px 10px rgba(16,185,129,0.12);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+}
+.copied-badge.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+</style>
 </body>
 </html>
+
+
 
