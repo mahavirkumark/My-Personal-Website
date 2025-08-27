@@ -41,49 +41,48 @@
     <button id="logoutBtn" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Logout</button>
   </div>
 </nav>
-
 <!-- Navbar Mobile -->
-<nav class="lg:hidden bg-white shadow px-4 py-3 flex justify-between items-center text-base">
-  <div class="text-xl font-bold flex items-center gap-2">
+<!-- Navbar Mobile -->
+<nav class="lg:hidden bg-white shadow px-6 py-6 flex justify-between items-center text-2xl">
+  <div class="text-3xl font-bold flex items-center gap-5">
     <i class="fas fa-user"></i> My Website
   </div>
-  <button id="menu-btn" class="text-2xl"><i class="fas fa-bars"></i></button>
+  <button id="menu-btn" class="text-4xl"><i class="fas fa-bars"></i></button>
 </nav>
-<div id="mobile-menu" class="hidden lg:hidden bg-white shadow px-4 py-2 flex flex-col space-y-2 text-base">
-  <a href="home.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
-  <a href="adress.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
-  <a href="password.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-key"></i> Passwords</a>
-  <a href="income.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
-  <a href="links.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
-  <a href="calender.html" class="hover:text-blue-500 flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Calendar</a>
-  <div class="flex items-center space-x-3 mt-2 text-base">
-    <img id="mobileUserPic" class="rounded-full w-12" />
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="hidden lg:hidden bg-white shadow px-6 py-6 flex flex-col space-y-5 text-2xl">
+  <a href="home.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-house"></i> Home</a>
+  <a href="adress.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-tasks"></i> Address</a>
+  <a href="password.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-key"></i> Passwords</a>
+  <a href="income.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-wallet"></i> Income</a>
+  <a href="links.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-link"></i> Links</a>
+  <a href="calender.html" class="hover:text-blue-500 flex items-center gap-5 py-4"><i class="fas fa-calendar-alt"></i> Calendar</a>
+
+  <!-- Mobile User Info -->
+  <div class="flex items-center space-x-5 mt-5">
+    <img id="mobileUserPic" class="rounded-full w-16 h-16" />
     <div class="text-left">
-      <p id="mobileUserName" class="font-medium text-black text-base">User Name</p>
-      <p id="mobileUserEmail" class="text-gray-600 break-words text-base">user@example.com</p>
+      <p id="mobileUserName" class="font-semibold text-black text-2xl">User Name</p>
+      <p id="mobileUserEmail" class="text-gray-600 break-words text-lg">user@example.com</p>
     </div>
-    <button id="mobileLogout" class="bg-red-600 text-white px-3 py-1 rounded text-sm">Logout</button>
+    <button id="mobileLogout" class="bg-red-600 text-white px-5 py-3 rounded text-lg">Logout</button>
   </div>
 </div>
 
-<!-- Search -->
-<div class="max-w-3xl mx-auto mt-4 px-4">
-  <input id="searchInput" type="text" placeholder="Search by description..." class="w-full p-3 border rounded focus:ring focus:ring-blue-300 text-base"/>
-</div>
-
-<!-- Main Content -->
-<div class="max-w-9xl mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6 text-base">
+<!-- Main Content for Mobile (Optional Font Increase) -->
+<div class="max-w-9xl mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6 text-base lg:text-base">
   <!-- Add Link Form -->
-  <div class="w-full lg:w-5/12 bg-white shadow p-6 rounded">
-    <h2 class="text-xl font-bold mb-4">Add a Link</h2>
-    <input id="linkInput" type="url" placeholder="Enter URL" class="w-full p-3 border rounded mb-2 text-base"/>
-    <textarea id="descInput" rows="3" placeholder="Enter Description" class="w-full p-3 border rounded mb-4 text-base"></textarea>
-    <button id="addLinkBtn" class="bg-blue-600 text-white px-4 py-3 rounded w-full text-base">Add Link</button>
+  <div class="w-full lg:w-5/12 bg-white shadow p-6 rounded text-lg">
+    <h2 class="text-2xl font-bold mb-4">Add a Link</h2>
+    <input id="linkInput" type="url" placeholder="Enter URL" class="w-full p-4 border rounded mb-3 text-lg"/>
+    <textarea id="descInput" rows="3" placeholder="Enter Description" class="w-full p-4 border rounded mb-4 text-lg"></textarea>
+    <button id="addLinkBtn" class="bg-blue-600 text-white px-5 py-4 rounded w-full text-lg">Add Link</button>
   </div>
 
   <!-- Link List -->
-  <div class="w-full lg:w-7/12 bg-white shadow p-6 rounded">
-    <h2 class="text-xl font-bold mb-4">Your Links</h2>
+  <div class="w-full lg:w-7/12 bg-white shadow p-6 rounded text-lg">
+    <h2 class="text-2xl font-bold mb-4">Your Links</h2>
     <div id="linkList" class="space-y-4 overflow-y-auto max-h-[70vh] pr-2"></div>
   </div>
 </div>
@@ -287,6 +286,9 @@ mobileLogout.addEventListener("click", ()=> auth.signOut().then(()=> window.loca
 </style>
 </body>
 </html>
+
+
+
 
 
 
