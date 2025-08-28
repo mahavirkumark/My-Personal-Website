@@ -203,27 +203,27 @@ function renderLinks(links) {
     div.className = "border p-4 rounded hover:bg-gray-50 transition mb-4 text-lg lg:text-base";
 
     div.innerHTML = `
-  <div class="flex items-center gap-3">
-  <span class="text-blue-600 underline cursor-pointer break-all text-xl lg:text-base"
-        onclick="window.open('${item.link}','_blank')">
-    ${item.link}
-  </span>
- <button class="copy-btn px-4 py-2 text-2xl lg:text-sm border rounded bg-white flex items-center gap-2"
-        data-copy="${encodeURIComponent(item.link)}">
-  <i class="fas fa-copy"></i> Copy
-</button>
+      <div class="flex items-center gap-3">
+        <span class="text-blue-600 underline cursor-pointer break-all text-2xl lg:text-base"
+              onclick="window.open('${item.link}','_blank')">
+          ${item.link}
+        </span>
+        <button class="copy-btn px-4 py-2 text-2xl lg:text-sm border rounded bg-white flex items-center gap-2"
+                data-copy="${encodeURIComponent(item.link)}">
+          <i class="fas fa-copy text-2xl lg:text-sm"></i> Copy
+        </button>
+      </div>
 
-</div>
-
-      <p class="text-gray-700 mt-3 text-xl lg:text-sm">${item.desc}</p>
+      <p class="text-gray-700 mt-3 text-2xl lg:text-sm">${item.desc}</p>
+      
       <div class="flex gap-2 mt-3">
         <button onclick="editLink('${item.id}','${item.link}','${item.desc}')"
-          class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-3xl lg:text-xs font-medium">
+                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-2xl lg:text-xs font-medium">
           Edit
         </button>
         <button onclick="deleteLink('${item.id}')"
-          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 text-3xl lg:text-xs font-medium">
-          <i class="fas fa-trash-alt"></i> Delete
+                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 text-2xl lg:text-xs font-medium">
+          <i class="fas fa-trash-alt text-2xl lg:text-xs"></i> Delete
         </button>
       </div>
     `;
@@ -274,7 +274,7 @@ mobileLogout.addEventListener("click", () =>
   background: white;
   padding: 4px 8px;
   border-radius: 6px;
-  font-size: 25px;
+  font-size: 30px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -287,7 +287,7 @@ mobileLogout.addEventListener("click", () =>
   margin-left: 6px;
   padding: 2px 6px;
   border-radius: 9999px;
-  font-size: 25px;
+  font-size: 30px;
   line-height: 1;
   background: #10B981;
   color: white;
@@ -304,6 +304,7 @@ mobileLogout.addEventListener("click", () =>
 </style>
 </body>
 </html>
+
 
 
 
