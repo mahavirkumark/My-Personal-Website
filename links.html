@@ -69,22 +69,21 @@
 
 <!-- Main Content -->
 <!-- Main Content -->
-<div class="max-w-9xl mx-auto mt-6 p-4 flex flex-col lg:flex-row gap-6">
+<div class="max-w-9xl mx-auto mt-6 p-6 flex flex-col lg:flex-row gap-6">
 
-  <!-- Add Link Form -->
-<!-- Add Link Form -->
-<!-- Add Link Form -->
-<div class="w-full lg:w-5/12 bg-white shadow p-3 lg:p-4 rounded text-xl lg:text-sm">
+
+<div class="w-full lg:w-5/12 bg-white shadow p-3 lg:p-5 rounded text-xl lg:text-sm">
   <h2 class="text-3xl lg:text-xl font-bold mb-3">Add a Link</h2>
   <input id="linkInput" type="url" placeholder="Enter URL"
-         class="w-full p-3 lg:p-2 text-xl lg:text-sm border rounded mb-2"/>
+         class="w-full p-3 lg:p-3 text-xl lg:text-sm border rounded mb-2"/>
   <textarea id="descInput" rows="3" placeholder="Enter Description"
-            class="w-full p-3 lg:p-2 text-xl lg:text-sm border rounded mb-3"></textarea>
+            class="w-full p-3 lg:p-3 text-xl lg:text-sm border rounded mb-3"></textarea>
   <button id="addLinkBtn"
-          class="bg-blue-600 text-white px-4 lg:px-2 py-3 lg:py-1 rounded w-full text-xl lg:text-sm">
+          class="bg-blue-600 text-white px-4 lg:px-3 py-3 lg:py-2 rounded w-full text-xl lg:text-sm">
     Add Link
   </button>
 </div>
+
 
 
 
@@ -188,10 +187,6 @@ function loadLinks() {
   });
 }
 
-// Render links dynamically
-// Render links dynamically
-// Render links dynamically
-
 function renderLinks(links) {
   linkList.innerHTML = "";
 
@@ -210,7 +205,7 @@ function renderLinks(links) {
           onclick="window.open('${item.link}','_blank')">
           ${item.link}
         </span>
-        <button class="copy-btn px-4 py-2 border rounded bg-white text-xl lg:text-sm"
+        <button class="copy-btn px-4 py-2 border rounded bg-white text-2xl sm:text-lg lg:text-sm"
           data-copy="${encodeURIComponent(item.link)}">
           <i class="fas fa-copy"></i> Copy
         </button>
@@ -218,11 +213,11 @@ function renderLinks(links) {
       <p class="text-gray-700 mt-3 text-2xl lg:text-sm">${item.desc}</p>
       <div class="flex gap-2 mt-3">
         <button onclick="editLink('${item.id}','${item.link}','${item.desc}')"
-          class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded text-lg lg:text-xs font-medium">
+          class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded text-2xl sm:text-lg lg:text-xs font-medium">
           Edit
         </button>
         <button onclick="deleteLink('${item.id}')"
-          class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded flex items-center gap-1 text-lg lg:text-xs font-medium">
+          class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded flex items-center gap-2 text-2xl sm:text-lg lg:text-xs font-medium">
           <i class="fas fa-trash-alt"></i> Delete
         </button>
       </div>
@@ -235,11 +230,12 @@ function renderLinks(links) {
     copyBtn.addEventListener("click", () => {
       const text = decodeURIComponent(copyBtn.getAttribute("data-copy") || "");
       navigator.clipboard.writeText(text)
-        .then(() => alert("Copied!"))
+        .then(() => alert("Copied!")) // ✅ shows on all devices
         .catch(err => console.error("Copy failed:", err));
     });
   });
 }
+
 
 // Edit link
 function editLink(id, oldLink, oldDesc) {
@@ -303,6 +299,13 @@ mobileLogout.addEventListener("click", () =>
 </style>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
