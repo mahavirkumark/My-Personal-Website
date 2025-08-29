@@ -84,6 +84,92 @@
 <body class="min-h-screen flex flex-col justify-between">
 
   <!-- Navbar -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Personal Website</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    /* Fade + Slide animation for card */
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-card {
+      animation: fadeSlideUp 0.8s ease-out forwards;
+    }
+
+    /* Navbar fade animation */
+    @keyframes fadeInNav {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    nav {
+      animation: fadeInNav 1s ease forwards;
+    }
+
+    /* Button hover animation */
+    .btn-hover {
+      transition: all 0.3s ease;
+    }
+    .btn-hover:hover {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    /* Subtle floating circles background for desktop */
+    @media(min-width:768px){
+      body::before {
+        content:"";
+        position:absolute;
+        width:200px;
+        height:200px;
+        background:rgba(59, 130, 246,0.1);
+        border-radius:50%;
+        top:10%;
+        left:5%;
+        animation: floatCircle 6s ease-in-out infinite alternate;
+        z-index:-1;
+      }
+      body::after {
+        content:"";
+        position:absolute;
+        width:300px;
+        height:300px;
+        background:rgba(14, 165, 233,0.1);
+        border-radius:50%;
+        bottom:5%;
+        right:10%;
+        animation: floatCircle 8s ease-in-out infinite alternate-reverse;
+        z-index:-1;
+      }
+    }
+
+    @keyframes floatCircle {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-30px); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+  <!-- Navbar -->
   <nav class="bg-white shadow-md p-4">
   <div class="container mx-auto flex justify-between items-center">
     <div class="text-xl font-bold text-black flex items-center gap-2">
@@ -112,8 +198,8 @@
     &copy; 2025 MyFinance Tracker | All Rights Reserved.
   </footer>
 
-</body>
-</html>
+
+
 
 
 
