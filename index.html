@@ -1,74 +1,131 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Google OTP Login</title>
+  <title>My Personal Website</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-
-
-
-
-
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #f8fafc;
+      overflow-x: hidden;
+    }
+
+    /* Fade + Slide animation for card */
+    @keyframes fadeSlideUp {
+      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .animate-card {
+      animation: fadeSlideUp 0.8s ease-out forwards;
+    }
+
+    /* Navbar fade animation */
+    @keyframes fadeInNav {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    nav {
+      animation: fadeInNav 1s ease forwards;
+    }
+
+    /* Button hover animation */
+    .btn-hover {
+      transition: all 0.3s ease;
+    }
+    .btn-hover:hover {
+      transform: scale(1.05) translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      background-color: #0d6efd;
+      color: white;
+    }
+
+    /* Subtle floating circles background for desktop */
+    @media(min-width:768px){
+      body::before {
+        content:"";
+        position:absolute;
+        width:200px;
+        height:200px;
+        background:rgba(59, 130, 246,0.1);
+        border-radius:50%;
+        top:10%;
+        left:5%;
+        animation: floatCircle 6s ease-in-out infinite alternate;
+        z-index:-1;
+      }
+      body::after {
+        content:"";
+        position:absolute;
+        width:300px;
+        height:300px;
+        background:rgba(14, 165, 233,0.1);
+        border-radius:50%;
+        bottom:5%;
+        right:10%;
+        animation: floatCircle 8s ease-in-out infinite alternate-reverse;
+        z-index:-1;
+      }
+    }
+
+    @keyframes floatCircle {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-30px); }
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
+  <!-- Navbar -->
   <nav class="bg-white shadow-md p-4">
     <div class="container mx-auto flex justify-between items-center">
- <div class="text-xl font-bold text-black-600 flex items-center gap-2">
-  <i class="fas fa-user"></i>
-  My Personal Website
-</div>
-
-     
-      </div>
+       <div class="text-2xl font-bold text-black flex items-center gap-2">
+          <i class="fas fa-user-circle text-3xl text-blue-500"></i>
+          My Personal Website
+       </div>
     </div>
   </nav>
 
+  <!-- Login Page -->
+  <main class="flex-grow flex items-center justify-center bg-gray-100 px-4">
+    <div class="border-2 border-gray-200 rounded-2xl p-8 sm:p-10 shadow-xl bg-white w-full max-w-sm sm:max-w-md text-center animate-card">
+      <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-gray-700">Login with Google</h2>
 
-<!-- TailwindCSS Google Login Page -->
-<main class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-  <div class="border-2 border-gray-300 rounded-xl p-10 shadow-xl bg-white max-w-md w-full text-center">
-    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Login with Google</h2>
-
-    <button id="googleLoginBtn"
-      class="flex items-center justify-center gap-3 text-xl font-medium px-8 py-4 rounded-full bg-white text-gray-800 border-2 border-blue-500 shadow-md hover:bg-blue-500 hover:text-white transition-all duration-300 ease-in-out mx-auto">
-      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="w-7 h-7">
-      Sign in with Google
-    </button>
-  </div>
-</main>
-
-
+      <button id="googleLoginBtn"
+        class="flex items-center justify-center gap-3 text-lg sm:text-xl font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-gray-800 border-2 border-blue-500 shadow-md btn-hover mx-auto">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="w-6 h-6 sm:w-7 sm:h-7">
+        Sign in with Google
+      </button>
+    </div>
+  </main>
 
   <!-- Footer -->
-  <footer class="bg-white text-gray-700 text-center p-4 border-t">
+  <footer class="bg-white text-gray-700 text-center p-4 border-t text-sm sm:text-base">
     &copy; 2025 MyFinance Tracker | All Rights Reserved.
   </footer>
+
+</body>
+</html>
+
+
+
 
   <!-- Firebase & Google Login Script (NOT module) -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
 
- <script type="module">
+<script type="module" defer>
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
+  // Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -78,32 +135,29 @@
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
   };
 
-  // Initialize Firebase
+  // Init Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
-  // Function to trigger Google login on button click
-  const googleLogin = async () => {
+  // Login function
+  async function googleLogin() {
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      alert(`Welcome ${user.displayName}!`);
-      window.location.href = "home.html";
+      const { user } = await signInWithPopup(auth, provider);
+      console.log(`✅ Welcome ${user.displayName}`);
+      window.location.href = "home.html"; // redirect fast
     } catch (error) {
-      alert(`Login Failed: ${error.code} - ${error.message}`);
-      console.error(error);
+      console.error("❌ Login Failed:", error.code, error.message);
+      alert("Login failed, please try again.");
     }
-  };
+  }
 
-  // Attach login function to the button after DOM loads
-  window.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("googleLoginBtn");
-    if (loginBtn) {
-      loginBtn.addEventListener("click", googleLogin);
-    }
-  });
+  // Attach directly
+  document.getElementById("googleLoginBtn").onclick = googleLogin;
 </script>
+
 
 </body>
 </html>
+
+
