@@ -115,10 +115,10 @@
 </nav>
 
 <!-- MAIN -->
-<main class="pt-28 px-2 md:px-4 flex flex-col gap-4 max-w-7xl mx-auto">
+<main class="pt-24 px-1 md:px-1 flex flex-col gap-2 max-w-6xl mx-auto">
 
   <!-- Search & Download -->
-  <div class="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-2">
+<div class="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-2">
     <input type="text" id="searchInput" placeholder="Search tasks..."
       class="flex-1 p-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
       oninput="searchTasks()">
@@ -126,7 +126,24 @@
       class="mt-2 md:mt-0 px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-md hover:bg-emerald-700 transition">Download
       Month Tasks</button>
   </div>
-  <div id="searchResults" class="mt-1"></div>
+ <div id="searchResults" class="mt-1"></div>
+
+<script>
+  // Select button and mobile menu
+const menuBtn = document.getElementById("menu-btn");
+const mobileMenu = document.getElementById("mobileMenu");
+
+// Toggle menu on click
+menuBtn.addEventListener("click", () => {
+  mobileMenu.classList.toggle("hidden"); // show/hide menu
+});
+
+</script>
+
+
+
+
+
 
   <!-- Calendar Navigation -->
   <div class="flex justify-between items-center mb-2">
@@ -139,30 +156,60 @@
   <div id="calendar"></div>
 </main>
 
-<!-- MODAL -->
+<!-- Overlay -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
-<div id="taskModal" class="fixed bg-white shadow-lg p-4 rounded-lg w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
-  <div class="flex justify-between items-center mb-4">
-    <h2 id="modalDate" class="text-lg font-semibold">Tasks for date</h2>
-    <button id="closeModal" class="text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+
+<!-- Modal -->
+<div id="taskModal" class="fixed bg-white shadow-2xl p-6 rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
+  
+  <!-- Modal Header -->
+  <div class="flex justify-between items-center mb-5">
+    <h2 id="modalDate" class="text-lg md:text-xl font-semibold">Tasks for date</h2>
+    <button id="closeModal" 
+            class="text-gray-500 hover:text-red-500 text-2xl md:text-3xl font-bold transition duration-200">&times;</button>
   </div>
 
+  <!-- Modal Body -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Add Task -->
+    
+    <!-- Add/Edit Task -->
     <div>
-      <input id="taskTitle" type="text" placeholder="Title" class="border border-gray-300 rounded p-2 w-full mb-2">
-      <textarea id="taskDesc" placeholder="Description" class="border border-gray-300 rounded p-2 w-full mb-3"></textarea>
-      <div class="flex gap-2">
-        <button onclick="saveTask()" class="bg-blue-600 text-white px-4 py-2 rounded flex-1">Save</button>
-        <button onclick="closeModal()" class="bg-gray-400 text-white px-4 py-2 rounded flex-1">Cancel</button>
+      <input id="taskTitle" type="text" placeholder="Title" 
+             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+      <textarea id="taskDesc" placeholder="Description" 
+                class="border border-gray-300 rounded-lg p-3 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"></textarea>
+      <div class="flex gap-3">
+        <button id="saveTaskBtn" 
+                class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 font-medium">
+          Save
+        </button>
+        <button id="cancelTaskBtn" 
+                class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-500 transition duration-200 font-medium">
+          Cancel
+        </button>
       </div>
     </div>
 
     <!-- Existing Tasks -->
-    <div>
-      <div id="existingTasks" class="border border-gray-300 rounded p-2 bg-gray-50 max-h-64 overflow-y-auto"></div>
+    <div id="existingTasks" class="border border-gray-300 rounded-lg p-3 bg-gray-50 max-h-80 overflow-y-auto">
+      <!-- Task items will be dynamically injected here -->
+      <!-- Example task with modern Edit & Delete buttons:
+      <div class="flex justify-between items-center p-3 mb-2 bg-white rounded-lg shadow-sm hover:bg-blue-50 transition">
+        <div>
+          <strong class="text-sm md:text-base font-medium">Task Title</strong>
+          <p class="text-xs md:text-sm text-gray-600">Task description here</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="editBtn bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition text-xs md:text-sm font-medium">Edit</button>
+          <button class="deleteBtn bg-red-500 text-white px-3 py-1 rounded shadow hover:bg-red-600 transition text-xs md:text-sm font-medium">Delete</button>
+        </div>
+      </div>
+      -->
     </div>
+
   </div>
+</div>
+
 </div>
 <footer class="mt-12 pt-3 pb-3 bg-white text-gray-600 text-center text-sm border-t">
   &copy; 2025 Personal Website | All rights reserved
@@ -198,7 +245,8 @@
 const style = document.createElement("style");
 style.innerHTML = `
   #existingTasks {
-    height: 600px;
+
+    height: 450px;
     overflow-y: auto;
     padding-right: 5px;
   }
@@ -307,14 +355,24 @@ cell.style.cursor = "pointer";
 const openModal = dateISO => {
   selectedDate = dateISO;
   editTaskId = null;
+
+  // Show date +1 for display
+  const d = new Date(dateISO);
+  const displayDay = d.getDate() + 1; // only for display
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  const weekday = d.toLocaleString('en-US', { weekday: 'long' });
+
   document.getElementById("modalDate").textContent =
-    `Tasks for ${formatDate(dateISO)} (${new Date(dateISO).toLocaleString('en-US', { weekday: 'long' })})`;
+    `Tasks for ${String(displayDay).padStart(2,'0')}-${month}-${year} (${weekday})`;
+
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDesc").value = "";
   document.getElementById("overlay").style.display = "block";
   document.getElementById("taskModal").style.display = "block";
   loadModalTasks(dateISO);
 };
+
 
 const closeModal = () => {
   selectedDate = null;
@@ -372,7 +430,6 @@ const loadTasks = date => {
     if (data) Object.values(data).forEach(task => container.innerHTML += `<div>• ${task.title}</div>`);
   });
 };
-
 const loadModalTasks = date => {
   selectedDate = date;
   const container = document.getElementById("existingTasks");
@@ -384,26 +441,33 @@ const loadModalTasks = date => {
     if (!data) return container.textContent = "No tasks for this date.";
 
     Object.entries(data).forEach(([key, task]) => {
+      // Task card container
       const taskDiv = document.createElement("div");
-      taskDiv.style = "border:1px solid #d1d5db; padding:5px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;";
+      taskDiv.className = "flex justify-between items-center p-3 mb-2 bg-white rounded-lg shadow-sm hover:bg-blue-50 transition";
 
+      // Task info
       const infoDiv = document.createElement("div");
-      infoDiv.innerHTML = `<div><strong>${task.title}</strong></div><div>${task.desc || ""}</div>`;
+      infoDiv.innerHTML = `
+        <strong class="text-sm md:text-base font-medium">${task.title}</strong>
+        <p class="text-xs md:text-sm text-gray-600">${task.desc || ""}</p>
+      `;
       taskDiv.appendChild(infoDiv);
 
+      // Buttons container
       const btnDiv = document.createElement("div");
-      btnDiv.style.display = "flex";
-      btnDiv.style.gap = "5px";
+      btnDiv.className = "flex gap-2";
 
+      // Edit button
       const editBtn = document.createElement("button");
-      editBtn.className = "btn btn-blue";
       editBtn.textContent = "Edit";
+      editBtn.className = "bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition text-xs md:text-sm font-medium";
       editBtn.addEventListener("click", () => editTask(key, task, date));
       btnDiv.appendChild(editBtn);
 
+      // Delete button
       const delBtn = document.createElement("button");
-      delBtn.className = "btn btn-red";
       delBtn.textContent = "Delete";
+      delBtn.className = "bg-red-500 text-white px-3 py-1 rounded shadow hover:bg-red-600 transition text-xs md:text-sm font-medium";
       delBtn.addEventListener("click", () => {
         if (confirm("Delete this task?")) {
           db.ref(`users/${currentUser.uid}/tasks/${date}/${key}`).remove().then(() => {
@@ -433,8 +497,6 @@ const loadTodayTasks = () => {
   });
   todayListenerSet = true;
 };
-
-// ---// --- Format Date Helper ---
 
 // --- Search Tasks ---
 let latestSearchTerm = ""; // track latest query
@@ -486,7 +548,6 @@ const searchTasks = () => {
   });
 };
 
-
 // --- Download Tasks as PDF ---
 document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
   if (!currentUser) return alert("User not logged in.");
@@ -533,15 +594,20 @@ document.getElementById("downloadMonthTasks").addEventListener("click", async ()
   doc.save(`Tasks_${monthStr}-${year}.pdf`);
 });
 
+
   </script>
-
-
-
-
-
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
 
