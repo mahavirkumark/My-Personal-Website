@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Secure Login with PIN</title>
+<title>My Personal Website</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
@@ -35,12 +35,25 @@ body { font-family:'Segoe UI',sans-serif; background-color:#f8fafc; overflow-x:h
     </button>
   </div>
 
-  <!-- PIN Verification / Set PIN -->
+  <!-- PIN Card -->
   <div id="pinCard" class="hidden border-2 border-gray-200 rounded-2xl p-8 sm:p-10 shadow-xl bg-white w-full max-w-sm sm:max-w-md text-center animate-card">
+
     <h2 id="pinTitle" class="text-xl sm:text-2xl font-semibold mb-6 text-gray-700">Enter PIN</h2>
+
+    <!-- Standard PIN input -->
     <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-3 border rounded-lg mb-4 text-center"/>
-    <button id="pinActionBtn" class="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold btn-hover"></button>
-    <p class="mt-4 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
+
+    <!-- Reset PIN inputs (hidden initially) -->
+    <div id="resetPinInputs" class="hidden flex flex-col gap-3 mb-4">
+      <input id="currentPinInput" type="password" maxlength="6" placeholder="Current PIN" class="w-full p-3 border rounded-lg text-center"/>
+      <input id="newPinInput" type="password" maxlength="6" placeholder="New PIN" class="w-full p-3 border rounded-lg text-center"/>
+      <input id="confirmNewPinInput" type="password" maxlength="6" placeholder="Confirm New PIN" class="w-full p-3 border rounded-lg text-center"/>
+    </div>
+
+    <button id="pinActionBtn" class="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold btn-hover mb-2"></button>
+    <p class="mt-2 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
+    <p class="mt-1 text-sm text-blue-600 cursor-pointer hover:underline" id="resetPinBtn">Reset PIN</p>
+
   </div>
 
 </main>
@@ -89,7 +102,6 @@ document.getElementById("googleLoginBtn").onclick = async () => {
     document.getElementById("pinCard").classList.remove("hidden");
 
     if (!doc.exists) {
-      // First time login
       isFirstTime = true;
       document.getElementById("pinTitle").textContent = "Set Your PIN";
       document.getElementById("pinActionBtn").textContent = "Set PIN";
@@ -99,53 +111,89 @@ document.getElementById("googleLoginBtn").onclick = async () => {
       document.getElementById("pinActionBtn").textContent = "Verify PIN";
     }
 
-  } catch(e) { alert("Login failed: "+e.message); }
+  } catch(e) { alert("Login failed: " + e.message); }
 };
 
-// --- Set / Verify PIN ---
+// --- PIN Action Button ---
 document.getElementById("pinActionBtn").onclick = async () => {
+  const resetInputs = document.getElementById("resetPinInputs");
+
+  // --- Reset PIN mode ---
+  if (!resetInputs.classList.contains("hidden")) {
+    const currentPin = document.getElementById("currentPinInput").value;
+    const newPin = document.getElementById("newPinInput").value;
+    const confirmPin = document.getElementById("confirmNewPinInput").value;
+
+    if (!currentPin || !newPin || !confirmPin) { alert("Fill all fields"); return; }
+    if (currentPin !== currentPIN) { alert("❌ Current PIN is incorrect"); return; }
+    if (newPin.length < 4) { alert("New PIN must be 4-6 digits"); return; }
+    if (newPin !== confirmPin) { alert("❌ New PIN and Confirm PIN do not match"); return; }
+
+    db.collection("users").doc(currentUID).update({pin: newPin}); // no await
+    currentPIN = newPin;
+    sendEmailPin(newPin, currentEmail);
+    window.location.href = "home.html"; // redirect instantly
+    return;
+  }
+
+  // --- First-time PIN setup ---
+  if (isFirstTime) {
+    const pin = document.getElementById("pinInput").value;
+    if (!pin || pin.length < 4) { alert("Enter 4-6 digit PIN"); return; }
+    db.collection("users").doc(currentUID).set({pin}); // no await
+    currentPIN = pin;
+    sendEmailPin(pin, currentEmail);
+    window.location.href = "home.html"; // redirect instantly
+    return;
+  }
+
+  // --- Normal PIN verification ---
   const pin = document.getElementById("pinInput").value;
   if (!pin || pin.length < 4) { alert("Enter 4-6 digit PIN"); return; }
 
-  if (isFirstTime) {
-    // Save PIN & email it
-    await db.collection("users").doc(currentUID).set({pin});
-    sendEmailPin(pin, currentEmail);
-    alert("✅ PIN set and sent to your email!");
-    isFirstTime = false;
-    currentPIN = pin;
-    document.getElementById("pinTitle").textContent = "Enter PIN";
-    document.getElementById("pinActionBtn").textContent = "Verify PIN";
-    document.getElementById("pinInput").value = "";
+  // check directly from cached currentPIN
+  if (pin === currentPIN) {
+    window.location.href = "home.html"; // redirect instantly
   } else {
-    // Verify PIN
-    const doc = await db.collection("users").doc(currentUID).get();
-    if (doc.exists && doc.data().pin === pin) {
-      alert("✅ PIN Verified. Redirecting...");
-      window.location.href = "home.html";
-    } else { alert("❌ Wrong PIN"); }
+    alert("❌ Wrong PIN");
   }
 };
 
 // --- Forgot PIN ---
-document.getElementById("forgotPinBtn").onclick = async () => {
+document.getElementById("forgotPinBtn").onclick = () => {
   if (!currentEmail) { alert("Login first!"); return; }
   const newPin = Math.floor(1000 + Math.random() * 9000).toString();
-  await db.collection("users").doc(currentUID).update({pin: newPin});
+  db.collection("users").doc(currentUID).update({pin: newPin}); // no await
+  currentPIN = newPin;
   sendEmailPin(newPin, currentEmail);
-  alert("✅ New PIN sent to your email.");
+  window.location.href = "home.html"; // redirect instantly
+};
+
+// --- Reset PIN button ---
+document.getElementById("resetPinBtn").onclick = () => {
+  if (!currentPIN) { alert("Login first!"); return; }
+  document.getElementById("pinInput").classList.add("hidden");
+  document.getElementById("resetPinInputs").classList.remove("hidden");
+  document.getElementById("pinTitle").textContent = "Reset PIN";
+  document.getElementById("pinActionBtn").textContent = "Save New PIN";
 };
 
 // --- Send PIN via EmailJS ---
 function sendEmailPin(pin, email) {
   const templateParams = { user_email: email, user_pin: pin };
+  // don’t block redirect — just log result
   emailjs.send('service_2ucolxw', 'template_2lc2llr', templateParams)
     .then(() => { console.log("✅ PIN email sent"); })
-    .catch(err => { console.error("❌ Email send error:", err); alert("Failed to send email"); });
+    .catch(err => { console.error("❌ Email send error:", err); });
 }
 </script>
+
+
+
 </body>
 </html>
+
+
 
 
 
