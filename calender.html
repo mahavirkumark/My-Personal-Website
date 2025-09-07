@@ -241,28 +241,6 @@ menuBtn.addEventListener("click", () => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
-// --- Scrollbar styling ---
-const style = document.createElement("style");
-style.innerHTML = `
-  #existingTasks {
-
-    height: 450px;
-    overflow-y: auto;
-    padding-right: 5px;
-  }
-  #existingTasks::-webkit-scrollbar {
-    width: 8px;
-  }
-  #existingTasks::-webkit-scrollbar-thumb {
-    background: #bbb;
-    border-radius: 4px;
-  }
-  #existingTasks::-webkit-scrollbar-thumb:hover {
-    background: #888;
-  }
-`;
-document.head.appendChild(style);
-
 // --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -277,328 +255,161 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// --- Global Variables ---
+// --- Globals ---
 let currentUser = null;
 let currentDate = new Date();
 let selectedDate = null;
 let editTaskId = null;
-let todayListenerSet = false;
 
-// --- Helper: format date DD-MM-YYYY ---
-const formatDate = date => {
-  const d = new Date(date);
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  return `${day}-${month}-${year}`;
+// --- Helpers ---
+const toISODate = d => new Date(d).toISOString().split("T")[0];
+const formatDate = d => {
+  const dt = new Date(d);
+  return `${String(dt.getDate()).padStart(2,"0")}-${String(dt.getMonth()+1).padStart(2,"0")}-${dt.getFullYear()}`;
 };
-const toISODate = date => new Date(date).toISOString().split("T")[0];
 
 // --- Auth ---
 auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
     document.getElementById("userName").textContent = user.displayName || "User";
-    document.getElementById("userEmail").textContent = user.email || "";
+    document.getElementById("userEmail").textContent = user.email;
     if (user.photoURL) document.getElementById("userPhoto").src = user.photoURL;
     renderCalendar();
-    loadTodayTasks();
   } else {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 });
-
-function logout() {
-  auth.signOut().then(() => window.location.href = "index.html");
-}
+function logout(){ auth.signOut().then(()=>location.href="index.html"); }
 
 // --- Calendar ---
-const changeMonth = offset => {
-  currentDate.setMonth(currentDate.getMonth() + offset);
-  renderCalendar();
-};
+function changeMonth(offset){ currentDate.setMonth(currentDate.getMonth()+offset); renderCalendar(); }
 
-const renderCalendar = () => {
-  const calendar = document.getElementById("calendar");
-  calendar.innerHTML = "";
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const startDay = (firstDay.getDay() + 6) % 7;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+function renderCalendar(){
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  const y=currentDate.getFullYear(), m=currentDate.getMonth();
   document.getElementById("monthYear").textContent =
-    currentDate.toLocaleString("default", { month: "long", year: "numeric" });
-
-  for (let i = 0; i < startDay; i++) calendar.appendChild(document.createElement("div"));
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateObj = new Date(year, month, day);
-    const isoDate = toISODate(dateObj);
-    const cell = document.createElement("div");
-    cell.className = "calendar-cell";
-    if (dateObj.getDay() === 0) cell.classList.add("sunday");
-  cell.innerHTML = `
-  <strong>${day}</strong> ${dateObj.toLocaleString('en-US', { weekday: 'short' })}
-  <div id="tasks-${isoDate}" style="font-size: small; min-height: 20px;">Loading...</div>
-`;
-
-// ✅ make the whole cell clickable
-cell.onclick = () => openModal(isoDate);
-cell.style.cursor = "pointer";
-
-    calendar.appendChild(cell);
-    loadTasks(isoDate);
+    currentDate.toLocaleString("default",{month:"long",year:"numeric"});
+  const firstDay=new Date(y,m,1), start=(firstDay.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
+  for(let d=1;d<=days;d++){
+    const dateObj=new Date(y,m,d), iso=toISODate(dateObj);
+    const cell=document.createElement("div");
+    cell.className="calendar-cell";
+    if(dateObj.getDay()===0) cell.classList.add("sunday");
+    cell.innerHTML=`<strong>${d}</strong> ${dateObj.toLocaleString("en-US",{weekday:"short"})}
+      <div id="tasks-${iso}" style="font-size:small;min-height:20px;"></div>`;
+    cell.onclick=()=>openModal(iso);
+    cal.appendChild(cell);
+    loadTasks(iso);
   }
-};
+}
 
 // --- Modal ---
-const openModal = dateISO => {
-  selectedDate = dateISO;
-  editTaskId = null;
-
-  // Show date +1 for display
-  const d = new Date(dateISO);
-  const displayDay = d.getDate() + 1; // only for display
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-  const weekday = d.toLocaleString('en-US', { weekday: 'long' });
-
-  document.getElementById("modalDate").textContent =
-    `Tasks for ${String(displayDay).padStart(2,'0')}-${month}-${year} (${weekday})`;
-
-  document.getElementById("taskTitle").value = "";
-  document.getElementById("taskDesc").value = "";
-  document.getElementById("overlay").style.display = "block";
-  document.getElementById("taskModal").style.display = "block";
+function openModal(dateISO){
+  selectedDate=dateISO; editTaskId=null;
+  const d=new Date(dateISO);
+  document.getElementById("modalDate").textContent=`Tasks for ${formatDate(dateISO)} (${d.toLocaleString("en-US",{weekday:"long"})})`;
+  document.getElementById("taskTitle").value="";
+  document.getElementById("taskDesc").value="";
+  document.getElementById("overlay").style.display="block";
+  document.getElementById("taskModal").style.display="block";
   loadModalTasks(dateISO);
-};
+}
+function closeModal(){
+  selectedDate=null; editTaskId=null;
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("taskModal").style.display="none";
+  document.getElementById("existingTasks").innerHTML="";
+}
+document.getElementById("closeModal").addEventListener("click",closeModal);
+document.getElementById("cancelTaskBtn").addEventListener("click",closeModal);
 
-
-const closeModal = () => {
-  selectedDate = null;
-  editTaskId = null;
-  document.getElementById("overlay").style.display = "none";
-  document.getElementById("taskModal").style.display = "none";
-  document.getElementById("taskTitle").value = "";
-  document.getElementById("taskDesc").value = "";
-  document.getElementById("existingTasks").innerHTML = "";
-};
-document.getElementById("closeModal")?.addEventListener("click", closeModal);
-
-// --- Edit / Save Task ---
-const editTask = (taskId, task, date) => {
-  selectedDate = date;
-  editTaskId = taskId;
-  document.getElementById("taskTitle").value = task.title;
-  document.getElementById("taskDesc").value = task.desc || "";
-  document.getElementById("taskTitle").focus();
-};
-
-const saveTask = () => {
-  const title = document.getElementById("taskTitle").value.trim();
-  const desc = document.getElementById("taskDesc").value.trim();
-  if (!title) return alert("Enter title.");
-
-  const taskData = { title, desc };
-  const refPath = `users/${currentUser.uid}/tasks/${selectedDate}`;
-
-  if (editTaskId) {
-    db.ref(`${refPath}/${editTaskId}`).set(taskData).then(() => {
-      editTaskId = null;
-      document.getElementById("taskTitle").value = "";
-      document.getElementById("taskDesc").value = "";
-      loadModalTasks(selectedDate);
-      loadTodayTasks();
-    });
+// --- Save Task ---
+document.getElementById("saveTaskBtn").addEventListener("click",()=>{
+  const title=document.getElementById("taskTitle").value.trim();
+  const desc=document.getElementById("taskDesc").value.trim();
+  if(!title) return alert("Enter task title.");
+  const ref=`users/${currentUser.uid}/tasks/${selectedDate}`;
+  if(editTaskId){
+    db.ref(`${ref}/${editTaskId}`).set({title,desc}).then(()=>{ editTaskId=null; loadModalTasks(selectedDate); });
   } else {
-    db.ref(refPath).push(taskData).then(() => {
-      document.getElementById("taskTitle").value = "";
-      document.getElementById("taskDesc").value = "";
-      loadModalTasks(selectedDate);
-      loadTodayTasks();
-    });
+    db.ref(ref).push({title,desc}).then(()=> loadModalTasks(selectedDate));
   }
-};
-
-// --- Load Tasks ---
-const loadTasks = date => {
-  const container = document.getElementById(`tasks-${date}`);
-  if (!container) return;
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
-    const data = snap.val();
-    container.innerHTML = "";
-    if (data) Object.values(data).forEach(task => container.innerHTML += `<div>• ${task.title}</div>`);
-  });
-};
-const loadModalTasks = date => {
-  selectedDate = date;
-  const container = document.getElementById("existingTasks");
-  container.innerHTML = "<p>Loading tasks...</p>";
-
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
-    const data = snap.val();
-    container.innerHTML = "";
-    if (!data) return container.textContent = "No tasks for this date.";
-
-    Object.entries(data).forEach(([key, task]) => {
-      // Task card container
-      const taskDiv = document.createElement("div");
-      taskDiv.className = "flex justify-between items-center p-3 mb-2 bg-white rounded-lg shadow-sm hover:bg-blue-50 transition";
-
-      // Task info
-      const infoDiv = document.createElement("div");
-      infoDiv.innerHTML = `
-        <strong class="text-sm md:text-base font-medium">${task.title}</strong>
-        <p class="text-xs md:text-sm text-gray-600">${task.desc || ""}</p>
-      `;
-      taskDiv.appendChild(infoDiv);
-
-      // Buttons container
-      const btnDiv = document.createElement("div");
-      btnDiv.className = "flex gap-2";
-
-      // Edit button
-      const editBtn = document.createElement("button");
-      editBtn.textContent = "Edit";
-      editBtn.className = "bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition text-xs md:text-sm font-medium";
-      editBtn.addEventListener("click", () => editTask(key, task, date));
-      btnDiv.appendChild(editBtn);
-
-      // Delete button
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "Delete";
-      delBtn.className = "bg-red-500 text-white px-3 py-1 rounded shadow hover:bg-red-600 transition text-xs md:text-sm font-medium";
-      delBtn.addEventListener("click", () => {
-        if (confirm("Delete this task?")) {
-          db.ref(`users/${currentUser.uid}/tasks/${date}/${key}`).remove().then(() => {
-            loadModalTasks(date);
-            loadTodayTasks();
-          });
-        }
-      });
-      btnDiv.appendChild(delBtn);
-
-      taskDiv.appendChild(btnDiv);
-      container.appendChild(taskDiv);
-    });
-  });
-};
-
-// --- Today Tasks ---
-const loadTodayTasks = () => {
-  if (todayListenerSet) return;
-  const todayISO = toISODate(new Date());
-  const ul = document.getElementById("taskListToday");
-  db.ref(`users/${currentUser.uid}/tasks/${todayISO}`).on("value", snap => {
-    const data = snap.val();
-    ul.innerHTML = "";
-    if (data) Object.values(data).forEach(task => ul.innerHTML += `<li><strong>${task.title}</strong>: ${task.desc || ""}</li>`);
-    else ul.innerHTML = "<li>No tasks today.</li>";
-  });
-  todayListenerSet = true;
-};
-
-// --- Search Tasks ---
-let latestSearchTerm = ""; // track latest query
-
-const searchTasks = () => {
-  const term = document.getElementById("searchInput").value.trim().toLowerCase();
-  const resultsContainer = document.getElementById("searchResults");
-  resultsContainer.innerHTML = "";
-  latestSearchTerm = term;
-
-  // ✅ If input is empty, stop and clear results
-  if (!term) {
-    resultsContainer.innerHTML = "";
-    return;
-  }
-
-  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
-    // ✅ Prevent old async results from showing after input cleared/changed
-    if (latestSearchTerm !== term) return;
-
-    const data = snap.val();
-    let found = false;
-
-    if (data) {
-      Object.entries(data).forEach(([dateISO, tasks]) => {
-        Object.entries(tasks).forEach(([key, task]) => {
-          if (
-            task.title.toLowerCase().includes(term) ||
-            (task.desc && task.desc.toLowerCase().includes(term))
-          ) {
-            found = true;
-            const div = document.createElement("div");
-            div.className = "cursor-pointer hover:bg-blue-50 transition p-2 rounded-lg";
-            div.onclick = () => openModal(dateISO);
-            div.innerHTML = `
-              <strong>${task.title}</strong><br>
-              ${task.desc || ""}<br>
-              <small class="text-gray-500">${formatDate(dateISO)}</small>
-            `;
-            resultsContainer.appendChild(div);
-          }
-        });
-      });
-    }
-
-    if (!found) {
-      resultsContainer.innerHTML = `<div class="text-gray-500 p-2">No matching tasks found.</div>`;
-    }
-  });
-};
-
-// --- Download Tasks as PDF ---
-document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
-  if (!currentUser) return alert("User not logged in.");
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth(); 
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const snapshot = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-  const allTasks = snapshot.val() || {};
-
-  const pdfData = [];
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateObj = new Date(year, month, day);
-    const isoDate = toISODate(dateObj);
-    const dateStr = formatDate(dateObj);
-
-    if (allTasks[isoDate]) {
-      Object.values(allTasks[isoDate]).forEach(task => {
-        pdfData.push([dateStr, task.title || "", task.desc || ""]);
-      });
-    }
-  }
-
-  if (!pdfData.length) return alert("No tasks for this month.");
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.text(`Tasks for ${currentDate.toLocaleString("default",{ month:"long", year:"numeric"})}`, 14, 20);
-
-  doc.autoTable({
-    startY: 30,
-    head: [['Date', 'Title', 'Description']],
-    body: pdfData,
-    styles: { fontSize: 11, cellPadding: 5 },
-    headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
-    alternateRowStyles: { fillColor: [240, 248, 255] },
-    theme: 'grid'
-  });
-
-  const monthStr = String(month + 1).padStart(2, "0");
-  doc.save(`Tasks_${monthStr}-${year}.pdf`);
+  document.getElementById("taskTitle").value="";
+  document.getElementById("taskDesc").value="";
 });
 
+// --- Load Tasks ---
+function loadTasks(date){
+  const c=document.getElementById(`tasks-${date}`); if(!c) return;
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
+    const data=snap.val(); c.innerHTML="";
+    if(data) Object.values(data).forEach(t=>c.innerHTML+=`<div>• ${t.title}</div>`);
+  });
+}
+function loadModalTasks(date){
+  const cont=document.getElementById("existingTasks");
+  cont.innerHTML="Loading...";
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap=>{
+    const data=snap.val(); cont.innerHTML="";
+    if(!data) return cont.textContent="No tasks.";
+    Object.entries(data).forEach(([id,t])=>{
+      const div=document.createElement("div");
+      div.className="flex justify-between items-center p-2 mb-2 bg-white rounded shadow";
+      div.innerHTML=`<div><strong>${t.title}</strong><p class="text-xs text-gray-600">${t.desc||""}</p></div>`;
+      const btns=document.createElement("div"); btns.className="flex gap-2";
+      const e=document.createElement("button"); e.textContent="Edit";
+      e.className="bg-yellow-400 text-white px-2 rounded"; e.onclick=()=>{editTaskId=id;document.getElementById("taskTitle").value=t.title;document.getElementById("taskDesc").value=t.desc||"";};
+      const dBtn=document.createElement("button"); dBtn.textContent="Delete";
+      dBtn.className="bg-red-500 text-white px-2 rounded"; dBtn.onclick=()=>{if(confirm("Delete?")) db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(()=>loadModalTasks(date));};
+      btns.appendChild(e); btns.appendChild(dBtn); div.appendChild(btns); cont.appendChild(div);
+    });
+  });
+}
 
-  </script>
+// --- Search ---
+function searchTasks(){
+  const term=document.getElementById("searchInput").value.toLowerCase();
+  const res=document.getElementById("searchResults"); res.innerHTML="";
+  if(!term) return;
+  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap=>{
+    const data=snap.val(); let found=false;
+    if(data) Object.entries(data).forEach(([date,tasks])=>{
+      Object.values(tasks).forEach(t=>{
+        if(t.title.toLowerCase().includes(term)||(t.desc||"").toLowerCase().includes(term)){
+          found=true; const d=document.createElement("div");
+          d.className="p-2 cursor-pointer hover:bg-blue-50"; d.innerHTML=`<strong>${t.title}</strong> - ${t.desc||""} <small>${formatDate(date)}</small>`;
+          d.onclick=()=>openModal(date); res.appendChild(d);
+        }
+      });
+    });
+    if(!found) res.innerHTML="<p class='text-gray-500 p-2'>No matching tasks.</p>";
+  });
+}
+
+// --- PDF Download ---
+document.getElementById("downloadMonthTasks").addEventListener("click",async()=>{
+  const y=currentDate.getFullYear(), m=currentDate.getMonth();
+  const snap=await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+  const data=snap.val()||{}, pdfData=[];
+  for(let d=1;d<=new Date(y,m+1,0).getDate();d++){
+    const iso=toISODate(new Date(y,m,d)), dateStr=formatDate(new Date(y,m,d));
+    if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr,t.title,t.desc||""]));
+  }
+  if(!pdfData.length) return alert("No tasks this month.");
+  const {jsPDF}=window.jspdf; const doc=new jsPDF();
+  doc.setFontSize(16); doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
+  doc.autoTable({startY:30,head:[["Date","Title","Description"]],body:pdfData});
+  doc.save(`Tasks_${m+1}-${y}.pdf`);
+});
+</script>
+
 
 </body>
 </html>
+
 
 
 
