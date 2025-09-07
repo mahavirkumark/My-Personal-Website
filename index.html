@@ -1,251 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Personal Website</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8fafc;
-      overflow-x: hidden;
-    }
-
-    /* Fade + Slide animation for card */
-    @keyframes fadeSlideUp {
-      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .animate-card {
-      animation: fadeSlideUp 0.8s ease-out forwards;
-    }
-
-    /* Navbar fade animation */
-    @keyframes fadeInNav {
-      0% { opacity: 0; transform: translateY(-20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    nav {
-      animation: fadeInNav 1s ease forwards;
-    }
-
-    /* Button hover animation */
-    .btn-hover {
-      transition: all 0.3s ease;
-    }
-    .btn-hover:hover {
-      transform: scale(1.05) translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      background-color: #0d6efd;
-      color: white;
-    }
-
-    /* Subtle floating circles background for desktop */
-    @media(min-width:768px){
-      body::before {
-        content:"";
-        position:absolute;
-        width:200px;
-        height:200px;
-        background:rgba(59, 130, 246,0.1);
-        border-radius:50%;
-        top:10%;
-        left:5%;
-        animation: floatCircle 6s ease-in-out infinite alternate;
-        z-index:-1;
-      }
-      body::after {
-        content:"";
-        position:absolute;
-        width:300px;
-        height:300px;
-        background:rgba(14, 165, 233,0.1);
-        border-radius:50%;
-        bottom:5%;
-        right:10%;
-        animation: floatCircle 8s ease-in-out infinite alternate-reverse;
-        z-index:-1;
-      }
-    }
-
-    @keyframes floatCircle {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-30px); }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Secure Login with PIN</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+body { font-family:'Segoe UI',sans-serif; background-color:#f8fafc; overflow-x:hidden; }
+.animate-card { animation:fadeSlideUp 0.8s ease-out forwards; }
+@keyframes fadeSlideUp {0%{opacity:0;transform:translateY(40px) scale(0.95);}100%{opacity:1;transform:translateY(0) scale(1);} }
+.btn-hover { transition: all 0.3s ease; }
+.btn-hover:hover { transform:scale(1.05) translateY(-3px); box-shadow:0 10px 20px rgba(0,0,0,0.2); background-color:#0d6efd; color:white; }
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-  <!-- Navbar -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Personal Website</title>
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f8fafc;
-      overflow-x: hidden;
-    }
-
-    /* Fade + Slide animation for card */
-    @keyframes fadeSlideUp {
-      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .animate-card {
-      animation: fadeSlideUp 0.8s ease-out forwards;
-    }
-
-    /* Navbar fade animation */
-    @keyframes fadeInNav {
-      0% { opacity: 0; transform: translateY(-20px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    nav {
-      animation: fadeInNav 1s ease forwards;
-    }
-
-    /* Button hover animation */
-    .btn-hover {
-      transition: all 0.3s ease;
-    }
-    .btn-hover:hover {
-      transform: scale(1.05) translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      background-color: #0d6efd;
-      color: white;
-    }
-
-    /* Subtle floating circles background for desktop */
-    @media(min-width:768px){
-      body::before {
-        content:"";
-        position:absolute;
-        width:200px;
-        height:200px;
-        background:rgba(59, 130, 246,0.1);
-        border-radius:50%;
-        top:10%;
-        left:5%;
-        animation: floatCircle 6s ease-in-out infinite alternate;
-        z-index:-1;
-      }
-      body::after {
-        content:"";
-        position:absolute;
-        width:300px;
-        height:300px;
-        background:rgba(14, 165, 233,0.1);
-        border-radius:50%;
-        bottom:5%;
-        right:10%;
-        animation: floatCircle 8s ease-in-out infinite alternate-reverse;
-        z-index:-1;
-      }
-    }
-
-    @keyframes floatCircle {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-30px); }
-    }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col justify-between">
-
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md p-4">
+<nav class="bg-white shadow-md p-4">
   <div class="container mx-auto flex justify-between items-center">
     <div class="text-xl font-bold text-black flex items-center gap-2">
-      <i class="fas fa-user-circle text-2xl text-blue-500"></i> <!-- smaller icon -->
-      <span class="text-xl font-bold">My Personal Website</span> <!-- smaller text -->
+      <i class="fas fa-user-circle text-2xl text-blue-500"></i>
+      <span class="text-xl font-bold">My Personal Website</span>
     </div>
   </div>
 </nav>
 
+<main class="flex-grow flex items-center justify-center bg-gray-100 px-4 w-full">
 
-  <!-- Login Page -->
-  <main class="flex-grow flex items-center justify-center bg-gray-100 px-4">
-    <div class="border-2 border-gray-200 rounded-2xl p-8 sm:p-10 shadow-xl bg-white w-full max-w-sm sm:max-w-md text-center animate-card">
-      <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-gray-700">Login with Google</h2>
+  <!-- Google Login -->
+  <div id="loginCard" class="border-2 border-gray-200 rounded-2xl p-8 sm:p-10 shadow-xl bg-white w-full max-w-sm sm:max-w-md text-center animate-card">
+    <h2 class="text-xl sm:text-2xl font-semibold mb-6 text-gray-700">Login with Google</h2>
+    <button id="googleLoginBtn" class="flex items-center justify-center gap-3 text-lg sm:text-xl font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-gray-800 border-2 border-blue-500 shadow-md btn-hover mx-auto">
+      <img src="https://developers.google.com/identity/images/g-logo.png" class="w-6 h-6 sm:w-7 sm:h-7"> Sign in with Google
+    </button>
+  </div>
 
-      <button id="googleLoginBtn"
-        class="flex items-center justify-center gap-3 text-lg sm:text-xl font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-gray-800 border-2 border-blue-500 shadow-md btn-hover mx-auto">
-        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo" class="w-6 h-6 sm:w-7 sm:h-7">
-        Sign in with Google
-      </button>
-    </div>
-  </main>
+  <!-- PIN Verification / Set PIN -->
+  <div id="pinCard" class="hidden border-2 border-gray-200 rounded-2xl p-8 sm:p-10 shadow-xl bg-white w-full max-w-sm sm:max-w-md text-center animate-card">
+    <h2 id="pinTitle" class="text-xl sm:text-2xl font-semibold mb-6 text-gray-700">Enter PIN</h2>
+    <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-3 border rounded-lg mb-4 text-center"/>
+    <button id="pinActionBtn" class="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold btn-hover"></button>
+    <p class="mt-4 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
+  </div>
 
-  <!-- Footer -->
-  <footer class="bg-white text-gray-700 text-center p-4 border-t text-sm sm:text-base">
-    &copy; 2025 MyFinance Tracker | All Rights Reserved.
-  </footer>
+</main>
 
+<footer class="bg-white text-gray-700 text-center p-4 border-t text-sm sm:text-base">
+  &copy; 2025 MyFinance Tracker | All Rights Reserved.
+</footer>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
-
-
-
-
-  <!-- Firebase & Google Login Script (NOT module) -->
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-
-<script type="module" defer>
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
-
-  // Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "470207874652",
-    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-  };
-
-  // Init Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  // Login function
-  async function googleLogin() {
-    try {
-      const { user } = await signInWithPopup(auth, provider);
-      console.log(`✅ Welcome ${user.displayName}`);
-      window.location.href = "home.html"; // redirect fast
-    } catch (error) {
-      console.error("❌ Login Failed:", error.code, error.message);
-      alert("Login failed, please try again.");
-    }
-  }
-
-  // Attach directly
-  document.getElementById("googleLoginBtn").onclick = googleLogin;
+<!-- EmailJS -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
+<script>
+emailjs.init("NbamX634Y_o570cNw"); // Your EmailJS public key
 </script>
 
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+  authDomain: "sk12-58e9e.firebaseapp.com",
+  projectId: "sk12-58e9e",
+  storageBucket: "sk12-58e9e.appspot.com",
+  messagingSenderId: "470207874652",
+  appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
 
+let currentUID = null, currentEmail = null, currentPIN = null;
+let isFirstTime = false;
+
+// --- Google Login ---
+document.getElementById("googleLoginBtn").onclick = async () => {
+  try {
+    const result = await auth.signInWithPopup(provider);
+    currentUID = result.user.uid;
+    currentEmail = result.user.email;
+
+    const doc = await db.collection("users").doc(currentUID).get();
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("pinCard").classList.remove("hidden");
+
+    if (!doc.exists) {
+      // First time login
+      isFirstTime = true;
+      document.getElementById("pinTitle").textContent = "Set Your PIN";
+      document.getElementById("pinActionBtn").textContent = "Set PIN";
+    } else {
+      currentPIN = doc.data().pin;
+      document.getElementById("pinTitle").textContent = "Enter PIN";
+      document.getElementById("pinActionBtn").textContent = "Verify PIN";
+    }
+
+  } catch(e) { alert("Login failed: "+e.message); }
+};
+
+// --- Set / Verify PIN ---
+document.getElementById("pinActionBtn").onclick = async () => {
+  const pin = document.getElementById("pinInput").value;
+  if (!pin || pin.length < 4) { alert("Enter 4-6 digit PIN"); return; }
+
+  if (isFirstTime) {
+    // Save PIN & email it
+    await db.collection("users").doc(currentUID).set({pin});
+    sendEmailPin(pin, currentEmail);
+    alert("✅ PIN set and sent to your email!");
+    isFirstTime = false;
+    currentPIN = pin;
+    document.getElementById("pinTitle").textContent = "Enter PIN";
+    document.getElementById("pinActionBtn").textContent = "Verify PIN";
+    document.getElementById("pinInput").value = "";
+  } else {
+    // Verify PIN
+    const doc = await db.collection("users").doc(currentUID).get();
+    if (doc.exists && doc.data().pin === pin) {
+      alert("✅ PIN Verified. Redirecting...");
+      window.location.href = "home.html";
+    } else { alert("❌ Wrong PIN"); }
+  }
+};
+
+// --- Forgot PIN ---
+document.getElementById("forgotPinBtn").onclick = async () => {
+  if (!currentEmail) { alert("Login first!"); return; }
+  const newPin = Math.floor(1000 + Math.random() * 9000).toString();
+  await db.collection("users").doc(currentUID).update({pin: newPin});
+  sendEmailPin(newPin, currentEmail);
+  alert("✅ New PIN sent to your email.");
+};
+
+// --- Send PIN via EmailJS ---
+function sendEmailPin(pin, email) {
+  const templateParams = { user_email: email, user_pin: pin };
+  emailjs.send('service_2ucolxw', 'template_2lc2llr', templateParams)
+    .then(() => { console.log("✅ PIN email sent"); })
+    .catch(err => { console.error("❌ Email send error:", err); alert("Failed to send email"); });
+}
+</script>
 </body>
 </html>
+
+
 
 
 
