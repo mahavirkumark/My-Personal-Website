@@ -62,6 +62,11 @@
     #calendar { grid-template-columns: repeat(7, 1fr); gap:10px; max-width:1600px; margin:auto; }
     #existingTasks { max-height:500px; }
   }
+#existingTasks {
+  max-height: 40rem; /* increased from 30rem */
+  overflow-y: auto;
+  font-size: 25px; /* already present */
+}
 
 nav a {
   text-decoration: none;
@@ -72,15 +77,24 @@ nav a {
 
 }
 
-nav a:hover {
-  background: #3b82f6;   /* blue-500 */
-  color: white;
-}
+
 
 
 
 </style>
+  <style>
+    /* Reusable Animations */
+    .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+    .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
+    .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
 
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+
+    nav a { transition: transform 0.3s, color 0.3s; }
+    nav a:hover { transform: translateY(-2px); color: #3b82f6; } /* Tailwind blue-500 */
+  </style>
 </head>
 <body class="bg-gray-50">
 
@@ -95,10 +109,10 @@ nav a:hover {
     <div class="hidden md:flex space-x-6">
       <a href="home.html" class="flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
       <a href="adress.html" class="flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
-      <a href="password.html" class="flex items-center gap-2"><i class="fas fa-key"></i> Passwords</a>
       <a href="income.html" class="flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
       <a href="links.html" class="flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
-      <a href="calender.html" class="flex items-center gap-2"><i class="fas fa-calendar-alt"></i> Calendar</a>
+      <a href="calender.html" class="flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
+      <a href="password.html" class="flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
     </div>
 
     <!-- Desktop User Info -->
@@ -169,63 +183,74 @@ menuBtn.addEventListener("click", () => {
     <button onclick="changeMonth(1)" class="px-3 py-1 border rounded hover:bg-gray-100">Next →</button>
   </div>
 
-  <!-- Calendar -->
-  <div id="calendar"></div>
+<!-- Calendar -->
+<!-- Calendar -->
+<div id="calendar" class="text-[20px]" style="width: 1300px;"></div>
+
 </main>
 
 <!-- Overlay -->
-<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40 text-white text-2xl flex items-center justify-center">
+</div>
 
 <!-- Modal -->
-<div id="taskModal" class="fixed bg-white shadow-2xl p-6 rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
-  
+<div id="taskModal" class="fixed bg-white shadow-xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-6xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
+
   <!-- Modal Header -->
-  <div class="flex justify-between items-center mb-5">
-    <h2 id="modalDate" class="text-lg md:text-xl font-semibold">Tasks for date</h2>
+  <div class="flex justify-between items-center mb-4">
+    <h2 id="modalDate" class="text-[22px] md:text-[20px] font-bold">Tasks for date</h2>
     <button id="closeModal" 
-            class="text-gray-500 hover:text-red-500 text-2xl md:text-3xl font-bold transition duration-200">&times;</button>
+            class="text-gray-500 hover:text-red-500 text-[20px] md:text-[28px] font-bold transition duration-200">&times;</button>
   </div>
 
   <!-- Modal Body -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
     
     <!-- Add/Edit Task -->
     <div>
       <input id="taskTitle" type="text" placeholder="Title" 
-             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]">
       <textarea id="taskDesc" placeholder="Description" 
-                class="border border-gray-300 rounded-lg p-3 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"></textarea>
+                class="border border-gray-500 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]"></textarea>
       <div class="flex gap-3">
         <button id="saveTaskBtn" 
-                class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 font-medium">
+                class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 font-bold text-[18px]">
           Save
         </button>
         <button id="cancelTaskBtn" 
-                class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-500 transition duration-200 font-medium">
+                class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg shadow-md hover:bg-gray-500 transition duration-200 font-bold text-[18px]">
           Cancel
         </button>
       </div>
     </div>
 
     <!-- Existing Tasks -->
-    <div id="existingTasks" class="border border-gray-300 rounded-lg p-3 bg-gray-50 max-h-80 overflow-y-auto">
-      <!-- Task items will be dynamically injected here -->
-      <!-- Example task with modern Edit & Delete buttons:
-      <div class="flex justify-between items-center p-3 mb-2 bg-white rounded-lg shadow-sm hover:bg-blue-50 transition">
+    <div id="existingTasks" class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-[30rem] overflow-y-auto text-[25px]">
+      <!-- Example saved task -->
+      <div class="flex justify-between items-center p-5 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition">
         <div>
-          <strong class="text-sm md:text-base font-medium">Task Title</strong>
-          <p class="text-xs md:text-sm text-gray-600">Task description here</p>
+          <strong class="text-[24px] md:text-[20px] font-bold">Task Title</strong>
+          <p class="text-[20px] md:text-[20px] text-gray-800 leading-relaxed">Task description here</p>
         </div>
-        <div class="flex gap-2">
-          <button class="editBtn bg-yellow-400 text-white px-3 py-1 rounded shadow hover:bg-yellow-500 transition text-xs md:text-sm font-medium">Edit</button>
-          <button class="deleteBtn bg-red-500 text-white px-3 py-1 rounded shadow hover:bg-red-600 transition text-xs md:text-sm font-medium">Delete</button>
+        <div class="flex gap-3">
+          <button class="editBtn bg-yellow-400 text-white px-4 py-2 rounded shadow hover:bg-yellow-500 transition font-bold text-[18px]">
+            Edit
+          </button>
+          <button class="deleteBtn bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition font-bold text-[18px]">
+            Delete
+          </button>
         </div>
       </div>
-      -->
     </div>
 
   </div>
 </div>
+
+
+
+
+
+ 
 
 </div>
 <footer class="mt-12 pt-3 pb-3 bg-white text-gray-600 text-center text-sm border-t">
@@ -284,6 +309,10 @@ const formatDate = d => {
   const dt = new Date(d);
   return `${String(dt.getDate()).padStart(2,"0")}-${String(dt.getMonth()+1).padStart(2,"0")}-${dt.getFullYear()}`;
 };
+const formatPrettyDate = d => {
+  const dt = new Date(d);
+  return dt.toLocaleDateString("en-US", {day:"2-digit", month:"short", year:"numeric"});
+};
 
 // --- Auth ---
 auth.onAuthStateChanged(user => {
@@ -297,27 +326,38 @@ auth.onAuthStateChanged(user => {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 });
-function logout(){ auth.signOut().then(()=>location.href="index.html"); }
+
+function logout() {
+  auth.signOut().then(()=>location.href="index.html");
+}
 
 // --- Calendar ---
-function changeMonth(offset){ currentDate.setMonth(currentDate.getMonth()+offset); renderCalendar(); }
+function changeMonth(offset) {
+  currentDate.setMonth(currentDate.getMonth()+offset);
+  renderCalendar();
+}
 
-function renderCalendar(){
+function renderCalendar() {
   const cal = document.getElementById("calendar");
   cal.innerHTML = "";
   const y=currentDate.getFullYear(), m=currentDate.getMonth();
   document.getElementById("monthYear").textContent =
     currentDate.toLocaleString("default",{month:"long",year:"numeric"});
-  const firstDay=new Date(y,m,1), start=(firstDay.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  
+  const firstDay = new Date(y,m,1), start = (firstDay.getDay()+6)%7;
+  const days = new Date(y,m+1,0).getDate();
+
   for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
+
   for(let d=1;d<=days;d++){
-    const dateObj=new Date(y,m,d), iso=toISODate(dateObj);
-    const cell=document.createElement("div");
-    cell.className="calendar-cell";
+    const dateObj = new Date(y,m,d), iso = toISODate(dateObj);
+    const cell = document.createElement("div");
+    cell.className = "calendar-cell";
     if(dateObj.getDay()===0) cell.classList.add("sunday");
-    cell.innerHTML=`<strong>${d}</strong> ${dateObj.toLocaleString("en-US",{weekday:"short"})}
-      <div id="tasks-${iso}" style="font-size:small;min-height:20px;"></div>`;
-    cell.onclick=()=>openModal(iso);
+    cell.innerHTML = `<strong style="font-size:20px">${d}</strong> 
+      <span style="font-size:20px">${dateObj.toLocaleString("en-US",{weekday:"short"})}</span>
+      <div id="tasks-${iso}" style="font-size:16px; min-height:25px;"></div>`;
+    cell.onclick = ()=>openModal(iso);
     cal.appendChild(cell);
     loadTasks(iso);
   }
@@ -325,34 +365,44 @@ function renderCalendar(){
 
 // --- Modal ---
 function openModal(dateISO){
-  selectedDate=dateISO; editTaskId=null;
-  const d=new Date(dateISO);
-  document.getElementById("modalDate").textContent=`Tasks for ${formatDate(dateISO)} (${d.toLocaleString("en-US",{weekday:"long"})})`;
-  document.getElementById("taskTitle").value="";
-  document.getElementById("taskDesc").value="";
-  document.getElementById("overlay").style.display="block";
-  document.getElementById("taskModal").style.display="block";
+  selectedDate = dateISO;
+  editTaskId = null;
+  const d = new Date(dateISO);
+  document.getElementById("modalDate").textContent = `Tasks for ${formatDate(dateISO)} (${d.toLocaleString("en-US",{weekday:"long"})})`;
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDesc").value = "";
+  document.getElementById("overlay").style.display = "block";
+  document.getElementById("taskModal").style.display = "block";
   loadModalTasks(dateISO);
 }
+
 function closeModal(){
-  selectedDate=null; editTaskId=null;
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("taskModal").style.display="none";
-  document.getElementById("existingTasks").innerHTML="";
+  selectedDate = null; editTaskId = null;
+  document.getElementById("overlay").style.display = "none";
+  document.getElementById("taskModal").style.display = "none";
+  document.getElementById("existingTasks").innerHTML = "";
 }
-document.getElementById("closeModal").addEventListener("click",closeModal);
-document.getElementById("cancelTaskBtn").addEventListener("click",closeModal);
+
+document.getElementById("closeModal").addEventListener("click", closeModal);
+document.getElementById("cancelTaskBtn").addEventListener("click", closeModal);
 
 // --- Save Task ---
-document.getElementById("saveTaskBtn").addEventListener("click",()=>{
-  const title=document.getElementById("taskTitle").value.trim();
-  const desc=document.getElementById("taskDesc").value.trim();
+document.getElementById("saveTaskBtn").addEventListener("click", () => {
+  const title = document.getElementById("taskTitle").value.trim();
+  const desc = document.getElementById("taskDesc").value.trim();
   if(!title) return alert("Enter task title.");
-  const ref=`users/${currentUser.uid}/tasks/${selectedDate}`;
+  const ref = `users/${currentUser.uid}/tasks/${selectedDate}`;
   if(editTaskId){
-    db.ref(`${ref}/${editTaskId}`).set({title,desc}).then(()=>{ editTaskId=null; loadModalTasks(selectedDate); });
+    db.ref(`${ref}/${editTaskId}`).set({title,desc}).then(() => { 
+      editTaskId = null; 
+      loadModalTasks(selectedDate); 
+      renderCalendar();
+    });
   } else {
-    db.ref(ref).push({title,desc}).then(()=> loadModalTasks(selectedDate));
+    db.ref(ref).push({title,desc}).then(() => {
+      loadModalTasks(selectedDate);
+      renderCalendar();
+    });
   }
   document.getElementById("taskTitle").value="";
   document.getElementById("taskDesc").value="";
@@ -360,27 +410,37 @@ document.getElementById("saveTaskBtn").addEventListener("click",()=>{
 
 // --- Load Tasks ---
 function loadTasks(date){
-  const c=document.getElementById(`tasks-${date}`); if(!c) return;
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
-    const data=snap.val(); c.innerHTML="";
-    if(data) Object.values(data).forEach(t=>c.innerHTML+=`<div>• ${t.title}</div>`);
+  const c = document.getElementById(`tasks-${date}`); if(!c) return;
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
+    const data = snap.val(); c.innerHTML = "";
+    if(data) Object.values(data).forEach(t => c.innerHTML += `<div style="font-size:20px">• ${t.title}</div>`);
   });
 }
+
 function loadModalTasks(date){
-  const cont=document.getElementById("existingTasks");
-  cont.innerHTML="Loading...";
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap=>{
-    const data=snap.val(); cont.innerHTML="";
-    if(!data) return cont.textContent="No tasks.";
-    Object.entries(data).forEach(([id,t])=>{
-      const div=document.createElement("div");
-      div.className="flex justify-between items-center p-2 mb-2 bg-white rounded shadow";
-      div.innerHTML=`<div><strong>${t.title}</strong><p class="text-xs text-gray-600">${t.desc||""}</p></div>`;
-      const btns=document.createElement("div"); btns.className="flex gap-2";
-      const e=document.createElement("button"); e.textContent="Edit";
-      e.className="bg-yellow-400 text-white px-2 rounded"; e.onclick=()=>{editTaskId=id;document.getElementById("taskTitle").value=t.title;document.getElementById("taskDesc").value=t.desc||"";};
-      const dBtn=document.createElement("button"); dBtn.textContent="Delete";
-      dBtn.className="bg-red-500 text-white px-2 rounded"; dBtn.onclick=()=>{if(confirm("Delete?")) db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(()=>loadModalTasks(date));};
+  const cont = document.getElementById("existingTasks");
+  cont.innerHTML = "Loading...";
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
+    const data = snap.val(); cont.innerHTML = "";
+    if(!data) return cont.textContent = "No tasks.";
+    Object.entries(data).forEach(([id,t]) => {
+      const div = document.createElement("div");
+      div.className = "flex justify-between items-center p-3 mb-2 bg-white rounded shadow";
+      div.innerHTML = `<div><strong style="font-size:22px">${t.title}</strong>
+        <p style="font-size:22px; color:#333">${t.desc||""}</p></div>`;
+      const btns = document.createElement("div"); btns.className="flex gap-2";
+      const e = document.createElement("button"); e.textContent="Edit";
+      e.className="bg-yellow-400 text-white px-2 rounded"; e.onclick = () => {
+        editTaskId = id;
+        document.getElementById("taskTitle").value = t.title;
+        document.getElementById("taskDesc").value = t.desc||"";
+      };
+      const dBtn = document.createElement("button"); dBtn.textContent="Delete";
+      dBtn.className="bg-red-500 text-white px-2 rounded"; dBtn.onclick = () => {
+        if(confirm("Delete?")) db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(() => {
+          loadModalTasks(date); renderCalendar();
+        });
+      };
       btns.appendChild(e); btns.appendChild(dBtn); div.appendChild(btns); cont.appendChild(div);
     });
   });
@@ -388,37 +448,50 @@ function loadModalTasks(date){
 
 // --- Search ---
 function searchTasks(){
-  const term=document.getElementById("searchInput").value.toLowerCase();
-  const res=document.getElementById("searchResults"); res.innerHTML="";
+  const term = document.getElementById("searchInput").value.toLowerCase();
+  const res = document.getElementById("searchResults");
+  res.innerHTML = "";
   if(!term) return;
-  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap=>{
-    const data=snap.val(); let found=false;
-    if(data) Object.entries(data).forEach(([date,tasks])=>{
-      Object.values(tasks).forEach(t=>{
-        if(t.title.toLowerCase().includes(term)||(t.desc||"").toLowerCase().includes(term)){
-          found=true; const d=document.createElement("div");
-          d.className="p-2 cursor-pointer hover:bg-blue-50"; d.innerHTML=`<strong>${t.title}</strong> - ${t.desc||""} <small>${formatDate(date)}</small>`;
-          d.onclick=()=>openModal(date); res.appendChild(d);
-        }
+
+  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
+    const data = snap.val(); 
+    let found = false;
+    if(data) {
+      Object.entries(data).forEach(([date,tasks]) => {
+        Object.values(tasks).forEach(t => {
+          if(t.title.toLowerCase().includes(term) || (t.desc||"").toLowerCase().includes(term)){
+            found = true;
+            const d = document.createElement("div");
+            d.className = "mb-3 cursor-pointer";
+            d.innerHTML = `
+              <div class="p-3 bg-white shadow rounded-lg hover:bg-blue-50 transition">
+                <h3 style="font-size:18px; color:#1E40AF">${t.title}</h3>
+                <p style="font-size:18px; color:#374151">${t.desc || ""}</p>
+                <p style="font-size:18px; color:#111; margin-top:4px"><i class="fas fa-calendar-alt"></i> ${formatPrettyDate(date)}</p>
+              </div>`;
+            d.onclick = () => openModal(date);
+            res.appendChild(d);
+          }
+        });
       });
-    });
-    if(!found) res.innerHTML="<p class='text-gray-500 p-2'>No matching tasks.</p>";
+    }
+    if(!found) res.innerHTML = "<p class='text-gray-500 p-2' style='font-size:20px'>No matching tasks.</p>";
   });
 }
 
 // --- PDF Download ---
-document.getElementById("downloadMonthTasks").addEventListener("click",async()=>{
+document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
   const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  const snap=await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-  const data=snap.val()||{}, pdfData=[];
+  const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+  const data = snap.val()||{}, pdfData=[];
   for(let d=1;d<=new Date(y,m+1,0).getDate();d++){
-    const iso=toISODate(new Date(y,m,d)), dateStr=formatDate(new Date(y,m,d));
-    if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr,t.title,t.desc||""]));
+    const iso = toISODate(new Date(y,m,d)), dateStr = formatDate(new Date(y,m,d));
+    if(data[iso]) Object.values(data[iso]).forEach(t => pdfData.push([dateStr, t.title, t.desc||""]));
   }
   if(!pdfData.length) return alert("No tasks this month.");
-  const {jsPDF}=window.jspdf; const doc=new jsPDF();
-  doc.setFontSize(16); doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
-  doc.autoTable({startY:30,head:[["Date","Title","Description"]],body:pdfData});
+  const {jsPDF} = window.jspdf; const doc = new jsPDF();
+  doc.setFontSize(20); doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
+  doc.autoTable({startY:30, head:[["Date","Title","Description"]], body: pdfData});
   doc.save(`Tasks_${m+1}-${y}.pdf`);
 });
 </script>
@@ -427,6 +500,16 @@ document.getElementById("downloadMonthTasks").addEventListener("click",async()=>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
 
 
