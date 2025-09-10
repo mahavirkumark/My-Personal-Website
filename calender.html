@@ -60,10 +60,10 @@
   /* Laptop & Desktop: 7 cells per row, wider width */
   @media (min-width: 1524px) {
     #calendar { grid-template-columns: repeat(7, 1fr); gap:10px; max-width:1600px; margin:auto; }
-    #existingTasks { max-height:500px; }
+    #existingTasks { max-height:400px; }
   }
 #existingTasks {
-  max-height: 40rem; /* increased from 30rem */
+  max-height: 400px; /* increased from 30rem */
   overflow-y: auto;
   font-size: 25px; /* already present */
 }
@@ -194,7 +194,9 @@ menuBtn.addEventListener("click", () => {
 </div>
 
 <!-- Modal -->
-<div id="taskModal" class="fixed bg-white shadow-xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-6xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
+<div id="taskModal" 
+     class="fixed bg-white shadow-xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-6xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[500px]">
+
 
   <!-- Modal Header -->
   <div class="flex justify-between items-center mb-4">
@@ -282,6 +284,9 @@ menuBtn.addEventListener("click", () => {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+
+
 <script>
 // --- Firebase Config ---
 const firebaseConfig = {
@@ -311,95 +316,120 @@ const formatDate = d => {
 };
 const formatPrettyDate = d => {
   const dt = new Date(d);
-  return dt.toLocaleDateString("en-US", {day:"2-digit", month:"short", year:"numeric"});
+  return dt.toLocaleDateString("en-US",{day:"2-digit",month:"short",year:"numeric"});
 };
 
 // --- Auth ---
 auth.onAuthStateChanged(user => {
-  if (user) {
+  if(user){
     currentUser = user;
     document.getElementById("userName").textContent = user.displayName || "User";
     document.getElementById("userEmail").textContent = user.email;
-    if (user.photoURL) document.getElementById("userPhoto").src = user.photoURL;
+    if(user.photoURL) document.getElementById("userPhoto").src = user.photoURL;
+    document.getElementById("mobileUserName").textContent = user.displayName || "User";
+    document.getElementById("mobileUserEmail").textContent = user.email;
     renderCalendar();
   } else {
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 });
 
-function logout() {
+function logout(){
   auth.signOut().then(()=>location.href="index.html");
 }
 
 // --- Calendar ---
-function changeMonth(offset) {
+function changeMonth(offset){
   currentDate.setMonth(currentDate.getMonth()+offset);
   renderCalendar();
 }
 
-function renderCalendar() {
-  const cal = document.getElementById("calendar");
-  cal.innerHTML = "";
+function renderCalendar(){
+  const cal=document.getElementById("calendar");
+  cal.innerHTML="";
   const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  document.getElementById("monthYear").textContent =
+  document.getElementById("monthYear").textContent=
     currentDate.toLocaleString("default",{month:"long",year:"numeric"});
-  
-  const firstDay = new Date(y,m,1), start = (firstDay.getDay()+6)%7;
-  const days = new Date(y,m+1,0).getDate();
+
+  const firstDay=new Date(y,m,1), start=(firstDay.getDay()+6)%7;
+  const days=new Date(y,m+1,0).getDate();
 
   for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
 
   for(let d=1;d<=days;d++){
-    const dateObj = new Date(y,m,d), iso = toISODate(dateObj);
-    const cell = document.createElement("div");
-    cell.className = "calendar-cell";
+    const dateObj=new Date(y,m,d), iso=toISODate(dateObj);
+    const cell=document.createElement("div");
+    cell.className="calendar-cell text-center text-gray-800 p-4 rounded-lg hover:bg-blue-50 cursor-pointer transition text-[17px]";
+    if(dateObj.toDateString()===new Date().toDateString()) cell.classList.add("today");
     if(dateObj.getDay()===0) cell.classList.add("sunday");
-    cell.innerHTML = `<strong style="font-size:20px">${d}</strong> 
-      <span style="font-size:20px">${dateObj.toLocaleString("en-US",{weekday:"short"})}</span>
-      <div id="tasks-${iso}" style="font-size:16px; min-height:25px;"></div>`;
-    cell.onclick = ()=>openModal(iso);
+
+    // Date left, weekday right, no brackets
+    cell.innerHTML=`
+      <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
+        <span class="text-xl">${d}</span>
+        <span class="text-base text-gray-600">${dateObj.toLocaleString("en-US",{weekday:"short"})}</span>
+      </div>
+      <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px]"></div>
+    `;
+    cell.onclick=()=>openModal(iso);
     cal.appendChild(cell);
     loadTasks(iso);
   }
 }
 
-// --- Modal ---
-function openModal(dateISO){
+function openModal(dateISO) {
+  // Function to format date +1 day as DD-MM-YYYY
+  function formatDatePlusOne(dateISO) {
+    const d = new Date(dateISO);
+    d.setDate(d.getDate() + 1); // Add 1 day
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const year = d.getFullYear();
+    const weekday = d.toLocaleString("en-US", { weekday: "long" });
+    return `${day}-${month}-${year} (${weekday})`;
+  }
+
+  // Set modal header
+  document.getElementById("modalDate").textContent = `Tasks for ${formatDatePlusOne(dateISO)}`;
+
+  // Reset inputs
   selectedDate = dateISO;
   editTaskId = null;
-  const d = new Date(dateISO);
-  document.getElementById("modalDate").textContent = `Tasks for ${formatDate(dateISO)} (${d.toLocaleString("en-US",{weekday:"long"})})`;
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDesc").value = "";
-  document.getElementById("overlay").style.display = "block";
-  document.getElementById("taskModal").style.display = "block";
+
+  // Show modal
+  document.getElementById("overlay").classList.remove("hidden");
+  document.getElementById("taskModal").classList.remove("hidden");
+
+  // Load tasks
   loadModalTasks(dateISO);
 }
 
-function closeModal(){
-  selectedDate = null; editTaskId = null;
-  document.getElementById("overlay").style.display = "none";
-  document.getElementById("taskModal").style.display = "none";
-  document.getElementById("existingTasks").innerHTML = "";
-}
 
-document.getElementById("closeModal").addEventListener("click", closeModal);
-document.getElementById("cancelTaskBtn").addEventListener("click", closeModal);
+function closeModal(){
+  selectedDate=null; editTaskId=null;
+  document.getElementById("overlay").classList.add("hidden");
+  document.getElementById("taskModal").classList.add("hidden");
+  document.getElementById("existingTasks").innerHTML="";
+}
+document.getElementById("closeModal").addEventListener("click",closeModal);
+document.getElementById("cancelTaskBtn").addEventListener("click",closeModal);
 
 // --- Save Task ---
-document.getElementById("saveTaskBtn").addEventListener("click", () => {
-  const title = document.getElementById("taskTitle").value.trim();
-  const desc = document.getElementById("taskDesc").value.trim();
+document.getElementById("saveTaskBtn").addEventListener("click",()=>{
+  const title=document.getElementById("taskTitle").value.trim();
+  const desc=document.getElementById("taskDesc").value.trim();
   if(!title) return alert("Enter task title.");
-  const ref = `users/${currentUser.uid}/tasks/${selectedDate}`;
+  const ref=`users/${currentUser.uid}/tasks/${selectedDate}`;
   if(editTaskId){
-    db.ref(`${ref}/${editTaskId}`).set({title,desc}).then(() => { 
-      editTaskId = null; 
-      loadModalTasks(selectedDate); 
+    db.ref(`${ref}/${editTaskId}`).set({title,desc}).then(()=>{
+      editTaskId=null;
+      loadModalTasks(selectedDate);
       renderCalendar();
     });
   } else {
-    db.ref(ref).push({title,desc}).then(() => {
+    db.ref(ref).push({title,desc}).then(()=>{
       loadModalTasks(selectedDate);
       renderCalendar();
     });
@@ -410,96 +440,234 @@ document.getElementById("saveTaskBtn").addEventListener("click", () => {
 
 // --- Load Tasks ---
 function loadTasks(date){
-  const c = document.getElementById(`tasks-${date}`); if(!c) return;
-  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value", snap => {
-    const data = snap.val(); c.innerHTML = "";
-    if(data) Object.values(data).forEach(t => c.innerHTML += `<div style="font-size:20px">• ${t.title}</div>`);
+  const c=document.getElementById(`tasks-${date}`); if(!c) return;
+  db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
+    const data=snap.val(); c.innerHTML="";
+    if(data) Object.values(data).forEach(t=>{
+      c.innerHTML+=`<div class="truncate">• ${t.title}</div>`;
+    });
   });
 }
-
 function loadModalTasks(date){
   const cont = document.getElementById("existingTasks");
   cont.innerHTML = "Loading...";
+  
   db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
-    const data = snap.val(); cont.innerHTML = "";
+    const data = snap.val(); 
+    cont.innerHTML = "";
+    
     if(!data) return cont.textContent = "No tasks.";
-    Object.entries(data).forEach(([id,t]) => {
+    
+    Object.entries(data).forEach(([id, t]) => {
       const div = document.createElement("div");
-      div.className = "flex justify-between items-center p-3 mb-2 bg-white rounded shadow";
-      div.innerHTML = `<div><strong style="font-size:22px">${t.title}</strong>
-        <p style="font-size:22px; color:#333">${t.desc||""}</p></div>`;
-      const btns = document.createElement("div"); btns.className="flex gap-2";
-      const e = document.createElement("button"); e.textContent="Edit";
-      e.className="bg-yellow-400 text-white px-2 rounded"; e.onclick = () => {
+      div.className = "flex justify-between items-center p-4 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition text-lg";
+      div.innerHTML = `
+        <div class="overflow-hidden">
+          <strong class="block text-gray-800">${t.title}</strong>
+          <p class="text-gray-600 truncate">${t.desc || ""}</p>
+        </div>
+      `;
+      
+      const btns = document.createElement("div");
+      btns.className = "flex gap-2";
+      
+      const e = document.createElement("button");
+      e.innerHTML = `<i class="fas fa-edit"></i>`;
+      e.className = "bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-full shadow";
+      e.onclick = () => {
         editTaskId = id;
         document.getElementById("taskTitle").value = t.title;
-        document.getElementById("taskDesc").value = t.desc||"";
+        document.getElementById("taskDesc").value = t.desc || "";
       };
-      const dBtn = document.createElement("button"); dBtn.textContent="Delete";
-      dBtn.className="bg-red-500 text-white px-2 rounded"; dBtn.onclick = () => {
-        if(confirm("Delete?")) db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(() => {
-          loadModalTasks(date); renderCalendar();
-        });
+      
+      const dBtn = document.createElement("button");
+      dBtn.innerHTML = `<i class="fas fa-trash"></i>`;
+      dBtn.className = "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full shadow";
+      dBtn.onclick = () => {
+        if(confirm("Delete?")) {
+          db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(() => {
+            loadModalTasks(date); 
+            renderCalendar();
+          });
+        }
       };
-      btns.appendChild(e); btns.appendChild(dBtn); div.appendChild(btns); cont.appendChild(div);
+      
+      btns.appendChild(e);
+      btns.appendChild(dBtn);
+      div.appendChild(btns);
+      cont.appendChild(div);
     });
   });
 }
 
-// --- Search ---
-function searchTasks(){
-  const term = document.getElementById("searchInput").value.toLowerCase();
-  const res = document.getElementById("searchResults");
-  res.innerHTML = "";
-  if(!term) return;
-
-  db.ref(`users/${currentUser.uid}/tasks`).once("value").then(snap => {
-    const data = snap.val(); 
-    let found = false;
-    if(data) {
-      Object.entries(data).forEach(([date,tasks]) => {
-        Object.values(tasks).forEach(t => {
-          if(t.title.toLowerCase().includes(term) || (t.desc||"").toLowerCase().includes(term)){
-            found = true;
-            const d = document.createElement("div");
-            d.className = "mb-3 cursor-pointer";
-            d.innerHTML = `
-              <div class="p-3 bg-white shadow rounded-lg hover:bg-blue-50 transition">
-                <h3 style="font-size:18px; color:#1E40AF">${t.title}</h3>
-                <p style="font-size:18px; color:#374151">${t.desc || ""}</p>
-                <p style="font-size:18px; color:#111; margin-top:4px"><i class="fas fa-calendar-alt"></i> ${formatPrettyDate(date)}</p>
-              </div>`;
-            d.onclick = () => openModal(date);
-            res.appendChild(d);
-          }
-        });
-      });
-    }
-    if(!found) res.innerHTML = "<p class='text-gray-500 p-2' style='font-size:20px'>No matching tasks.</p>";
-  });
-}
-
 // --- PDF Download ---
-document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
+document.getElementById("downloadMonthTasks").addEventListener("click",async()=>{
   const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-  const data = snap.val()||{}, pdfData=[];
+  const snap=await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+  const data=snap.val()||{}, pdfData=[];
   for(let d=1;d<=new Date(y,m+1,0).getDate();d++){
-    const iso = toISODate(new Date(y,m,d)), dateStr = formatDate(new Date(y,m,d));
-    if(data[iso]) Object.values(data[iso]).forEach(t => pdfData.push([dateStr, t.title, t.desc||""]));
+    const iso=toISODate(new Date(y,m,d)), dateStr=formatDate(new Date(y,m,d));
+    if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr,t.title,t.desc||""]));
   }
   if(!pdfData.length) return alert("No tasks this month.");
-  const {jsPDF} = window.jspdf; const doc = new jsPDF();
-  doc.setFontSize(20); doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
-  doc.autoTable({startY:30, head:[["Date","Title","Description"]], body: pdfData});
+  const {jsPDF}=window.jspdf; const doc=new jsPDF();
+  doc.setFontSize(18);
+  doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
+  doc.autoTable({startY:30,head:[["Date","Title","Description"]],body:pdfData});
   doc.save(`Tasks_${m+1}-${y}.pdf`);
 });
+
+
+let debounceTimeout;
+
+function searchTasks() {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    const query = document.getElementById("searchInput").value.toLowerCase();
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+
+    if (!query) return;
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
+      return;
+    }
+
+    const userId = user.uid;
+    const userTasksRef = firebase.database().ref(`users/${userId}/tasks`);
+
+    userTasksRef.once("value")
+      .then(snapshot => {
+        const allTasks = snapshot.val();
+        if (!allTasks) {
+          resultsContainer.innerHTML = "<p style='padding: 10px;'>No tasks found in your calendar.</p>";
+          return;
+        }
+
+        let found = 0;
+        const addedTasks = new Set();
+
+        Object.entries(allTasks).forEach(([date, tasks]) => {
+          Object.entries(tasks).forEach(([id, task]) => {
+            const titleMatch = task.title?.toLowerCase().includes(query);
+            const descMatch = task.desc?.toLowerCase().includes(query);
+
+   const normalize = str => (str || '').toLowerCase().trim();
+const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}-${date}`; // include date if needed
+
+if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
+  addedTasks.add(uniqueKey);
+  found++;
+              addedTasks.add(uniqueKey);
+
+              const currentDate = new Date(date);
+              const nextDate = new Date(currentDate);
+              nextDate.setDate(currentDate.getDate() + 1);
+
+              const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
+                day: '2-digit', month: 'short', year: 'numeric'
+              });
+
+              const taskDiv = document.createElement("div");
+              taskDiv.style.border = "1px solid #ddd";
+              taskDiv.style.borderRadius = "8px";
+              taskDiv.style.padding = "12px";
+              taskDiv.style.marginBottom = "12px";
+              taskDiv.style.background = "#f2f7ff";
+              taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
+
+              taskDiv.innerHTML = `
+                <strong style="font-size: 1.1em;">${task.title}</strong>
+                <span style="color: #777;">(${task.type || 'No Type'})</span><br>
+                <div style="margin: 5px 0;">${task.desc || 'No Description'}</div>
+                <div style="color: #555;"><em> Date: ${formattedNextDate}</em></div>
+                <button onclick="openModal('${date}')" style="margin-top: 8px; padding: 6px 12px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Go to Date</button>
+              `;
+
+              resultsContainer.appendChild(taskDiv);
+            }
+          });
+        });
+
+        if (found === 0) {
+          resultsContainer.innerHTML = "<p style='padding: 10px;'>No matching tasks found.</p>";
+        }
+      })
+      .catch(error => {
+        console.error("Search error:", error);
+        resultsContainer.innerHTML = "<p style='padding: 10px;'>Error retrieving tasks.</p>";
+      });
+  }, 300);
+}
+
+document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
+  if (!currentUser) return alert("User not logged in.");
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth(); // 0-indexed
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let allTasksText = `Tasks for ${currentDate.toLocaleString("default", { month: "long", year: "numeric" })}\n\n`;
+
+  const userTasksRef = db.ref(`users/${currentUser.uid}/tasks`);
+  const snapshot = await userTasksRef.once("value");
+  const allTasks = snapshot.val() || {};
+
+  let hasTasks = false;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(year, month, day);
+    const dateStr = dateObj.toISOString().split("T")[0];
+
+    if (allTasks[dateStr]) {
+      hasTasks = true;
+      Object.values(allTasks[dateStr]).forEach(task => {
+        allTasksText += `Date: ${dateStr}\nTitle: ${task.title}\nType: ${task.type}\nDescription: ${task.desc}\n\n`;
+      });
+    }
+  }
+
+  if (!hasTasks) {
+    allTasksText += "No tasks for this month.\n";
+  }
+
+  // Create blob and download
+  const blob = new Blob([allTasksText], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Tasks_${year}_${month + 1}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+
+
+
 </script>
 
 
 
+
+</script>
+
+
+
+</script>
+
+
 </body>
 </html>
+
+
+
+
+
+
 
 
 
