@@ -79,9 +79,10 @@ nav a {
 
 
 
-
-
 </style>
+
+
+
   <style>
     /* Reusable Animations */
     .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
@@ -146,10 +147,10 @@ nav a {
 </nav>
 
 <!-- MAIN -->
-<main class="pt-24 px-1 md:px-1 flex flex-col gap-2 max-w-6xl mx-auto">
+<main class="pt-24 px-1 md:px-1 flex flex-col gap-2 max-w-6xl mx-auto ">
 
   <!-- Search & Download -->
-<div class="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-2">
+<div class="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-5 mb-10">
     <input type="text" id="searchInput" placeholder="Search tasks..."
       class="flex-1 p-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
       oninput="searchTasks()">
@@ -169,7 +170,11 @@ menuBtn.addEventListener("click", () => {
   mobileMenu.classList.toggle("hidden"); // show/hide menu
 });
 
+
 </script>
+
+
+
 
 
 
@@ -211,9 +216,9 @@ menuBtn.addEventListener("click", () => {
     <!-- Add/Edit Task -->
     <div>
       <input id="taskTitle" type="text" placeholder="Title" 
-             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]">
+             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]  ">
       <textarea id="taskDesc" placeholder="Description" 
-                class="border border-gray-500 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]"></textarea>
+                class="border border-gray-500 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px] min-h-[250px] "></textarea>
       <div class="flex gap-3">
         <button id="saveTaskBtn" 
                 class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 font-bold text-[18px]">
@@ -461,12 +466,13 @@ function loadModalTasks(date){
     Object.entries(data).forEach(([id, t]) => {
       const div = document.createElement("div");
       div.className = "flex justify-between items-center p-4 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition text-lg";
-      div.innerHTML = `
-        <div class="overflow-hidden">
-          <strong class="block text-gray-800">${t.title}</strong>
-          <p class="text-gray-600 truncate">${t.desc || ""}</p>
-        </div>
-      `;
+  div.innerHTML = `
+  <div>
+    <strong class="block text-gray-800">${t.title}</strong>
+    <p class="text-gray-600 whitespace-pre-wrap break-words">${t.desc || ""}</p>
+  </div>
+`;
+
       
       const btns = document.createElement("div");
       btns.className = "flex gap-2";
@@ -517,7 +523,6 @@ document.getElementById("downloadMonthTasks").addEventListener("click",async()=>
   doc.save(`Tasks_${m+1}-${y}.pdf`);
 });
 
-
 let debounceTimeout;
 
 function searchTasks() {
@@ -549,47 +554,65 @@ function searchTasks() {
         let found = 0;
         const addedTasks = new Set();
 
-        Object.entries(allTasks).forEach(([date, tasks]) => {
-          Object.entries(tasks).forEach(([id, task]) => {
-            const titleMatch = task.title?.toLowerCase().includes(query);
-            const descMatch = task.desc?.toLowerCase().includes(query);
+      Object.entries(allTasks)
+  // sort by date (latest first)
+  .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+  .forEach(([date, tasks]) => {
+    Object.entries(tasks).forEach(([id, task]) => {
+      const titleMatch = task.title?.toLowerCase().includes(query);
+      const descMatch = task.desc?.toLowerCase().includes(query);
 
-   const normalize = str => (str || '').toLowerCase().trim();
-const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}-${date}`; // include date if needed
+      const normalize = str => (str || '').toLowerCase().trim();
+      const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}-${date}`;
 
-if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
-  addedTasks.add(uniqueKey);
-  found++;
-              addedTasks.add(uniqueKey);
+      if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
+        addedTasks.add(uniqueKey);
+        found++;
 
-              const currentDate = new Date(date);
-              const nextDate = new Date(currentDate);
-              nextDate.setDate(currentDate.getDate() + 1);
+        const currentDate = new Date(date);
+        const nextDate = new Date(currentDate);
+        nextDate.setDate(currentDate.getDate() + 1);
 
-              const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
-                day: '2-digit', month: 'short', year: 'numeric'
-              });
-
-              const taskDiv = document.createElement("div");
-              taskDiv.style.border = "1px solid #ddd";
-              taskDiv.style.borderRadius = "8px";
-              taskDiv.style.padding = "12px";
-              taskDiv.style.marginBottom = "12px";
-              taskDiv.style.background = "#f2f7ff";
-              taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
-
-              taskDiv.innerHTML = `
-                <strong style="font-size: 1.1em;">${task.title}</strong>
-                <span style="color: #777;">(${task.type || 'No Type'})</span><br>
-                <div style="margin: 5px 0;">${task.desc || 'No Description'}</div>
-                <div style="color: #555;"><em> Date: ${formattedNextDate}</em></div>
-                <button onclick="openModal('${date}')" style="margin-top: 8px; padding: 6px 12px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer;">Go to Date</button>
-              `;
-
-              resultsContainer.appendChild(taskDiv);
-            }
-          });
+        const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
+          day: '2-digit', month: 'short', year: 'numeric'
         });
+const taskDiv = document.createElement("div");
+taskDiv.style.border = "1px solid #ddd";
+taskDiv.style.borderRadius = "8px";
+taskDiv.style.padding = "12px";
+taskDiv.style.marginBottom = "12px";
+taskDiv.style.background = "#e6f0ff";
+taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
+taskDiv.style.cursor = "pointer"; 
+taskDiv.style.transition = "background 0.2s ease";
+
+// ✅ open modal when clicking the whole card
+taskDiv.addEventListener("click", () => openModal(date));
+
+// ✅ hover effect
+taskDiv.addEventListener("mouseenter", () => {
+  taskDiv.style.background = "#ffeb66"; // lighter yellow on hover
+});
+taskDiv.addEventListener("mouseleave", () => {
+  taskDiv.style.background = "#e6f0ff"; // reset to original
+});
+
+taskDiv.innerHTML = `
+  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <strong style="font-size: 1.1em;">${task.title}</strong>
+    <span style="color: #555; font-size: 17px;"><em>${formattedNextDate}</em></span>
+  </div>
+  <div style="margin-top: 6px;">${task.desc || 'No Description'}</div>
+`;
+
+
+
+
+        resultsContainer.appendChild(taskDiv);
+      }
+    });
+  });
+
 
         if (found === 0) {
           resultsContainer.innerHTML = "<p style='padding: 10px;'>No matching tasks found.</p>";
@@ -652,16 +675,22 @@ document.getElementById("downloadMonthTasks").addEventListener("click", async ()
 
 
 
+<style>
 
-</script>
+</style>
 
 
 
-</script>
+
+
+
+
 
 
 </body>
 </html>
+
+
 
 
 
