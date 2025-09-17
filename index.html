@@ -183,7 +183,7 @@ document.getElementById("forgotPinBtn").onclick = async () => {
     alert("✅ New PIN sent to your email! Please check your inbox or spam folder.");
     
     // Redirect after confirmation
-    window.location.href = "home.html";
+
   } catch (err) {
     console.error("❌ Forgot PIN error:", err);
     alert("Failed to send PIN. Try again later.");
@@ -222,6 +222,7 @@ function sendEmailPin(pin, email) {
 
 </body>
 </html>
+
 
 
 
