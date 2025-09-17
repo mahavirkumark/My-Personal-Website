@@ -160,14 +160,44 @@ document.getElementById("pinActionBtn").onclick = async () => {
 };
 
 // --- Forgot PIN ---
-document.getElementById("forgotPinBtn").onclick = () => {
-  if (!currentEmail) { alert("Login first!"); return; }
+// --- Forgot PIN ---
+document.getElementById("forgotPinBtn").onclick = async () => {
+  if (!currentEmail) { 
+    alert("Login first!"); 
+    return; 
+  }
+
+  // Generate random 4-digit PIN
   const newPin = Math.floor(1000 + Math.random() * 9000).toString();
-  db.collection("users").doc(currentUID).update({pin: newPin}); // no await
-  currentPIN = newPin;
-  sendEmailPin(newPin, currentEmail);
-  window.location.href = "home.html"; // redirect instantly
+
+  try {
+    // Update Firestore (store hashed version for security)
+    const hashedPin = await sha256(newPin); 
+    await db.collection("users").doc(currentUID).update({pin: hashedPin});
+    currentPIN = hashedPin;
+
+    // Send via EmailJS
+    const templateParams = { user_email: currentEmail, user_pin: newPin };
+    await emailjs.send('service_2ucolxw', 'template_2lc2llr', templateParams);
+
+    alert("✅ New PIN sent to your email! Please check your inbox or spam folder.");
+    
+    // Redirect after confirmation
+    window.location.href = "home.html";
+  } catch (err) {
+    console.error("❌ Forgot PIN error:", err);
+    alert("Failed to send PIN. Try again later.");
+  }
 };
+
+// --- SHA-256 helper (for hashing PIN) ---
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+};
+
+
 
 // --- Reset PIN button ---
 document.getElementById("resetPinBtn").onclick = () => {
@@ -192,6 +222,7 @@ function sendEmailPin(pin, email) {
 
 </body>
 </html>
+
 
 
 
