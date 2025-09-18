@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Website - Birthday Saver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+
+<style>
+    /* Reusable Animations */
+    .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+    .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
+    .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
+
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+
+    nav a { transition: transform 0.3s, color 0.3s; }
+    nav a:hover { transform: translateY(-2px); color: #3b82f6; } /* Tailwind blue-500 */
+</style>
+
+
+<body class="bg-gray-100 font-sans antialiased">
+
+<nav class="bg-white shadow-lg fixed w-full z-50">
+  <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
+    <div class="flex items-center gap-1 text-2xl font-bold text-gray-800">
+      <i class="fas fa-user-circle text-indigo-500"></i> My Personal Website
+    </div>
+
+
+   
+         <div class="hidden md:flex space-x-6 text-gray-600 font-medium text-lg">
+   <a href="home.html" class="flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
+<a href="address.html" class="flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
+<a href="income.html" class="flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
+<a href="links.html" class="flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
+<a href="calendar.html" class="flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
+<a href="birthday.html" class="flex items-center gap-2"><i class="fas fa-cake-candles"></i> Birthday</a>
+<a href="password.html" class="flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
+</div>
+            <div class="hidden md:flex items-center gap-4">
+                <div class="text-right">
+                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
+                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                </div>
+                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500">
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300">Logout</button>
+            </div>
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+        </div>
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-house"></i> Home</a>
+            <a href="address.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-tasks"></i> Address</a>
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
+                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-28 p-4 md:p-8">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">🎉 Birthday Saver 🎉</h1>
+            <div class="flex flex-col md:flex-row justify-center items-stretch gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg w-full md:w-1/3 transform hover:scale-105 transition duration-300">
+                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-4 flex items-center justify-center gap-2"><i class="fas fa-gift text-red-500"></i> Today's Birthdays</h2>
+                    <ul id="today-list" class="space-y-3">
+                        <li class="text-gray-500 text-center">No birthdays today.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg w-full md:w-1/3 transform hover:scale-105 transition duration-300">
+                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-4 flex items-center justify-center gap-2"><i class="fas fa-calendar-day text-blue-500"></i> Tomorrow's Birthdays</h2>
+                    <ul id="tomorrow-list" class="space-y-3">
+                        <li class="text-gray-500 text-center">No birthdays tomorrow.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg w-full md:w-1/3 transform hover:scale-105 transition duration-300">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-calendar-alt text-purple-500"></i> Upcoming Birthdays</h2>
+                    <ul id="upcoming-birthdays-list" class="space-y-3 max-h-48 overflow-y-auto">
+                        <li class="text-center text-gray-500 p-4">Loading upcoming birthdays...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg md:w-1/3 h-fit">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Add a Birthday</h2>
+                    <form id="add-birthday-form" class="space-y-5">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
+                            <input type="text" id="name" required placeholder="Enter person's name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                        </div>
+                        <div>
+                            <label for="birthdate" class="block text-sm font-medium text-gray-700">Date:</label>
+                            <input type="date" id="birthdate" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
+                            <p class="text-xs text-gray-500 mt-1">Leave empty to not show age.</p>
+                        </div>
+                        <div id="notes-container" class="space-y-4 hidden">
+                            <h3 class="text-lg font-semibold text-gray-700 pt-2 border-t border-gray-200 mt-4">Notes (Optional)</h3>
+                            <div id="notes-fields">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
+                                    <input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
+                                </div>
+                            </div>
+                            <button type="button" id="add-note-btn" class="text-indigo-500 text-sm font-medium hover:text-indigo-700 transition duration-150 ease-in-out">
+                                <i class="fas fa-plus-circle mr-1"></i> Add Another Note
+                            </button>
+                        </div>
+                        <button type="button" id="toggle-notes-btn" class="w-full text-indigo-600 font-semibold py-3 px-4 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition duration-150 ease-in-out">
+                            <i class="fas fa-plus mr-2"></i> Add Notes
+                        </button>
+                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out">
+                            <i class="fas fa-save mr-2"></i> Save Birthday
+                        </button>
+                    </form>
+                </div>
+
+                <div class="md:w-2/3 space-y-8">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">All Birthdays</h2>
+                        <div class="relative mb-4">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="searchInput" placeholder="Search by name..." class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <ul id="all-birthdays-list" class="space-y-3 max-h-96 overflow-y-auto">
+                            <li class="text-center text-gray-500 p-4">Loading birthdays...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center p-4 z-50">
+        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md overflow-y-auto max-h-[90vh] relative">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-4">
+                <h3 class="text-2xl font-bold" id="edit-modal-title">Edit Birthday</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="edit-birthday-form" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label for="edit-name" class="block text-sm font-medium text-gray-700">Name:</label>
+                    <input type="text" id="edit-name" required class="mt-1 block w-full rounded-lg border-gray-300 p-2">
+                </div>
+                <div>
+                    <label for="edit-birthdate" class="block text-sm font-medium text-gray-700">Date:</label>
+                    <input type="date" id="edit-birthdate" class="mt-1 block w-full rounded-lg border-gray-300 p-2">
+                </div>
+                <div id="edit-notes-container" class="space-y-4"></div>
+                <button type="button" id="edit-add-note-btn" class="text-indigo-500 text-sm font-medium hover:text-indigo-700 transition duration-150 ease-in-out">
+                    <i class="fas fa-plus-circle mr-1"></i> Add Another Note
+                </button>
+                <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+<script>
+    // YOUR FIREBASE CONFIGURATION HERE
+const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
+
+// DOM elements for the UI
+const userName = document.getElementById('userName');
+const userEmail = document.getElementById('userEmail');
+const userPhoto = document.getElementById('userPhoto');
+const mobileUserName = document.getElementById('mobileUserName');
+const mobileUserEmail = document.getElementById('mobileUserEmail');
+
+const addBirthdayForm = document.getElementById('add-birthday-form');
+const nameInput = document.getElementById('name');
+const birthdateInput = document.getElementById('birthdate');
+const todayList = document.getElementById('today-list');
+const tomorrowList = document.getElementById('tomorrow-list');
+const allBirthdaysList = document.getElementById('all-birthdays-list');
+const upcomingBirthdaysList = document.getElementById('upcoming-birthdays-list');
+const searchInput = document.getElementById('searchInput');
+
+const notesContainer = document.getElementById('notes-container');
+const notesFields = document.getElementById('notes-fields');
+const toggleNotesBtn = document.getElementById('toggle-notes-btn');
+const addNoteBtn = document.getElementById('add-note-btn');
+
+const editModal = document.getElementById('edit-modal');
+const editModalTitle = document.getElementById('edit-modal-title');
+const closeModalBtn = document.getElementById('close-modal-btn');
+const editBirthdayForm = document.getElementById('edit-birthday-form');
+const editIdInput = document.getElementById('edit-id');
+const editNameInput = document.getElementById('edit-name');
+const editBirthdateInput = document.getElementById('edit-birthdate');
+const editNotesContainer = document.getElementById('edit-notes-container');
+const editAddNoteBtn = document.getElementById('edit-add-note-btn');
+
+let birthdaysData = {}; // Store the full list of birthdays
+let userBirthdaysRef = null;
+
+// --- Helper Functions ---
+
+/**
+ * Calculates the age based on a birthdate string.
+ * @param {string} birthdateString The birthdate in 'YYYY-MM-DD' format.
+ * @returns {number|null} The age in years or null if invalid date.
+ */
+function calculateAge(birthdateString) {
+    if (!birthdateString) return null;
+    const birthdate = new Date(birthdateString);
+    const today = new Date();
+    let age = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+    const d = today.getDate() - birthdate.getDate();
+    if (m < 0 || (m === 0 && d < 0)) {
+        age--;
+    }
+    return age >= 0 ? age : null;
+}
+
+/**
+ * Formats a date string for a user-friendly display.
+ * @param {string} dateString The date in 'YYYY-MM-DD' format.
+ * @returns {string} The formatted date.
+ */
+function formatDateForDisplay(dateString) {
+    if (!dateString) return 'Date not specified';
+    const options = { month: 'long', day: 'numeric', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+/**
+ * Formats a date string for upcoming birthdays (no year).
+ * @param {string} dateString The date in 'YYYY-MM-DD' format.
+ * @returns {string} The formatted date.
+ */
+function formatDateForUpcoming(dateString) {
+    if (!dateString) return 'Date not specified';
+    const options = { month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+/**
+ * Calculates the number of days until the next birthday.
+ * @param {string} birthdateString The birthdate in 'YYYY-MM-DD' format.
+ * @returns {number|null} The number of days or null if invalid date.
+ */
+function daysUntilBirthday(birthdateString) {
+    if (!birthdateString) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const birthdate = new Date(birthdateString);
+    const nextBirthday = new Date(today.getFullYear(), birthdate.getMonth(), birthdate.getDate());
+
+    // If the birthday this year has already passed, set it for next year
+    if (nextBirthday < today) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+
+    const diffTime = nextBirthday - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+}
+
+/**
+ * Adds a new note input field to a container.
+ * @param {HTMLElement} container The container to add the note field to.
+ * @param {string} [title=''] Initial title for the note.
+ * @param {string} [content=''] Initial content for the note.
+ */
+function addNoteField(container, title = '', content = '') {
+    const newNote = document.createElement('div');
+    newNote.className = 'flex items-center gap-2 mb-2 relative';
+    newNote.innerHTML = `
+        <input type="text" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title" value="${title}">
+        <input type="text" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content" value="${content}">
+        <button type="button" class="text-red-500 hover:text-red-700 absolute right-1 -top-2 remove-note-btn text-xl"><i class="fas fa-minus-circle"></i></button>
+    `;
+    container.appendChild(newNote);
+    newNote.querySelector('.remove-note-btn').addEventListener('click', () => {
+        newNote.remove();
+    });
+}
+
+/**
+ * Opens the edit modal and populates it with the birthday data.
+ * @param {string} id The Firebase key of the birthday.
+ * @param {object} person The birthday object from Firebase.
+ */
+function openEditModal(id, person) {
+    editModalTitle.textContent = `Edit Birthday for ${person.name}`;
+    editIdInput.value = id;
+    editNameInput.value = person.name;
+    editBirthdateInput.value = person.birthdate || '';
+    editNotesContainer.innerHTML = ''; // Clear existing notes
+    if (person.notes) {
+        for (const [title, content] of Object.entries(person.notes)) {
+            addNoteField(editNotesContainer, title, content);
+        }
+    }
+    // Add an empty note field if there are no notes
+    if (Object.keys(person.notes || {}).length === 0) {
+        addNoteField(editNotesContainer);
+    }
+    editModal.classList.remove('hidden'); // show modal
+}
+
+/**
+ * Deletes a birthday from Firebase.
+ * @param {string} id The Firebase key of the birthday.
+ * @param {string} name The name of the person.
+ */
+function deleteBirthday(id, name) {
+    if (confirm(`Are you sure you want to delete ${name}'s birthday?`)) {
+        userBirthdaysRef.child(id).remove().then(() => {
+    
+        }).catch(error => {
+            console.error("Error deleting birthday: ", error);
+            alert('Failed to delete birthday.');
+        });
+    }
+}
+
+/**
+ * Shares birthday details via the Web Share API or clipboard fallback.
+ * @param {object} person The birthday object to share.
+ */
+function shareBirthday(person) {
+    const birthdateDisplay = person.birthdate ? formatDateForDisplay(person.birthdate) : 'Date not specified';
+
+    let shareText = `🎉 Happy Birthday! 🎉\n\nName: ${person.name}\n`;
+    if (person.birthdate) {
+        shareText += `Birthday on ${birthdateDisplay}`;
+    }
+
+    if (person.notes && Object.keys(person.notes).length > 0) {
+        shareText += "\n\nNotes:\n";
+        shareText += Object.entries(person.notes).map(([title, content]) => `${title}: ${content}`).join('\n');
+    }
+
+    if (navigator.share) {
+        navigator.share({
+            title: `Birthday for ${person.name}`,
+            text: shareText
+        }).then(() => {
+            console.log('Shared successfully');
+        }).catch((error) => {
+            console.error('Error sharing:', error);
+        });
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            alert("Birthday details copied to clipboard!");
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+            alert("Failed to copy. Please try again.");
+        });
+    }
+}
+
+/**
+ * Renders the birthday list and populates the different sections (today, tomorrow, upcoming).
+ * @param {object} birthdays A key-value object of birthday data.
+ */
+function renderBirthdays(birthdays) {
+    allBirthdaysList.innerHTML = '';
+    todayList.innerHTML = '';
+    tomorrowList.innerHTML = '';
+    upcomingBirthdaysList.innerHTML = '';
+
+    if (birthdays) {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        const todayMonthDay = `${today.getMonth() + 1}-${today.getDate()}`;
+        const tomorrowMonthDay = `${tomorrow.getMonth() + 1}-${tomorrow.getDate()}`;
+
+        let todayBirthdaysFound = false;
+        let tomorrowBirthdaysFound = false;
+        let upcomingBirthdaysFound = false;
+
+        const sortedBirthdays = Object.entries(birthdays).sort(([, a], [, b]) => {
+            const aDays = daysUntilBirthday(a.birthdate);
+            const bDays = daysUntilBirthday(b.birthdate);
+            if (aDays === null && bDays === null) return 0;
+            if (aDays === null) return 1;
+            if (bDays === null) return -1;
+            return aDays - bDays;
+        });
+
+        sortedBirthdays.forEach(([key, person]) => {
+            const age = person.birthdate ? calculateAge(person.birthdate) : null;
+            const birthdateDisplay = formatDateForDisplay(person.birthdate);
+
+            const li = document.createElement('li');
+            li.className = 'bg-gray-50 p-4 rounded-lg shadow-sm flex items-center justify-between transform hover:scale-[1.01] transition duration-200';
+            li.setAttribute('data-id', key); 
+
+            const leftDiv = document.createElement('div');
+            leftDiv.className = 'flex flex-col flex-grow';
+            leftDiv.innerHTML = `
+                <div class="name-info font-bold text-gray-800">${person.name}</div>
+                <div class="date-age-info text-sm text-gray-600 mt-1">
+                    <i class="fas fa-birthday-cake mr-1 text-pink-500"></i> ${birthdateDisplay}
+                    ${age !== null ? `<span class="font-bold text-indigo-500"> | ${age} years old</span>` : ''}
+                </div>
+            `;
+            li.appendChild(leftDiv);
+
+            if (person.notes && Object.keys(person.notes).length > 0) {
+                const notesDiv = document.createElement('div');
+                notesDiv.className = "text-sm text-gray-700 mt-2 p-2 bg-gray-100 rounded-md w-full";
+                for (const [title, content] of Object.entries(person.notes)) {
+                    notesDiv.innerHTML += `<strong>${title}:</strong> ${content}<br>`;
+                }
+                leftDiv.appendChild(notesDiv);
+            }
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'flex gap-2 ml-4'; 
+            actionsDiv.innerHTML = `
+                <button class="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition duration-150 edit-btn"><i class="fas fa-edit"></i></button>
+                <button class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition duration-150 delete-btn"><i class="fas fa-trash-alt"></i></button>
+                <button class="bg-green-500 text-white p-2 rounded-full hover:bg-green-600 transition duration-150 share-btn"><i class="fas fa-share-alt"></i></button>
+            `;
+            li.appendChild(actionsDiv);
+
+            allBirthdaysList.appendChild(li);
+
+            const personDate = person.birthdate ? new Date(person.birthdate) : null;
+            if (personDate) {
+                const personMonthDay = `${personDate.getMonth() + 1}-${personDate.getDate()}`;
+
+                if (personMonthDay === todayMonthDay) {
+                    const todayLi = document.createElement('li');
+                    todayLi.className = 'p-3 bg-yellow-100 rounded-lg flex items-center justify-between shadow-sm';
+                    todayLi.innerHTML = `<span class="font-semibold text-gray-800">${person.name}</span>`;
+                    todayList.appendChild(todayLi);
+                    todayBirthdaysFound = true;
+                }
+                if (personMonthDay === tomorrowMonthDay) {
+                    const tomorrowLi = document.createElement('li');
+                    tomorrowLi.className = 'p-3 bg-green-100 rounded-lg flex items-center justify-between shadow-sm';
+                    tomorrowLi.innerHTML = `<span class="font-semibold text-gray-800">${person.name}</span> <span class="text-sm text-gray-600">birthday tomorrow</span>`;
+                    tomorrowList.appendChild(tomorrowLi);
+                    tomorrowBirthdaysFound = true;
+                }
+                
+                const days = daysUntilBirthday(person.birthdate);
+                if (days !== null && days > 1 && days <= 5) {
+                    const upcomingLi = document.createElement('li');
+                    upcomingLi.className = 'p-3 bg-blue-100 rounded-lg flex items-center justify-between shadow-sm';
+                    const upcomingDate = formatDateForUpcoming(person.birthdate);
+                    upcomingLi.innerHTML = `<span class="font-semibold text-gray-800">${person.name}</span> <span class="text-sm text-gray-600">on ${upcomingDate}</span>`;
+                    upcomingBirthdaysList.appendChild(upcomingLi);
+                    upcomingBirthdaysFound = true;
+                }
+            }
+        });
+
+        if (!todayBirthdaysFound) {
+            todayList.innerHTML = '<li class="text-gray-500 text-center">No birthdays today.</li>';
+        }
+        if (!tomorrowBirthdaysFound) {
+            tomorrowList.innerHTML = '<li class="text-gray-500 text-center">No birthdays tomorrow.</li>';
+        }
+        if (!upcomingBirthdaysFound) {
+            upcomingBirthdaysList.innerHTML = '<li class="text-gray-500 text-center">No upcoming birthdays.</li>';
+        }
+    } else {
+        allBirthdaysList.innerHTML = '<li class="text-center text-gray-500 p-4">No birthdays saved yet.</li>';
+        todayList.innerHTML = '<li class="text-gray-500 text-center">No birthdays today.</li>';
+        tomorrowList.innerHTML = '<li class="text-gray-500 text-center">No birthdays tomorrow.</li>';
+        upcomingBirthdaysList.innerHTML = '<li class="text-gray-500 text-center">No upcoming birthdays.</li>';
+    }
+}
+
+// --- Event Listeners (using delegation where appropriate) ---
+
+// Toggle notes container visibility
+toggleNotesBtn.addEventListener('click', () => {
+    notesContainer.classList.toggle('hidden');
+    const isHidden = notesContainer.classList.contains('hidden');
+    toggleNotesBtn.innerHTML = isHidden ? '<i class="fas fa-plus mr-2"></i> Add Notes' : '<i class="fas fa-minus mr-2"></i> Hide Notes';
+    // Add initial note field if it's being shown for the first time
+    if (!isHidden && notesFields.children.length === 0) {
+        addNoteField(notesFields);
+    }
+});
+
+// Add another note field
+addNoteBtn.addEventListener('click', () => {
+    addNoteField(notesFields);
+});
+
+// Edit modal close button
+closeModalBtn.addEventListener('click', () => {
+    editModal.classList.add('hidden');
+});
+
+// Edit modal add note button
+editAddNoteBtn.addEventListener('click', () => {
+    addNoteField(editNotesContainer);
+});
+
+// Close modal on clicking outside the content
+editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+        editModal.classList.add('hidden');
+    }
+});
+
+// Event delegation for the main birthday list
+allBirthdaysList.addEventListener('click', (e) => {
+    const li = e.target.closest('li[data-id]');
+    if (!li) return;
+
+    const personId = li.getAttribute('data-id');
+    const person = birthdaysData[personId];
+
+    if (e.target.closest('.edit-btn')) {
+        openEditModal(personId, person);
+    } else if (e.target.closest('.delete-btn')) {
+        deleteBirthday(personId, person.name);
+    } else if (e.target.closest('.share-btn')) {
+        shareBirthday(person);
+    }
+});
+
+// --- Core Firebase Logic ---
+auth.onAuthStateChanged(user => {
+    if (user) {
+        userName.textContent = user.displayName || 'User';
+        userEmail.textContent = user.email || 'No Email';
+        mobileUserName.textContent = user.displayName || 'User';
+        mobileUserEmail.textContent = user.email || 'No Email';
+        if (user.photoURL) userPhoto.src = user.photoURL;
+
+        userBirthdaysRef = database.ref(`users/${user.uid}/birthdays`);
+
+        // Handle add form submission
+        addBirthdayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = nameInput.value;
+            const birthdate = birthdateInput.value;
+
+            const notes = {};
+            notesFields.querySelectorAll('.flex').forEach(noteDiv => {
+                const title = noteDiv.querySelector('.note-title').value;
+                const content = noteDiv.querySelector('.note-content').value;
+                if (title && content) {
+                    notes[title] = content;
+                }
+            });
+
+            userBirthdaysRef.push({ name, birthdate, notes }).then(() => {
+                alert('Birthday saved successfully!');
+                addBirthdayForm.reset();
+                notesContainer.classList.add('hidden');
+                toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
+                notesFields.innerHTML = ''; // Clear notes fields
+            }).catch(error => {
+                console.error("Error saving birthday: ", error);
+                alert('Failed to save birthday.');
+            });
+        });
+
+        // Handle edit form submission
+        editBirthdayForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const personId = editIdInput.value;
+            const newName = editNameInput.value;
+            const newBirthdate = editBirthdateInput.value;
+
+            const newNotes = {};
+            editNotesContainer.querySelectorAll('.flex').forEach(noteDiv => {
+                const title = noteDiv.querySelector('.note-title').value;
+                const content = noteDiv.querySelector('.note-content').value;
+                if (title && content) {
+                    newNotes[title] = content;
+                }
+            });
+
+            userBirthdaysRef.child(personId).update({
+                name: newName,
+                birthdate: newBirthdate,
+                notes: newNotes
+            }).then(() => {
+                editModal.classList.add('hidden');
+            
+            }).catch(error => {
+                console.error("Error updating birthday: ", error);
+                alert('Failed to update birthday.');
+            });
+        });
+
+        // Real-time data listener
+        userBirthdaysRef.on('value', (snapshot) => {
+            birthdaysData = snapshot.val() || {}; // Handle case where data is null
+            renderBirthdays(birthdaysData);
+        });
+
+        // Search functionality
+        searchInput.addEventListener('keyup', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredBirthdays = Object.fromEntries(
+                Object.entries(birthdaysData || {}).filter(([key, value]) =>
+                    value.name.toLowerCase().includes(searchTerm)
+                )
+            );
+            renderBirthdays(filteredBirthdays);
+        });
+
+    } else {
+        // Redirect to login page if not authenticated
+        window.location.href = 'index.html';
+    }
+});
+
+// Logout function
+function logout() {
+    auth.signOut().then(() => {
+        console.log('User signed out');
+        window.location.href = 'index.html';
+    }).catch((error) => {
+        console.error('Sign out error', error);
+    });
+}
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menu-btn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+});
+</script>
+
+</body>
+</html>
