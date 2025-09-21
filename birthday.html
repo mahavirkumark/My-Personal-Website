@@ -776,6 +776,73 @@
                 console.error('Sign out error', error);
             });
         }
+// Function to request notification permission from the user
+function requestNotificationPermission() {
+    // Check if the browser supports the Notification API
+    if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted!');
+            } else {
+                console.log('Notification permission denied.');
+            }
+        });
+    }
+}
+
+// Function to display a birthday notification
+async function showBirthdayNotification(birthdays) {
+    // Exit if notifications are not supported or permission is not granted
+    if (!('Notification' in window) || Notification.permission !== "granted") {
+        return;
+    }
+
+    const today = new Date().toLocaleDateString();
+    if (!currentUserId) return;
+
+    try {
+        // Check Firebase to see if a notification was already sent today
+        const lastNotifiedRef = database.ref(`users/${currentUserId}/lastNotifiedDate`);
+        const snapshot = await lastNotifiedRef.once("value");
+        const lastNotifiedDate = snapshot.val();
+
+        // If a notification was already sent today, or there are no birthdays, exit
+        if (lastNotifiedDate === today || birthdays.length === 0) {
+            return;
+        }
+
+        // Construct the notification message
+        let notificationTitle = "🎂 Today's Birthdays!";
+        let notificationBody = birthdays.map(b => b.name).join(', ');
+        notificationBody += birthdays.length > 1 ? " have a birthday today!" : " has a birthday today!";
+
+        // Show the notification
+        new Notification(notificationTitle, {
+            body: notificationBody,
+            icon: 'https://via.placeholder.com/64'
+        });
+
+        // Save the current date to Firebase to prevent repeat notifications today
+        await lastNotifiedRef.set(today);
+    } catch (error) {
+        console.error("Error showing or saving notification state:", error);
+    }
+}
+
+// Event listener to request permission when the user logs in
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // Other user initialization logic...
+        requestNotificationPermission();
+        initializeData();
+    } else {
+        window.location.href = 'index.html';
+    }
+});
+
+
+        
     </script>
 </body>
 </html>
+
