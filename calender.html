@@ -263,16 +263,8 @@ menuBtn.addEventListener("click", () => {
 <footer class="mt-12 pt-3 pb-3 bg-white text-gray-600 text-center text-sm border-t">
   &copy; 2025 Personal Website | All rights reserved
 </footer>
-<!-- Include your JS here -->
-<script>
-  /* Place your full JS code here exactly as provided */
-</script>
-
-</body>
-</html>
-
  
-</style>
+
 <!-- Firebase compat libs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -324,6 +316,12 @@ const formatPrettyDate = d => {
   return dt.toLocaleDateString("en-US",{day:"2-digit",month:"short",year:"numeric"});
 };
 
+// Capitalize first letter
+function capitalizeFirstLetter(str) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // --- Auth ---
 auth.onAuthStateChanged(user => {
   if(user){
@@ -368,7 +366,6 @@ function renderCalendar(){
     if(dateObj.toDateString()===new Date().toDateString()) cell.classList.add("today");
     if(dateObj.getDay()===0) cell.classList.add("sunday");
 
-    // Date left, weekday right, no brackets
     cell.innerHTML=`
       <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
         <span class="text-xl">${d}</span>
@@ -382,35 +379,29 @@ function renderCalendar(){
   }
 }
 
+// --- Modal ---
 function openModal(dateISO) {
-  // Function to format date +1 day as DD-MM-YYYY
   function formatDatePlusOne(dateISO) {
     const d = new Date(dateISO);
-    d.setDate(d.getDate() + 1); // Add 1 day
+    d.setDate(d.getDate() + 1);
     const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
     const weekday = d.toLocaleString("en-US", { weekday: "long" });
     return `${day}-${month}-${year} (${weekday})`;
   }
 
-  // Set modal header
   document.getElementById("modalDate").textContent = `Tasks for ${formatDatePlusOne(dateISO)}`;
-
-  // Reset inputs
   selectedDate = dateISO;
   editTaskId = null;
   document.getElementById("taskTitle").value = "";
   document.getElementById("taskDesc").value = "";
 
-  // Show modal
   document.getElementById("overlay").classList.remove("hidden");
   document.getElementById("taskModal").classList.remove("hidden");
 
-  // Load tasks
   loadModalTasks(dateISO);
 }
-
 
 function closeModal(){
   selectedDate=null; editTaskId=null;
@@ -449,10 +440,11 @@ function loadTasks(date){
   db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
     const data=snap.val(); c.innerHTML="";
     if(data) Object.values(data).forEach(t=>{
-      c.innerHTML+=`<div class="truncate">• ${t.title}</div>`;
+      c.innerHTML+=`<div class="truncate">• ${capitalizeFirstLetter(t.title)}</div>`;
     });
   });
 }
+
 function loadModalTasks(date){
   const cont = document.getElementById("existingTasks");
   cont.innerHTML = "Loading...";
@@ -466,13 +458,12 @@ function loadModalTasks(date){
     Object.entries(data).forEach(([id, t]) => {
       const div = document.createElement("div");
       div.className = "flex justify-between items-center p-4 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition text-lg";
-  div.innerHTML = `
-  <div>
-    <strong class="block text-gray-800">${t.title}</strong>
-    <p class="text-gray-600 whitespace-pre-wrap break-words">${t.desc || ""}</p>
-  </div>
-`;
-
+      div.innerHTML = `
+        <div>
+          <strong class="block text-gray-800">${capitalizeFirstLetter(t.title)}</strong>
+          <p class="text-gray-600 whitespace-pre-wrap break-words">${t.desc || ""}</p>
+        </div>
+      `;
       
       const btns = document.createElement("div");
       btns.className = "flex gap-2";
@@ -508,12 +499,13 @@ function loadModalTasks(date){
 
 // --- PDF Download ---
 document.getElementById("downloadMonthTasks").addEventListener("click",async()=>{
+  if(!currentUser) return alert("User not logged in.");
   const y=currentDate.getFullYear(), m=currentDate.getMonth();
-  const snap=await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-  const data=snap.val()||{}, pdfData=[];
-  for(let d=1;d<=new Date(y,m+1,0).getDate();d++){
+  const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+  const data = snap.val()||{}, pdfData=[];
+  for(let d=1; d<=new Date(y,m+1,0).getDate(); d++){
     const iso=toISODate(new Date(y,m,d)), dateStr=formatDate(new Date(y,m,d));
-    if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr,t.title,t.desc||""]));
+    if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr, capitalizeFirstLetter(t.title), t.desc||""]));
   }
   if(!pdfData.length) return alert("No tasks this month.");
   const {jsPDF}=window.jspdf; const doc=new jsPDF();
@@ -523,227 +515,67 @@ document.getElementById("downloadMonthTasks").addEventListener("click",async()=>
   doc.save(`Tasks_${m+1}-${y}.pdf`);
 });
 
+// --- Search Tasks ---
 let debounceTimeout;
-
 function searchTasks() {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
     const query = document.getElementById("searchInput").value.toLowerCase();
     const resultsContainer = document.getElementById("searchResults");
     resultsContainer.innerHTML = "";
-
     if (!query) return;
 
     const user = firebase.auth().currentUser;
-    if (!user) {
-      resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
-      return;
-    }
+    if (!user) return resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
 
-    const userId = user.uid;
-    const userTasksRef = firebase.database().ref(`users/${userId}/tasks`);
+    db.ref(`users/${user.uid}/tasks`).once("value").then(snapshot => {
+      const allTasks = snapshot.val();
+      if(!allTasks) return resultsContainer.innerHTML="<p style='padding:10px;'>No tasks found.</p>";
 
-    userTasksRef.once("value")
-      .then(snapshot => {
-        const allTasks = snapshot.val();
-        if (!allTasks) {
-          resultsContainer.innerHTML = "<p style='padding: 10px;'>No tasks found in your calendar.</p>";
-          return;
-        }
+      let found=0;
+      const addedTasks = new Set();
 
-        let found = 0;
-        const addedTasks = new Set();
+      Object.entries(allTasks).sort((a,b)=>new Date(b[0])-new Date(a[0])).forEach(([date,tasks])=>{
+        Object.entries(tasks).forEach(([id, task])=>{
+          const titleMatch = task.title?.toLowerCase().includes(query);
+          const descMatch = task.desc?.toLowerCase().includes(query);
+          const uniqueKey = `${task.title?.toLowerCase().trim()}-${task.desc?.toLowerCase().trim()}-${date}`;
+          if((titleMatch||descMatch) && !addedTasks.has(uniqueKey)){
+            addedTasks.add(uniqueKey); found++;
 
-      Object.entries(allTasks)
-  // sort by date (latest first)
-  .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-  .forEach(([date, tasks]) => {
-    Object.entries(tasks).forEach(([id, task]) => {
-      const titleMatch = task.title?.toLowerCase().includes(query);
-      const descMatch = task.desc?.toLowerCase().includes(query);
+            const currentDateObj = new Date(date);
+            const nextDate = new Date(currentDateObj); nextDate.setDate(currentDateObj.getDate()+1);
+            const formattedNextDate = nextDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 
-      const normalize = str => (str || '').toLowerCase().trim();
-      const uniqueKey = `${normalize(task.title)}-${normalize(task.desc)}-${date}`;
+            const taskDiv = document.createElement("div");
+            taskDiv.style.border="1px solid #ddd"; taskDiv.style.borderRadius="8px";
+            taskDiv.style.padding="12px"; taskDiv.style.marginBottom="12px";
+            taskDiv.style.background="#e6f0ff"; taskDiv.style.boxShadow="0 2px 6px rgba(0,0,0,0.05)";
+            taskDiv.style.cursor="pointer"; taskDiv.style.transition="background 0.2s ease";
+            taskDiv.addEventListener("click",()=>openModal(date));
+            taskDiv.addEventListener("mouseenter",()=>taskDiv.style.background="#ffeb66");
+            taskDiv.addEventListener("mouseleave",()=>taskDiv.style.background="#e6f0ff");
 
-      if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
-        addedTasks.add(uniqueKey);
-        found++;
-
-        const currentDate = new Date(date);
-        const nextDate = new Date(currentDate);
-        nextDate.setDate(currentDate.getDate() + 1);
-
-        const formattedNextDate = nextDate.toLocaleDateString('en-GB', {
-          day: '2-digit', month: 'short', year: 'numeric'
+            taskDiv.innerHTML = `
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <strong style="font-size:1.1em;">${capitalizeFirstLetter(task.title)}</strong>
+                <span style="color:#555;font-size:17px;"><em>${formattedNextDate}</em></span>
+              </div>
+              <div style="margin-top:6px;">${task.desc||'No Description'}</div>
+            `;
+            resultsContainer.appendChild(taskDiv);
+          }
         });
-const taskDiv = document.createElement("div");
-taskDiv.style.border = "1px solid #ddd";
-taskDiv.style.borderRadius = "8px";
-taskDiv.style.padding = "12px";
-taskDiv.style.marginBottom = "12px";
-taskDiv.style.background = "#e6f0ff";
-taskDiv.style.boxShadow = "0 2px 6px rgba(0,0,0,0.05)";
-taskDiv.style.cursor = "pointer"; 
-taskDiv.style.transition = "background 0.2s ease";
-
-// ✅ open modal when clicking the whole card
-taskDiv.addEventListener("click", () => openModal(date));
-
-// ✅ hover effect
-taskDiv.addEventListener("mouseenter", () => {
-  taskDiv.style.background = "#ffeb66"; // lighter yellow on hover
-});
-taskDiv.addEventListener("mouseleave", () => {
-  taskDiv.style.background = "#e6f0ff"; // reset to original
-});
-
-taskDiv.innerHTML = `
-  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <strong style="font-size: 1.1em;">${task.title}</strong>
-    <span style="color: #555; font-size: 17px;"><em>${formattedNextDate}</em></span>
-  </div>
-  <div style="margin-top: 6px;">${task.desc || 'No Description'}</div>
-`;
-
-
-
-
-        resultsContainer.appendChild(taskDiv);
-      }
-    });
-  });
-
-
-        if (found === 0) {
-          resultsContainer.innerHTML = "<p style='padding: 10px;'>No matching tasks found.</p>";
-        }
-      })
-      .catch(error => {
-        console.error("Search error:", error);
-        resultsContainer.innerHTML = "<p style='padding: 10px;'>Error retrieving tasks.</p>";
       });
-  }, 300);
+
+      if(found===0) resultsContainer.innerHTML="<p style='padding:10px;'>No matching tasks found.</p>";
+    }).catch(err=>{console.error(err); resultsContainer.innerHTML="<p style='padding:10px;'>Error retrieving tasks.</p>";});
+  },300);
 }
-
-document.getElementById("downloadMonthTasks").addEventListener("click", async () => {
-  if (!currentUser) return alert("User not logged in.");
-
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth(); // 0-indexed
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  let allTasksText = `Tasks for ${currentDate.toLocaleString("default", { month: "long", year: "numeric" })}\n\n`;
-
-  const userTasksRef = db.ref(`users/${currentUser.uid}/tasks`);
-  const snapshot = await userTasksRef.once("value");
-  const allTasks = snapshot.val() || {};
-
-  let hasTasks = false;
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateObj = new Date(year, month, day);
-    const dateStr = dateObj.toISOString().split("T")[0];
-
-    if (allTasks[dateStr]) {
-      hasTasks = true;
-      Object.values(allTasks[dateStr]).forEach(task => {
-        allTasksText += `Date: ${dateStr}\nTitle: ${task.title}\nType: ${task.type}\nDescription: ${task.desc}\n\n`;
-      });
-    }
-  }
-
-  if (!hasTasks) {
-    allTasksText += "No tasks for this month.\n";
-  }
-
-  // Create blob and download
-  const blob = new Blob([allTasksText], { type: "text/plain" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `Tasks_${year}_${month + 1}.txt`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
-
-
-
-
 </script>
-
-
-
-<style>
-
-</style>
-
-
-
-
-
-
-
-
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
