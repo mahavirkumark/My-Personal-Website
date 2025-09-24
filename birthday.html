@@ -9,6 +9,23 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f3f4f6; 
+            margin: 0;
+        }
+        nav a { 
+            text-decoration: none; 
+            color: black; 
+            padding: 5px; 
+            transition: color 0.3s ease-in-out; 
+        }
+        nav a:hover { 
+            text-decoration: none; 
+            color: #4f46e5;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100 font-sans antialiased">
@@ -16,15 +33,16 @@
     <nav class="bg-white shadow-lg fixed w-full z-50">
         <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
             <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
-                <i class="fas fa-user-circle text-indigo-500"></i> My Personal Website
+                <i class="fas fa-user-circle text-indigo-500" style="font-size: 28px;"></i>
+                <span style="font-size: 22px;">My Personal Website</span>
             </div>
             <div class="hidden md:flex space-x-6 text-gray-600 font-medium">
-                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
-                <a href="address.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-tasks"></i> Address</a>
-                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
-                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
-                <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+                <a href="address.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
+                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+                <a href="links.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+                <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
             <div class="hidden md:flex items-center gap-4">
                 <div class="text-right">
@@ -114,7 +132,6 @@
                 </div>
 
                 <div class="md:w-2/3 space-y-8">
-                    
                     <div class="bg-white p-6 rounded-xl shadow-lg">
                         <h2 class="text-2xl font-bold text-gray-800 mb-4">All Contacts & Birthdays</h2>
                         <div class="relative mb-4">
@@ -779,6 +796,9 @@
   </script>
 </body>
 </html>
+
+
+
 
 
 
