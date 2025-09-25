@@ -183,617 +183,723 @@
             </form>
         </div>
     </div>
+<script>
+    // --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
 
-    <script>
-        // --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-          authDomain: "sk12-58e9e.firebaseapp.com",
-          projectId: "sk12-58e9e",
-          storageBucket: "sk12-58e9e.appspot.com",
-          messagingSenderId: "470207874652",
-          appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-        };
-        
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+    // Initialize Firebase
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    // --- Global Variables ---
+    let currentUserId = null;
+    let allBirthdays = {};
+    let allContacts = {};
+
+    // Contacts from the VCard file. You will only need this to import them ONE time.
+    const vcardContacts = [
+        { id: 'vc1', name: 'Samsung Helpline', phone: '+91 1800 407 267 864' },
+        { id: 'vc2', name: 'ATHARAV DOLAS😎', phone: '+91 98608 92299' },
+        { id: 'vc3', name: 'Hardik', phone: '+91 75585 15739' },
+        { id: 'vc4', name: 'Symphony Phone Number', phone: '+91 95109 76161' },
+        { id: 'vc5', name: 'Ganesh', phone: '+91 83080 66627' },
+        { id: 'vc6', name: 'Harsh', phone: '+91 87881 48821' },
+        { id: 'vc7', name: 'omlonkar447', phone: '+91 74473 81139' },
+        { id: 'vc8', name: 'AADITYA AMAR', phone: '+91 94037 45013' },
+        { id: 'vc9', name: 'Vilas Kulkarni', phone: '+91 98222 33913' },
+        { id: 'vc10', name: 'Swati Kulkarni', phone: '+91 88886 42200' },
+        { id: 'vc11', name: 'Jaya Raut', phone: '+91 96738 86002' },
+        { id: 'vc12', name: 'Adwaiyata', phone: '+91 98508 12323' },
+        { id: 'vc13', name: 'Abhishek', phone: '+91 98819 83721' },
+        { id: 'vc14', name: 'Kalyani Khangan', phone: '+91 77220 02989' },
+        { id: 'vc15', name: 'Jyoti', phone: '+91 94061 58783' },
+        { id: 'vc16', name: 'Anand', phone: '+91 99750 29539' },
+        { id: 'vc17', name: 'Amit Mainde Papad Wala', phone: '+91 89832 60793' },
+    ];
+
+
+    // --- DOM Elements ---
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const addBirthdayForm = document.getElementById('add-birthday-form');
+    const allItemsList = document.getElementById('all-items-list');
+    const searchInput = document.getElementById('searchInput');
+    const todayList = document.getElementById('today-list');
+    const tomorrowList = document.getElementById('tomorrow-list');
+    const upcomingList = document.getElementById('upcoming-birthdays-list');
+    const editModal = document.getElementById('edit-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    const editForm = document.getElementById('edit-birthday-form');
+    const notesContainer = document.getElementById('notes-container');
+    const toggleNotesBtn = document.getElementById('toggle-notes-btn');
+    const notesFields = document.getElementById('notes-fields');
+    const addNoteBtn = document.getElementById('add-note-btn');
+    const editNotesContainer = document.getElementById('edit-notes-container');
+    const editAddNoteBtn = document.getElementById('edit-add-note-btn');
+    const editNameInput = document.getElementById('edit-name');
+    const editMobileInput = document.getElementById('edit-mobile');
+    const editDateInput = document.getElementById('edit-birthdate');
+    const editAgeInput = document.getElementById('edit-age');
+    const editIdInput = document.getElementById('edit-id');
+
+
+    // --- Event Listeners ---
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    toggleNotesBtn.addEventListener('click', () => {
+        notesContainer.classList.toggle('hidden');
+        if (notesContainer.classList.contains('hidden')) {
+            toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
+        } else {
+            toggleNotesBtn.innerHTML = '<i class="fas fa-minus mr-2"></i> Hide Notes';
         }
-        const database = firebase.database();
-        const auth = firebase.auth();
+    });
 
-        // --- Global Variables ---
-        let currentUserId = null;
-        let allBirthdays = {};
-        let allContacts = {};
+    addNoteBtn.addEventListener('click', () => {
+        addNoteField(notesFields);
+    });
+
+    editAddNoteBtn.addEventListener('click', () => {
+        addNoteField(editNotesContainer);
+    });
+
+    addBirthdayForm.addEventListener('submit', handleAddBirthday);
+    editForm.addEventListener('submit', handleEditBirthday);
+    closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+
+    allItemsList.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
         
-        // Contacts from the VCard file. You will only need this to import them ONE time.
-        const vcardContacts = [
-            { id: 'vc1', name: 'Samsung Helpline', phone: '+91 1800 407 267 864' },
-            { id: 'vc2', name: 'ATHARAV DOLAS😎', phone: '+91 98608 92299' },
-            { id: 'vc3', name: 'Hardik', phone: '+91 75585 15739' },
-            { id: 'vc4', name: 'Symphony Phone Number', phone: '+91 95109 76161' },
-            { id: 'vc5', name: 'Ganesh', phone: '+91 83080 66627' },
-            { id: 'vc6', name: 'Harsh', phone: '+91 87881 48821' },
-            { id: 'vc7', name: 'omlonkar447', phone: '+91 74473 81139' },
-            { id: 'vc8', name: 'AADITYA AMAR', phone: '+91 94037 45013' },
-            { id: 'vc9', name: 'Vilas Kulkarni', phone: '+91 98222 33913' },
-            { id: 'vc10', name: 'Swati Kulkarni', phone: '+91 88886 42200' },
-            { id: 'vc11', name: 'Jaya Raut', phone: '+91 96738 86002' },
-            { id: 'vc12', name: 'Adwaiyata', phone: '+91 98508 12323' },
-            { id: 'vc13', name: 'Abhishek', phone: '+91 98819 83721' },
-            { id: 'vc14', name: 'Kalyani Khangan', phone: '+91 77220 02989' },
-            { id: 'vc15', name: 'Jyoti', phone: '+91 94061 58783' },
-            { id: 'vc16', name: 'Anand', phone: '+91 99750 29539' },
-            { id: 'vc17', name: 'Amit Mainde Papad Wala', phone: '+91 89832 60793' },
-        ];
+        const listItem = e.target.closest('li');
+        const birthdayId = listItem.dataset.birthdayId;
+        const contactId = listItem.dataset.contactId;
+        const name = listItem.dataset.name;
 
-
-        // --- DOM Elements ---
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const addBirthdayForm = document.getElementById('add-birthday-form');
-        const allItemsList = document.getElementById('all-items-list');
-        const searchInput = document.getElementById('searchInput');
-        const todayList = document.getElementById('today-list');
-        const tomorrowList = document.getElementById('tomorrow-list');
-        const upcomingList = document.getElementById('upcoming-birthdays-list');
-        const editModal = document.getElementById('edit-modal');
-        const closeBtn = document.getElementById('close-modal-btn');
-        const editForm = document.getElementById('edit-birthday-form');
-        const notesContainer = document.getElementById('notes-container');
-        const toggleNotesBtn = document.getElementById('toggle-notes-btn');
-        const notesFields = document.getElementById('notes-fields');
-        const addNoteBtn = document.getElementById('add-note-btn');
-        const editNotesContainer = document.getElementById('edit-notes-container');
-        const editAddNoteBtn = document.getElementById('edit-add-note-btn');
-        const editNameInput = document.getElementById('edit-name');
-        const editMobileInput = document.getElementById('edit-mobile');
-        const editDateInput = document.getElementById('edit-birthdate');
-        const editAgeInput = document.getElementById('edit-age');
-        const editIdInput = document.getElementById('edit-id');
-
-
-        // --- Event Listeners ---
-        menuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        toggleNotesBtn.addEventListener('click', () => {
-            notesContainer.classList.toggle('hidden');
-            if (notesContainer.classList.contains('hidden')) {
-                toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-            } else {
-                toggleNotesBtn.innerHTML = '<i class="fas fa-minus mr-2"></i> Hide Notes';
+        if (btn.classList.contains('delete-btn')) {
+             if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+                if (birthdayId) {
+                    deleteBirthday(birthdayId);
+                }
+                if (contactId) {
+                    deleteContact(contactId);
+                }
             }
+        } else if (btn.classList.contains('edit-btn')) {
+            if (confirm(`Do you want to edit the details for ${name}?`)) {
+                if(birthdayId) {
+                    openEditModal(birthdayId);
+                }
+            }
+        } else if (btn.classList.contains('add-birthday-btn')) {
+            document.getElementById('name').value = name;
+            document.getElementById('mobile').value = listItem.dataset.mobile || '';
+            document.getElementById('birthdate').value = '';
+            document.getElementById('age').value = '';
+        } else if (btn.classList.contains('share-contact-btn')) {
+            const contact = allContacts[contactId];
+            if (contact) {
+                shareContact(contact);
+            } else {
+                console.error("No contact details to share for this entry.");
+            }
+        } else if (btn.classList.contains('share-birthday-btn')) {
+            const birthday = allBirthdays[birthdayId];
+            if (birthday) {
+                shareBirthday(birthday);
+            } else {
+                console.error("No birthday details to share for this entry.");
+            }
+        }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        renderAllItems(searchTerm);
+    });
+
+
+    // --- Helper Functions ---
+    function addNoteField(container, title = '', content = '') {
+        const noteDiv = document.createElement('div');
+        noteDiv.className = 'flex items-center gap-2 mb-2';
+        noteDiv.innerHTML = `
+            <input type="text" value="${title}" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
+            <input type="text" value="${content}" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
+            <button type="button" class="text-red-500 hover:text-red-700 remove-note-btn"><i class="fas fa-times-circle"></i></button>
+        `;
+        container.appendChild(noteDiv);
+        noteDiv.querySelector('.remove-note-btn').addEventListener('click', () => {
+            noteDiv.remove();
         });
-
-        addNoteBtn.addEventListener('click', () => {
-            addNoteField(notesFields);
-        });
-
-        editAddNoteBtn.addEventListener('click', () => {
-            addNoteField(editNotesContainer);
-        });
-
-        addBirthdayForm.addEventListener('submit', handleAddBirthday);
-        editForm.addEventListener('submit', handleEditBirthday);
-        closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-
-        allItemsList.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            
-            const listItem = e.target.closest('li');
-            const birthdayId = listItem.dataset.birthdayId;
-            const contactId = listItem.dataset.contactId;
-            const name = listItem.dataset.name;
-
-            if (btn.classList.contains('delete-btn')) {
-                 if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-                     if (birthdayId) {
-                         deleteBirthday(birthdayId);
-                     }
-                     if (contactId) {
-                         deleteContact(contactId);
-                     }
-                 }
-            } else if (btn.classList.contains('edit-btn')) {
-                if (confirm(`Do you want to edit the details for ${name}?`)) {
-                    if(birthdayId) {
-                       openEditModal(birthdayId);
+    }
+    
+    function parseVCard(vcardString) {
+        const contacts = [];
+        const vcards = vcardString.split('END:VCARD').filter(block => block.trim() !== '');
+        vcards.forEach(vcardBlock => {
+            const lines = vcardBlock.split('\n');
+            let name = '';
+            let phone = '';
+            lines.forEach(line => {
+                if (line.startsWith('FN:')) {
+                    name = line.substring(3).trim();
+                } else if (line.startsWith('TEL;')) {
+                    const telParts = line.split(':');
+                    if (telParts.length > 1) {
+                        phone = telParts[1].trim();
                     }
                 }
-            } else if (btn.classList.contains('add-birthday-btn')) {
-                document.getElementById('name').value = name;
-                document.getElementById('mobile').value = listItem.dataset.mobile || '';
-                document.getElementById('birthdate').value = '';
-                document.getElementById('age').value = '';
-            } else if (btn.classList.contains('share-contact-btn')) {
-                const contact = allContacts[contactId];
-                if (contact) {
-                    shareContact(contact);
-                } else {
-                    console.error("No contact details to share for this entry.");
-                }
-            } else if (btn.classList.contains('share-birthday-btn')) {
-                const birthday = allBirthdays[birthdayId];
-                if (birthday) {
-                    shareBirthday(birthday);
-                } else {
-                    console.error("No birthday details to share for this entry.");
-                }
+            });
+            if (name || phone) {
+                contacts.push({ name, phone });
             }
         });
+        return contacts;
+    }
 
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            renderAllItems(searchTerm);
+    function calculateAge(birthdate) {
+        if (!birthdate || birthdate.length < 10) return null; // Ensure full YYYY-MM-DD format
+        const today = new Date();
+        const birthDate = new Date(birthdate);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    }
+    
+    function getNextBirthdayDate(birthdate) {
+        if (!birthdate) return null;
+        let today = new Date();
+        let birthDate;
+
+        if (birthdate.length === 5 && birthdate.includes('-')) {
+            // Case: MM-DD
+            const [month, day] = birthdate.split('-').map(Number);
+            birthDate = new Date(today.getFullYear(), month - 1, day);
+        } else if (birthdate.length === 10 && birthdate.includes('-')) {
+            // Case: YYYY-MM-DD
+            birthDate = new Date(birthdate);
+        } else {
+            return null; // Invalid format
+        }
+
+        const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+        if (nextBirthday < today) {
+            nextBirthday.setFullYear(today.getFullYear() + 1);
+        }
+        return nextBirthday;
+    }
+
+    function getUpcomingBirthdays(birthdays) {
+        const today = new Date();
+        const upcoming = Object.values(birthdays).filter(item => {
+            if (!item.birthdate) return false;
+            const nextBday = getNextBirthdayDate(item.birthdate);
+            if (!nextBday) return false;
+            const diffDays = Math.ceil((nextBday - today) / (1000 * 60 * 60 * 24));
+            return diffDays > 1 && diffDays <= 6;
+        }).sort((a, b) => {
+            return getNextBirthdayDate(a.birthdate) - getNextBirthdayDate(b.birthdate);
+        });
+        return upcoming;
+    }
+
+    function getTodayAndTomorrowBirthdays(birthdays) {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        const todayBirthdays = Object.values(birthdays).filter(item => {
+            if (!item.birthdate) return false;
+            let birthDate = new Date(item.birthdate);
+            if (item.birthdate.length === 5) { // MM-DD format
+                birthDate.setFullYear(today.getFullYear());
+            }
+            return today.getMonth() === birthDate.getMonth() && today.getDate() === birthDate.getDate();
+        });
+        
+        const tomorrowBirthdays = Object.values(birthdays).filter(item => {
+            if (!item.birthdate) return false;
+            let birthDate = new Date(item.birthdate);
+            if (item.birthdate.length === 5) { // MM-DD format
+                birthDate.setFullYear(tomorrow.getFullYear());
+            }
+            return tomorrow.getMonth() === birthDate.getMonth() && tomorrow.getDate() === birthDate.getDate();
         });
 
+        return { todayBirthdays, tomorrowBirthdays };
+    }
 
-        // --- Helper Functions ---
-        function addNoteField(container, title = '', content = '') {
-            const noteDiv = document.createElement('div');
-            noteDiv.className = 'flex items-center gap-2 mb-2';
-            noteDiv.innerHTML = `
-                <input type="text" value="${title}" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
-                <input type="text" value="${content}" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
-                <button type="button" class="text-red-500 hover:text-red-700 remove-note-btn"><i class="fas fa-times-circle"></i></button>
+    function renderBirthdayList(listId, items) {
+        const list = document.getElementById(listId);
+        list.innerHTML = '';
+        if (items.length === 0) {
+            list.innerHTML = `<li class="text-gray-500 text-center">${listId === 'today-list' ? 'No birthdays today.' : listId === 'tomorrow-list' ? 'No birthdays tomorrow.' : 'No upcoming birthdays.'}</li>`;
+            return;
+        }
+        items.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm';
+            li.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-gift text-lg text-indigo-500"></i>
+                    <div>
+                        <p class="font-bold text-gray-900">${item.name}</p>
+                        ${item.birthdate ? `<p class="text-sm text-gray-600">${new Date(item.birthdate.length === 5 ? `2000-${item.birthdate}` : item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>` : ''}
+                    </div>
+                </div>
             `;
-            container.appendChild(noteDiv);
-            noteDiv.querySelector('.remove-note-btn').addEventListener('click', () => {
-                noteDiv.remove();
-            });
+            list.appendChild(li);
+        });
+    }
+    
+    function renderAllItems(searchTerm = '') {
+        const list = document.getElementById('all-items-list');
+        list.innerHTML = '';
+        
+        let combinedItemsMap = new Map();
+        
+        // Process Contacts first
+        for (const key in allContacts) {
+            const contact = allContacts[key];
+            const item = { ...contact, contactId: key, isContact: true, isBirthday: false };
+            combinedItemsMap.set(contact.name.toLowerCase(), item);
+        }
+
+        // Process Birthdays and merge with existing contacts
+        for (const key in allBirthdays) {
+            const birthday = allBirthdays[key];
+            const existingItem = combinedItemsMap.get(birthday.name.toLowerCase());
+            if (existingItem) {
+                existingItem.birthdate = birthday.birthdate;
+                existingItem.age = birthday.age;
+                existingItem.notes = birthday.notes;
+                existingItem.isBirthday = true;
+                existingItem.birthdayId = key;
+            } else {
+                const item = { ...birthday, birthdayId: key, isContact: false, isBirthday: true };
+                combinedItemsMap.set(birthday.name.toLowerCase(), item);
+            }
+        }
+
+        const filteredItems = Array.from(combinedItemsMap.values()).filter(item => 
+            (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+            (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
+            (item.mobile && item.mobile.toLowerCase().includes(searchTerm))
+        );
+        
+        if (filteredItems.length === 0) {
+            list.innerHTML = `<li class="text-center text-gray-500 p-4">No contacts or birthdays found.</li>`;
+            return;
         }
         
-        function parseVCard(vcardString) {
-            const contacts = [];
-            const vcards = vcardString.split('END:VCARD').filter(block => block.trim() !== '');
-            vcards.forEach(vcardBlock => {
-                const lines = vcardBlock.split('\n');
-                let name = '';
-                let phone = '';
-                lines.forEach(line => {
-                    if (line.startsWith('FN:')) {
-                        name = line.substring(3).trim();
-                    } else if (line.startsWith('TEL;')) {
-                        const telParts = line.split(':');
-                        if (telParts.length > 1) {
-                            phone = telParts[1].trim();
-                        }
-                    }
-                });
-                if (name || phone) {
-                    contacts.push({ name, phone });
-                }
-            });
-            return contacts;
-        }
+        filteredItems.sort((a, b) => a.name.localeCompare(b.name));
 
-        function calculateAge(birthdate) {
-            if (!birthdate || birthdate.length < 10) return null; // Ensure full YYYY-MM-DD format
-            const today = new Date();
-            const birthDate = new Date(birthdate);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const m = today.getMonth() - birthDate.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            return age;
-        }
-        
-        function getNextBirthdayDate(birthdate) {
-            if (!birthdate) return null;
-            const today = new Date();
-            const birthDate = new Date(birthdate);
-            const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-            if (nextBirthday < today) {
-                nextBirthday.setFullYear(today.getFullYear() + 1);
-            }
-            return nextBirthday;
-        }
-
-        function getUpcomingBirthdays(birthdays) {
-            const today = new Date();
-            const upcoming = Object.values(birthdays).filter(item => {
-                if (!item.birthdate) return false;
-                const nextBday = getNextBirthdayDate(item.birthdate);
-                const diffDays = Math.ceil((nextBday - today) / (1000 * 60 * 60 * 24));
-                return diffDays > 1 && diffDays <= 6;
-            }).sort((a, b) => {
-                return getNextBirthdayDate(a.birthdate) - getNextBirthdayDate(b.birthdate);
-            });
-            return upcoming;
-        }
-
-        function getTodayAndTomorrowBirthdays(birthdays) {
-            const today = new Date();
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
+        filteredItems.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm';
+            li.setAttribute('data-name', item.name);
+            if (item.contactId) li.setAttribute('data-contact-id', item.contactId);
+            if (item.birthdayId) li.setAttribute('data-birthday-id', item.birthdayId);
+            if (item.mobile) li.setAttribute('data-mobile', item.mobile);
             
-            const todayBirthdays = Object.values(birthdays).filter(item => {
-                if (!item.birthdate) return false;
-                const birthDate = new Date(item.birthdate);
-                return today.getMonth() === birthDate.getMonth() && today.getDate() === birthDate.getDate();
-            });
-            
-            const tomorrowBirthdays = Object.values(birthdays).filter(item => {
-                if (!item.birthdate) return false;
-                const birthDate = new Date(item.birthdate);
-                return tomorrow.getMonth() === birthDate.getMonth() && tomorrow.getDate() === birthDate.getDate();
-            });
-
-            return { todayBirthdays, tomorrowBirthdays };
-        }
-
-        function renderBirthdayList(listId, items) {
-            const list = document.getElementById(listId);
-            list.innerHTML = '';
-            if (items.length === 0) {
-                list.innerHTML = `<li class="text-gray-500 text-center">${listId === 'today-list' ? 'No birthdays today.' : listId === 'tomorrow-list' ? 'No birthdays tomorrow.' : 'No upcoming birthdays.'}</li>`;
-                return;
+            let iconHtml = '';
+            if(item.isContact) {
+                iconHtml += `<i class="fas fa-address-card text-purple-500 text-2xl"></i>`;
             }
-            items.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm';
-                li.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <i class="fas fa-gift text-lg text-indigo-500"></i>
-                        <div>
-                            <p class="font-bold text-gray-900">${item.name}</p>
-                            ${item.birthdate ? `<p class="text-sm text-gray-600">${new Date(item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>` : ''}
-                        </div>
-                    </div>
+            if(item.isBirthday) {
+                iconHtml += `<i class="fas fa-birthday-cake text-red-500 text-2xl"></i>`;
+            }
+
+            let ageDisplay = '';
+            if (item.birthdate && item.birthdate.length === 10) {
+                ageDisplay = `(${calculateAge(item.birthdate)} Years Old)`;
+            } else if (item.age) {
+                ageDisplay = `(${item.age} Years Old)`;
+            }
+
+            let actionsHtml = '';
+            if (item.isBirthday) {
+                actionsHtml = `
+                    <button class="edit-btn bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-600 transition duration-300 text-sm"><i class="fas fa-edit"></i></button>
                 `;
-                list.appendChild(li);
-            });
-        }
-        
-        function renderAllItems(searchTerm = '') {
-            const list = document.getElementById('all-items-list');
-            list.innerHTML = '';
-            
-            let combinedItemsMap = new Map();
-            
-            // Process Contacts first
-            for (const key in allContacts) {
-                const contact = allContacts[key];
-                const item = { ...contact, contactId: key, isContact: true, isBirthday: false };
-                combinedItemsMap.set(contact.name.toLowerCase(), item);
-            }
-
-            // Process Birthdays and merge with existing contacts
-            for (const key in allBirthdays) {
-                const birthday = allBirthdays[key];
-                const existingItem = combinedItemsMap.get(birthday.name.toLowerCase());
-                if (existingItem) {
-                    existingItem.birthdate = birthday.birthdate;
-                    existingItem.age = birthday.age;
-                    existingItem.notes = birthday.notes;
-                    existingItem.isBirthday = true;
-                    existingItem.birthdayId = key;
-                } else {
-                    const item = { ...birthday, birthdayId: key, isContact: false, isBirthday: true };
-                    combinedItemsMap.set(birthday.name.toLowerCase(), item);
-                }
-            }
-
-            const filteredItems = Array.from(combinedItemsMap.values()).filter(item => 
-                (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-                (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
-                (item.mobile && item.mobile.toLowerCase().includes(searchTerm))
-            );
-            
-            if (filteredItems.length === 0) {
-                list.innerHTML = `<li class="text-center text-gray-500 p-4">No contacts or birthdays found.</li>`;
-                return;
+            } else {
+                actionsHtml = `
+                    <button class="add-birthday-btn bg-indigo-500 text-white px-3 py-2 rounded-full hover:bg-indigo-600 transition duration-300 text-sm">
+                        <i class="fas fa-plus"></i> Add Birthday
+                    </button>
+                `;
             }
             
-            filteredItems.sort((a, b) => a.name.localeCompare(b.name));
-
-            filteredItems.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm';
-                li.setAttribute('data-name', item.name);
-                if (item.contactId) li.setAttribute('data-contact-id', item.contactId);
-                if (item.birthdayId) li.setAttribute('data-birthday-id', item.birthdayId);
-                if (item.mobile) li.setAttribute('data-mobile', item.mobile);
-                
-                let iconHtml = '';
-                if(item.isContact) {
-                    iconHtml += `<i class="fas fa-address-card text-purple-500 text-2xl"></i>`;
-                }
-                if(item.isBirthday) {
-                    iconHtml += `<i class="fas fa-birthday-cake text-red-500 text-2xl"></i>`;
-                }
-
-                let ageDisplay = '';
-                if (item.birthdate) {
-                    ageDisplay = `(${calculateAge(item.birthdate)} Years Old)`;
-                } else if (item.age) {
-                    ageDisplay = `(${item.age} Years Old)`;
-                }
-
-                let actionsHtml = '';
-                if (item.isBirthday) {
-                    actionsHtml = `
-                        <button class="edit-btn bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-600 transition duration-300 text-sm"><i class="fas fa-edit"></i></button>
-                    `;
-                } else {
-                    actionsHtml = `
-                        <button class="add-birthday-btn bg-indigo-500 text-white px-3 py-2 rounded-full hover:bg-indigo-600 transition duration-300 text-sm">
-                            <i class="fas fa-plus"></i> Add Birthday
-                        </button>
-                    `;
-                }
-                
-                let shareButtonsHtml = '';
-                if(item.isContact) {
-                    shareButtonsHtml += `<button class="share-contact-btn bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-mobile-alt"></i></button>`;
-                }
-                if(item.isBirthday) {
-                    shareButtonsHtml += `<button class="share-birthday-btn bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition duration-300 text-sm"><i class="fas fa-gift"></i></button>`;
-                }
+            let shareButtonsHtml = '';
+            if(item.isContact) {
+                shareButtonsHtml += `<button class="share-contact-btn bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-mobile-alt"></i></button>`;
+            }
+            if(item.isBirthday) {
+                shareButtonsHtml += `<button class="share-birthday-btn bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition duration-300 text-sm"><i class="fas fa-gift"></i></button>`;
+            }
 
 
-                itemHtml = `
-                    <div class="flex items-start gap-4 flex-grow">
-                        <div class="flex-shrink-0 flex items-center gap-2">
-                            ${iconHtml}
-                        </div>
-                        <div class="flex-grow">
-                            <p class="font-bold text-gray-900">${item.name}</p>
-                            ${item.mobile ? `<p class="text-sm text-gray-600"><i class="fas fa-mobile-alt mr-1"></i> ${item.mobile}</p>` : ''}
-                            ${item.phone ? `<p class="text-sm text-gray-600"><i class="fas fa-phone mr-1"></i> ${item.phone}</p>` : ''}
-                            ${item.isBirthday ? `
-                                <p class="text-sm text-gray-600">
-                                    <i class="fas fa-calendar-alt mr-1"></i> 
-                                    Birthday: ${item.birthdate ? new Date(item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Not specified'} 
-                                    ${ageDisplay}
-                                </p>
-                            ` : ''}
-                            ${item.notes && item.notes.length > 0 ? `
-                                <div class="mt-2 text-sm text-gray-500">
-                                    ${item.notes.map(note => `<p><i class="fas fa-sticky-note mr-1"></i> <strong>${note.title}:</strong> ${note.content}</p>`).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
+            itemHtml = `
+                <div class="flex items-start gap-4 flex-grow">
                     <div class="flex-shrink-0 flex items-center gap-2">
-                        ${actionsHtml}
-                        <button class="delete-btn bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm"><i class="fas fa-trash-alt"></i></button>
-                        ${shareButtonsHtml}
+                        ${iconHtml}
                     </div>
-                `;
-                li.innerHTML = itemHtml;
-                list.appendChild(li);
+                    <div class="flex-grow">
+                        <p class="font-bold text-gray-900">${item.name}</p>
+                        ${item.mobile ? `<p class="text-sm text-gray-600"><i class="fas fa-mobile-alt mr-1"></i> ${item.mobile}</p>` : ''}
+                        ${item.phone ? `<p class="text-sm text-gray-600"><i class="fas fa-phone mr-1"></i> ${item.phone}</p>` : ''}
+                        ${item.isBirthday ? `
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-calendar-alt mr-1"></i> 
+                                Birthday: ${item.birthdate ? new Date(item.birthdate.length === 5 ? `2000-${item.birthdate}` : item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Not specified'} 
+                                ${ageDisplay}
+                            </p>
+                        ` : ''}
+                        ${item.notes && item.notes.length > 0 ? `
+                            <div class="mt-2 text-sm text-gray-500">
+                                ${item.notes.map(note => `<p><i class="fas fa-sticky-note mr-1"></i> <strong>${note.title}:</strong> ${note.content}</p>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    ${actionsHtml}
+                    <button class="delete-btn bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm"><i class="fas fa-trash-alt"></i></button>
+                    ${shareButtonsHtml}
+                </div>
+            `;
+            li.innerHTML = itemHtml;
+            list.appendChild(li);
+        });
+    }
+
+    // --- Firebase Functions ---
+    function handleAddBirthday(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const mobile = document.getElementById('mobile').value;
+        const birthdateInput = document.getElementById('birthdate').value;
+        const ageInput = document.getElementById('age').value;
+        const notes = Array.from(notesFields.querySelectorAll('div')).map(div => ({
+            title: div.querySelector('.note-title').value,
+            content: div.querySelector('.note-content').value,
+        })).filter(note => note.title || note.content);
+
+        let birthdate = '';
+        let age = '';
+
+        if (birthdateInput) {
+            // If birthdate is selected, save only month and day (MM-DD)
+            const dateParts = birthdateInput.split('-');
+            birthdate = `${dateParts[1]}-${dateParts[2]}`;
+        } else if (ageInput) {
+            // If age is entered, calculate full DOB (YYYY-MM-DD)
+            const currentYear = new Date().getFullYear();
+            const birthYear = currentYear - parseInt(ageInput);
+            birthdate = `${birthYear}-01-01`; // Placeholder month/day
+            age = ageInput;
+        }
+
+        const newBirthday = { name, mobile, birthdate, age, notes };
+        
+        if (currentUserId) {
+            const newBdayRef = database.ref(`users/${currentUserId}/birthdays`).push();
+            newBdayRef.set(newBirthday).then(() => {
+                addBirthdayForm.reset();
+                notesContainer.classList.add('hidden');
+                notesFields.innerHTML = `<div class="flex items-center gap-2 mb-2"><input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title"><input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content"></div>`;
+                toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
+            }).catch(error => {
+                console.error("Error adding birthday: ", error);
+            });
+        } else {
+            alert("Please log in to save birthdays.");
+        }
+    }
+
+    function openEditModal(id) {
+        const itemToEdit = allBirthdays[id];
+        if (!itemToEdit) return;
+
+        editIdInput.value = id;
+        editNameInput.value = itemToEdit.name;
+        editMobileInput.value = itemToEdit.mobile || '';
+        editDateInput.value = itemToEdit.birthdate || '';
+        editAgeInput.value = itemToEdit.age || '';
+        
+        editNotesContainer.innerHTML = '';
+        if (itemToEdit.notes && itemToEdit.notes.length > 0) {
+            itemToEdit.notes.forEach(note => {
+                addNoteField(editNotesContainer, note.title, note.content);
+            });
+        } else {
+            addNoteField(editNotesContainer);
+        }
+        
+        editModal.classList.remove('hidden');
+    }
+
+    function handleEditBirthday(e) {
+        e.preventDefault();
+        const id = editIdInput.value;
+        const name = editNameInput.value;
+        const mobile = editMobileInput.value;
+        const birthdateInput = editDateInput.value;
+        const ageInput = editAgeInput.value;
+        const notes = Array.from(editNotesContainer.querySelectorAll('div')).map(div => ({
+            title: div.querySelector('.note-title').value,
+            content: div.querySelector('.note-content').value,
+        })).filter(note => note.title || note.content);
+        
+        let birthdate = '';
+        let age = '';
+
+        if (birthdateInput) {
+            // If birthdate is selected, save only month and day (MM-DD)
+            const dateParts = birthdateInput.split('-');
+            birthdate = `${dateParts[1]}-${dateParts[2]}`;
+        } else if (ageInput) {
+            // If age is entered, calculate full DOB (YYYY-MM-DD)
+            const currentYear = new Date().getFullYear();
+            const birthYear = currentYear - parseInt(ageInput);
+            birthdate = `${birthYear}-01-01`; // Placeholder month/day
+            age = ageInput;
+        }
+
+        const updatedBirthday = { name, mobile, birthdate, age, notes };
+
+        if (currentUserId && id) {
+            database.ref(`users/${currentUserId}/birthdays/${id}`).set(updatedBirthday)
+                .then(() => {
+                    editModal.classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error("Error updating birthday: ", error);
+                });
+        }
+    }
+
+    function deleteBirthday(id) {
+        if (currentUserId) {
+            database.ref(`users/${currentUserId}/birthdays/${id}`).remove()
+                .catch(error => {
+                    console.error("Error removing birthday: ", error);
+                });
+        }
+    }
+    
+    function deleteContact(id) {
+        if (currentUserId) {
+            database.ref(`users/${currentUserId}/contacts/${id}`).remove()
+                .catch(error => {
+                    console.error("Error removing contact: ", error);
+                });
+        }
+    }
+
+    function shareBirthday(birthday) {
+        let shareText = `Name: ${birthday.name}!`;
+        if(birthday.birthdate) {
+            const nextBday = getNextBirthdayDate(birthday.birthdate);
+            shareText += `\nBirth Date: ${nextBday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+        } else if (birthday.age) {
+            shareText += `\nThey are ${birthday.age} years old.`;
+        }
+        
+        if (birthday.notes && birthday.notes.length > 0) {
+            shareText += "\n\nNotes:";
+            birthday.notes.forEach(note => {
+                shareText += `\n- ${note.title}: ${note.content}`;
             });
         }
 
-
-        // --- Firebase Functions ---
-        function handleAddBirthday(e) {
-            e.preventDefault();
-            const name = document.getElementById('name').value;
-            const mobile = document.getElementById('mobile').value;
-            const birthdate = document.getElementById('birthdate').value;
-            const age = document.getElementById('age').value;
-            const notes = Array.from(notesFields.querySelectorAll('div')).map(div => ({
-                title: div.querySelector('.note-title').value,
-                content: div.querySelector('.note-content').value,
-            })).filter(note => note.title || note.content);
-
-            const newBirthday = { name, mobile, birthdate, age, notes };
-            
-            if (currentUserId) {
-                const newBdayRef = database.ref(`users/${currentUserId}/birthdays`).push();
-                newBdayRef.set(newBirthday).then(() => {
-                    addBirthdayForm.reset();
-                    notesContainer.classList.add('hidden');
-                    notesFields.innerHTML = `<div class="flex items-center gap-2 mb-2"><input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title"><input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content"></div>`;
-                    toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-                }).catch(error => {
-                    console.error("Error adding birthday: ", error);
-                });
-            } else {
-                alert("Please log in to save birthdays.");
-            }
+        if (navigator.share) {
+            navigator.share({
+                title: `Birthday Reminder: ${birthday.name}`,
+                text: shareText
+            }).catch(error => console.error('Error sharing:', error));
+        } else {
+            navigator.clipboard.writeText(shareText).then(() => {
+                console.log('Birthday details copied to clipboard!');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+    }
+    
+    function shareContact(contact) {
+        let shareText = `Name: ${contact.name}`;
+        if(contact.mobile) {
+            shareText += `\nMobile No: ${contact.mobile}`;
+        }
+        if(contact.phone) {
+            shareText += `\nPhone: ${contact.phone}`;
         }
 
-        function openEditModal(id) {
-            const itemToEdit = allBirthdays[id];
-            if (!itemToEdit) return;
-
-            editIdInput.value = id;
-            editNameInput.value = itemToEdit.name;
-            editMobileInput.value = itemToEdit.mobile || '';
-            editDateInput.value = itemToEdit.birthdate || '';
-            editAgeInput.value = itemToEdit.age || '';
-            
-            editNotesContainer.innerHTML = '';
-            if (itemToEdit.notes && itemToEdit.notes.length > 0) {
-                itemToEdit.notes.forEach(note => {
-                    addNoteField(editNotesContainer, note.title, note.content);
-                });
-            } else {
-                addNoteField(editNotesContainer);
-            }
-            
-            editModal.classList.remove('hidden');
+        if (navigator.share) {
+            navigator.share({
+                title: `Contact: ${contact.name}`,
+                text: shareText
+            }).catch(error => console.error('Error sharing:', error));
+        } else {
+            navigator.clipboard.writeText(shareText).then(() => {
+                console.log('Contact details copied to clipboard!');
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
         }
+    }
 
-        function handleEditBirthday(e) {
-            e.preventDefault();
-            const id = editIdInput.value;
-            const name = editNameInput.value;
-            const mobile = editMobileInput.value;
-            const birthdate = editDateInput.value;
-            const age = editAgeInput.value;
-            const notes = Array.from(editNotesContainer.querySelectorAll('div')).map(div => ({
-                title: div.querySelector('.note-title').value,
-                content: div.querySelector('.note-content').value,
-            })).filter(note => note.title || note.content);
-
-            const updatedBirthday = { name, mobile, birthdate, age, notes };
-
-            if (currentUserId && id) {
-                database.ref(`users/${currentUserId}/birthdays/${id}`).set(updatedBirthday)
-                    .then(() => {
-                        editModal.classList.add('hidden');
-                    })
-                    .catch(error => {
-                        console.error("Error updating birthday: ", error);
-                    });
-            }
-        }
-
-        function deleteBirthday(id) {
-            if (currentUserId) {
-                database.ref(`users/${currentUserId}/birthdays/${id}`).remove()
-                    .catch(error => {
-                        console.error("Error removing birthday: ", error);
-                    });
-            }
-        }
-        
-        function deleteContact(id) {
-            if (currentUserId) {
-                database.ref(`users/${currentUserId}/contacts/${id}`).remove()
-                    .catch(error => {
-                        console.error("Error removing contact: ", error);
-                    });
-            }
-        }
-
-        function shareBirthday(birthday) {
-            let shareText = `Name:${birthday.name}! `;
-            if(birthday.birthdate) {
-                const nextBday = getNextBirthdayDate(birthday.birthdate);
-                shareText += `\n Birth Date:${nextBday.toLocaleDateString('en-US', {  month: 'long', day: 'numeric' })}.`;
-            } else if (birthday.age) {
-                shareText += `\nThey are ${birthday.age} years old.`;
-            }
-            
-            if (birthday.notes && birthday.notes.length > 0) {
-                shareText += "\n\nNotes:";
-                birthday.notes.forEach(note => {
-                    shareText += `\n- ${note.title}: ${note.content}`;
-                });
-            }
-
-            if (navigator.share) {
-                navigator.share({
-                    title: `Birthday Reminder: ${birthday.name}`,
-                    text: shareText
-                }).catch(error => console.error('Error sharing:', error));
-            } else {
-                navigator.clipboard.writeText(shareText).then(() => {
-                    console.log('Birthday details copied to clipboard!');
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                });
-            }
-        }
-        
-        function shareContact(contact) {
-            let shareText = `Name: ${contact.name}`;
-            if(contact.mobile) {
-                shareText += `\nMobile No: ${contact.mobile}`;
-            }
-            if(contact.phone) {
-                shareText += `\nPhone:${contact.phone}`;
-            }
-
-            if (navigator.share) {
-                navigator.share({
-                    title: `Contact: ${contact.name}`,
-                    text: shareText
-                }).catch(error => console.error('Error sharing:', error));
-            } else {
-                navigator.clipboard.writeText(shareText).then(() => {
-                    console.log('Contact details copied to clipboard!');
-                }).catch(err => {
-                    console.error('Could not copy text: ', err);
-                });
-            }
-        }
-
-        // --- Data Retrieval and Display ---
-        function initializeData() {
-            if (currentUserId) {
-                // Fetch birthdays
-                const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
-                birthdaysRef.on('value', (snapshot) => {
-                    allBirthdays = snapshot.val() || {};
-                    const { todayBirthdays, tomorrowBirthdays } = getTodayAndTomorrowBirthdays(allBirthdays);
-                    const upcomingBirthdays = getUpcomingBirthdays(allBirthdays);
-                    renderBirthdayList('today-list', todayBirthdays);
-                    renderBirthdayList('tomorrow-list', tomorrowBirthdays);
-                    renderBirthdayList('upcoming-birthdays-list', upcomingBirthdays);
-                    renderAllItems(searchInput.value);
-                });
+    // --- Data Retrieval and Display ---
+    function initializeData() {
+        if (currentUserId) {
+            // Fetch birthdays
+            const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
+            birthdaysRef.on('value', (snapshot) => {
+                allBirthdays = snapshot.val() || {};
+                const { todayBirthdays, tomorrowBirthdays } = getTodayAndTomorrowBirthdays(allBirthdays);
+                const upcomingBirthdays = getUpcomingBirthdays(allBirthdays);
+                renderBirthdayList('today-list', todayBirthdays);
+                renderBirthdayList('tomorrow-list', tomorrowBirthdays);
+                renderBirthdayList('upcoming-birthdays-list', upcomingBirthdays);
+                renderAllItems(searchInput.value);
                 
-                // Fetch contacts
-                const contactsRef = database.ref(`users/${currentUserId}/contacts`);
-                contactsRef.on('value', (snapshot) => {
-                    allContacts = snapshot.val() || {};
-                    renderAllItems(searchInput.value);
-                });
-            }
+                // Now that data is loaded, check for notifications
+                checkAndNotify();
+            });
+            
+            // Fetch contacts
+            const contactsRef = database.ref(`users/${currentUserId}/contacts`);
+            contactsRef.on('value', (snapshot) => {
+                allContacts = snapshot.val() || {};
+                renderAllItems(searchInput.value);
+            });
         }
+    }
 
-        // --- Auth State Listener ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                document.getElementById('userName').textContent = user.displayName || 'Guest';
-                document.getElementById('userEmail').textContent = user.email || 'guest@example.com';
-                document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
-                document.getElementById('mobileUserName').textContent = user.displayName || 'Guest';
-                document.getElementById('mobileUserEmail').textContent = user.email || 'guest@example.com';
-                initializeData();
-            } else {
-                // Redirect to login page or handle signed-out state
-                window.location.href = 'index.html';
-            }
-        });
-        
-        // Function to run ONCE to import contacts to Firebase
-        // UNCOMMENT this section, load the page, then re-comment it.
-        /*
-        function importContactsToFirebase() {
-            if (currentUserId) {
-                const contactsRef = database.ref(`users/${currentUserId}/contacts`);
-                vcardContacts.forEach(contact => {
-                    contactsRef.push(contact)
-                        .then(() => console.log(`Contact ${contact.name} imported successfully.`))
-                        .catch(error => console.error(`Error importing ${contact.name}: `, error));
-                });
-            } else {
-                console.log("User not logged in. Cannot import contacts.");
-            }
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(user => {
-                if(user) {
-                    currentUserId = user.uid;
-                    // You can call this function after you log in, just once.
-                    // importContactsToFirebase();
+    // --- Notification Functions ---
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('Notification permission granted.');
+                } else {
+                    console.warn('Notification permission denied.');
                 }
             });
-        });
-        */
-        
-        // Logout function
-        function logout() {
-            auth.signOut().then(() => {
-                window.location.href = 'index.html';
-            }).catch(error => {
-                console.error('Sign out error', error);
-            });
+        } else {
+            console.warn('This browser does not support notifications.');
         }
-  </script>
+    }
+
+    // This function will now only handle the notification logic, not the scheduling
+    function checkAndNotify() {
+        if (currentUserId && Notification.permission === 'granted') {
+            const today = new Date();
+            const todayMonthDay = `${today.getMonth() + 1}-${today.getDate()}`;
+
+            const birthdaysToday = Object.values(allBirthdays).filter(bday => {
+                if (!bday.birthdate) return false;
+                if (bday.birthdate.length === 5) {
+                    return bday.birthdate === todayMonthDay;
+                } else if (bday.birthdate.length === 10) {
+                    const bdayDate = new Date(bday.birthdate);
+                    return bdayDate.getMonth() === today.getMonth() && bdayDate.getDate() === today.getDate();
+                }
+                return false;
+            });
+
+            if (birthdaysToday.length > 0) {
+                let notificationTitle = "Happy Birthday! 🎉";
+                let notificationBody = "Here are today's birthdays:\n";
+
+                birthdaysToday.forEach(bday => {
+                    notificationBody += `- ${bday.name}\n`;
+                });
+
+                new Notification(notificationTitle, {
+                    body: notificationBody,
+                    icon: 'https://via.placeholder.com/40'
+                });
+            }
+        }
+    }
+    
+    // --- Auth State Listener ---
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUserId = user.uid;
+            document.getElementById('userName').textContent = user.displayName || 'Guest';
+            document.getElementById('userEmail').textContent = user.email || 'guest@example.com';
+            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
+            document.getElementById('mobileUserName').textContent = user.displayName || 'Guest';
+            document.getElementById('mobileUserEmail').textContent = user.email || 'guest@example.com';
+            
+            // Initialize data and trigger initial notification check
+            initializeData();
+            
+            // Request permission once
+            requestNotificationPermission();
+            
+            // Schedule the periodic check
+            setInterval(checkAndNotify, 21600000); // Check every 6 hours
+        } else {
+            // Redirect to login page or handle signed-out state
+            window.location.href = 'index.html';
+        }
+    });
+    
+    // Function to run ONCE to import contacts to Firebase
+    // UNCOMMENT this section, load the page, then re-comment it.
+    /*
+    function importContactsToFirebase() {
+        if (currentUserId) {
+            const contactsRef = database.ref(`users/${currentUserId}/contacts`);
+            vcardContacts.forEach(contact => {
+                contactsRef.push(contact)
+                    .then(() => console.log(`Contact ${contact.name} imported successfully.`))
+                    .catch(error => console.error(`Error importing ${contact.name}: `, error));
+            });
+        } else {
+            console.log("User not logged in. Cannot import contacts.");
+        }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        auth.onAuthStateChanged(user => {
+            if(user) {
+                currentUserId = user.uid;
+                // You can call this function after you log in, just once.
+                // importContactsToFirebase();
+            }
+        });
+    });
+    */
+    
+    // Logout function
+    function logout() {
+        auth.signOut().then(() => {
+            window.location.href = 'index.html';
+        }).catch(error => {
+            console.error('Sign out error', error);
+        });
+    }
+</script>
 </body>
 </html>
 
