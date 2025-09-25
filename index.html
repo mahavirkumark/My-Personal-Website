@@ -461,7 +461,7 @@
 
             if (hashed === currentPIN) {
                 updateLock(0);
-                showMsg("✅ Login Successful! Welcome to your dashboard.", true);
+             
                 setTimeout(() => window.location.href = "home.html", 2000);
             } else {
                 let newAtt = attempts + 1;
@@ -505,6 +505,7 @@
     </script>
 </body>
 </html>
+
 
 
 
