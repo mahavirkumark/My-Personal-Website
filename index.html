@@ -288,25 +288,26 @@
 
 ---
 
-<section class="text-white py-12 md:py-16 mt-10" 
+<section class="py-12 md:py-16 mt-10 text-white" 
     style="
-        /* Simplified light blue background using a single blue shade for the overlay */
-        background-image: linear-gradient(rgba(59, 130, 246, 0.75), rgba(59, 130, 246, 0.75)), 
-                              url('https://source.unsplash.com/1600x900/?happy,business,people'); 
-        background-size: cover; 
-        background-attachment: fixed; 
-        background-position: center;
+        /* Tailwind bg-blue-600 */
+        background-color: #2563EB; 
+        /* Subtle Wave Pattern for texture and depth */
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' preserveAspectRatio=\'none\'><path fill=\'rgba(255, 255, 255, 0.05)\' d=\'M0,50 C15,90 35,20 50,50 C65,80 85,10 100,50 L100,100 L0,100 Z\' /></svg>');
+        background-size: 100% 200px;
+        background-repeat: repeat-x;
+        background-position: bottom;
     ">
     <div class="container mx-auto px-6 text-center" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">
         <h2 class="text-3xl font-bold mb-10">What Our Users Say</h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl backdrop-blur-sm" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
                 <p class="text-base italic mb-3 leading-relaxed">
                     "I've tried so many productivity apps, but this one is different. It's a game-changer for keeping all my professional and personal info in one place. The security is top-notch."
                 </p>
-                <cite class="font-semibold text-base not-italic">- Vaishali Kulkarni,Homemaker</cite>
+                <cite class="font-semibold text-base not-italic">- Vaishali Kulkarni, Homemaker</cite>
             </blockquote>
-            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl backdrop-blur-sm" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
                 <p class="text-base italic mb-3 leading-relaxed">
                     "The financial tracker is simple yet powerful, and I love that I can access my data from anywhere. It's truly a must-have."
                 </p>
@@ -658,6 +659,7 @@
 </script>
 </body>
 </html>
+
 
 
 
