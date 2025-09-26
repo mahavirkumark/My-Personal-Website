@@ -12,39 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
+        /* Shared Styles: Keeping Animations in the head for clean execution */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f4f8;
             overflow-x: hidden;
-        }
-        .parallax-bg {
-            background-image: url('https://source.unsplash.com/1600x900/?organization,security,data');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-        }
-        .animate-center-card {
-            animation: fadeInZoom 0.8s ease-out forwards;
-        }
-        .animate-left-panel {
-            animation: slideInLeft 1s ease-out forwards;
-            opacity: 0;
-            animation-delay: 0.3s;
-        }
-        .animate-right-panel {
-            animation: slideInRight 1s ease-out forwards;
-            opacity: 0;
-            animation-delay: 0.6s;
-        }
-        .animate-up {
-            animation: slideInUp 1s ease-out forwards;
-            opacity: 0;
-            animation-delay: 0.2s;
-        }
-        .animate-feature-card {
-            animation: slideInUp 0.8s ease-out forwards;
-            opacity: 0;
-            animation-delay: var(--delay);
         }
         @keyframes fadeInZoom {
             0% { opacity: 0; transform: scale(0.8); }
@@ -62,48 +34,47 @@
             0% { opacity: 0; transform: translateY(50px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        .btn-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-        .feature-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        #msgBox {
-            display: none;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background-color: #fff;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 999;
-            font-weight: 500;
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            opacity: 0;
-            transform: translateX(100%);
-        }
-        #msgBox.show {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        #msgBox.success { color: #16a34a; border-color: #dcfce7; background-color: #f0fdf4; }
-        #msgBox.error { color: #dc2626; border-color: #fee2e2; background-color: #fef2f2; }
+        /* Increased title size slightly for impact */
         .section-title {
-            font-size: 2.25rem;
+            font-size: 2rem; /* Was 1.875rem (text-3xl equivalent) */
             font-weight: 700;
             text-align: center;
             color: #1f2937;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem; /* Increased margin for spacing */
         }
-        .testimonial-bg {
-            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://source.unsplash.com/1600x900/?happy,business,people');
+        .parallax-bg {
+            background-image: url('https://source.unsplash.com/1600x900/?organization,security,data');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+        }
+
+        /* --- FIX: MESSAGE BOX STYLES ADDED HERE --- */
+        #msgBox {
+            /* Initial state for hidden/off-screen */
+            opacity: 0;
+            transform: translateX(100%);
+            /* Transition for smooth animation */
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            /* Ensure it is block/flex for content */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Added gap for icon/text separation */
+        }
+        #msgBox.show {
+            /* End state for visible/on-screen */
+            opacity: 1;
+            transform: translateX(0);
+        }
+        #msgBox.success {
+            background-color: #d1fae5; /* Tailwind bg-green-100 */
+            color: #065f46; /* Tailwind text-green-800 */
+            border-color: #34d399; /* Tailwind border-green-400 */
+        }
+        #msgBox.error {
+            background-color: #fee2e2; /* Tailwind bg-red-100 */
+            color: #991b1b; /* Tailwind text-red-800 */
+            border-color: #f87171; /* Tailwind border-red-400 */
         }
     </style>
 </head>
@@ -111,30 +82,30 @@
 
     <nav class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4">
-            <div class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-user-circle text-3xl text-blue-600"></i>
+            <div class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-user-circle text-2xl text-blue-600"></i>
                 <span class="font-bold text-gray-800">My Personal Website</span>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center p-6 lg:p-12">
-        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-center max-w-7xl">
+    <main class="flex-grow flex items-center justify-center p-6 lg:p-12 relative">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 items-center max-w-7xl">
 
-            <div class="hidden lg:block space-y-8 animate-left-panel">
-                <div class="p-6 bg-white rounded-xl shadow-lg feature-card">
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fas fa-chart-line text-3xl text-blue-600"></i>
-                        <h3 class="text-xl font-bold text-gray-800">Financial Management</h3>
+            <div class="hidden lg:block space-y-6" style="animation: slideInLeft 1s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Financial Management</h3>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">
                         Track your income and expenses to gain a clear, real-time understanding of your cash flow. Set and monitor your savings goals with visual progress bars.
                     </p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-lg feature-card">
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fas fa-address-book text-3xl text-blue-600"></i>
-                        <h3 class="text-xl font-bold text-gray-800">Secure Contacts Manager</h3>
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-address-book text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Secure Contacts Manager</h3>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">
                         Keep all your contacts organized and secure. Easily add, edit, or delete contact information, including names, emails, and birthdays.
@@ -142,47 +113,50 @@
                 </div>
             </div>
 
-            <div class="w-full flex justify-center items-center">
-                <div id="loginCard" class="bg-white rounded-2xl p-8 sm:p-10 shadow-2xl w-full max-w-sm text-center animate-center-card">
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Login to Your Account</h2>
-                    <button id="googleLoginBtn" class="flex items-center justify-center gap-3 text-lg sm:text-xl font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-gray-800 border-2 border-blue-600 shadow-md btn-hover mx-auto hover:bg-blue-600 hover:text-white">
-                        <img src="https://developers.google.com/identity/images/g-logo.png" class="w-7 h-7"> Sign in with Google
+            <div class="w-full flex justify-center items-center relative">
+                <div id="loginCard" class="bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Login to Your Hub</h2>
+                    <p class="text-gray-600 mb-6 text-sm">Access your secure personal dashboard with your Google account and PIN.</p>
+                    <button id="googleLoginBtn" class="flex items-center justify-center gap-2 text-base font-semibold px-5 py-3 rounded-full bg-white text-gray-800 border-2 border-blue-600 shadow-md mx-auto hover:bg-blue-600 hover:text-white" style="transition: all 0.2s ease; transform: scale(1.0); " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1.0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 20px; height: 20px;"> Sign in with Google
                     </button>
                 </div>
 
-                <div id="msgBox"></div>
+                <div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
+                
+                <div id="pinCard" class="hidden bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center">
+                    <h2 id="pinTitle" class="text-2xl font-bold mb-4 text-gray-800">Enter PIN</h2>
 
-                <div id="pinCard" class="hidden bg-white rounded-2xl p-8 sm:p-10 shadow-2xl w-full max-w-sm text-center animate-center-card">
-                    <h2 id="pinTitle" class="text-2xl sm:text-3xl font-bold mb-6 text-gray-800">Enter PIN</h2>
+                    <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-3 border rounded-lg mb-3 text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
 
-                    <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-4 border rounded-lg mb-4 text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-
-                    <div id="resetPinInputs" class="hidden flex flex-col gap-3 mb-4">
-                        <input id="currentPinInput" type="password" maxlength="6" placeholder="Current PIN" class="w-full p-4 border rounded-lg text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-                        <input id="newPinInput" type="password" maxlength="6" placeholder="New PIN" class="w-full p-4 border rounded-lg text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-                        <input id="confirmNewPinInput" type="password" maxlength="6" placeholder="Confirm New PIN" class="w-full p-4 border rounded-lg text-center text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                    <div id="resetPinInputs" class="hidden flex flex-col gap-2 mb-3">
+                        <input id="currentPinInput" type="password" maxlength="6" placeholder="Current PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                        <input id="newPinInput" type="password" maxlength="6" placeholder="New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                        <input id="confirmNewPinInput" type="password" maxlength="6" placeholder="Confirm New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
                     </div>
-
-                    <button id="pinActionBtn" class="w-full py-4 rounded-lg bg-blue-600 text-white font-semibold shadow-md btn-hover mb-3 text-lg hover:bg-blue-700"></button>
+                    
+                    <button id="pinActionBtn" 
+                        class="w-full py-3 rounded-lg bg-blue-600 text-white font-semibold shadow-md mb-2 text-base hover:bg-blue-700 transition duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
+                    </button>
                     <p class="mt-2 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
                     <p class="mt-1 text-sm text-blue-600 cursor-pointer hover:underline" id="resetPinBtn">Reset PIN</p>
                 </div>
             </div>
 
-            <div class="hidden lg:block space-y-8 animate-right-panel">
-                <div class="p-6 bg-white rounded-xl shadow-lg feature-card">
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fas fa-lock text-3xl text-blue-600"></i>
-                        <h3 class="text-xl font-bold text-gray-800">Advanced Password Vault</h3>
+            <div class="hidden lg:block space-y-6" style="animation: slideInRight 1s ease-out forwards; opacity: 0; animation-delay: 0.6s;">
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-lock text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Advanced Password Vault</h3>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">
                         Secure all your online credentials in one place with military-grade encryption. Access them with your personal PIN for instant login.
                     </p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-lg feature-card">
-                    <div class="flex items-center gap-4 mb-3">
-                        <i class="fas fa-link text-3xl text-blue-600"></i>
-                        <h3 class="text-xl font-bold text-gray-800">Personalized Link Hub</h3>
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-link text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
                     </div>
                     <p class="text-gray-600 text-sm leading-relaxed">
                         Stop losing important websites. Organize your bookmarks and digital resources in a centralized, categorized hub for easy access.
@@ -192,28 +166,81 @@
         </div>
     </main>
 
-    <section class="py-16 md:py-24 bg-white">
+    <section class="py-12 md:py-16 bg-gray-50">
         <div class="container mx-auto px-6">
-            <h2 class="section-title mb-12 animate-up">How It Works</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-                <div class="flex flex-col items-center animate-feature-card" style="--delay: 0.1s;">
-                    <i class="fas fa-user-plus text-5xl text-blue-500 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Step 1: Get Started</h3>
-                    <p class="text-gray-600 leading-relaxed">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <i class="fas fa-database text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <i class="fas fa-users text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Personal & Professional</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <i class="fas fa-shield-alt text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Designed with security at its core. Your personal information stays private and under your control, always.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+---
+
+<section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Key Benefits</h2>
+            <div class="space-y-8 relative border-l-4 border-blue-500 pl-4 max-w-3xl mx-auto">
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-bullseye mr-2"></i> Stay Focused</h3>
+                    <p class="text-gray-600 text-base">No distractions—only essential tools you need daily to save time and improve productivity.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-coins mr-2"></i> Smarter Finances</h3>
+                    <p class="text-gray-600 text-base">Automatically track your income, savings, and expenses in a visually engaging way.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-globe mr-2"></i> Access Anywhere</h3>
+                    <p class="text-gray-600 text-base">Fully cloud-based—your data follows you across all devices, with secure access.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+---
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title mb-10" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <i class="fas fa-user-plus text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 1: Get Started</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
                         Sign up instantly using your **Google account**. This provides a secure, familiar, and quick way to get access to your personal hub.
                     </p>
                 </div>
-                <div class="flex flex-col items-center animate-feature-card" style="--delay: 0.3s;">
-                    <i class="fas fa-key text-5xl text-blue-500 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Step 2: Set Your PIN</h3>
-                    <p class="text-gray-600 leading-relaxed">
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <i class="fas fa-key text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 2: Set Your PIN</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
                         For an added layer of security, you'll be prompted to create a personal **4-6 digit PIN**. This ensures that only you can access your data.
                     </p>
                 </div>
-                <div class="flex flex-col items-center animate-feature-card" style="--delay: 0.5s;">
-                    <i class="fas fa-cubes text-5xl text-blue-500 mb-4"></i>
-                    <h3 class="text-xl font-semibold mb-2">Step 3: Start Organizing</h3>
-                    <p class="text-gray-600 leading-relaxed">
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <i class="fas fa-cubes text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 3: Start Organizing</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
                         Once inside, you're free to use our suite of tools: manage your finances, store passwords securely, and organize your digital contacts.
                     </p>
                 </div>
@@ -221,66 +248,80 @@
         </div>
     </section>
 
+---
+
     <section class="py-12 md:py-16">
         <div class="container mx-auto px-6">
-            <h2 class="section-title animate-up">Why Choose Us?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div class="p-6 bg-white rounded-xl shadow-md text-center animate-feature-card" style="--delay: 0.1s;">
-                    <div class="mb-4">
-                        <i class="fas fa-user-shield text-5xl text-blue-500"></i>
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <div class="mb-3">
+                        <i class="fas fa-user-shield text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Advanced Security Protocols</h3>
+                    <h3 class="text-lg font-semibold mb-1">Advanced Security Protocols</h3>
                     <p class="text-gray-600 text-sm">Your data is protected by a two-factor authentication system, combining a secure Google login with a personal PIN.</p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-md text-center animate-feature-card" style="--delay: 0.3s;">
-                    <div class="mb-4">
-                        <i class="fas fa-lightbulb text-5xl text-blue-500"></i>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <div class="mb-3">
+                        <i class="fas fa-lightbulb text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">All-in-One Convenience</h3>
+                    <h3 class="text-lg font-semibold mb-1">All-in-One Convenience</h3>
                     <p class="text-gray-600 text-sm">Say goodbye to scattered apps. Manage your finances, contacts, passwords, and links from a single, seamless dashboard.</p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-md text-center animate-feature-card" style="--delay: 0.5s;">
-                    <div class="mb-4">
-                        <i class="fas fa-cogs text-5xl text-blue-500"></i>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <div class="mb-3">
+                        <i class="fas fa-cogs text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Seamless User Experience</h3>
+                    <h3 class="text-lg font-semibold mb-1">Seamless User Experience</h3>
                     <p class="text-gray-600 text-sm">Our modern, intuitive interface is designed for simplicity, making it easy for anyone to get organized without a steep learning curve.</p>
                 </div>
-                <div class="p-6 bg-white rounded-xl shadow-md text-center animate-feature-card" style="--delay: 0.7s;">
-                    <div class="mb-4">
-                        <i class="fas fa-mobile-alt text-5xl text-blue-500"></i>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.7s;">
+                    <div class="mb-3">
+                        <i class="fas fa-mobile-alt text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2">Mobile-Friendly Design</h3>
+                    <h3 class="text-lg font-semibold mb-1">Mobile-Friendly Design</h3>
                     <p class="text-gray-600 text-sm">Access your personal hub on the go, with a design optimized for any device, from your desktop to your smartphone.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="bg-blue-600 text-white py-16 md:py-24 mt-12 md:mt-16 parallax-bg testimonial-bg">
-        <div class="container mx-auto px-6 text-center animate-up">
-            <h2 class="text-3xl sm:text-4xl font-bold mb-12">What Our Users Say</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
-                <blockquote class="bg-white/10 p-6 rounded-lg shadow-xl animate-feature-card" style="--delay: 0.1s;">
-                    <p class="text-lg italic mb-4 leading-relaxed">
-                        "I've tried so many productivity apps, but this one is different. It's a game-changer for keeping all my professional and personal info in one place. The security is top-notch."
-                    </p>
-                    <cite class="font-semibold text-lg not-italic">- Alex Chen, Graphic Designer</cite>
-                </blockquote>
-                <blockquote class="bg-white/10 p-6 rounded-lg shadow-xl animate-feature-card" style="--delay: 0.3s;">
-                    <p class="text-lg italic mb-4 leading-relaxed">
-                        "Managing my small business finances has never been easier. The financial tracker is simple yet powerful, and I love that I can access my data from anywhere. It's truly a must-have."
-                    </p>
-                    <cite class="font-semibold text-lg not-italic">- Maria Lopez, Small Business Owner</cite>
-                </blockquote>
-            </div>
-        </div>
-    </section>
+---
 
-    <footer class="bg-white text-gray-700 text-center py-4 border-t text-sm sm:text-base mt-12 md:mt-16">
+<section class="text-white py-12 md:py-16 mt-10" 
+    style="
+        /* Simplified light blue background using a single blue shade for the overlay */
+        background-image: linear-gradient(rgba(59, 130, 246, 0.75), rgba(59, 130, 246, 0.75)), 
+                              url('https://source.unsplash.com/1600x900/?happy,business,people'); 
+        background-size: cover; 
+        background-attachment: fixed; 
+        background-position: center;
+    ">
+    <div class="container mx-auto px-6 text-center" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">
+        <h2 class="text-3xl font-bold mb-10">What Our Users Say</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                <p class="text-base italic mb-3 leading-relaxed">
+                    "I've tried so many productivity apps, but this one is different. It's a game-changer for keeping all my professional and personal info in one place. The security is top-notch."
+                </p>
+                <cite class="font-semibold text-base not-italic">- Alex Chen, Graphic Designer</cite>
+            </blockquote>
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <p class="text-base italic mb-3 leading-relaxed">
+                    "Managing my small business finances has never been easier. The financial tracker is simple yet powerful, and I love that I can access my data from anywhere. It's truly a must-have."
+                </p>
+                <cite class="font-semibold text-base not-italic">- Maria Lopez, Small Business Owner</cite>
+            </blockquote>
+        </div>
+    </div>
+</section>
+---
+
+    <footer class="bg-gray-800 text-white text-center py-4 text-sm mt-10">
         &copy; 2025 My Personal Website | All Rights Reserved.
     </footer>
-
+</body>
+</html>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
@@ -288,8 +329,7 @@
     <script>
         emailjs.init("NbamX634Y_o570cNw");
     </script>
-
-   <script>
+<script>
     // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -299,14 +339,14 @@
         messagingSenderId: "470207874652",
         appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
     };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const provider = new firebase.auth.GoogleAuthProvider();
 
-    // Max Speed Constant
-    // Note: The minimum effective redirect time is 0 (instantaneous via sync assignment).
-    // The browser handles all navigation requests immediately.
+    // Load Firebase (assuming the script tags for firebase SDKs are in the HTML head)
+    if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
+    const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
+    const provider = typeof firebase !== 'undefined' ? new firebase.auth.GoogleAuthProvider() : null;
 
     let currentUID = null, currentEmail = null, currentPIN = null;
     let isFirstTime = false;
@@ -317,6 +357,13 @@
     const pinCardEl = document.getElementById("pinCard");
     const pinTitleEl = document.getElementById("pinTitle");
     const pinActionBtnEl = document.getElementById("pinActionBtn");
+    const pinInputEl = document.getElementById("pinInput"); 
+    const resetInputsEl = document.getElementById("resetPinInputs"); 
+    const currentPinInputEl = document.getElementById("currentPinInput");
+    const newPinInputEl = document.getElementById("newPinInput");
+    const confirmNewPinInputEl = document.getElementById("confirmNewPinInput");
+    const forgotPinBtnEl = document.getElementById("forgotPinBtn"); 
+    const resetPinBtnEl = document.getElementById("resetPinBtn"); 
 
 
     // Helper Functions
@@ -327,6 +374,10 @@
      * @returns {Promise<string>} The hexadecimal representation of the hash.
      */
     async function hashPIN(pin) {
+        if (!crypto.subtle) {
+            console.error("Crypto API not available.");
+            return pin; 
+        }
         const buf = new TextEncoder().encode(pin);
         const hashBuf = await crypto.subtle.digest('SHA-256', buf);
         
@@ -343,27 +394,43 @@
      * @param {boolean} success True for success message, false for error.
      */
     function showMsg(msg, success = true) {
-        msgBoxEl.textContent = msg;
-        msgBoxEl.className = '';
-        msgBoxEl.classList.add('msg-box', success ? 'success' : 'error');
-        msgBoxEl.style.display = "block";
+        // Determine icon based on status
+        const iconClass = success ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        
+        // Add icon to message box content
+        msgBoxEl.innerHTML = `<i class="${iconClass} mr-2"></i><span>${msg}</span>`;
+        
+        // Use Tailwind class toggles (success/error are defined in <style>)
+        msgBoxEl.classList.remove('success', 'error', 'show'); 
+        msgBoxEl.classList.add(success ? 'success' : 'error');
+        
+        // Show the box instantly
+        msgBoxEl.style.display = "flex"; // Changed from 'block' to 'flex' for better alignment with icon
 
+        // Trigger transition on next animation frame
         requestAnimationFrame(() => {
             msgBoxEl.classList.add('show');
         });
-
+        
+        // Hide after 3 seconds
         setTimeout(() => {
             msgBoxEl.classList.remove('show');
+            // Hide element fully after transition is complete (300ms defined in CSS transition)
             setTimeout(() => msgBoxEl.style.display = "none", 300);
         }, 3000);
     }
 
     /**
      * Sends an email with the new PIN using EmailJS.
-     * @param {string} pin The new PIN.
+     * @param {string} pin The PIN to send.
      * @param {string} email The user's email address.
      */
     function sendEmailPin(pin, email) {
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+            console.error("EmailJS SDK is not loaded or initialized.");
+            showMsg("Warning: Email service is unavailable. PIN was reset, but email could not be sent.", false);
+            return;
+        }
         emailjs.send('service_2ucolxw', 'template_2lc2llr', { user_email: email, user_pin: pin })
             .then(() => console.log("✅ PIN email sent"))
             .catch(e => console.error("❌ Email error", e));
@@ -371,9 +438,9 @@
 
     /**
      * Fetches the current login attempt and lock status from Firestore.
-     * @returns {Promise<{attempts: number, lockUntil: number}>} The lock status.
      */
     async function getLock() {
+        if (!db || !currentUID) return { attempts: 0, lockUntil: 0 };
         const doc = await db.collection("users").doc(currentUID).get();
         if (!doc.exists) return { attempts: 0, lockUntil: 0 };
         const d = doc.data();
@@ -382,19 +449,23 @@
 
     /**
      * Updates the login attempt and lock status in Firestore (non-blocking).
-     * @param {number} attempts The number of failed attempts.
-     * @param {number|null} lockUntil The timestamp until the account is locked, or null.
      */
     function updateLock(attempts, lockUntil = null) {
+        if (!db || !currentUID) return;
         const upd = { attempts };
         if (lockUntil) upd.lockUntil = firebase.firestore.Timestamp.fromMillis(lockUntil);
-        else if (attempts === 0) upd.lockUntil = null; 
+        else if (attempts === 0) upd.lockUntil = firebase.firestore.FieldValue.delete(); // Clear lockUntil field
         
-        db.collection("users").doc(currentUID).update(upd); 
+        db.collection("users").doc(currentUID).update(upd).catch(e => console.error("Failed to update lock status:", e)); 
     }
 
     // Event Handlers
+// ----------------------------------------------------------------------
     document.getElementById("googleLoginBtn").onclick = async () => {
+        if (!auth || !db || !provider) {
+             showMsg("Initialization error: Firebase SDKs might not be loaded.", false);
+             return;
+        }
         try {
             const result = await auth.signInWithPopup(provider);
             currentUID = result.user.uid;
@@ -403,9 +474,8 @@
             // 🔥 MAX SPEED OPTIMIZATION: Initiate network call AND UI transition immediately
             const docPromise = db.collection("users").doc(currentUID).get();
             loginCardEl.classList.add("hidden");
-            pinCardEl.classList.remove("hidden"); // <-- This makes the PIN box visually open instantly
-
-            // Wait for the result to determine the content of the already-open PIN box
+            
+            // Wait for the result to determine the state
             const doc = await docPromise;
 
             if (!doc.exists) {
@@ -418,34 +488,38 @@
                 pinTitleEl.textContent = "Enter PIN";
                 pinActionBtnEl.textContent = "Verify PIN";
             }
+            
+            // Now show the PIN card AFTER the button text is set
+            pinCardEl.classList.remove("hidden"); 
+
         } catch (e) {
             showMsg("Login failed: " + e.message, false);
         }
     }
-
+// ----------------------------------------------------------------------
     document.getElementById("pinActionBtn").onclick = async () => {
-        const resetInputs = document.getElementById("resetPinInputs");
-        const pinInput = document.getElementById("pinInput").value;
+        const resetInputs = resetInputsEl;
+        const pinInput = pinInputEl.value;
         const MAX_ATTEMPTS = 5;
 
         // 1. PIN Input Validation (Fastest Check)
-        if (!pinInput && resetInputs.classList.contains("hidden")) {
+        if (!pinInput && resetInputs.classList.contains("hidden") && !isFirstTime) {
             showMsg("Enter 4-6 digit PIN", false);
             return;
         }
 
         // 2. PIN Reset Logic 
         if (!resetInputs.classList.contains("hidden")) {
-            const cur = document.getElementById("currentPinInput").value;
-            const newPin = document.getElementById("newPinInput").value;
-            const conf = document.getElementById("confirmNewPinInput").value;
+            const cur = currentPinInputEl.value;
+            const newPin = newPinInputEl.value;
+            const conf = confirmNewPinInputEl.value;
 
             if (!cur || !newPin || !conf) {
-                showMsg("Please fill all fields.", false);
+                showMsg("Please fill all fields for PIN reset.", false);
                 return;
             }
             if (newPin.length < 4 || newPin.length > 6) {
-                showMsg("PIN must be between 4 and 6 digits.", false);
+                showMsg("New PIN must be between 4 and 6 digits.", false);
                 return;
             }
             if (newPin !== conf) {
@@ -461,11 +535,15 @@
 
             const hashedNew = await hashPIN(newPin);
             currentPIN = hashedNew;
-            db.collection("users").doc(currentUID).update({ pin: hashedNew, attempts: 0, lockUntil: null });
-            
-            // 🔥 INSTANT REDIRECT
-            window.location.href = "index.html"; 
-            showMsg("✅ PIN has been successfully reset! Redirecting to login...", true);
+            db.collection("users").doc(currentUID).update({ pin: hashedNew, attempts: 0, lockUntil: null })
+                .then(() => {
+                    showMsg("✅ PIN reset successfully! Redirecting to your dashboard...", true);
+                    // ⭐ FIX: Add delay before redirecting
+                    setTimeout(() => {
+                         window.location.href = "home.html"; 
+                    }, 1000); 
+                })
+                .catch(e => showMsg("Failed to save new PIN: " + e.message, false));
             return;
         }
 
@@ -477,17 +555,20 @@
             }
             const hashed = await hashPIN(pinInput);
             currentPIN = hashed;
-            db.collection("users").doc(currentUID).set({ pin: hashed, attempts: 0, lockUntil: null });
-            
-            // 🔥 INSTANT REDIRECT
-            window.location.href = "home.html"; 
-            showMsg("✅ PIN set successfully! Redirecting to your dashboard...", true);
+            db.collection("users").doc(currentUID).set({ pin: hashed, attempts: 0, lockUntil: null })
+                .then(() => {
+                    showMsg("✅ PIN saved successfully! Redirecting to your dashboard...", true);
+                    // ⭐ FIX: Add delay before redirecting
+                    setTimeout(() => {
+                         window.location.href = "home.html"; 
+                    }, 1000); 
+                })
+                .catch(e => showMsg("Failed to set PIN: " + e.message, false));
             return;
         }
 
         // 4. PIN Verification Logic (Optimized Fail-Fast)
 
-        // 4a. Await Network Call to get lock status (Fastest initial check)
         const { attempts, lockUntil } = await getLock();
         const now = Date.now();
 
@@ -497,22 +578,23 @@
             return;
         }
 
-        // 4b. If not locked, perform the CPU-intensive hash
         const hashed = await hashPIN(pinInput);
 
-        // 4c. Process login attempt
         if (hashed === currentPIN) {
             updateLock(0);
-            
-            // 🔥 INSTANT REDIRECT
-            window.location.href = "home.html"; 
             showMsg("✅ Login Successful! Welcome to your dashboard.", true); 
+            // Add a small delay for successful login message visibility as well
+            setTimeout(() => {
+                window.location.href = "home.html";
+            }, 1000);
         } else {
             let newAtt = attempts + 1;
             let newLock = null;
             
-            if (newAtt === 3) newLock = now + 5 * 60 * 1000;
-            if (newAtt >= MAX_ATTEMPTS) newLock = now + 24 * 60 * 60 * 1000;
+            // After 3 attempts, lock for 5 mins. After 4th attempt, lock for 24 hours.
+            if (newAtt >= 3) {
+                 newLock = (newAtt === 3) ? (now + 5 * 60 * 1000) : (now + 24 * 60 * 60 * 1000); 
+            }
             
             updateLock(newAtt, newLock); 
             
@@ -524,40 +606,58 @@
             }
         }
     }
-
+// ----------------------------------------------------------------------
     document.getElementById("forgotPinBtn").onclick = async () => {
-        if (!currentEmail) {
-            showMsg("Please log in with Google first to reset your PIN.", false);
+        if (!currentEmail || !currentUID) {
+            showMsg("Please log in with Google first to access this feature.", false);
             return;
         }
         
-        const newPin = Math.floor(1000 + Math.random() * 9000).toString();
-        const hashed = await hashPIN(newPin);
-        currentPIN = hashed;
-        
-        db.collection("users").doc(currentUID).update({ pin: hashed, attempts: 0, lockUntil: null });
-        
-        showMsg("✅ A new PIN has been sent to your email. Please check your inbox.", true);
-        document.getElementById("pinInput").value = "";
-        
-        sendEmailPin(newPin, currentEmail); 
-    }
+        // Ensure UI is in the correct state (hide reset inputs if they were visible)
+        pinInputEl.classList.remove("hidden");
+        resetInputsEl.classList.add("hidden");
 
+        // *** SECURITY NOTE: Retriving the original PIN is not possible with hashing. ***
+        // *** This code securely generates and sends a NEW temporary PIN. ***
+
+        const newPin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit PIN
+        const hashed = await hashPIN(newPin);
+        currentPIN = hashed; // Update local state
+        
+        // Update DB: save new hashed PIN and reset lock status
+        db.collection("users").doc(currentUID).update({ pin: hashed, attempts: 0, lockUntil: null })
+            .then(() => {
+                 pinInputEl.value = "";
+                 sendEmailPin(newPin, currentEmail); 
+                 showMsg("✅ Your new temporary PIN has been sent to your email. Please check your inbox and log in with it.", true);
+            })
+            .catch(e => showMsg("Failed to process PIN request. Please try again.", false));
+    }
+// ----------------------------------------------------------------------
     document.getElementById("resetPinBtn").onclick = () => {
         if (!currentPIN) {
             showMsg("Please log in first to use the reset option.", false);
             return;
         }
-        document.getElementById("pinInput").classList.add("hidden");
-        document.getElementById("resetPinInputs").classList.remove("hidden");
-        document.getElementById("pinTitle").textContent = "Reset Your PIN";
-        document.getElementById("pinActionBtn").textContent = "Save New PIN";
+
+        // Clear all PIN inputs for a fresh start
+        pinInputEl.value = "";
+        currentPinInputEl.value = "";
+        newPinInputEl.value = "";
+        confirmNewPinInputEl.value = "";
+        
+        // Update UI state
+        pinInputEl.classList.add("hidden");
+        resetInputsEl.classList.remove("hidden");
+        pinTitleEl.textContent = "Reset Your PIN";
+        pinActionBtnEl.textContent = "Save New PIN";
+
+        showMsg("ℹ️ Enter your current PIN and choose a new PIN to save.", true);
     }
+// ----------------------------------------------------------------------
 </script>
 </body>
 </html>
-
-
 
 
 
