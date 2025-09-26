@@ -2,332 +2,408 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-
-
-<title>Link Manager</title>
+<title>Link Manager | My Personal Website</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  .copied-badge { opacity: 0; transition: all 0.3s ease; margin-left: 0.5rem; font-size: 0.8rem; color: green; font-weight: bold; }
-  .copied-badge.visible { opacity: 1; }
+    /* Global Font Change to Times New Roman (or serif fallback) */
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        color: black;
+    }
+    
+    /* Custom styles for the Copied Badge and Link List */
+    .copied-badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.125rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        line-height: 1;
+        background: #10B981;
+        color: white;
+        box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+        opacity: 0;
+        transform: translateY(-4px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+    }
+    .copied-badge.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .link-list-container {
+        /* Adjusted max-height to better suit mobile/laptop split view */
+        max-height: 60vh; 
+        overflow-y: auto;
+    }
+    .link-list-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    .link-list-container::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 4px;
+    }
+    /* Modern Button Styling (more rounded corners) */
+    .modern-btn {
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.15s ease-in-out;
+    }
+    .modern-btn:hover {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
+    }
 </style>
 </head>
-<body class="bg-gray-50 min-h-screen relative">
+<body class="bg-gray-50 min-h-screen flex flex-col">
 
-<!-- Navbar Desktop -->
-<nav class="hidden lg:flex bg-white shadow px-6 py-4 justify-between items-center">
-  <div class="text-2xl font-bold flex items-center gap-2">
-    <i class="fas fa-user"></i> My Personal Website
-  </div>
-  <div class="flex space-x-8 text-gray-900 text-lg">
-  <a href="home.html" class="flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
-<a href="address.html" class="flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
-<a href="income.html" class="flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
-<a href="links.html" class="flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
- <a href="calender.html" class="flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
-<a href="birthday.html" class="flex items-center gap-2"><i class="fas fa-cake-candles"></i> Birthday</a>
-<a href="password.html" class="flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
-  </div>
-  <div class="flex items-center space-x-3">
-    <div class="text-right">
-      <p id="userName" class="font-medium text-black text-sm lg:text-base">User Name</p>
-      <p id="userEmail" class="text-sm text-gray-600 break-all lg:text-base">user@example.com</p>
-      <p id="userId" class="text-xs text-gray-400 hidden">UID</p>
+<nav class="hidden lg:flex bg-white shadow-md px-8 py-4 justify-between items-center sticky top-0 z-10">
+    <div class="text-2xl font-extrabold flex items-center gap-1">
+        <i class="fas fa-user-circle text-2xl text-blue-600"></i>
+        <span class="font-extrabold text-black">My Personal Website</span>
     </div>
-    <img id="userPic" class="rounded-full w-10 lg:w-12" />
-    <button id="logoutBtn" class="bg-red-600 text-white px-3 py-1 rounded text-sm lg:text-base">Logout</button>
-  </div>
+    
+    <div class="flex items-center gap-x-6 text-gray-600">
+        <a href="home.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+        <a href="address.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
+        <a href="password.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+        <a href="income.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+        <a href="links.html" class="flex items-center gap-2 text-indigo-500 border-b-2 border-indigo-500 pb-1 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+        <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        <a href="birthday.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300 whitespace-nowrap" style="font-size: 18px;"><i class="fas fa-cake-candles"></i> Birthday</a>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <div class="text-right hidden sm:block">
+            <p id="userName" class="font-bold text-gray-900 text-lg">User Name</p>
+            <p id="userEmail" class="text-base text-gray-500 break-all">user@example.com</p>
+        </div>
+        <img id="userPic" class="rounded-full w-12 h-12 object-cover border-2 border-blue-400" />
+        <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 modern-btn text-base font-medium">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
 </nav>
 
-<!-- Navbar Mobile -->
-<nav class="lg:hidden bg-white shadow px-6 py-6 flex justify-between items-center text-3xl">
-  <div class="text-4xl font-bold flex items-center gap-5">
-    <i class="fas fa-user"></i> My Website
-  </div>
-  <button id="menu-btn" class="text-4xl"><i class="fas fa-bars"></i></button>
+<nav class="lg:hidden bg-white shadow-md px-4 py-4 flex justify-between items-center sticky top-0 z-10">
+    <div class="text-xl font-bold flex items-center gap-1">
+        <i class="fas fa-user-circle text-2xl text-blue-600"></i>
+        <span class="font-bold text-black">My Personal Website</span>
+    </div>
+    <button id="menu-btn" class="text-3xl text-gray-700 hover:text-blue-600 transition duration-150"><i class="fas fa-bars"></i></button>
 </nav>
 
-<!-- Mobile Menu -->
-<div id="mobile-menu" class="hidden lg:hidden bg-white shadow px-6 py-6 flex flex-col space-y-5 text-2xl sm:text-3xl">
-  <a href="home.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-house"></i> Home</a>
-  <a href="adress.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-tasks"></i> Address</a>
-  <a href="password.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-key"></i> Passwords</a>
-  <a href="income.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-wallet"></i> Income</a>
-  <a href="links.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-link"></i> Links</a>
-  <a href="calender.html" class="hover:text-blue-500 flex items-center gap-5 py-4 text-2xl sm:text-3xl"><i class="fas fa-calendar-alt"></i> Calendar</a>
+<div id="mobile-menu" class="hidden lg:hidden bg-white shadow-lg px-6 py-6 flex flex-col space-y-4 text-xl absolute w-full z-20">
+    <a href="home.html" class="hover:text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-house w-6"></i> Home</a>
+    <a href="address.html" class="hover:text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-tasks w-6"></i> Address</a>
+    <a href="password.html" class="hover:text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-key w-6"></i> Passwords</a>
+    <a href="income.html" class="hover:text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-wallet w-6"></i> Income</a>
+    <a href="links.html" class="text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-link w-6"></i> Links</a>
+    <a href="calendar.html" class="hover:text-indigo-500 flex items-center gap-3 py-2 border-b border-gray-100"><i class="fas fa-calendar-alt w-6"></i> Calendar</a>
+    <a href="birthday.html" class="hover:text-indigo-500 flex items-center gap-3 py-2"><i class="fas fa-cake-candles w-6"></i> Birthday</a>
 
-  <!-- Mobile User Info -->
-  <div class="flex items-center space-x-5 mt-5">
-    <img id="mobileUserPic" class="rounded-full w-20 h-20 sm:w-24 sm:h-24" />
-    <div class="text-left">
-      <p id="mobileUserName" class="font-semibold text-black text-2xl sm:text-3xl">User Name</p>
-      <p id="mobileUserEmail" class="text-gray-600 break-words text-lg sm:text-xl">user@example.com</p>
+    <div class="flex items-center space-x-4 pt-4 border-t mt-4 border-gray-200">
+        <img id="mobileUserPic" class="rounded-full w-14 h-14 object-cover border-2 border-blue-400" />
+        <div class="text-left flex-grow">
+            <p id="mobileUserName" class="font-bold text-gray-900 text-lg">User Name</p>
+            <p id="mobileUserEmail" class="text-gray-500 break-words text-base">user@example.com</p>
+        </div>
+        <button id="mobileLogout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 modern-btn text-base font-medium">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
     </div>
-    <button id="mobileLogout" class="bg-red-600 text-white px-5 py-3 rounded text-lg sm:text-xl">Logout</button>
-  </div>
 </div>
 
-<!-- Main Content -->
-<!-- Main Content -->
-<div class="max-w-9xl mx-auto mt-6 p-6 flex flex-col lg:flex-row gap-6">
+<main class="flex-grow max-w-8xl mx-auto mt-8 p-4 md:p-6 flex flex-col lg:flex-row gap-6">
 
+    <div class="w-full lg:w-5/12 bg-white shadow-xl p-6 rounded-xl h-fit border border-gray-100">
+        <h2 class="text-3xl font-extrabold text-gray-800 mb-4 border-b pb-2">Add a New Link</h2>
+        <input id="linkInput" type="url" placeholder="Enter URL (e.g., https://google.com)"
+            class="w-full p-4 text-lg border border-gray-300 rounded-lg mb-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" required/>
+        <textarea id="descInput" rows="4" placeholder="Enter a brief description for this link"
+            class="w-full p-4 text-lg border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" required></textarea>
+        <button id="addLinkBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 w-full modern-btn text-lg">
+            <i class="fas fa-plus-circle mr-2"></i> Save Link
+        </button>
+    </div>
 
-<div class="w-full lg:w-5/12 bg-white shadow p-3 lg:p-5 rounded text-xl lg:text-sm">
-  <h2 class="text-3xl lg:text-xl font-bold mb-3">Add a Link</h2>
-  <input id="linkInput" type="url" placeholder="Enter URL"
-         class="w-full p-3 lg:p-3 text-xl lg:text-sm border rounded mb-2"/>
-  <textarea id="descInput" rows="3" placeholder="Enter Description"
-            class="w-full p-3 lg:p-3 text-xl lg:text-sm border rounded mb-3"></textarea>
-  <button id="addLinkBtn"
-          class="bg-blue-600 text-white px-4 lg:px-3 py-3 lg:py-2 rounded w-full text-xl lg:text-sm">
-    Add Link
-  </button>
-</div>
+    <div class="w-full lg:w-7/12 bg-white shadow-xl p-6 rounded-xl border border-gray-100">
+        <h2 class="text-3xl font-extrabold text-gray-800 mb-4">Your Saved Links</h2>
 
+        <div class="mb-4 relative">
+            <input id="searchBar" type="text" placeholder="Search by link or description..."
+                class="w-full p-3 pl-10 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" />
+            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-xl text-gray-400"></i>
+        </div>
 
+        <div id="linkList" class="space-y-4 link-list-container">
+            </div>
+    </div>
+</main>
 
-
-<!-- Link List -->
-<!-- Link List -->
-<div class="w-full lg:w-7/12 bg-white shadow p-6 rounded text-sm lg:text-base">
-  <!-- Heading -->
-  <h2 class="text-xl lg:text-xl font-bold mb-4">Your Links</h2>
-
-  <!-- Link List -->
-  <div id="linkList" class="space-y-4 overflow-y-auto max-h-[70vh] text-sm lg:text-base pr-2"></div>
-</div>
-
+<footer class="bg-white shadow mt-8 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-base text-gray-600 flex justify-center">
+        &copy; 2025 My Personal Website Link Manager. All rights reserved.
+    </div>
+</footer>
 
 <script>
-// Toggle mobile menu
-const menuBtn = document.getElementById('menu-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-  authDomain: "sk12-58e9e.firebaseapp.com",
-  databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-  projectId: "sk12-58e9e",
-  storageBucket: "sk12-58e9e.appspot.com",
-  messagingSenderId: "470207874652",
-  appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-};
-
-// Init Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-// Elements
-const userName = document.getElementById("userName");
-const userEmail = document.getElementById("userEmail");
-const userPic = document.getElementById("userPic");
-const logoutBtn = document.getElementById("logoutBtn");
-
-const mobileUserName = document.getElementById("mobileUserName");
-const mobileUserEmail = document.getElementById("mobileUserEmail");
-const mobileUserPic = document.getElementById("mobileUserPic");
-const mobileLogout = document.getElementById("mobileLogout");
-
-const linkInput = document.getElementById("linkInput");
-const descInput = document.getElementById("descInput");
-const addLinkBtn = document.getElementById("addLinkBtn");
-const linkList = document.getElementById("linkList");
-
-let currentUserId = "";
-
-// Auth state
-auth.onAuthStateChanged(user => {
-  if (user) {
-    currentUserId = user.uid;
-
-    // Set user info
-    userName.textContent = user.displayName || "No Name";
-    userEmail.textContent = user.email;
-    userPic.src = user.photoURL || "";
-
-    mobileUserName.textContent = user.displayName || "No Name";
-    mobileUserEmail.textContent = user.email;
-    mobileUserPic.src = user.photoURL || "";
-
-    loadLinks(); // Load user links
-  } else {
-    window.location.href = "index.html";
-  }
-});
-
-// Add link
-addLinkBtn.addEventListener("click", () => {
-  const link = linkInput.value.trim();
-  const desc = descInput.value.trim();
-  if (!link || !desc) {
-    alert("Please enter both link and description.");
-    return;
-  }
-
-  const newRef = db.ref(`users/${currentUserId}/links`).push();
-  newRef
-    .set({ link, desc })
-    .then(() => {
-      linkInput.value = "";
-      descInput.value = "";
-    })
-    .catch(err => alert("Error saving link: " + err.message));
-});
-
-// Load links from Firebase
-function loadLinks() {
-  db.ref(`users/${currentUserId}/links`).on("value", snapshot => {
-    const links = [];
-    snapshot.forEach(child => {
-      links.push({ id: child.key, ...child.val() });
+    // Mobile menu toggle logic
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        const icon = menuBtn.querySelector('i');
+        icon.classList.toggle('fa-bars');
+        icon.classList.toggle('fa-times');
     });
-    renderLinks(links);
-  });
-}
-function renderLinks(links) {
-  linkList.innerHTML = "";
 
-  if (links.length === 0) {
-    linkList.innerHTML = "<p class='text-gray-500 text-lg lg:text-base'>No links found.</p>";
-    return;
-  }
+    // Firebase config (PLACEHOLDER - **Replace with your actual Firebase config**)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
 
-  links.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "border p-4 rounded hover:bg-gray-50 transition mb-4 text-lg lg:text-base";
+    // Init Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
 
-    div.innerHTML = `
-      <div class="flex items-center gap-3">
-        <span class="text-blue-600 underline cursor-pointer break-all text-2xl lg:text-base"
-              onclick="window.open('${item.link}','_blank')">
-          ${item.link}
-        </span>
-        <button class="copy-btn px-4 py-2 text-2xl lg:text-sm border rounded bg-white flex items-center gap-2"
-                data-copy="${encodeURIComponent(item.link)}">
-          <i class="fas fa-copy text-2xl lg:text-sm"></i> Copy
-        </button>
-      </div>
+    // Element references
+    const userName = document.getElementById("userName");
+    const userEmail = document.getElementById("userEmail");
+    const userPic = document.getElementById("userPic");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-      <p class="text-gray-700 mt-3 text-2xl lg:text-sm">${item.desc}</p>
-      
-      <div class="flex gap-2 mt-3">
-        <button onclick="editLink('${item.id}','${item.link}','${item.desc}')"
-                class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded text-2xl lg:text-xs font-medium">
-          Edit
-        </button>
-        <button onclick="deleteLink('${item.id}')"
-                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded flex items-center gap-2 text-2xl lg:text-xs font-medium">
-          <i class="fas fa-trash-alt text-2xl lg:text-xs"></i> Delete
-        </button>
-      </div>
-    `;
+    const mobileUserName = document.getElementById("mobileUserName");
+    const mobileUserEmail = document.getElementById("mobileUserEmail");
+    const mobileUserPic = document.getElementById("mobileUserPic");
+    const mobileLogout = document.getElementById("mobileLogout");
 
-    linkList.appendChild(div);
+    const linkInput = document.getElementById("linkInput");
+    const descInput = document.getElementById("descInput");
+    const addLinkBtn = document.getElementById("addLinkBtn");
+    const linkList = document.getElementById("linkList");
+    const searchBar = document.getElementById("searchBar");
 
-    // Copy button listener
-    const copyBtn = div.querySelector(".copy-btn");
-    copyBtn.addEventListener("click", () => {
-      const text = decodeURIComponent(copyBtn.getAttribute("data-copy") || "");
-      navigator.clipboard.writeText(text)
-        .then(() => alert("Copied!"))
-        .catch(err => console.error("Copy failed:", err));
+    let currentUserId = "";
+    let allLinks = [];
+
+    // Auth state check
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUserId = user.uid;
+            // Set user info
+            userName.textContent = user.displayName || "My Account";
+            userEmail.textContent = user.email;
+            userPic.src = user.photoURL || "https://ui-avatars.com/api/?name=" + (user.displayName || "User") + "&background=0D8ABC&color=fff";
+            // Set mobile user info
+            mobileUserName.textContent = user.displayName || "My Account";
+            mobileUserEmail.textContent = user.email;
+            mobileUserPic.src = user.photoURL || "https://ui-avatars.com/api/?name=" + (user.displayName || "User") + "&background=0D8ABC&color=fff";
+            
+            loadLinks();
+        } else {
+            window.location.href = "index.html";
+        }
     });
-  });
-}
 
+    // Add link logic
+    addLinkBtn.addEventListener("click", () => {
+        const link = linkInput.value.trim();
+        const desc = descInput.value.trim();
 
-// Edit link
-function editLink(id, oldLink, oldDesc) {
-  const newDesc = prompt("Edit description:", oldDesc);
-  if (newDesc !== null && newDesc.trim() !== "") {
-    db.ref(`users/${currentUserId}/links/${id}`).update({ desc: newDesc });
-  }
-}
+        try {
+            new URL(link);
+        } catch (e) {
+            alert("Please enter a valid URL.");
+            return;
+        }
 
-// Delete link
-function deleteLink(id) {
-  if (confirm("Are you sure you want to delete this link?")) {
-    db.ref(`users/${currentUserId}/links/${id}`).remove();
-  }
-}
+        if (!link || !desc) {
+            alert("Please enter both a valid link and a description.");
+            return;
+        }
 
-// Logout
-logoutBtn.addEventListener("click", () =>
-  auth.signOut().then(() => (window.location.href = "index.html"))
-);
-mobileLogout.addEventListener("click", () =>
-  auth.signOut().then(() => (window.location.href = "index.html"))
-);
+        addLinkBtn.disabled = true;
+        addLinkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Adding...';
+        addLinkBtn.classList.add('opacity-75');
+
+        const newRef = db.ref(`users/${currentUserId}/links`).push();
+        newRef
+            .set({ link, desc, timestamp: firebase.database.ServerValue.TIMESTAMP })
+            .then(() => {
+                linkInput.value = "";
+                descInput.value = "";
+                addLinkBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Save Link';
+                addLinkBtn.disabled = false;
+                addLinkBtn.classList.remove('opacity-75');
+            })
+            .catch(err => {
+                alert("Error saving link: " + err.message);
+                addLinkBtn.innerHTML = '<i class="fas fa-plus-circle mr-2"></i> Save Link';
+                addLinkBtn.disabled = false;
+                addLinkBtn.classList.remove('opacity-75');
+            });
+    });
+
+    // Load and filter links logic
+    function loadLinks() {
+        db.ref(`users/${currentUserId}/links`).on("value", snapshot => {
+            const links = [];
+            snapshot.forEach(child => {
+                links.push({ id: child.key, ...child.val() });
+            });
+            allLinks = links.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            renderLinks(allLinks);
+        });
+        
+        searchBar.addEventListener('input', filterLinks);
+    }
+
+    function filterLinks() {
+        const query = searchBar.value.toLowerCase().trim();
+        const filteredLinks = allLinks.filter(item => 
+            item.link.toLowerCase().includes(query) || 
+            item.desc.toLowerCase().includes(query)
+        );
+        renderLinks(filteredLinks);
+    }
+
+    function renderLinks(links) {
+        linkList.innerHTML = "";
+
+        if (links.length === 0) {
+            linkList.innerHTML = `<p class='text-gray-500 text-xl p-4 bg-gray-50 rounded-lg'>
+                ${searchBar.value.trim() ? "No results found for your search." : "No links found. Add your first link above!"}
+            </p>`;
+            return;
+        }
+
+        links.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "border border-gray-200 bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition duration-150";
+
+            const encodedLink = encodeURIComponent(item.link);
+            const encodedDesc = encodeURIComponent(item.desc);
+
+            div.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer"
+                       class="text-blue-600 hover:text-blue-800 font-semibold truncate text-xl block w-full sm:w-auto break-all mr-4">
+                        <i class="fas fa-external-link-alt text-base mr-2"></i> ${item.link}
+                    </a>
+                </div>
+
+                <p class="font-sans text-gray-600 text-lg mb-4 border-l-4 border-gray-300 pl-3">${item.desc}</p>
+                
+                <div class="flex flex-wrap gap-3">
+                    <button class="copy-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium px-4 py-2 modern-btn flex items-center gap-1"
+                            data-copy="${encodedLink}">
+                        <i class="fas fa-copy text-sm"></i> Copy Link
+                        <span class="copied-badge">Copied!</span>
+                    </button>
+
+                    <button class="share-btn bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium px-4 py-2 modern-btn flex items-center gap-1"
+                            data-share="${encodeURIComponent('Link: ' + item.link + '\nDescription: ' + item.desc)}">
+                        <i class="fas fa-share-alt text-sm"></i> Share
+                        <span class="copied-badge">Copied!</span>
+                    </button>
+
+                    <button onclick="editLink('${item.id}', '${encodedLink}', '${encodedDesc}')"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-medium px-4 py-2 modern-btn">
+                        <i class="fas fa-edit text-sm mr-1"></i> Edit
+                    </button>
+                    <button onclick="deleteLink('${item.id}')"
+                            class="bg-red-500 hover:bg-red-600 text-white text-sm font-medium px-4 py-2 modern-btn flex items-center gap-1">
+                        <i class="fas fa-trash-alt text-sm"></i> Delete
+                    </button>
+                </div>
+            `;
+
+            linkList.appendChild(div);
+
+            // Copy button listener
+            const copyBtn = div.querySelector(".copy-btn");
+            const copyBadge = copyBtn.querySelector(".copied-badge");
+            copyBtn.addEventListener("click", () => {
+                const text = decodeURIComponent(copyBtn.getAttribute("data-copy") || "");
+                navigator.clipboard.writeText(text)
+                    .then(() => showCopiedAnimation(copyBadge))
+                    .catch(err => console.error("Copy failed:", err));
+            });
+
+            // Share button listener
+            const shareBtn = div.querySelector(".share-btn");
+            const shareBadge = shareBtn.querySelector(".copied-badge");
+            shareBtn.addEventListener("click", () => {
+                const text = decodeURIComponent(shareBtn.getAttribute("data-share") || "");
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Shared Link from My Personal Website',
+                        text: text,
+                        url: item.link
+                    }).catch((error) => {
+                        // Fallback to clipboard if share fails
+                        navigator.clipboard.writeText(text)
+                            .then(() => showCopiedAnimation(shareBadge))
+                            .catch(err => console.error("Share fallback failed:", err));
+                    });
+                } else {
+                    // Fallback for browsers without Web Share API
+                    navigator.clipboard.writeText(text)
+                        .then(() => showCopiedAnimation(shareBadge))
+                        .catch(err => console.error("Share fallback failed:", err));
+                }
+            });
+        });
+    }
+
+    function showCopiedAnimation(badgeElement) {
+        badgeElement.classList.add('visible');
+        setTimeout(() => {
+            badgeElement.classList.remove('visible');
+        }, 1500);
+    }
+
+    function editLink(id, oldLinkEncoded, oldDescEncoded) {
+        const oldDesc = decodeURIComponent(oldDescEncoded);
+        const newDesc = prompt("Edit description:", oldDesc);
+        if (newDesc !== null && newDesc.trim() !== "" && newDesc.trim() !== oldDesc.trim()) {
+            db.ref('users/' + currentUserId + '/links/' + id).update({ desc: newDesc.trim() })
+                .then(() => console.log("Link description updated."))
+                .catch(err => alert("Error updating link: " + err.message));
+        }
+    }
+
+    function deleteLink(id) {
+        if (confirm("Are you sure you want to delete this link? This action cannot be undone.")) {
+            db.ref('users/' + currentUserId + '/links/' + id).remove()
+                .then(() => console.log("Link deleted."))
+                .catch(err => alert("Error deleting link: " + err.message));
+        }
+    }
+
+    // Logout
+    logoutBtn.addEventListener("click", () =>
+        auth.signOut().then(() => (window.location.href = "index.html"))
+    );
+    mobileLogout.addEventListener("click", () =>
+        auth.signOut().then(() => (window.location.href = "index.html"))
+    );
 </script>
-
-
-
-<style>
-.copy-btn {
-  border: 1px solid rgba(15,23,42,0.08);
-  background: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 30px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-}
-.copy-btn i { font-size: 12px; }
-.copied-badge {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 2px 6px;
-  border-radius: 9999px;
-  font-size: 30px;
-  line-height: 1;
-  background: #10B981;
-  color: white;
-  box-shadow: 0 4px 10px rgba(16,185,129,0.12);
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity .18s ease, transform .18s ease;
-  pointer-events: none;
-}
-.copied-badge.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-</style>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
