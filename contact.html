@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Contacts - Responsive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        /* Custom Tailwind Colors (Defining primary-indigo based on your common use of #4f46e5) */
+        .bg-primary-indigo { background-color: #4f46e5; }
+        .hover\:bg-primary-indigo:hover { background-color: #4338ca; }
+        .text-primary-indigo { color: #4f46e5; }
+        .border-primary-indigo { border-color: #4f46e5; }
+        
+        /* Custom Styles for Contact Card */
+        .contact-card {
+            display: flex;
+            flex-direction: column; 
+            padding: 1.25rem;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+        .contact-name {
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.75rem;
+        }
+        .contact-details {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .contact-icon {
+            color: #6366f1;
+            width: 1.25rem;
+            text-align: center;
+            margin-right: 0.6rem;
+        }
+        
+        /* Action layout for one row, tightly grouped, aligned right */
+        .actions-container {
+            display: flex;
+            justify-content: flex-end; 
+            gap: 0.5rem; 
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .action-btn {
+            width: 36px; 
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Modal backdrop for full screen */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        /* Ensure the body padding accounts for the fixed nav height */
+        body {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 640px) {
+            .search-and-button-group {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .actions-container {
+                justify-content: center; 
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex flex-col">
+
+    <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
+        <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
+            <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
+                <i class="fas fa-user-circle" style="font-size: 28px; color: #4f46e5;"></i>
+                <span style="font-size: 22px;">My Personal Website</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-6 font-medium">
+                <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+                <a href="address.html" class="flex items-center gap-2 transition duration-300 text-primary-indigo font-bold hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
+                <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+                <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+                <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+                <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4">
+                <div class="text-right">
+                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
+                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                </div>
+                <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5;">
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300">Logout</button>
+            </div>
+
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
+            <a href="address.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 text-primary-indigo font-bold hover:text-blue-500 transition duration-300"><i class="fas fa-tasks"></i> Address</a>
+            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
+                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="flex-grow container mx-auto p-4 md:px-8">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 flex items-center gap-3">
+            <i class="fas fa-address-book text-primary-indigo"></i> My Contacts
+        </h1>
+
+        <div class="search-and-button-group flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md mb-6">
+            <div class="w-full sm:w-1/2 mb-4 sm:mb-0">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="searchInput" placeholder="Search contacts by name, number, or notes..." 
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-indigo focus:border-primary-indigo">
+                </div>
+            </div>
+            
+            <label for="fileInput" class="w-full sm:w-auto text-center bg-primary-indigo text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition duration-150 shadow-md">
+                <i class="fas fa-cloud-upload-alt mr-2"></i> Upload Contacts (VCF/TXT)
+            </label>
+            <input type="file" id="fileInput" class="hidden" accept=".vcf, .txt" onchange="processFile(this.files[0])">
+        </div>
+
+        <div id="all-items-list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <p id="loading-message" class="loading-message text-center text-gray-500 col-span-full mt-10" style="display: none;">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Loading contacts...
+            </p>
+        </div>
+    </main>
+
+    <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm border-t border-gray-200">
+        &copy; 2025 Personal Website | All rights reserved
+    </footer>
+
+    <div id="editModal" class="modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6 md:p-8 transform transition-all duration-300">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-edit mr-2 text-primary-indigo"></i> Edit Contact</h2>
+                <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editContactId">
+
+                <div class="mb-4">
+                    <label for="editName" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="editName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                </div>
+                <div class="mb-4">
+                    <label for="editMobile" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                    <input type="tel" id="editMobile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                </div>
+                <div class="mb-4">
+                    <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="editEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                </div>
+                <div class="mb-4">
+                    <label for="editAddress" class="block text-sm font-medium text-gray-700">Address</label>
+                    <input type="text" id="editAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="editFacebook" class="block text-sm font-medium text-gray-700">Facebook URL/Handle</label>
+                        <input type="text" id="editFacebook" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editInstagram" class="block text-sm font-medium text-gray-700">Instagram Handle/URL</label>
+                        <input type="text" id="editInstagram" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-primary-indigo text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<script>
+    // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let currentUserId = null;
+    let allContacts = [];
+    // Assuming these elements exist in your HTML
+    const contactListContainer = document.getElementById('all-items-list');
+    const loadingMessage = document.getElementById('loading-message');
+    const searchInput = document.getElementById('searchInput');
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+
+    let contactMap = new Map();
+
+    // --- UTILITIES ---
+    window.logout = function() {
+        auth.signOut().then(() => { window.location.href = 'index.html'; }).catch(error => { alert('Sign out failed: ' + error.message); });
+    }
+
+    function shareAddress(contact) {
+        let shareText = `${contact.name}\n`;
+        if (contact.address) shareText += `Address: ${contact.address}`;
+        const shareData = {
+            title: `${contact.name}'s Address`,
+            text: shareText.trim()
+        };
+        if (navigator.share) {
+            navigator.share(shareData).catch((error) => {
+                console.log('Share failed or cancelled:', error);
+                navigator.clipboard.writeText(shareData.text)
+                    .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`));
+            });
+        } else {
+            navigator.clipboard.writeText(shareData.text)
+                .then(() => alert(`Native Share not supported. Details for ${contact.name} copied to clipboard:\n\n${shareData.text}`));
+        }
+    }
+
+    /**
+     * **FINAL FIX CONFIRMED:** Ensures the shareText includes all contact info 
+     * and correctly uses the complete shareData.text in the clipboard fallback.
+     */
+    function shareContact(contact) {
+        let shareText = `${contact.name}\n`;
+        
+        // Add contact details to shareText (This includes mobile/whatsapp/email)
+        if (contact.mobile) shareText += `Phone: ${contact.mobile}\n`;
+        if (contact.whatsapp) shareText += `WhatsApp: ${contact.whatsapp}\n`;
+        if (contact.email) shareText += `Email: ${contact.email}\n`;
+
+        const shareData = {
+            title: `${contact.name}'s Contact`,
+            text: shareText.trim() // This holds the complete info: Name + Numbers/Email
+        };
+        
+        if (navigator.share) {
+            navigator.share(shareData).catch((error) => {
+                console.log('Share failed or cancelled:', error);
+                // FIX: Use shareData.text for the clipboard write and the alert
+                navigator.clipboard.writeText(shareData.text)
+                    .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`));
+            });
+        } else {
+            // FIX: Use shareData.text for the clipboard write and the alert
+            navigator.clipboard.writeText(shareData.text)
+                .then(() => alert(`Native Share not supported. Details for ${contact.name} copied to clipboard:\n\n${shareData.text}`));
+        }
+    }
+
+    // --- DATA PROCESSING: GROUPING LOGIC (Unchanged) ---
+    function groupContactsByName(contacts) {
+        const groups = new Map();
+
+        contacts.forEach(contact => {
+            const name = contact.data.name.trim();
+            if (!name) return;
+
+            const key = name.toLowerCase();
+
+            if (!groups.has(key)) {
+                groups.set(key, {
+                    name: name,
+                    members: [],
+                    emails: new Set(),
+                    addresses: new Set(),
+                    mobiles: new Set(),
+                    whatsapps: new Set(),
+                    facebooks: new Set(),
+                    twitters: new Set(),
+                    instagrams: new Set(),
+                    notes: new Set(),
+                });
+            }
+
+            const group = groups.get(key);
+            group.members.push(contact);
+
+            if (contact.data.mobile) group.mobiles.add(contact.data.mobile);
+            if (contact.data.whatsapp) group.whatsapps.add(contact.data.whatsapp);
+            if (contact.data.email) group.emails.add(contact.data.email);
+            if (contact.data.address) group.addresses.add(contact.data.address);
+            if (contact.data.facebook) group.facebooks.add(contact.data.facebook);
+            if (contact.data.twitter) group.twitters.add(contact.data.twitter);
+            if (contact.data.instagram) group.instagrams.add(contact.data.instagram);
+            if (contact.data.note) group.notes.add(contact.data.note);
+        });
+
+        const groupedArray = Array.from(groups.values()).sort((a, b) => {
+            const nameA = a.name.toUpperCase();
+            const nameB = b.name.toUpperCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+
+        return groupedArray;
+    }
+
+    // --- RENDERING: Contact Cards (Unchanged) ---
+    function createGroupCard(group) {
+        const card = document.createElement('div');
+        // Added flex, justify-between, and items-start for better card structure
+        card.className = 'contact-card flex flex-col justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300'; 
+        
+        const primaryId = group.members[0].id;
+
+        let mobileHtml = '';
+        // Combine mobiles and whatsapps into a single list, prioritizing uniqueness
+        const allNumbers = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)]));
+        
+        if (allNumbers.length > 0) {
+            allNumbers.forEach((number, index) => {
+                const isMobile = group.mobiles.has(number);
+                const isWhatsapp = group.whatsapps.has(number);
+                
+                // Add a margin to secondary numbers for visual hierarchy
+                const marginClass = index === 0 ? '' : 'ml-6'; 
+                // Determine the main icon
+                const iconClass = isMobile ? 'fas fa-phone-alt' : 'fab fa-whatsapp'; 
+                // Use a darker color for the primary number
+                const textColorClass = index === 0 ? 'text-gray-700' : 'text-gray-500';
+
+                mobileHtml += `<p class="contact-details flex items-center ${marginClass}">
+                                    <i class="${iconClass} contact-icon w-4 text-center mr-2"></i> 
+                                    <a href="tel:${number}" class="${textColorClass} hover:text-primary-indigo">${number}</a>
+                                    ${isWhatsapp ? `<a href="https://wa.me/${number.replace(/\D/g, '')}" target="_blank" title="WhatsApp" class="ml-2 text-green-500 hover:text-green-700"><i class="fab fa-whatsapp"></i></a>` : ''}
+                                </p>`;
+            });
+        }
+
+        const email = Array.from(group.emails)[0];
+        const address = Array.from(group.addresses)[0];
+        const facebook = Array.from(group.facebooks)[0];
+        const twitter = Array.from(group.twitters)[0];
+        const instagram = Array.from(group.instagrams)[0];
+
+        const facebookUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://${facebook}`) : null;
+        const facebookDisplay = facebookUrl ? (facebookUrl.includes('facebook.com') ? new URL(facebookUrl).pathname.replace(/^\/|[\/]+$/g, '') : facebook) : null;
+        
+        const instagramUrl = instagram ? (instagram.startsWith('http') ? instagram : `https://${instagram}`) : null;
+        const instagramDisplay = instagramUrl ? (instagramUrl.includes('instagram.com') ? new URL(instagramUrl).pathname.replace(/^\/|[\/]+$/g, '') : instagram) : null;
+
+
+        card.innerHTML = `
+            <div class="contact-info">
+                <h3 class="contact-name text-xl font-semibold mb-3">${group.name || 'Unknown Contact'}</h3>
+                <div class="space-y-1">
+                    ${mobileHtml}
+                    ${email ? `<p class="contact-details flex items-center"><i class="fas fa-envelope contact-icon w-4 text-center mr-2"></i> <a href="mailto:${email}" class="text-gray-700 hover:text-primary-indigo">${email}</a></p>` : ''}
+                    
+                    ${facebookUrl ? `<p class="contact-details flex items-center"><i class="fab fa-facebook contact-icon text-blue-600 w-4 text-center mr-2"></i> <a href="${facebookUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${facebookDisplay || facebook}</a></p>` : ''}
+                    ${twitter ? `<p class="contact-details flex items-center"><i class="fab fa-twitter contact-icon text-blue-400 w-4 text-center mr-2"></i> <a href="https://twitter.com/${twitter.replace(/^@/, '')}" target="_blank" class="text-gray-700 hover:text-primary-indigo">@${twitter.replace(/^@/, '')}</a></p>` : ''}
+                    ${instagramUrl ? `<p class="contact-details flex items-center"><i class="fab fa-instagram contact-icon text-pink-600 w-4 text-center mr-2"></i> <a href="${instagramUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${instagramDisplay || instagram}</a></p>` : ''}
+                    
+                    ${address ? `<p class="contact-details flex items-center"><i class="fas fa-map-marker-alt contact-icon w-4 text-center mr-2"></i> <span class="text-gray-700">${address}</span></p>` : ''}
+                </div>
+            </div>
+            
+            <div class="actions-container flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
+                <button class="action-btn edit-btn p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white" data-id="${primaryId}" title="Edit"><i class="fas fa-edit"></i></button>
+                <button class="action-btn share-btn p-2 rounded-full bg-primary-indigo hover:bg-indigo-700 text-white" data-id="${primaryId}" title="Share Contact"><i class="fas fa-share-alt"></i></button>
+                ${address ? `<button class="action-btn share-address-btn p-2 rounded-full bg-teal-500 hover:bg-teal-600 text-white" data-id="${primaryId}" title="Share Address"><i class="fas fa-map-marked-alt"></i></button>` : ''}
+                <button class="action-btn delete-btn p-2 rounded-full bg-red-500 hover:bg-red-600 text-white" data-id="${primaryId}" title="Delete"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        `;
+        return card;
+    }
+
+    function renderContacts(contactsToRender) {
+        contactListContainer.innerHTML = '';
+        
+        if (contactsToRender.length === 0) {
+            contactListContainer.innerHTML = `<p class="loading-message text-center text-gray-500 col-span-full mt-10">${searchInput.value ? 'No contacts found matching your criteria.' : 'You have no contacts saved yet. Tap the Upload button to get started! ⬆️'}</p>`;
+            return;
+        }
+
+        const groupedContacts = groupContactsByName(contactsToRender);
+        
+        groupedContacts.forEach(group => {
+            const contactCard = createGroupCard(group);
+            if (contactCard) {
+                contactListContainer.appendChild(contactCard);
+            }
+        });
+        
+        attachEventListeners(allContacts);
+    }
+
+    function filterContacts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filtered = allContacts.filter(item => {
+            const data = item.data;
+            return (data.name && data.name.toLowerCase().includes(searchTerm)) ||
+                    (data.mobile && data.mobile.toLowerCase().includes(searchTerm)) ||
+                    (data.whatsapp && data.whatsapp.toLowerCase().includes(searchTerm)) ||
+                    (data.email && data.email.toLowerCase().includes(searchTerm)) ||
+                    (data.note && data.note.toLowerCase().includes(searchTerm)) ||
+                    (data.twitter && data.twitter.toLowerCase().includes(searchTerm));
+        });
+        renderContacts(filtered);
+    }
+
+    function attachEventListeners(contacts) {
+        contactMap = new Map(contacts.map(item => [item.id, item.data]));
+
+        searchInput.removeEventListener('input', filterContacts);
+        searchInput.addEventListener('input', filterContacts);
+
+        contactListContainer.querySelectorAll('.delete-btn').forEach(button => {
+            button.onclick = (e) => {
+                e.stopPropagation();
+                const id = e.currentTarget.getAttribute('data-id');
+                // Find the specific contact entry to delete, not the entire group
+                if (!currentUserId || !confirm(`Are you sure you want to delete the individual entry for ${contactMap.get(id)?.name || 'this contact entry'}?`)) return;
+                database.ref(`users/${currentUserId}/contacts/${id}`).remove().catch(error => console.error("Error removing contact:", error));
+            };
+        });
+        
+        contactListContainer.querySelectorAll('.share-btn').forEach(button => {
+            button.onclick = (e) => {
+                e.stopPropagation();
+                shareContact(contactMap.get(e.currentTarget.getAttribute('data-id')));
+            };
+        });
+        
+        contactListContainer.querySelectorAll('.share-address-btn').forEach(button => {
+            button.onclick = (e) => {
+                e.stopPropagation();
+                shareAddress(contactMap.get(e.currentTarget.getAttribute('data-id')));
+            };
+        });
+        
+        contactListContainer.querySelectorAll('.edit-btn').forEach(button => {
+            button.onclick = (e) => {
+                e.stopPropagation();
+                openEditModal(e.currentTarget.getAttribute('data-id'));
+            };
+        });
+        
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.onclick = () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = menuBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            };
+        }
+    }
+
+    function loadContacts() {
+        if (!currentUserId) {
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Please log in to view contacts.</p>';
+            return;
+        }
+        
+        contactListContainer.innerHTML = '';
+        contactListContainer.appendChild(loadingMessage);
+        loadingMessage.style.display = 'block';
+
+        const dbRef = database.ref(`users/${currentUserId}/contacts`);
+        
+        dbRef.on('value', (snapshot) => {
+            loadingMessage.style.display = 'none';
+            
+            const contactsObject = snapshot.val();
+            let rawContacts = [];
+
+            if (contactsObject && typeof contactsObject === 'object') {
+                Object.keys(contactsObject).forEach(contactId => {
+                    rawContacts.push({
+                        id: contactId,
+                        data: contactsObject[contactId]
+                    });
+                });
+            }
+            
+            allContacts = rawContacts;
+            renderContacts(allContacts);
+            
+        }, (error) => {
+            console.error("Firebase Read Error:", error);
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">⛔ Error loading contacts. Check your Firebase rules!</p>';
+        });
+    }
+
+    /**
+     * Fetches contact data and populates the edit modal fields.
+     */
+    function openEditModal(contactId) {
+        const contact = contactMap.get(contactId);
+        if (!contact) {
+            alert("Contact not found.");
+            return;
+        }
+        
+        document.getElementById('editContactId').value = contactId;
+        document.getElementById('editName').value = contact.name || '';
+        document.getElementById('editMobile').value = contact.mobile || '';
+        document.getElementById('editEmail').value = contact.email || '';
+        document.getElementById('editFacebook').value = contact.facebook || '';
+        document.getElementById('editInstagram').value = contact.instagram || '';
+        document.getElementById('editAddress').value = contact.address || '';
+        
+        editModal.style.display = 'flex';
+    }
+
+    window.closeEditModal = function() {
+        editModal.style.display = 'none';
+        editForm.reset();
+    }
+
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const contactId = document.getElementById('editContactId').value;
+        
+        const existingData = contactMap.get(contactId) || {};
+
+        const updatedData = {
+            name: document.getElementById('editName').value.trim(),
+            mobile: document.getElementById('editMobile').value.trim(),
+            email: document.getElementById('editEmail').value.trim(),
+            facebook: document.getElementById('editFacebook').value.trim(),
+            instagram: document.getElementById('editInstagram').value.trim(),
+            address: document.getElementById('editAddress').value.trim(),
+            whatsapp: existingData.whatsapp || '',
+            twitter: existingData.twitter || '',
+            note: existingData.note || '',
+        };
+        
+        if (!updatedData.name || !currentUserId) return;
+
+        const contactRef = database.ref(`users/${currentUserId}/contacts/${contactId}`);
+        contactRef.update(updatedData)
+            .then(() => {
+                closeEditModal();
+            })
+            .catch(error => {
+                console.error("Error updating contact:", error);
+                alert("Error updating contact: " + error.message);
+            });
+    });
+
+    // --- FILE PARSING (FIXED) ---
+    /**
+     * Saves a parsed contact object to the Firebase Realtime Database.
+     * @param {object} data - The contact data (e.g., {name: "John Doe", mobile: "123..."})
+     */
+    function saveContact(data) {
+        if (!currentUserId) return;
+        const newContactRef = database.ref(`users/${currentUserId}/contacts`).push();
+        newContactRef.set({
+            // Ensure data is stringified/cleaned before saving
+            name: data.name ? String(data.name).trim() : '',
+            mobile: data.mobile ? String(data.mobile).trim() : '',
+            email: data.email ? String(data.email).trim() : '',
+            address: data.address ? String(data.address).trim() : '',
+            facebook: data.facebook ? String(data.facebook).trim() : '',
+            instagram: data.instagram ? String(data.instagram).trim() : '',
+            whatsapp: data.whatsapp ? String(data.whatsapp).trim() : '',
+            twitter: data.twitter ? String(data.twitter).trim() : '',
+            note: data.note ? String(data.note).trim() : '',
+            createdAt: firebase.database.ServerValue.TIMESTAMP // Useful for sorting/tracking
+        })
+        .catch(error => {
+            console.error("Error saving contact:", error);
+            alert("Failed to save contact: " + error.message);
+        });
+    }
+
+    // --- FILE PARSING LOGIC (Needed to complete the application functionality) ---
+    function processFile(file) {
+        if (!file) return;
+        loadingMessage.innerText = 'Processing file...';
+        loadingMessage.style.display = 'block';
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            const contacts = parseVCFContent(content); 
+
+            if (contacts.length === 0) {
+                alert("No valid contacts found in the file.");
+                loadingMessage.style.display = 'none';
+                return;
+            }
+
+            let savedCount = 0;
+            contacts.forEach(contact => {
+                // Ensure the contact has a name before attempting to save
+                if (contact.name && currentUserId) {
+                    saveContact(contact);
+                    savedCount++;
+                }
+            });
+
+            alert(`Successfully processed file and saved ${savedCount} contacts!`);
+            loadingMessage.style.display = 'none';
+        };
+        reader.onerror = (e) => {
+            alert('Error reading file: ' + e.target.error.name);
+            loadingMessage.style.display = 'none';
+        };
+        reader.readAsText(file);
+    }
+    
+    /**
+     * Parses VCF content into an array of contact objects. (Simplified for example)
+     */
+    function parseVCFContent(content) {
+        const contacts = [];
+        const lines = content.split('\n');
+        let currentContact = null;
+
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (trimmedLine === 'BEGIN:VCARD') {
+                currentContact = {};
+            } else if (trimmedLine === 'END:VCARD' && currentContact) {
+                // Clean up the contact data
+                if (currentContact.FN) {
+                    currentContact.name = currentContact.FN;
+                } else if (currentContact.N) {
+                    // Extract name from structured name (N:Last;First;Middle;;)
+                    currentContact.name = currentContact.N.split(';').filter(Boolean).join(' ');
+                } else {
+                    currentContact.name = 'Unknown Name';
+                }
+
+                // Map phone numbers
+                for (const key in currentContact) {
+                    if (key.startsWith('TEL')) {
+                        const number = currentContact[key].replace(/[^0-9\+]/g, '');
+                        if (key.includes('TYPE=CELL') || key.includes('TYPE=MOBILE')) {
+                            currentContact.mobile = currentContact.mobile || number;
+                        } else if (key.includes('TYPE=WHATSAPP')) {
+                            currentContact.whatsapp = currentContact.whatsapp || number;
+                        } else {
+                            currentContact.mobile = currentContact.mobile || number; // Default
+                        }
+                    } else if (key.startsWith('EMAIL')) {
+                        currentContact.email = currentContact.email || currentContact[key];
+                    } else if (key.startsWith('ADR')) {
+                        // Extract address from structured address (ADR:;;Street;City;State;Zip;Country)
+                        const parts = currentContact[key].split(';');
+                        currentContact.address = parts.slice(2).filter(Boolean).join(', ');
+                    } else if (key.startsWith('URL')) {
+                        // Very basic attempt to find social URLs
+                        const url = currentContact[key].toLowerCase();
+                        if (url.includes('facebook')) currentContact.facebook = currentContact.facebook || currentContact[key];
+                        if (url.includes('instagram')) currentContact.instagram = currentContact.instagram || currentContact[key];
+                        if (url.includes('twitter')) currentContact.twitter = currentContact.twitter || currentContact[key];
+                    } else if (key.startsWith('NOTE')) {
+                        currentContact.note = currentContact.note || currentContact[key];
+                    }
+                }
+                
+                if(currentContact.name !== 'Unknown Name' && (currentContact.mobile || currentContact.email || currentContact.address)) {
+                    contacts.push(currentContact);
+                }
+
+                currentContact = null;
+
+            } else if (currentContact) {
+                const parts = trimmedLine.split(':');
+                if (parts.length > 1) {
+                    // This handles key;parameters:value
+                    const keyAndParams = parts[0];
+                    const value = parts.slice(1).join(':').trim();
+                    const key = keyAndParams.split(';')[0];
+                    currentContact[keyAndParams] = value;
+                }
+            }
+        }
+
+        return contacts;
+    }
+
+
+    // --- INITIALIZATION ---
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUserId = user.uid;
+            document.getElementById('userName').textContent = user.displayName || 'User';
+            document.getElementById('userEmail').textContent = user.email || 'No Email';
+            document.getElementById('mobileUserName').textContent = user.displayName || 'User';
+            document.getElementById('mobileUserEmail').textContent = user.email || 'No Email';
+            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
+            loadContacts();
+        } else {
+            // Redirect to login page if not authenticated
+            window.location.href = 'index.html'; 
+        }
+    });
+
+    // Attach event listener for the menu button after auth check
+    document.addEventListener('DOMContentLoaded', () => {
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.onclick = () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = menuBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            };
+        }
+    });
+</script>
+</html>
