@@ -82,6 +82,11 @@
             justify-content: center;
             z-index: 1000;
         }
+        /* Make the editMobile input textarea for multiple numbers */
+        #editMobile {
+            min-height: 80px;
+        }
+
 
         /* Ensure the body padding accounts for the fixed nav height */
         body {
@@ -111,7 +116,7 @@
             
             <div class="hidden md:flex space-x-6 font-medium">
                 <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-                <a href="address.html" class="flex items-center gap-2 transition duration-300 text-primary-indigo font-bold hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
+                 <a href="adress.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Address</a>
                 <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
                 <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
                 <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
@@ -133,7 +138,8 @@
 
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
             <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
-            <a href="address.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 text-primary-indigo font-bold hover:text-blue-500 transition duration-300"><i class="fas fa-tasks"></i> Address</a>
+           <a href="adress.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Address</a>
+         
             <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
             <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
             <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
@@ -157,7 +163,7 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     <input type="text" id="searchInput" placeholder="Search contacts by name, number, or notes..." 
-                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-indigo focus:border-primary-indigo">
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-indigo focus:border-primary-indigo">
                 </div>
             </div>
             
@@ -192,8 +198,8 @@
                     <input type="text" id="editName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
                 </div>
                 <div class="mb-4">
-                    <label for="editMobile" class="block text-sm font-medium text-gray-700">Mobile Number</label>
-                    <input type="tel" id="editMobile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                    <label for="editMobile" class="block text-sm font-medium text-gray-700">Mobile Number(s) - One per line</label>
+                    <textarea id="editMobile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo"></textarea>
                 </div>
                 <div class="mb-4">
                     <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
@@ -221,548 +227,621 @@
             </form>
         </div>
     </div>
-<script>
-    // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-        authDomain: "sk12-58e9e.firebaseapp.com",
-        projectId: "sk12-58e9e",
-        storageBucket: "sk12-58e9e.appspot.com",
-        messagingSenderId: "470207874652",
-        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-    };
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const database = firebase.database();
-    const auth = firebase.auth();
+<script> 
+    // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES --- 
+    const firebaseConfig = { 
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", 
+        authDomain: "sk12-58e9e.firebaseapp.com", 
+        projectId: "sk12-58e9e", 
+        storageBucket: "sk12-58e9e.appspot.com", 
+        messagingSenderId: "470207874652", 
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899" 
+    }; 
+    if (!firebase.apps.length) { 
+        firebase.initializeApp(firebaseConfig); 
+    } 
+    const database = firebase.database(); 
+    const auth = firebase.auth(); 
 
-    let currentUserId = null;
-    let allContacts = [];
-    // Assuming these elements exist in your HTML
-    const contactListContainer = document.getElementById('all-items-list');
-    const loadingMessage = document.getElementById('loading-message');
-    const searchInput = document.getElementById('searchInput');
-    const editModal = document.getElementById('editModal');
-    const editForm = document.getElementById('editForm');
+    let currentUserId = null; 
+    let allContacts = []; // Stores all raw {id, data} entries from Firebase 
+    const contactListContainer = document.getElementById('all-items-list'); 
+    const loadingMessage = document.getElementById('loading-message'); 
+    const searchInput = document.getElementById('searchInput'); 
+    const editModal = document.getElementById('editModal'); 
+    const editForm = document.getElementById('editForm'); 
 
-    let contactMap = new Map();
+    let contactMap = new Map(); // Map of {Firebase ID: Contact Data} 
 
-    // --- UTILITIES ---
-    window.logout = function() {
-        auth.signOut().then(() => { window.location.href = 'index.html'; }).catch(error => { alert('Sign out failed: ' + error.message); });
-    }
+    // --- UTILITIES --- 
+    window.logout = function() { 
+        auth.signOut().then(() => { window.location.href = 'index.html'; }).catch(error => { alert('Sign out failed: ' + error.message); }); 
+    } 
 
-    function shareAddress(contact) {
-        let shareText = `${contact.name}\n`;
-        if (contact.address) shareText += `Address: ${contact.address}`;
-        const shareData = {
-            title: `${contact.name}'s Address`,
-            text: shareText.trim()
-        };
-        if (navigator.share) {
-            navigator.share(shareData).catch((error) => {
-                console.log('Share failed or cancelled:', error);
-                navigator.clipboard.writeText(shareData.text)
-                    .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`));
-            });
-        } else {
-            navigator.clipboard.writeText(shareData.text)
-                .then(() => alert(`Native Share not supported. Details for ${contact.name} copied to clipboard:\n\n${shareData.text}`));
-        }
-    }
+    function findAssociatedIds(primaryId) { 
+        const primaryContact = contactMap.get(primaryId); 
+        if (!primaryContact || !primaryContact.name) return [primaryId];  
 
-    /**
-     * **FINAL FIX CONFIRMED:** Ensures the shareText includes all contact info 
-     * and correctly uses the complete shareData.text in the clipboard fallback.
-     */
-    function shareContact(contact) {
-        let shareText = `${contact.name}\n`;
+        const primaryName = primaryContact.name.trim().toLowerCase(); 
         
-        // Add contact details to shareText (This includes mobile/whatsapp/email)
-        if (contact.mobile) shareText += `Phone: ${contact.mobile}\n`;
-        if (contact.whatsapp) shareText += `WhatsApp: ${contact.whatsapp}\n`;
-        if (contact.email) shareText += `Email: ${contact.email}\n`;
-
-        const shareData = {
-            title: `${contact.name}'s Contact`,
-            text: shareText.trim() // This holds the complete info: Name + Numbers/Email
-        };
-        
-        if (navigator.share) {
-            navigator.share(shareData).catch((error) => {
-                console.log('Share failed or cancelled:', error);
-                // FIX: Use shareData.text for the clipboard write and the alert
-                navigator.clipboard.writeText(shareData.text)
-                    .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`));
-            });
-        } else {
-            // FIX: Use shareData.text for the clipboard write and the alert
-            navigator.clipboard.writeText(shareData.text)
-                .then(() => alert(`Native Share not supported. Details for ${contact.name} copied to clipboard:\n\n${shareData.text}`));
-        }
-    }
-
-    // --- DATA PROCESSING: GROUPING LOGIC (Unchanged) ---
-    function groupContactsByName(contacts) {
-        const groups = new Map();
-
-        contacts.forEach(contact => {
-            const name = contact.data.name.trim();
-            if (!name) return;
-
-            const key = name.toLowerCase();
-
-            if (!groups.has(key)) {
-                groups.set(key, {
-                    name: name,
-                    members: [],
-                    emails: new Set(),
-                    addresses: new Set(),
-                    mobiles: new Set(),
-                    whatsapps: new Set(),
-                    facebooks: new Set(),
-                    twitters: new Set(),
-                    instagrams: new Set(),
-                    notes: new Set(),
-                });
-            }
-
-            const group = groups.get(key);
-            group.members.push(contact);
-
-            if (contact.data.mobile) group.mobiles.add(contact.data.mobile);
-            if (contact.data.whatsapp) group.whatsapps.add(contact.data.whatsapp);
-            if (contact.data.email) group.emails.add(contact.data.email);
-            if (contact.data.address) group.addresses.add(contact.data.address);
-            if (contact.data.facebook) group.facebooks.add(contact.data.facebook);
-            if (contact.data.twitter) group.twitters.add(contact.data.twitter);
-            if (contact.data.instagram) group.instagrams.add(contact.data.instagram);
-            if (contact.data.note) group.notes.add(contact.data.note);
-        });
-
-        const groupedArray = Array.from(groups.values()).sort((a, b) => {
-            const nameA = a.name.toUpperCase();
-            const nameB = b.name.toUpperCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            return 0;
-        });
-
-        return groupedArray;
-    }
-
-    // --- RENDERING: Contact Cards (Unchanged) ---
-    function createGroupCard(group) {
-        const card = document.createElement('div');
-        // Added flex, justify-between, and items-start for better card structure
-        card.className = 'contact-card flex flex-col justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300'; 
-        
-        const primaryId = group.members[0].id;
-
-        let mobileHtml = '';
-        // Combine mobiles and whatsapps into a single list, prioritizing uniqueness
-        const allNumbers = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)]));
-        
-        if (allNumbers.length > 0) {
-            allNumbers.forEach((number, index) => {
-                const isMobile = group.mobiles.has(number);
-                const isWhatsapp = group.whatsapps.has(number);
-                
-                // Add a margin to secondary numbers for visual hierarchy
-                const marginClass = index === 0 ? '' : 'ml-6'; 
-                // Determine the main icon
-                const iconClass = isMobile ? 'fas fa-phone-alt' : 'fab fa-whatsapp'; 
-                // Use a darker color for the primary number
-                const textColorClass = index === 0 ? 'text-gray-700' : 'text-gray-500';
-
-                mobileHtml += `<p class="contact-details flex items-center ${marginClass}">
-                                    <i class="${iconClass} contact-icon w-4 text-center mr-2"></i> 
-                                    <a href="tel:${number}" class="${textColorClass} hover:text-primary-indigo">${number}</a>
-                                    ${isWhatsapp ? `<a href="https://wa.me/${number.replace(/\D/g, '')}" target="_blank" title="WhatsApp" class="ml-2 text-green-500 hover:text-green-700"><i class="fab fa-whatsapp"></i></a>` : ''}
-                                </p>`;
-            });
-        }
-
-        const email = Array.from(group.emails)[0];
-        const address = Array.from(group.addresses)[0];
-        const facebook = Array.from(group.facebooks)[0];
-        const twitter = Array.from(group.twitters)[0];
-        const instagram = Array.from(group.instagrams)[0];
-
-        const facebookUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://${facebook}`) : null;
-        const facebookDisplay = facebookUrl ? (facebookUrl.includes('facebook.com') ? new URL(facebookUrl).pathname.replace(/^\/|[\/]+$/g, '') : facebook) : null;
-        
-        const instagramUrl = instagram ? (instagram.startsWith('http') ? instagram : `https://${instagram}`) : null;
-        const instagramDisplay = instagramUrl ? (instagramUrl.includes('instagram.com') ? new URL(instagramUrl).pathname.replace(/^\/|[\/]+$/g, '') : instagram) : null;
-
-
-        card.innerHTML = `
-            <div class="contact-info">
-                <h3 class="contact-name text-xl font-semibold mb-3">${group.name || 'Unknown Contact'}</h3>
-                <div class="space-y-1">
-                    ${mobileHtml}
-                    ${email ? `<p class="contact-details flex items-center"><i class="fas fa-envelope contact-icon w-4 text-center mr-2"></i> <a href="mailto:${email}" class="text-gray-700 hover:text-primary-indigo">${email}</a></p>` : ''}
-                    
-                    ${facebookUrl ? `<p class="contact-details flex items-center"><i class="fab fa-facebook contact-icon text-blue-600 w-4 text-center mr-2"></i> <a href="${facebookUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${facebookDisplay || facebook}</a></p>` : ''}
-                    ${twitter ? `<p class="contact-details flex items-center"><i class="fab fa-twitter contact-icon text-blue-400 w-4 text-center mr-2"></i> <a href="https://twitter.com/${twitter.replace(/^@/, '')}" target="_blank" class="text-gray-700 hover:text-primary-indigo">@${twitter.replace(/^@/, '')}</a></p>` : ''}
-                    ${instagramUrl ? `<p class="contact-details flex items-center"><i class="fab fa-instagram contact-icon text-pink-600 w-4 text-center mr-2"></i> <a href="${instagramUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${instagramDisplay || instagram}</a></p>` : ''}
-                    
-                    ${address ? `<p class="contact-details flex items-center"><i class="fas fa-map-marker-alt contact-icon w-4 text-center mr-2"></i> <span class="text-gray-700">${address}</span></p>` : ''}
-                </div>
-            </div>
+        const associatedIds = allContacts 
+            .filter(item => item.data.name && item.data.name.trim().toLowerCase() === primaryName) 
+            .map(item => item.id); 
             
-            <div class="actions-container flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-100">
-                <button class="action-btn edit-btn p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white" data-id="${primaryId}" title="Edit"><i class="fas fa-edit"></i></button>
-                <button class="action-btn share-btn p-2 rounded-full bg-primary-indigo hover:bg-indigo-700 text-white" data-id="${primaryId}" title="Share Contact"><i class="fas fa-share-alt"></i></button>
-                ${address ? `<button class="action-btn share-address-btn p-2 rounded-full bg-teal-500 hover:bg-teal-600 text-white" data-id="${primaryId}" title="Share Address"><i class="fas fa-map-marked-alt"></i></button>` : ''}
-                <button class="action-btn delete-btn p-2 rounded-full bg-red-500 hover:bg-red-600 text-white" data-id="${primaryId}" title="Delete"><i class="fas fa-trash-alt"></i></button>
-            </div>
-        `;
-        return card;
-    }
+        return associatedIds;  
+    } 
 
-    function renderContacts(contactsToRender) {
-        contactListContainer.innerHTML = '';
+
+    window.shareContact = function(contact) { 
+        const groupedContacts = groupContactsByName(allContacts); 
+        const primaryNameKey = contact.name.trim().toLowerCase(); 
+        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
+
+        if (!group) return; 
+
+        let shareText = `Name: ${group.name}\n`; 
         
-        if (contactsToRender.length === 0) {
-            contactListContainer.innerHTML = `<p class="loading-message text-center text-gray-500 col-span-full mt-10">${searchInput.value ? 'No contacts found matching your criteria.' : 'You have no contacts saved yet. Tap the Upload button to get started! ⬆️'}</p>`;
-            return;
-        }
+        // Compile all unique mobile and WhatsApp numbers 
+        const allMobiles = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)])); 
 
-        const groupedContacts = groupContactsByName(contactsToRender);
+        if (allMobiles.length > 0) { 
+            shareText += '\n📞 Phone Numbers:'; 
+            allMobiles.forEach(num => { 
+                const isWhatsapp = group.whatsapps.has(num); 
+                shareText += ` ${num} ${isWhatsapp ? '(WhatsApp)' : ''}\n`; 
+            }); 
+        } else { 
+             shareText += '\n(No phone numbers available.)'; 
+        } 
+
+        const shareData = { 
+            title: `${group.name}'s Phone Contact`, 
+            text: shareText.trim() 
+        }; 
         
-        groupedContacts.forEach(group => {
-            const contactCard = createGroupCard(group);
-            if (contactCard) {
-                contactListContainer.appendChild(contactCard);
-            }
-        });
-        
-        attachEventListeners(allContacts);
-    }
-
-    function filterContacts() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const filtered = allContacts.filter(item => {
-            const data = item.data;
-            return (data.name && data.name.toLowerCase().includes(searchTerm)) ||
-                    (data.mobile && data.mobile.toLowerCase().includes(searchTerm)) ||
-                    (data.whatsapp && data.whatsapp.toLowerCase().includes(searchTerm)) ||
-                    (data.email && data.email.toLowerCase().includes(searchTerm)) ||
-                    (data.note && data.note.toLowerCase().includes(searchTerm)) ||
-                    (data.twitter && data.twitter.toLowerCase().includes(searchTerm));
-        });
-        renderContacts(filtered);
-    }
-
-    function attachEventListeners(contacts) {
-        contactMap = new Map(contacts.map(item => [item.id, item.data]));
-
-        searchInput.removeEventListener('input', filterContacts);
-        searchInput.addEventListener('input', filterContacts);
-
-        contactListContainer.querySelectorAll('.delete-btn').forEach(button => {
-            button.onclick = (e) => {
-                e.stopPropagation();
-                const id = e.currentTarget.getAttribute('data-id');
-                // Find the specific contact entry to delete, not the entire group
-                if (!currentUserId || !confirm(`Are you sure you want to delete the individual entry for ${contactMap.get(id)?.name || 'this contact entry'}?`)) return;
-                database.ref(`users/${currentUserId}/contacts/${id}`).remove().catch(error => console.error("Error removing contact:", error));
-            };
-        });
-        
-        contactListContainer.querySelectorAll('.share-btn').forEach(button => {
-            button.onclick = (e) => {
-                e.stopPropagation();
-                shareContact(contactMap.get(e.currentTarget.getAttribute('data-id')));
-            };
-        });
-        
-        contactListContainer.querySelectorAll('.share-address-btn').forEach(button => {
-            button.onclick = (e) => {
-                e.stopPropagation();
-                shareAddress(contactMap.get(e.currentTarget.getAttribute('data-id')));
-            };
-        });
-        
-        contactListContainer.querySelectorAll('.edit-btn').forEach(button => {
-            button.onclick = (e) => {
-                e.stopPropagation();
-                openEditModal(e.currentTarget.getAttribute('data-id'));
-            };
-        });
-        
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        if (menuBtn && mobileMenu) {
-            menuBtn.onclick = () => {
-                mobileMenu.classList.toggle('hidden');
-                const icon = menuBtn.querySelector('i');
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
-            };
-        }
-    }
-
-    function loadContacts() {
-        if (!currentUserId) {
-            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Please log in to view contacts.</p>';
-            return;
-        }
-        
-        contactListContainer.innerHTML = '';
-        contactListContainer.appendChild(loadingMessage);
-        loadingMessage.style.display = 'block';
-
-        const dbRef = database.ref(`users/${currentUserId}/contacts`);
-        
-        dbRef.on('value', (snapshot) => {
-            loadingMessage.style.display = 'none';
-            
-            const contactsObject = snapshot.val();
-            let rawContacts = [];
-
-            if (contactsObject && typeof contactsObject === 'object') {
-                Object.keys(contactsObject).forEach(contactId => {
-                    rawContacts.push({
-                        id: contactId,
-                        data: contactsObject[contactId]
-                    });
-                });
-            }
-            
-            allContacts = rawContacts;
-            renderContacts(allContacts);
-            
-        }, (error) => {
-            console.error("Firebase Read Error:", error);
-            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">⛔ Error loading contacts. Check your Firebase rules!</p>';
-        });
-    }
-
-    /**
-     * Fetches contact data and populates the edit modal fields.
-     */
-    function openEditModal(contactId) {
-        const contact = contactMap.get(contactId);
-        if (!contact) {
-            alert("Contact not found.");
-            return;
-        }
-        
-        document.getElementById('editContactId').value = contactId;
-        document.getElementById('editName').value = contact.name || '';
-        document.getElementById('editMobile').value = contact.mobile || '';
-        document.getElementById('editEmail').value = contact.email || '';
-        document.getElementById('editFacebook').value = contact.facebook || '';
-        document.getElementById('editInstagram').value = contact.instagram || '';
-        document.getElementById('editAddress').value = contact.address || '';
-        
-        editModal.style.display = 'flex';
-    }
-
-    window.closeEditModal = function() {
-        editModal.style.display = 'none';
-        editForm.reset();
-    }
-
-    editForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const contactId = document.getElementById('editContactId').value;
-        
-        const existingData = contactMap.get(contactId) || {};
-
-        const updatedData = {
-            name: document.getElementById('editName').value.trim(),
-            mobile: document.getElementById('editMobile').value.trim(),
-            email: document.getElementById('editEmail').value.trim(),
-            facebook: document.getElementById('editFacebook').value.trim(),
-            instagram: document.getElementById('editInstagram').value.trim(),
-            address: document.getElementById('editAddress').value.trim(),
-            whatsapp: existingData.whatsapp || '',
-            twitter: existingData.twitter || '',
-            note: existingData.note || '',
-        };
-        
-        if (!updatedData.name || !currentUserId) return;
-
-        const contactRef = database.ref(`users/${currentUserId}/contacts/${contactId}`);
-        contactRef.update(updatedData)
-            .then(() => {
-                closeEditModal();
-            })
-            .catch(error => {
-                console.error("Error updating contact:", error);
-                alert("Error updating contact: " + error.message);
-            });
-    });
-
-    // --- FILE PARSING (FIXED) ---
-    /**
-     * Saves a parsed contact object to the Firebase Realtime Database.
-     * @param {object} data - The contact data (e.g., {name: "John Doe", mobile: "123..."})
-     */
-    function saveContact(data) {
-        if (!currentUserId) return;
-        const newContactRef = database.ref(`users/${currentUserId}/contacts`).push();
-        newContactRef.set({
-            // Ensure data is stringified/cleaned before saving
-            name: data.name ? String(data.name).trim() : '',
-            mobile: data.mobile ? String(data.mobile).trim() : '',
-            email: data.email ? String(data.email).trim() : '',
-            address: data.address ? String(data.address).trim() : '',
-            facebook: data.facebook ? String(data.facebook).trim() : '',
-            instagram: data.instagram ? String(data.instagram).trim() : '',
-            whatsapp: data.whatsapp ? String(data.whatsapp).trim() : '',
-            twitter: data.twitter ? String(data.twitter).trim() : '',
-            note: data.note ? String(data.note).trim() : '',
-            createdAt: firebase.database.ServerValue.TIMESTAMP // Useful for sorting/tracking
-        })
-        .catch(error => {
-            console.error("Error saving contact:", error);
-            alert("Failed to save contact: " + error.message);
-        });
-    }
-
-    // --- FILE PARSING LOGIC (Needed to complete the application functionality) ---
-    function processFile(file) {
-        if (!file) return;
-        loadingMessage.innerText = 'Processing file...';
-        loadingMessage.style.display = 'block';
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target.result;
-            const contacts = parseVCFContent(content); 
-
-            if (contacts.length === 0) {
-                alert("No valid contacts found in the file.");
-                loadingMessage.style.display = 'none';
-                return;
-            }
-
-            let savedCount = 0;
-            contacts.forEach(contact => {
-                // Ensure the contact has a name before attempting to save
-                if (contact.name && currentUserId) {
-                    saveContact(contact);
-                    savedCount++;
-                }
-            });
-
-            alert(`Successfully processed file and saved ${savedCount} contacts!`);
-            loadingMessage.style.display = 'none';
-        };
-        reader.onerror = (e) => {
-            alert('Error reading file: ' + e.target.error.name);
-            loadingMessage.style.display = 'none';
-        };
-        reader.readAsText(file);
-    }
+        if (navigator.share) { 
+            navigator.share(shareData) 
+                .then(() => console.log('Contact shared successfully via Native API')) 
+                .catch((error) => { 
+                    console.warn('Native share failed or cancelled. Falling back to clipboard.', error); 
+                    navigator.clipboard.writeText(shareData.text) 
+                        .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`)) 
+                        .catch(err => console.error("Clipboard write failed:", err)); 
+                }); 
+        } else { 
+            navigator.clipboard.writeText(shareData.text) 
+                .then(() => alert(`Native Share not supported. Details for ${group.name} copied to clipboard:\n\n${shareData.text}`)) 
+                .catch(err => console.error("Clipboard write failed:", err)); 
+        } 
+    } 
     
-    /**
-     * Parses VCF content into an array of contact objects. (Simplified for example)
-     */
-    function parseVCFContent(content) {
-        const contacts = [];
-        const lines = content.split('\n');
-        let currentContact = null;
+ 
+    window.shareLocation = function(contact) { 
+        const groupedContacts = groupContactsByName(allContacts); 
+        const primaryNameKey = contact.name.trim().toLowerCase(); 
+        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
 
-        for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (trimmedLine === 'BEGIN:VCARD') {
-                currentContact = {};
-            } else if (trimmedLine === 'END:VCARD' && currentContact) {
-                // Clean up the contact data
-                if (currentContact.FN) {
-                    currentContact.name = currentContact.FN;
-                } else if (currentContact.N) {
-                    // Extract name from structured name (N:Last;First;Middle;;)
-                    currentContact.name = currentContact.N.split(';').filter(Boolean).join(' ');
-                } else {
-                    currentContact.name = 'Unknown Name';
-                }
+        if (!group) return; 
 
-                // Map phone numbers
-                for (const key in currentContact) {
-                    if (key.startsWith('TEL')) {
-                        const number = currentContact[key].replace(/[^0-9\+]/g, '');
-                        if (key.includes('TYPE=CELL') || key.includes('TYPE=MOBILE')) {
-                            currentContact.mobile = currentContact.mobile || number;
-                        } else if (key.includes('TYPE=WHATSAPP')) {
-                            currentContact.whatsapp = currentContact.whatsapp || number;
-                        } else {
-                            currentContact.mobile = currentContact.mobile || number; // Default
-                        }
-                    } else if (key.startsWith('EMAIL')) {
-                        currentContact.email = currentContact.email || currentContact[key];
-                    } else if (key.startsWith('ADR')) {
-                        // Extract address from structured address (ADR:;;Street;City;State;Zip;Country)
-                        const parts = currentContact[key].split(';');
-                        currentContact.address = parts.slice(2).filter(Boolean).join(', ');
-                    } else if (key.startsWith('URL')) {
-                        // Very basic attempt to find social URLs
-                        const url = currentContact[key].toLowerCase();
-                        if (url.includes('facebook')) currentContact.facebook = currentContact.facebook || currentContact[key];
-                        if (url.includes('instagram')) currentContact.instagram = currentContact.instagram || currentContact[key];
-                        if (url.includes('twitter')) currentContact.twitter = currentContact.twitter || currentContact[key];
-                    } else if (key.startsWith('NOTE')) {
-                        currentContact.note = currentContact.note || currentContact[key];
-                    }
-                }
+        let shareText = `Name: ${group.name}\n`; 
+        const address = Array.from(group.addresses)[0]; 
+
+        if (address) { 
+            shareText += `\nAddress: ${address}`; 
+        } else { 
+            shareText += '\n(No address available.)'; 
+        } 
+
+        const shareData = { 
+            title: `${group.name}'s Location`, 
+            text: shareText.trim() 
+        }; 
+        
+        if (navigator.share) { 
+            navigator.share(shareData) 
+                .then(() => console.log('Location shared successfully via Native API')) 
+                .catch((error) => { 
+                    console.warn('Native location share failed or cancelled. Falling back to clipboard.', error); 
+                    navigator.clipboard.writeText(shareData.text) 
+                        .then(() => alert(`Share cancelled. Location copied to clipboard:\n\n${shareData.text}`)) 
+                        .catch(err => console.error("Clipboard write failed:", err)); 
+                }); 
+        } else { 
+            navigator.clipboard.writeText(shareData.text) 
+                .then(() => alert(`Native Share not supported. Location for ${group.name} copied to clipboard:\n\n${shareData.text}`)) 
+                .catch(err => console.error("Clipboard write failed:", err)); 
+        } 
+    } 
+
+
+    // --- DATA PROCESSING: GROUPING LOGIC (Unchanged) --- 
+    function groupContactsByName(contacts) { 
+        const groups = new Map(); 
+
+        contacts.forEach(contact => { 
+            const name = contact.data.name ? contact.data.name.trim() : 'Unknown Contact'; 
+            const key = name.toLowerCase();  
+
+            if (!groups.has(key)) { 
+                groups.set(key, { 
+                    name: name, 
+                    members: [],  
+                    emails: new Set(), 
+                    addresses: new Set(), 
+                    mobiles: new Set(), 
+                    whatsapps: new Set(), 
+                    facebooks: new Set(), 
+                    twitters: new Set(), 
+                    instagrams: new Set(), 
+                    notes: new Set(), 
+                }); 
+            } 
+
+            const group = groups.get(key); 
+            group.members.push(contact); 
+
+            // Collect all unique data points from all members of the group 
+            if (contact.data.mobile) group.mobiles.add(contact.data.mobile); 
+            if (contact.data.whatsapp) group.whatsapps.add(contact.data.whatsapp); 
+            if (contact.data.email) group.emails.add(contact.data.email); 
+            if (contact.data.address) group.addresses.add(contact.data.address); 
+            if (contact.data.facebook) group.facebooks.add(contact.data.facebook); 
+            if (contact.data.instagram) group.instagrams.add(contact.data.instagram); 
+        }); 
+
+        const groupedArray = Array.from(groups.values()).sort((a, b) => { 
+            const nameA = a.name.toUpperCase(); 
+            const nameB = b.name.toUpperCase(); 
+            if (nameA < nameB) return -1; 
+            if (nameA > nameB) return 1; 
+            return 0; 
+        }); 
+
+        return groupedArray; 
+    } 
+
+    // --- RENDERING & EVENT ATTACHMENT --- 
+    function createGroupCard(group) { 
+        const card = document.createElement('div'); 
+        card.className = 'contact-card flex flex-col justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300';  
+        
+        const primaryId = group.members[0].id; 
+
+        let mobileHtml = ''; 
+        const allNumbers = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)])); 
+        
+        if (allNumbers.length > 0) { 
+            allNumbers.forEach((number, index) => { 
+                const isMobile = group.mobiles.has(number); 
+                const isWhatsapp = group.whatsapps.has(number); 
                 
-                if(currentContact.name !== 'Unknown Name' && (currentContact.mobile || currentContact.email || currentContact.address)) {
-                    contacts.push(currentContact);
-                }
+                const marginClass = index === 0 ? '' : 'ml-6';  
+                // Prefer the WhatsApp icon if it's explicitly a WhatsApp number
+                const iconClass = isWhatsapp ? 'fab fa-whatsapp' : 'fas fa-phone-alt';  
+                const textColorClass = index === 0 ? 'text-gray-700' : 'text-gray-500'; 
 
-                currentContact = null;
+                mobileHtml += `<p class="contact-details flex items-center ${marginClass}"> 
+                                    <i class="${iconClass} contact-icon w-4 text-center mr-2"></i>  
+                                    <a href="tel:${number}" class="${textColorClass} hover:text-primary-indigo">${number}</a> 
+                                    ${isWhatsapp ? `<a href="https://wa.me/${number.replace(/\D/g, '')}" target="_blank" title="WhatsApp" class="ml-2 text-green-500 hover:text-green-700"><i class="fab fa-whatsapp"></i></a>` : ''} 
+                                </p>`; 
+            }); 
+        } 
 
-            } else if (currentContact) {
-                const parts = trimmedLine.split(':');
-                if (parts.length > 1) {
-                    // This handles key;parameters:value
-                    const keyAndParams = parts[0];
-                    const value = parts.slice(1).join(':').trim();
-                    const key = keyAndParams.split(';')[0];
-                    currentContact[keyAndParams] = value;
-                }
-            }
-        }
+        const email = Array.from(group.emails)[0]; 
+        const address = Array.from(group.addresses)[0]; 
+        const facebook = Array.from(group.facebooks)[0]; 
+        const twitter = Array.from(group.twitters)[0]; 
+        const instagram = Array.from(group.instagrams)[0]; 
 
-        return contacts;
-    }
+        const facebookUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://${facebook}`) : null; 
+        const facebookDisplay = facebookUrl ? (facebookUrl.includes('facebook.com') ? new URL(facebookUrl).pathname.replace(/^\/|[\/]+$/g, '') : facebook) : null; 
+        
+        const instagramUrl = instagram ? (instagram.startsWith('http') ? instagram : `https://${instagram}`) : null; 
+        const instagramDisplay = instagramUrl ? (instagramUrl.includes('instagram.com') ? new URL(instagramUrl).pathname.replace(/^\/|[\/]+$/g, '') : instagram) : null; 
 
 
-    // --- INITIALIZATION ---
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUserId = user.uid;
-            document.getElementById('userName').textContent = user.displayName || 'User';
-            document.getElementById('userEmail').textContent = user.email || 'No Email';
-            document.getElementById('mobileUserName').textContent = user.displayName || 'User';
-            document.getElementById('mobileUserEmail').textContent = user.email || 'No Email';
-            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
-            loadContacts();
-        } else {
-            // Redirect to login page if not authenticated
-            window.location.href = 'index.html'; 
-        }
-    });
+        card.innerHTML = ` 
+            <div class="contact-info"> 
+                <h3 class="contact-name text-xl font-semibold mb-3">${group.name || 'Unknown Contact'}</h3> 
+                <div class="space-y-1"> 
+                    ${mobileHtml} 
+                    ${email ? `<p class="contact-details flex items-center"><i class="fas fa-envelope contact-icon w-4 text-center mr-2"></i> <a href="mailto:${email}" class="text-gray-700 hover:text-primary-indigo">${email}</a></p>` : ''} 
+                    
+                    ${facebookUrl ? `<p class="contact-details flex items-center"><i class="fab fa-facebook contact-icon text-blue-600 w-4 text-center mr-2"></i> <a href="${facebookUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${facebookDisplay || facebook}</a></p>` : ''} 
+                    ${twitter ? `<p class="contact-details flex items-center"><i class="fab fa-twitter contact-icon text-blue-400 w-4 text-center mr-2"></i> <a href="https://twitter.com/${twitter.replace(/^@/, '')}" target="_blank" class="text-gray-700 hover:text-primary-indigo">@${twitter.replace(/^@/, '')}</a></p>` : ''} 
+                    ${instagramUrl ? `<p class="contact-details flex items-center"><i class="fab fa-instagram contact-icon text-pink-600 w-4 text-center mr-2"></i> <a href="${instagramUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${instagramDisplay || instagram}</a></p>` : ''} 
+                    
+                    ${address ? `<p class="contact-details flex items-center"><i class="fas fa-map-marker-alt contact-icon w-4 text-center mr-2"></i> <span class="text-gray-700">${address}</span></p>` : ''} 
+                </div> 
+            </div> 
+            
+            <div class="actions-container flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-100"> 
+                <button class="action-btn edit-btn p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white" data-id="${primaryId}" title="Edit"><i class="fas fa-edit"></i></button> 
+                <button class="action-btn share-btn p-2 rounded-full bg-primary-indigo hover:bg-indigo-700 text-white" data-id="${primaryId}" title="Share Name and Phone"><i class="fas fa-share-alt"></i></button> 
+                ${address ? `<button class="action-btn share-address-btn p-2 rounded-full bg-teal-500 hover:bg-teal-600 text-white" data-id="${primaryId}" title="Share Name and Location"><i class="fas fa-map-marked-alt"></i></button>` : ''} 
+                <button class="action-btn delete-btn p-2 rounded-full bg-red-500 hover:bg-red-600 text-white" data-id="${primaryId}" title="Delete"><i class="fas fa-trash-alt"></i></button> 
+            </div> 
+        `; 
+        return card; 
+    } 
 
-    // Attach event listener for the menu button after auth check
-    document.addEventListener('DOMContentLoaded', () => {
-        const menuBtn = document.getElementById('menu-btn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        if (menuBtn && mobileMenu) {
-            menuBtn.onclick = () => {
-                mobileMenu.classList.toggle('hidden');
-                const icon = menuBtn.querySelector('i');
-                icon.classList.toggle('fa-bars');
-                icon.classList.toggle('fa-times');
-            };
-        }
-    });
+    function renderContacts(contactsToRender) { 
+        contactListContainer.innerHTML = ''; 
+        
+        if (contactsToRender.length === 0) { 
+            contactListContainer.innerHTML = `<p class="loading-message text-center text-gray-500 col-span-full mt-10">${searchInput.value ? 'No contacts found matching your criteria.' : 'You have no contacts saved yet. Tap the Upload button to get started! ⬆️'}</p>`; 
+            return; 
+        } 
+
+        const groupedContacts = groupContactsByName(contactsToRender); 
+        
+        groupedContacts.forEach(group => { 
+            const contactCard = createGroupCard(group); 
+            if (contactCard) { 
+                contactListContainer.appendChild(contactCard); 
+            } 
+        }); 
+        
+        attachEventListeners(allContacts); 
+    } 
+
+    function filterContacts() { 
+        const searchTerm = searchInput.value.toLowerCase(); 
+        const filtered = allContacts.filter(item => { 
+            const data = item.data; 
+            return (data.name && data.name.toLowerCase().includes(searchTerm)) || 
+                    (data.mobile && data.mobile.toLowerCase().includes(searchTerm)) || 
+                    (data.whatsapp && data.whatsapp.toLowerCase().includes(searchTerm)) || 
+                    (data.email && data.email.toLowerCase().includes(searchTerm)) || 
+                    (data.note && data.note.toLowerCase().includes(searchTerm)) || 
+                    (data.twitter && data.twitter.toLowerCase().includes(searchTerm)); 
+        }); 
+        renderContacts(filtered); 
+    } 
+
+    function attachEventListeners(contacts) { 
+        contactMap = new Map(contacts.map(item => [item.id, item.data])); 
+
+        searchInput.removeEventListener('input', filterContacts); 
+        searchInput.addEventListener('input', filterContacts); 
+
+        contactListContainer.querySelectorAll('.delete-btn').forEach(button => { 
+            button.onclick = (e) => { 
+                e.stopPropagation(); 
+                const id = e.currentTarget.getAttribute('data-id'); 
+                if (!currentUserId || !confirm(`Are you sure you want to delete the individual entry for ${contactMap.get(id)?.name || 'this contact entry'}?`)) return; 
+                database.ref(`users/${currentUserId}/contacts/${id}`).remove().catch(error => console.error("Error removing contact:", error)); 
+            }; 
+        }); 
+        
+        contactListContainer.querySelectorAll('.share-btn').forEach(button => { 
+            button.onclick = (e) => { 
+                e.stopPropagation(); 
+                // Calls the updated shareContact function 
+                const rawContact = allContacts.find(c => c.id === e.currentTarget.getAttribute('data-id'))?.data; 
+                if (rawContact) { 
+                    shareContact(rawContact); 
+                } 
+            }; 
+        }); 
+        
+        contactListContainer.querySelectorAll('.share-address-btn').forEach(button => { 
+            button.onclick = (e) => { 
+                e.stopPropagation(); 
+                // Calls the NEW shareLocation function 
+                const rawContact = allContacts.find(c => c.id === e.currentTarget.getAttribute('data-id'))?.data; 
+                if (rawContact) { 
+                    shareLocation(rawContact); 
+                } 
+            }; 
+        }); 
+        
+        contactListContainer.querySelectorAll('.edit-btn').forEach(button => { 
+            button.onclick = (e) => { 
+                e.stopPropagation(); 
+                openEditModal(e.currentTarget.getAttribute('data-id')); 
+            }; 
+        }); 
+        
+        const menuBtn = document.getElementById('menu-btn'); 
+        const mobileMenu = document.getElementById('mobileMenu'); 
+        if (menuBtn && mobileMenu) { 
+            menuBtn.onclick = () => { 
+                mobileMenu.classList.toggle('hidden'); 
+                const icon = menuBtn.querySelector('i'); 
+                icon.classList.toggle('fa-bars'); 
+                icon.classList.toggle('fa-times'); 
+            }; 
+        } 
+    } 
+
+    function loadContacts() { 
+        if (!currentUserId) { 
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Please log in to view contacts.</p>'; 
+            return; 
+        } 
+        
+        contactListContainer.innerHTML = ''; 
+        contactListContainer.appendChild(loadingMessage); 
+        loadingMessage.style.display = 'block'; 
+
+        const dbRef = database.ref(`users/${currentUserId}/contacts`); 
+        
+        dbRef.on('value', (snapshot) => { 
+            loadingMessage.style.display = 'none'; 
+            
+            const contactsObject = snapshot.val(); 
+            let rawContacts = []; 
+
+            if (contactsObject && typeof contactsObject === 'object') { 
+                Object.keys(contactsObject).forEach(contactId => { 
+                    if (contactsObject[contactId] && contactsObject[contactId].name) { 
+                        rawContacts.push({ 
+                            id: contactId, 
+                            data: contactsObject[contactId] 
+                        }); 
+                    } else if (contactsObject[contactId] === null) { 
+                        // Cleanup null entries 
+                        database.ref(`users/${currentUserId}/contacts/${contactId}`).remove(); 
+                    } 
+                }); 
+            } 
+            
+            allContacts = rawContacts; 
+            renderContacts(allContacts); 
+            
+        }, (error) => { 
+            console.error("Firebase Read Error:", error); 
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">⛔ Error loading contacts. Check your Firebase rules!</p>'; 
+        }); 
+    } 
+
+    /** * Fetches and displays CONSOLIDATED data in the edit modal. 
+     */ 
+    function openEditModal(contactId) { 
+        const primaryContact = contactMap.get(contactId); 
+        if (!primaryContact) { 
+            alert("Contact not found."); 
+            return; 
+        } 
+
+        const groupedContacts = groupContactsByName(allContacts); 
+        const primaryNameKey = primaryContact.name.trim().toLowerCase(); 
+        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
+
+        if (!group) { 
+            alert("Contact group data error."); 
+            return; 
+        } 
+
+        // CONSOLIDATE ALL MOBILE NUMBERS (mobile and whatsapp) into a single string for the textarea 
+        const allNumbers = new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)]); 
+        const mobileValue = Array.from(allNumbers).join('\n');  
+
+        // Populate fields 
+        document.getElementById('editContactId').value = contactId; 
+        document.getElementById('editName').value = group.name || ''; 
+        document.getElementById('editMobile').value = mobileValue || '';  
+        document.getElementById('editEmail').value = Array.from(group.emails)[0] || ''; 
+        document.getElementById('editFacebook').value = Array.from(group.facebooks)[0] || ''; 
+        document.getElementById('editInstagram').value = Array.from(group.instagrams)[0] || ''; 
+        document.getElementById('editAddress').value = Array.from(group.addresses)[0] || ''; 
+        
+        editModal.style.display = 'flex'; 
+    } 
+
+    window.closeEditModal = function() { 
+        editModal.style.display = 'none'; 
+        editForm.reset(); 
+    } 
+
+    // --- CRITICAL FIX: CONSOLIDATE RECORDS ON EDIT SUBMIT --- 
+    editForm.addEventListener('submit', function(e) { 
+        e.preventDefault(); 
+        
+        const contactId = document.getElementById('editContactId').value; 
+        const existingData = contactMap.get(contactId) || {}; 
+
+        // 1. Parse the mobile input: It can contain one or more numbers separated by newlines, commas, or spaces.
+        const mobileInput = document.getElementById('editMobile').value.trim(); 
+        // Get all unique, non-empty numbers from the input
+        const numbers = Array.from(new Set(mobileInput.split(/[\n, ]+/).map(n => n.trim()).filter(n => n.length > 0))); 
+        
+        const primaryMobile = numbers.length > 0 ? numbers[0] : '';
+        // Use the second unique number for WhatsApp, if it exists and is different
+        const whatsappMobile = numbers.length > 1 && numbers[1] !== primaryMobile ? numbers[1] : '';
+
+        const updatedData = { 
+            name: document.getElementById('editName').value.trim(), 
+            mobile: primaryMobile,  
+            email: document.getElementById('editEmail').value.trim(), 
+            facebook: document.getElementById('editFacebook').value.trim(), 
+            instagram: document.getElementById('editInstagram').value.trim(), 
+            address: document.getElementById('editAddress').value.trim(), 
+            // CRITICAL UPDATE: Save the secondary number here, which might be empty string
+            whatsapp: whatsappMobile, 
+            twitter: existingData.twitter || '', 
+            note: existingData.note || '', 
+        }; 
+        
+        if (!updatedData.name || !currentUserId) return; 
+        
+        // 2. Find all duplicate/fragmented records associated with this name 
+        const allIdsToConsolidate = findAssociatedIds(contactId); 
+        
+        // 3. Update the current record (primary record) with the new data 
+        const primaryRef = database.ref(`users/${currentUserId}/contacts/${contactId}`); 
+        
+        primaryRef.update(updatedData) 
+            .then(() => { 
+                // 4. Delete all other fragmented records for this contact name 
+                const idsToDelete = allIdsToConsolidate.filter(id => id !== contactId); 
+                
+                const deletePromises = idsToDelete.map(idToDelete => { 
+                    return database.ref(`users/${currentUserId}/contacts/${idToDelete}`).remove(); 
+                }); 
+
+                return Promise.all(deletePromises); 
+            }) 
+            .then(() => { 
+                console.log(`Successfully updated ${updatedData.name} and deleted ${allIdsToConsolidate.length - 1} duplicate records.`); 
+            
+                closeEditModal(); 
+            }) 
+            .catch(error => { 
+                console.error("Error updating/consolidating contact:", error); 
+                alert("Error updating contact: " + error.message); 
+            }); 
+    }); 
+    // --- END CRITICAL FIX --- 
+
+
+    // --- FILE PARSING & SAVING --- 
+
+    function saveContact(data) { 
+        if (!currentUserId || !data.name) return; 
+        const newContactRef = database.ref(`users/${currentUserId}/contacts`).push(); 
+        newContactRef.set({ 
+            name: data.name ? String(data.name).trim() : '', 
+            mobile: data.mobile ? String(data.mobile).trim() : '', 
+            email: data.email ? String(data.email).trim() : '', 
+            address: data.address ? String(data.address).trim() : '', 
+            facebook: data.facebook ? String(data.facebook).trim() : '', 
+            instagram: data.instagram ? String(data.instagram).trim() : '', 
+            whatsapp: data.whatsapp ? String(data.whatsapp).trim() : '', 
+            twitter: data.twitter ? String(data.twitter).trim() : '', 
+            note: data.note ? String(data.note).trim() : '', 
+            createdAt: firebase.database.ServerValue.TIMESTAMP  
+        }) 
+        .catch(error => { 
+            console.error("Error saving contact:", error); 
+            alert("Failed to save contact: " + error.message); 
+        }); 
+    } 
+
+
+    function processFile(file) { 
+        if (!file) return; 
+        loadingMessage.innerText = 'Processing file...'; 
+        loadingMessage.style.display = 'block'; 
+        document.getElementById('fileInput').value = '';  
+
+        const reader = new FileReader(); 
+        reader.onload = (e) => { 
+            const content = e.target.result; 
+            const contacts = parseVCFContent(content);  
+
+            if (contacts.length === 0) { 
+                alert("No valid contacts found in the file."); 
+                loadingMessage.style.display = 'none'; 
+                return; 
+            } 
+
+            let savedCount = 0; 
+            contacts.forEach(contact => { 
+                if (contact.name && currentUserId) { 
+                    saveContact(contact); 
+                    savedCount++; 
+                } 
+            }); 
+
+            alert(`Successfully processed file and saved ${savedCount} contacts! Please use the 'Edit' function once per contact to consolidate all fragmented data into one record.`); 
+            loadingMessage.style.display = 'none'; 
+        }; 
+        reader.onerror = (e) => { 
+            alert('Error reading file: ' + e.target.error.name); 
+            loadingMessage.style.display = 'none'; 
+        }; 
+        reader.readAsText(file); 
+    } 
+    
+    function parseVCFContent(content) { 
+        const contacts = []; 
+        const vcards = content.split('END:VCARD').filter(block => block.trim().includes('BEGIN:VCARD')); 
+
+        vcards.forEach(vcardBlock => { 
+            const lines = vcardBlock.split('\n'); 
+            let currentContact = {}; 
+
+            for (const line of lines) { 
+                const trimmedLine = line.trim(); 
+                if (!trimmedLine || trimmedLine.startsWith('BEGIN:') || trimmedLine.startsWith('VERSION:') || trimmedLine.startsWith('END:')) continue; 
+                
+                const parts = trimmedLine.split(':'); 
+                if (parts.length > 1) { 
+                    const keyAndParams = parts[0].toUpperCase();  
+                    const value = parts.slice(1).join(':').trim(); 
+                    const keyRoot = keyAndParams.split(';')[0];  
+
+                    if (keyRoot === 'FN' || keyRoot === 'N') { 
+                        if (keyRoot === 'FN') { 
+                             currentContact.name = value; 
+                        } else if (!currentContact.name) { 
+                            currentContact.name = value.split(';').filter(Boolean).join(' '); 
+                        } 
+                    } else if (keyRoot === 'TEL') { 
+                        const number = value.replace(/[^0-9+]/g, ''); 
+                        if (keyAndParams.includes('TYPE=CELL') || keyAndParams.includes('TYPE=MOBILE')) { 
+                            currentContact.mobile = currentContact.mobile || number; 
+                        } else if (keyAndParams.includes('TYPE=WHATSAPP')) { 
+                            currentContact.whatsapp = currentContact.whatsapp || number; 
+                        } else { 
+                            currentContact.mobile = currentContact.mobile || number;  
+                        } 
+                    } else if (keyRoot === 'EMAIL') { 
+                        currentContact.email = currentContact.email || value; 
+                    } else if (keyRoot === 'ADR') { 
+                        const addrParts = value.split(';'); 
+                        currentContact.address = addrParts.slice(2).filter(Boolean).join(', '); 
+                    } else if (keyRoot === 'URL') { 
+                        const url = value.toLowerCase(); 
+                        if (url.includes('facebook')) currentContact.facebook = currentContact.facebook || value; 
+                        if (url.includes('instagram')) currentContact.instagram = currentContact.instagram || value; 
+                        if (url.includes('twitter')) currentContact.twitter = currentContact.twitter || value; 
+                    } else if (keyRoot === 'NOTE') { 
+                        currentContact.note = currentContact.note || value; 
+                    } 
+                } 
+            } 
+
+            if (currentContact.name && (currentContact.mobile || currentContact.email || currentContact.address)) { 
+                contacts.push(currentContact); 
+            } 
+        }); 
+
+        return contacts; 
+    } 
+
+
+    // --- INITIALIZATION --- 
+    auth.onAuthStateChanged(user => { 
+        if (user) { 
+            currentUserId = user.uid; 
+            document.getElementById('userName').textContent = user.displayName || 'User'; 
+            document.getElementById('userEmail').textContent = user.email || 'No Email'; 
+            document.getElementById('mobileUserName').textContent = user.displayName || 'User'; 
+            document.getElementById('mobileUserEmail').textContent = user.email || 'No Email'; 
+            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40'; 
+            loadContacts(); 
+        } else { 
+            // Redirect to login page if not authenticated 
+            window.location.href = 'index.html';  
+        } 
+    }); 
+
+    document.addEventListener('DOMContentLoaded', () => { 
+        const menuBtn = document.getElementById('menu-btn'); 
+        const mobileMenu = document.getElementById('mobileMenu'); 
+        if (menuBtn && mobileMenu) { 
+            menuBtn.onclick = () => { 
+                mobileMenu.classList.toggle('hidden'); 
+                const icon = menuBtn.querySelector('i'); 
+                icon.classList.toggle('fa-bars'); 
+                icon.classList.toggle('fa-times'); 
+            }; 
+        } 
+    }); 
 </script>
+</body>
 </html>
