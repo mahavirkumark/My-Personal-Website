@@ -601,5 +601,138 @@ auth.onAuthStateChanged(user => {
 </script>
 
 
+    <script>
+    /**
+ * birthday_notifications.js
+ * Handles requesting notification permission and scheduling the periodic birthday check.
+ * Includes logic to ensure notifications for today's birthdays only show once per day.
+ */
+export const notificationModule = (function() {
+    // Constant for the 6-hour interval (21,600,000 milliseconds)
+    const NOTIFICATION_INTERVAL_MS = 21600000; 
+    // Key used to store the last notification date in Local Storage
+    const LAST_NOTIFIED_KEY = 'lastBirthdayNotificationDate';
+
+    /**
+     * Prompts the user for permission to display browser notifications.
+     */
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.warn('This browser does not support desktop notifications.');
+            return;
+        }
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+            } else {
+                console.warn('Notification permission denied or blocked.');
+            }
+        });
+    }
+
+    /**
+     * Helper to check if a notification has already been sent today.
+     */
+    function hasNotificationBeenSentToday() {
+        const today = new Date().toDateString();
+        const lastNotified = localStorage.getItem(LAST_NOTIFIED_KEY);
+        return lastNotified === today;
+    }
+
+    /**
+     * Records the current date in Local Storage, preventing further notifications today.
+     */
+    function recordNotificationSent() {
+        const today = new Date().toDateString();
+        localStorage.setItem(LAST_NOTIFIED_KEY, today);
+    }
+
+    /**
+     * Checks the loaded birthday data for today's birthdays and triggers a notification.
+     * @param {object} birthdays - The user's current birthday data object from Firebase.
+     */
+    function checkAndNotify(birthdays) {
+        // 1. Basic checks
+        if (Notification.permission !== 'granted' || !birthdays || Object.keys(birthdays).length === 0) {
+            return; 
+        }
+
+        // 2. Daily check: If already notified today, stop.
+        if (hasNotificationBeenSentToday()) {
+            console.log('Notification check skipped: Already notified today.');
+            return;
+        }
+
+        const today = new Date();
+        const todayMonthDayKey = `${today.getMonth() + 1}-${today.getDate()}`; // e.g., "9-30"
+
+        // 3. Find today's birthdays
+        const birthdaysToday = Object.values(birthdays).filter(bday => {
+            if (!bday.birthdate) return false;
+            
+            if (bday.birthdate.length === 5) {
+                const [m, d] = bday.birthdate.split('-');
+                return `${parseInt(m)}-${parseInt(d)}` === todayMonthDayKey;
+            } else if (bday.birthdate.length === 10) {
+                const bdayDate = new Date(bday.birthdate);
+                return bdayDate.getMonth() === today.getMonth() && bdayDate.getDate() === today.getDate();
+            }
+            return false;
+        });
+
+        // 4. Send notification and record if birthdays are found
+        if (birthdaysToday.length > 0) {
+            let notificationTitle;
+            let notificationBody;
+
+            if (birthdaysToday.length === 1) {
+                notificationTitle = `🥳 Happy Birthday to ${birthdaysToday[0].name}! 🎂`;
+                notificationBody = `Don't forget to wish ${birthdaysToday[0].name} a wonderful day!`;
+            } else {
+                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
+                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
+            }
+
+            // Display the notification
+            new Notification(notificationTitle, {
+                body: notificationBody,
+                icon: 'https://via.placeholder.com/40',
+                tag: 'birthday-reminder-notification' 
+            });
+
+            // Record the current date so we don't send another notification until tomorrow
+            recordNotificationSent(); 
+            console.log("Birthday notification displayed and recorded for today.");
+        }
+    }
+    
+    /**
+     * Starts the periodic scheduling of the notification check.
+     * @param {function} dataGetter - Function provided by the main script to retrieve the latest allBirthdays object.
+     */
+    function startBirthdayScheduler(dataGetter) {
+        // Define the function that checks and notifies
+        const scheduledCheck = () => {
+            const currentBirthdays = dataGetter();
+            checkAndNotify(currentBirthdays);
+        };
+
+        // Run the initial check immediately on login/page load
+        scheduledCheck(); 
+
+        // Set the periodic interval to ensure the check runs even if the page is left open
+        setInterval(scheduledCheck, NOTIFICATION_INTERVAL_MS);
+        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours, but will only notify once per day.`);
+    }
+
+    return {
+        requestPermission: requestNotificationPermission,
+        startScheduler: startBirthdayScheduler,
+    };
+})();
+</script>
+
+
 </body>
 </html>
+
