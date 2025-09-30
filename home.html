@@ -493,8 +493,9 @@ auth.onAuthStateChanged(user => {
 
     // --- YOUR LOGIC INTEGRATION ---
     
-    // Constant for the desired check interval (5 hours in milliseconds)
-    const NOTIFICATION_INTERVAL_MS = 18000000; 
+    // Constant for the desired check interval (3 hours in milliseconds)
+    const NOTIFICATION_INTERVAL_MS = 10800000; 
+    // Calculation: 3 hours * 60 min * 60 sec * 1000 ms = 10,800,000 ms
     
     /**
      * Helper function to standardize the MM-DD string for comparison.
@@ -581,12 +582,12 @@ auth.onAuthStateChanged(user => {
         // 1. Initial check immediately after data load
         checkAndNotify(allBirthdaysData);
         
-        // 2. Set up the recurring check every 5 hours
+        // 2. Set up the recurring check every 3 hours
         setInterval(() => {
             // Note: In a real app, you'd need to re-fetch or ensure allBirthdaysData 
             // is still current before calling checkAndNotify.
             checkAndNotify(allBirthdaysData); 
-        }, NOTIFICATION_INTERVAL_MS); // 5 hours
+        }, NOTIFICATION_INTERVAL_MS); // 3 hours
     }
     
     // --- HOW TO START ---
