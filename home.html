@@ -163,7 +163,7 @@
 
             <nav class="flex items-center gap-8 text-lg font-normal text-gray-600 slide-right">
                 <a href="home.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-house"></i> Home</a>
-                <a href="address.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-tasks"></i> Address</a>
+                <a href="adress.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-tasks"></i> Address</a>
                 <a href="income.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-wallet"></i> Income</a>
                 <a href="links.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-link"></i> Links</a>
                 <a href="calender.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-calendar-days"></i> Calendar</a>
@@ -455,10 +455,150 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-// The remaining contact-related functions (shareAddress, shareContact, 
-// groupContactsByName, createGroupCard, renderContacts, filterContacts, 
-// attachEventListeners) are **not included** here. They should be placed on 
-// the respective data pages where the contact list is displayed and managed.
 </script>
+<script>
+    // --- NOTIFICATION UTILITIES ---
+
+    /**
+     * Prompts the user for permission to display browser notifications.
+     */
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.warn('This browser does not support desktop notifications.');
+            return Promise.resolve('unsupported');
+        }
+        return Notification.requestPermission().then(permission => {
+            console.log(`Notification permission status: ${permission}`);
+            return permission;
+        });
+    }
+
+    /**
+     * Displays a browser notification if permission is granted.
+     */
+    function displayNotification(title, body, iconUrl = 'https://via.placeholder.com/40') {
+        if (Notification.permission === 'granted') {
+            new Notification(title, {
+                body: body,
+                icon: iconUrl,
+                // Using a tag means the new notification will replace any existing one 
+                // with the same tag, ensuring a clean display.
+                tag: 'birthday-reminder-notification' 
+            });
+        } else {
+            console.warn(`Cannot display notification. Permission status is: ${Notification.permission}`);
+        }
+    }
+
+
+    // --- YOUR LOGIC INTEGRATION ---
+    
+    // Constant for the desired check interval (5 hours in milliseconds)
+    const NOTIFICATION_INTERVAL_MS = 18000000; 
+    
+    /**
+     * Helper function to standardize the MM-DD string for comparison.
+     */
+    function getMonthDayKey(date) {
+        // Ensure single digit months/days aren't padded with zero in the key for compatibility
+        return `${date.getMonth() + 1}-${date.getDate()}`; 
+    }
+
+    /**
+     * Checks the loaded birthday data for today's birthdays and triggers a notification.
+     * @param {object} allBirthdays - The object containing all birthday records from Firebase.
+     */
+    function checkAndNotify(allBirthdays) {
+        if (Notification.permission !== 'granted') {
+            return; // Exit if permission isn't granted
+        }
+        
+        const today = new Date();
+        const todayKey = getMonthDayKey(today);
+
+        // --- Step 1: Check Local Storage for Existing Notification ---
+        const lastNotifiedDate = localStorage.getItem('lastBirthdayNotificationDate');
+        // Check if a notification was successfully sent today
+        if (lastNotifiedDate === todayKey) {
+            console.log(`Notification already sent for today (${todayKey}). Skipping.`);
+            return; 
+        }
+
+        // --- Step 2: Filter for Today's Birthdays ---
+        const birthdaysToday = Object.values(allBirthdays || {}).filter(bday => {
+            if (!bday.birthdate) return false;
+            
+            // The saved birthdate is expected to be 'MM-DD' or 'YYYY-MM-DD'
+            let bdayKey;
+            
+            if (bday.birthdate.length === 5) {
+                // For 'MM-DD', convert to our standard key format "M-D"
+                const [month, day] = bday.birthdate.split('-');
+                bdayKey = `${parseInt(month)}-${parseInt(day)}`;
+            } else if (bday.birthdate.length === 10) {
+                // For 'YYYY-MM-DD', convert to our standard key format "M-D"
+                bdayKey = getMonthDayKey(new Date(bday.birthdate));
+            } else {
+                return false;
+            }
+            
+            return bdayKey === todayKey;
+        });
+
+        // --- Step 3: Display Notification and Update Tracker ---
+        if (birthdaysToday.length > 0) {
+            let notificationTitle;
+            let notificationBody;
+            
+            if (birthdaysToday.length === 1) {
+                const bday = birthdaysToday[0];
+                notificationTitle = `🥳 Happy Birthday to ${bday.name}! 🎂`;
+                notificationBody = `Don't forget to wish ${bday.name} a wonderful day!`;
+                if (bday.mobile) {
+                    notificationBody += `\nCall/Text: ${bday.mobile}`;
+                }
+            } else {
+                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
+                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join('\n')}`;
+            }
+
+            displayNotification(
+                notificationTitle,
+                notificationBody,
+                'https://via.placeholder.com/40'
+            );
+            
+            // Update localStorage ONLY after a successful notification display
+            localStorage.setItem('lastBirthdayNotificationDate', todayKey);
+        }
+    }
+    
+    
+    // --- SETUP AND SCHEDULING ---
+    
+    // Example of how to call the scheduler after successful data load:
+    function startBirthdayScheduler(allBirthdaysData) {
+        // 1. Initial check immediately after data load
+        checkAndNotify(allBirthdaysData);
+        
+        // 2. Set up the recurring check every 5 hours
+        setInterval(() => {
+            // Note: In a real app, you'd need to re-fetch or ensure allBirthdaysData 
+            // is still current before calling checkAndNotify.
+            checkAndNotify(allBirthdaysData); 
+        }, NOTIFICATION_INTERVAL_MS); // 5 hours
+    }
+    
+    // --- HOW TO START ---
+    
+    // You would call these two lines after successful Firebase authentication 
+    // and after loading your initial 'allBirthdays' data from Firebase.
+    // 
+    // requestNotificationPermission(); 
+    // startBirthdayScheduler(allBirthdaysFromFirebase); 
+    
+</script>
+
+
 </body>
 </html>
