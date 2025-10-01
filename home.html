@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Dashboard</title>
+    <title>My Personal Website</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script> 
+    
     <style>
         /* Reusable Animations */
         .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
@@ -26,127 +28,60 @@
         }
 
         /* Custom Styles for Professional Look */
-        nav a { 
-            transition: color 0.3s, transform 0.2s ease-out;
-        }
-        nav a:hover { 
-            color: #1e40af; 
-            transform: translateY(-2px); 
-        }
-        
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-wrapper {
-            flex-grow: 1;
-        }
+        nav a { transition: color 0.3s, transform 0.2s ease-out;}
+        nav a:hover { color: #1e40af; transform: translateY(-2px); }
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrapper { flex-grow: 1; }
 
-        /* Mobile Menu correction (Ensures smooth open/close) */
+        /* Mobile Menu correction */
         #mobile-menu {
-             position: absolute;
-             top: 4rem; 
-             left: 0;
-             width: 100%;
-             z-index: 20;
+             position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20;
              transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-             max-height: 0;
-             overflow: hidden;
-             opacity: 0;
+             max-height: 0; overflow: hidden; opacity: 0;
              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
         }
         #mobile-menu:not(.hidden) {
-            max-height: 80vh; 
-            overflow-y: auto;
-            opacity: 1;
+            max-height: 80vh; overflow-y: auto; opacity: 1;
         }
-        /* Style for mobile nav links */
         #mobile-menu a, #profile-toggle-btn {
-            display: flex; 
-            align-items: center;
-            padding: 0.6rem 0.8rem;
-            margin: 0.2rem 0;
-            border-radius: 0.375rem;
-            text-align: left;
-            width: 100%;
+            display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0;
+            border-radius: 0.375rem; text-align: left; width: 100%;
         }
-        #mobile-menu a:hover, #profile-toggle-btn:hover {
-            background-color: #f3f4f6;
-        }
-        #mobile-menu a.active {
-            background-color: #eff6ff;
-            color: #1e40af;
-            font-weight: 600;
-        }
+        #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #f3f4f6; }
+        #mobile-menu a.active { background-color: #eff6ff; color: #1e40af; font-weight: 600; }
 
         /* --- SIDEBAR STYLES (Desktop) --- */
         .sidebar-desktop {
-            width: 320px; /* INCREASED SIDEBAR WIDTH */
-            flex-shrink: 0;
-            background-color: white;
-            padding: 1.5rem 1rem;
-            border-radius: 0.5rem; 
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); 
-            align-self: flex-start;
-            position: sticky;
-            top: 6rem;
+            width: 320px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem;
+            border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); 
+            align-self: flex-start; position: sticky; top: 6rem;
             min-height: calc(100vh - 8rem); 
         }
         .sidebar-nav-internal a {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 0.6rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.5rem;
-            color: #4b5563; 
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1.05rem; 
-            transition: all 0.2s;
+            display: flex; align-items: center; padding: 0.8rem 0.6rem; margin-bottom: 0.5rem;
+            border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500;
+            font-size: 1.05rem; transition: all 0.2s;
         }
-        /* Professional Hover and Active State (Subtle Blue) */
         .sidebar-nav-internal a:hover,
         .sidebar-nav-internal a.active {
-            background-color: #eff6ff; 
-            color: #1e40af; 
-            transform: translateX(3px);
+            background-color: #eff6ff; color: #1e40af; transform: translateX(3px);
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
         }
-        .sidebar-nav-internal i {
-            margin-right: 0.75rem;
-            width: 1.25rem;
-            text-align: center;
-        }
+        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; }
         
-        /* FIX: Align the content wrapper correctly */
         .dashboard-wrapper {
-            max-width: 1400px; /* INCREASED DASHBOARD MAX WIDTH */
-            width: 90%;
-            margin-left: auto; 
-            margin-right: auto;
-            padding-left: 0; 
-            padding-right: 0;
+            max-width: 1400px; width: 90%; margin-left: auto; margin-right: auto;
+            padding-left: 0; padding-right: 0;
         }
-        
-        /* Dashboard Main Content width is flex-grow: 1 */
-        .dashboard-main-content {
-            flex-grow: 1;
-        }
+        .dashboard-main-content { flex-grow: 1; }
 
         /* Profile Panel Styling */
         #mobileProfilePanel {
             transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            margin-bottom: 0;
+            max-height: 0; opacity: 0; overflow: hidden; margin-bottom: 0;
         }
         #mobileProfilePanel.show {
-            max-height: 200px; 
-            opacity: 1;
-            margin-bottom: 1rem;
+            max-height: 200px; opacity: 1; margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -271,7 +206,7 @@
                 
                 <h3 class="font-bold text-sm text-gray-700 mb-2 pt-2">MAIN NAVIGATION</h3>
                 <a href="home.html"><i class="fas fa-house mr-3"></i> Home</a>
-                <a href="address.html"><i class="fas fa-tasks mr-3"></i> Address</a>
+                <a href="adress.html"><i class="fas fa-tasks mr-3"></i> Address</a>
                 <a href="income.html"><i class="fas fa-wallet mr-3"></i> Income</a>
                 <a href="links.html"><i class="fas fa-link mr-3"></i> Links</a>
                 <a href="calender.html"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
@@ -281,7 +216,7 @@
                 <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">CORE DATA</p>
                 <a href="dashboard.html" class="active"><i class="fas fa-columns mr-3"></i> Dashboard</a>
                 <a href="profile.html"><i class="fas fa-user-gear mr-3"></i> Profile Settings</a>
-                <a href="contact-details.html"><i class="fas fa-address-book mr-3"></i> Contact Details</a>
+                <a href="contact.html"><i class="fas fa-address-book mr-3"></i> Contact Details</a>
                 <a href="data-backup.html"><i class="fas fa-database mr-3"></i> Data Backup</a>
                 <a href="security.html"><i class="fas fa-shield-halved mr-3"></i> Security Log</a>
                 
@@ -311,7 +246,7 @@
                             <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
                         </div>
                     </div>
-                   
+                    
                     <button onclick="logout()" class="bg-red-700 text-white px-3 py-2 rounded-full hover:bg-red-800 text-sm mt-2 w-full">Logout</button>
                 </div>
                 
@@ -347,12 +282,131 @@
         </main>
     </div>
 
-</div> ---
+</div> 
 
 <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
     &copy; 2025 Personal Website | All rights reserved
 </footer>
-<script>
+
+<script type="module">
+// --------------------------------------------------------------------------------
+// --- PART 1: NOTIFICATION MODULE (Simulates notifications.js) ---
+// --------------------------------------------------------------------------------
+
+// Create a named export for the notification logic
+const notifications = (function() {
+    const NOTIFICATION_INTERVAL_MS = 21600000; // 6 hours
+    const NOTIFICATION_LOCAL_STORAGE_KEY = 'lastBirthdayNotificationDate';
+    const NOTIFICATION_TAG = 'birthday-reminder-notification';
+
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) {
+            console.warn('This browser does not support desktop notifications.');
+            return;
+        }
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+            } else {
+                console.warn('Notification permission denied or blocked.');
+            }
+        });
+    }
+
+    function displayNotification(title, body, iconUrl = 'https://via.placeholder.com/40') {
+        if (Notification.permission === 'granted') {
+            new Notification(title, {
+                body: body,
+                icon: iconUrl,
+                tag: NOTIFICATION_TAG
+            });
+        }
+    }
+
+    function getMonthDayKey(date) {
+        return `${date.getMonth() + 1}-${date.getDate()}`;
+    }
+
+    function checkAndNotify(allBirthdays, currentUserId) {
+        if (!currentUserId || Notification.permission !== 'granted' || !allBirthdays) {
+            return; 
+        }
+        
+        const today = new Date();
+        const todayKey = getMonthDayKey(today);
+
+        const lastNotifiedDate = localStorage.getItem(NOTIFICATION_LOCAL_STORAGE_KEY);
+        if (lastNotifiedDate === todayKey) {
+            console.log(`Notification already sent for today (${todayKey}). Skipping periodic check.`);
+            return; 
+        }
+
+        const birthdaysToday = Object.values(allBirthdays).filter(bday => {
+            if (!bday.birthdate) return false;
+            
+            let bdayKey;
+            const birthdate = bday.birthdate.trim();
+
+            if (birthdate.length === 5) { // MM-DD format
+                const [month, day] = birthdate.split('-');
+                bdayKey = `${parseInt(month)}-${parseInt(day)}`;
+            } else if (birthdate.length === 10) { // YYYY-MM-DD format
+                const dateParts = birthdate.split('-');
+                const bdayDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
+                bdayKey = getMonthDayKey(bdayDate);
+            } else {
+                return false;
+            }
+            
+            return bdayKey === todayKey;
+        });
+
+        if (birthdaysToday.length > 0) {
+            let notificationTitle;
+            let notificationBody;
+            
+            if (birthdaysToday.length === 1) {
+                const bday = birthdaysToday[0];
+                notificationTitle = `🥳 Happy Birthday to ${bday.name}! 🎂`;
+                notificationBody = `Don't forget to wish ${bday.name} a wonderful day!`;
+            } else {
+                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
+                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
+            }
+
+            displayNotification(notificationTitle, notificationBody);
+            
+            localStorage.setItem(NOTIFICATION_LOCAL_STORAGE_KEY, todayKey);
+            console.log(`Notification sent for today. Local storage updated: ${todayKey}`);
+        }
+    }
+
+    function startBirthdayScheduler(birthdayDataGetter, currentUserId) {
+        const schedulerFunction = () => {
+            const allBirthdays = birthdayDataGetter();
+            checkAndNotify(allBirthdays, currentUserId);
+        };
+
+        schedulerFunction(); // Run initial check immediately after authentication
+        setInterval(schedulerFunction, NOTIFICATION_INTERVAL_MS);
+        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours.`);
+    }
+
+    // Export the functions we want the main script to use
+    return {
+        requestNotificationPermission,
+        startBirthdayScheduler
+    };
+})();
+
+
+// --------------------------------------------------------------------------------
+// --- PART 2: MAIN APP LOGIC (Imports from notifications module) ---
+// --------------------------------------------------------------------------------
+
+// Access the exported functions from the module defined above
+const { requestNotificationPermission, startBirthdayScheduler } = notifications;
+
 // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -366,11 +420,11 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const auth = firebase.auth();
-let currentUserId = null;
+const database = firebase.database(); 
 
-// The rest of the contact-related variables from the original script are REMOVED 
-// as they belong on the 'contact.html' or 'address.html' page, not the dashboard.
-// E.g., const contactListContainer = document.getElementById('all-items-list');
+let currentUserId = null;
+let allBirthdays = {}; // Global variable for birthday data
+
 
 // --- UTILITIES ---
 window.logout = function() {
@@ -382,7 +436,55 @@ window.logout = function() {
     });
 }
 
-// --- DOM ELEMENTS ---
+function updateUI(user) {
+    const userName = user.displayName || 'Dashboard User';
+    const userEmail = user.email || 'user@example.com';
+    let initial = 'U';
+    if (user.email && user.email.length > 0) {
+        initial = user.email[0].toUpperCase();
+    }
+    const photoPlaceholder = `https://via.placeholder.com/100/3b82f6/ffffff?text=${initial}`;
+    const userPhoto = user.photoURL || photoPlaceholder; 
+
+    const desktopUserName = document.getElementById('desktopUserName');
+    const desktopUserEmail = document.getElementById('desktopUserEmail');
+    const desktopUserPhoto = document.getElementById('desktopUserPhoto');
+    const mobileUserName = document.getElementById('mobileUserName');
+    const mobileUserEmail = document.getElementById('mobileUserEmail');
+    const mobileUserPhoto = document.getElementById('mobileUserPhoto');
+
+    if (desktopUserName) desktopUserName.textContent = userName;
+    if (desktopUserEmail) desktopUserEmail.textContent = userEmail;
+    if (desktopUserPhoto) desktopUserPhoto.src = userPhoto;
+    if (mobileUserName) mobileUserName.textContent = userName;
+    if (mobileUserEmail) mobileUserEmail.textContent = userEmail;
+    if (mobileUserPhoto) mobileUserPhoto.src = userPhoto;
+
+    currentUserId = user.uid;
+}
+
+/**
+ * Loads the user's birthday data from Firebase using an active listener.
+ */
+function loadBirthdayData() {
+    if (!currentUserId) return;
+
+    const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
+    birthdaysRef.on('value', (snapshot) => {
+        allBirthdays = snapshot.val() || {};
+        console.log("Birthday data updated from Firebase.");
+    }, (error) => {
+        console.error("Firebase Read Failed:", error);
+    });
+}
+
+// Function used by the scheduler to get the most current data
+function getBirthdayData() {
+    return allBirthdays;
+}
+
+
+// --- DOM ELEMENTS & EVENT LISTENERS ---
 const menuBtn = document.getElementById('menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
 const profileToggleBtn = document.getElementById('profile-toggle-btn');
@@ -390,41 +492,11 @@ const mobileProfilePanel = document.getElementById('mobileProfilePanel');
 const profileChevron = document.getElementById('profileChevron');
 const desktopLogoutBtn = document.getElementById('desktopLogout');
 
-// --- FUNCTIONS ---
-
-/**
- * Updates the user details (name, email, photo) across the desktop and mobile views.
- * @param {object} user - The Firebase User object.
- */
-function updateUI(user) {
-    const userName = user.displayName || 'Dashboard User';
-    const userEmail = user.email || 'user@example.com';
-    const userPhoto = user.photoURL || 'https://via.placeholder.com/100/3b82f6/ffffff?text=U';
-
-    // Desktop UI Update
-    document.getElementById('desktopUserName').textContent = userName;
-    document.getElementById('desktopUserEmail').textContent = userEmail;
-    document.getElementById('desktopUserPhoto').src = userPhoto;
-
-    // Mobile UI Update
-    document.getElementById('mobileUserName').textContent = userName;
-    document.getElementById('mobileUserEmail').textContent = userEmail;
-    document.getElementById('mobileUserPhoto').src = userPhoto;
-
-    currentUserId = user.uid;
-}
-
-// --- EVENT LISTENERS ---
-
-// 1. Mobile Menu Toggle
 if (menuBtn && mobileMenu) {
     menuBtn.addEventListener('click', () => {
         mobileMenu.classList.toggle('hidden');
-        // The CSS handles the smooth transition using max-height and opacity
     });
 }
-
-// 2. Mobile Profile Panel Toggle
 if (profileToggleBtn && mobileProfilePanel && profileChevron) {
     profileToggleBtn.addEventListener('click', () => {
         const isShown = mobileProfilePanel.classList.toggle('show');
@@ -435,173 +507,33 @@ if (profileToggleBtn && mobileProfilePanel && profileChevron) {
         }
     });
 }
-
-// 3. Desktop Logout Button
 if (desktopLogoutBtn) {
     desktopLogoutBtn.addEventListener('click', window.logout);
 }
 
+
 // --- FIREBASE AUTH STATE MANAGEMENT ---
 auth.onAuthStateChanged(user => {
     if (user) {
-        // User is signed in, update UI
+        // User is signed in
         updateUI(user);
         
-        // You would typically start loading data here, but since this is the dashboard,
-        // we'll leave the data loading for the other specific pages (like contact.html).
+        // 1. Request permission
+        requestNotificationPermission(); 
+
+        // 2. Start the Firebase data listener (updates 'allBirthdays')
+        loadBirthdayData(); 
+        
+        // 3. Start the periodic scheduler (runs checkAndNotify() immediately)
+        startBirthdayScheduler(getBirthdayData, currentUserId); 
+        
     } else {
         // User is signed out, redirect to login page
         window.location.href = 'index.html';
     }
 });
-
 </script>
 <script>
-    // --- NOTIFICATION UTILITIES ---
-
-    /**
-     * Prompts the user for permission to display browser notifications.
-     */
-    function requestNotificationPermission() {
-        if (!('Notification' in window)) {
-            console.warn('This browser does not support desktop notifications.');
-            return Promise.resolve('unsupported');
-        }
-        return Notification.requestPermission().then(permission => {
-            console.log(`Notification permission status: ${permission}`);
-            return permission;
-        });
-    }
-
-    /**
-     * Displays a browser notification if permission is granted.
-     */
-    function displayNotification(title, body, iconUrl = 'https://via.placeholder.com/40') {
-        if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: iconUrl,
-                // Using a tag means the new notification will replace any existing one 
-                // with the same tag, ensuring a clean display.
-                tag: 'birthday-reminder-notification' 
-            });
-        } else {
-            console.warn(`Cannot display notification. Permission status is: ${Notification.permission}`);
-        }
-    }
-
-
-    // --- YOUR LOGIC INTEGRATION ---
-    
-    // Constant for the desired check interval (3 hours in milliseconds)
-    const NOTIFICATION_INTERVAL_MS = 10800000; 
-    // Calculation: 3 hours * 60 min * 60 sec * 1000 ms = 10,800,000 ms
-    
-    /**
-     * Helper function to standardize the MM-DD string for comparison.
-     */
-    function getMonthDayKey(date) {
-        // Ensure single digit months/days aren't padded with zero in the key for compatibility
-        return `${date.getMonth() + 1}-${date.getDate()}`; 
-    }
-
-    /**
-     * Checks the loaded birthday data for today's birthdays and triggers a notification.
-     * @param {object} allBirthdays - The object containing all birthday records from Firebase.
-     */
-    function checkAndNotify(allBirthdays) {
-        if (Notification.permission !== 'granted') {
-            return; // Exit if permission isn't granted
-        }
-        
-        const today = new Date();
-        const todayKey = getMonthDayKey(today);
-
-        // --- Step 1: Check Local Storage for Existing Notification ---
-        const lastNotifiedDate = localStorage.getItem('lastBirthdayNotificationDate');
-        // Check if a notification was successfully sent today
-        if (lastNotifiedDate === todayKey) {
-            console.log(`Notification already sent for today (${todayKey}). Skipping.`);
-            return; 
-        }
-
-        // --- Step 2: Filter for Today's Birthdays ---
-        const birthdaysToday = Object.values(allBirthdays || {}).filter(bday => {
-            if (!bday.birthdate) return false;
-            
-            // The saved birthdate is expected to be 'MM-DD' or 'YYYY-MM-DD'
-            let bdayKey;
-            
-            if (bday.birthdate.length === 5) {
-                // For 'MM-DD', convert to our standard key format "M-D"
-                const [month, day] = bday.birthdate.split('-');
-                bdayKey = `${parseInt(month)}-${parseInt(day)}`;
-            } else if (bday.birthdate.length === 10) {
-                // For 'YYYY-MM-DD', convert to our standard key format "M-D"
-                bdayKey = getMonthDayKey(new Date(bday.birthdate));
-            } else {
-                return false;
-            }
-            
-            return bdayKey === todayKey;
-        });
-
-        // --- Step 3: Display Notification and Update Tracker ---
-        if (birthdaysToday.length > 0) {
-            let notificationTitle;
-            let notificationBody;
-            
-            if (birthdaysToday.length === 1) {
-                const bday = birthdaysToday[0];
-                notificationTitle = `🥳 Happy Birthday to ${bday.name}! 🎂`;
-                notificationBody = `Don't forget to wish ${bday.name} a wonderful day!`;
-                if (bday.mobile) {
-                    notificationBody += `\nCall/Text: ${bday.mobile}`;
-                }
-            } else {
-                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
-                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join('\n')}`;
-            }
-
-            displayNotification(
-                notificationTitle,
-                notificationBody,
-                'https://via.placeholder.com/40'
-            );
-            
-            // Update localStorage ONLY after a successful notification display
-            localStorage.setItem('lastBirthdayNotificationDate', todayKey);
-        }
-    }
-    
-    
-    // --- SETUP AND SCHEDULING ---
-    
-    // Example of how to call the scheduler after successful data load:
-    function startBirthdayScheduler(allBirthdaysData) {
-        // 1. Initial check immediately after data load
-        checkAndNotify(allBirthdaysData);
-        
-        // 2. Set up the recurring check every 3 hours
-        setInterval(() => {
-            // Note: In a real app, you'd need to re-fetch or ensure allBirthdaysData 
-            // is still current before calling checkAndNotify.
-            checkAndNotify(allBirthdaysData); 
-        }, NOTIFICATION_INTERVAL_MS); // 3 hours
-    }
-    
-    // --- HOW TO START ---
-    
-    // You would call these two lines after successful Firebase authentication 
-    // and after loading your initial 'allBirthdays' data from Firebase.
-    // 
-    // requestNotificationPermission(); 
-    // startBirthdayScheduler(allBirthdaysFromFirebase); 
-    
-</script>
-
-
-    <script>
     /**
  * birthday_notifications.js
  * Handles requesting notification permission and scheduling the periodic birthday check.
@@ -731,6 +663,7 @@ export const notificationModule = (function() {
     };
 })();
 </script>
+
 
 
 </body>
