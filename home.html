@@ -111,7 +111,7 @@
                     <p id="desktopUserName" class="font-semibold text-gray-800 text-base">Dashboard User</p>
                     <p id="desktopUserEmail" class="text-sm text-gray-500">user@example.com</p>
                 </div>
-                <img id="desktopUserPhoto" src="https://via.placeholder.com/100" alt="User Photo" class="w-12 h-12 rounded-full border border-gray-300"/>
+                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border border-gray-300"/>
                 <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 text-sm transition duration-150">Logout</button>
             </div>
         </header>
@@ -128,7 +128,7 @@
                     <a href="security.html"><i class="fas fa-shield-halved"></i> Security Log</a>
                     
                     <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">Productivity</h4>
-                    <a href="daily-task.html"><i class="fas fa-list-check"></i> Daily Tasks</a>
+                    <a href="daily.html"><i class="fas fa-list-check"></i> Daily Tasks</a>
                     <a href="notes.html"><i class="fas fa-note-sticky"></i> Notes</a>
                     <a href="reminders.html"><i class="fas fa-bell"></i> Reminders</a>
                     <a href="files.html"><i class="fas fa-folder"></i> File Storage</a>
@@ -220,7 +220,6 @@
                 <a href="data-backup.html"><i class="fas fa-database mr-3"></i> Data Backup</a>
                 <a href="security.html"><i class="fas fa-shield-halved mr-3"></i> Security Log</a>
                 
-
                 <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">PRODUCTIVITY</p>
                 <a href="daily-task.html"><i class="fas fa-list-check mr-3"></i> Daily Tasks</a>
                 <a href="notes.html"><i class="fas fa-note-sticky mr-3"></i> Notes</a>
@@ -240,7 +239,7 @@
 
                 <div id="mobileProfilePanel" class="mt-2 p-3 border rounded bg-gray-50 space-y-2">
                     <div class="flex items-center gap-3">
-                         <img id="mobileUserPhoto" src="https://via.placeholder.com/100/3b82f6/ffffff?text=U" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
+                        <img id="mobileUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
                         <div>
                             <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
                             <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
@@ -287,204 +286,205 @@
 <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
     &copy; 2025 Personal Website | All rights reserved
 </footer>
-
 <script type="module">
-// --------------------------------------------------------------------------------
-// --- PART 1: NOTIFICATION MODULE (Simulates notifications.js) ---
-// --------------------------------------------------------------------------------
+// =================================================================
+// 1. CONFIGURATION AND INITIALIZATION
+// =================================================================
 
-// Create a named export for the notification logic
-const notifications = (function() {
-    const NOTIFICATION_INTERVAL_MS = 21600000; // 6 hours
-    const NOTIFICATION_LOCAL_STORAGE_KEY = 'lastBirthdayNotificationDate';
-    const NOTIFICATION_TAG = 'birthday-reminder-notification';
-
-    function requestNotificationPermission() {
-        if (!('Notification' in window)) {
-            console.warn('This browser does not support desktop notifications.');
-            return;
-        }
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('Notification permission granted.');
-            } else {
-                console.warn('Notification permission denied or blocked.');
-            }
-        });
-    }
-
-    function displayNotification(title, body, iconUrl = 'https://via.placeholder.com/40') {
-        if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: iconUrl,
-                tag: NOTIFICATION_TAG
-            });
-        }
-    }
-
-    function getMonthDayKey(date) {
-        return `${date.getMonth() + 1}-${date.getDate()}`;
-    }
-
-    function checkAndNotify(allBirthdays, currentUserId) {
-        if (!currentUserId || Notification.permission !== 'granted' || !allBirthdays) {
-            return; 
-        }
-        
-        const today = new Date();
-        const todayKey = getMonthDayKey(today);
-
-        const lastNotifiedDate = localStorage.getItem(NOTIFICATION_LOCAL_STORAGE_KEY);
-        if (lastNotifiedDate === todayKey) {
-            console.log(`Notification already sent for today (${todayKey}). Skipping periodic check.`);
-            return; 
-        }
-
-        const birthdaysToday = Object.values(allBirthdays).filter(bday => {
-            if (!bday.birthdate) return false;
-            
-            let bdayKey;
-            const birthdate = bday.birthdate.trim();
-
-            if (birthdate.length === 5) { // MM-DD format
-                const [month, day] = birthdate.split('-');
-                bdayKey = `${parseInt(month)}-${parseInt(day)}`;
-            } else if (birthdate.length === 10) { // YYYY-MM-DD format
-                const dateParts = birthdate.split('-');
-                const bdayDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
-                bdayKey = getMonthDayKey(bdayDate);
-            } else {
-                return false;
-            }
-            
-            return bdayKey === todayKey;
-        });
-
-        if (birthdaysToday.length > 0) {
-            let notificationTitle;
-            let notificationBody;
-            
-            if (birthdaysToday.length === 1) {
-                const bday = birthdaysToday[0];
-                notificationTitle = `🥳 Happy Birthday to ${bday.name}! 🎂`;
-                notificationBody = `Don't forget to wish ${bday.name} a wonderful day!`;
-            } else {
-                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
-                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
-            }
-
-            displayNotification(notificationTitle, notificationBody);
-            
-            localStorage.setItem(NOTIFICATION_LOCAL_STORAGE_KEY, todayKey);
-            console.log(`Notification sent for today. Local storage updated: ${todayKey}`);
-        }
-    }
-
-    function startBirthdayScheduler(birthdayDataGetter, currentUserId) {
-        const schedulerFunction = () => {
-            const allBirthdays = birthdayDataGetter();
-            checkAndNotify(allBirthdays, currentUserId);
-        };
-
-        schedulerFunction(); // Run initial check immediately after authentication
-        setInterval(schedulerFunction, NOTIFICATION_INTERVAL_MS);
-        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours.`);
-    }
-
-    // Export the functions we want the main script to use
-    return {
-        requestNotificationPermission,
-        startBirthdayScheduler
-    };
-})();
-
-
-// --------------------------------------------------------------------------------
-// --- PART 2: MAIN APP LOGIC (Imports from notifications module) ---
-// --------------------------------------------------------------------------------
-
-// Access the exported functions from the module defined above
-const { requestNotificationPermission, startBirthdayScheduler } = notifications;
-
-// --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
+// --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
 const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "470207874652",
-    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 };
 if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp(firebaseConfig);
 }
 const auth = firebase.auth();
 const database = firebase.database(); 
 
+// Global state variables
 let currentUserId = null;
-let allBirthdays = {}; // Global variable for birthday data
+let allBirthdays = {}; 
+let birthdaySchedulerIntervalId = null; 
 
+// --- NEW CONSTANT FOR TRACKING NOTIFICATIONS ---
+const BIRTHDAY_LAST_NOTIFIED_KEY = 'lastBirthdayNotificationDate'; 
 
-// --- UTILITIES ---
-window.logout = function() {
-    auth.signOut().then(() => { 
-        window.location.href = 'index.html'; 
-    }).catch(error => { 
-        console.error('Sign out failed:', error);
-        alert('Sign out failed: ' + error.message); 
-    });
-}
+// =================================================================
+// 2. 🎂 NOTIFICATION MODULE (Fires on Page Load/Data Update) 🎂
+// =================================================================
 
-function updateUI(user) {
-    const userName = user.displayName || 'Dashboard User';
-    const userEmail = user.email || 'user@example.com';
-    let initial = 'U';
-    if (user.email && user.email.length > 0) {
-        initial = user.email[0].toUpperCase();
-    }
-    const photoPlaceholder = `https://via.placeholder.com/100/3b82f6/ffffff?text=${initial}`;
-    const userPhoto = user.photoURL || photoPlaceholder; 
+const NOTIFICATION_INTERVAL_MS = 21600000; // 6 hours (4 checks per day)
+const NOTIFICATION_TAG = 'birthday-reminder-notification';
 
-    const desktopUserName = document.getElementById('desktopUserName');
-    const desktopUserEmail = document.getElementById('desktopUserEmail');
-    const desktopUserPhoto = document.getElementById('desktopUserPhoto');
-    const mobileUserName = document.getElementById('mobileUserName');
-    const mobileUserEmail = document.getElementById('mobileUserEmail');
-    const mobileUserPhoto = document.getElementById('mobileUserPhoto');
-
-    if (desktopUserName) desktopUserName.textContent = userName;
-    if (desktopUserEmail) desktopUserEmail.textContent = userEmail;
-    if (desktopUserPhoto) desktopUserPhoto.src = userPhoto;
-    if (mobileUserName) mobileUserName.textContent = userName;
-    if (mobileUserEmail) mobileUserEmail.textContent = userEmail;
-    if (mobileUserPhoto) mobileUserPhoto.src = userPhoto;
-
-    currentUserId = user.uid;
+/**
+ * Prompts the user for permission to display browser notifications.
+ */
+function requestNotificationPermission() {
+    if (!('Notification' in window)) {
+        console.warn('This browser does not support desktop notifications.');
+        return;
+    }
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            console.log('Notification permission granted.');
+        } else {
+            console.warn('Notification permission denied or blocked.');
+        }
+    });
 }
 
 /**
- * Loads the user's birthday data from Firebase using an active listener.
- */
+ * Helper to get the current Month-Day key for comparison (e.g., "10-1").
+ */
+function getMonthDayKey(date) {
+    // Returns month and day without leading zeros for robustness (e.g., "9-5")
+    return `${date.getMonth() + 1}-${date.getDate()}`;
+}
+
+/**
+ * Core function to check birthdays and display a notification.
+ */
+function checkAndNotify() {
+    const today = new Date();
+    const todayDateKey = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    
+    // --- NEW: Daily Tracking Check ---
+    // Only proceed if the notification for today hasn't been sent yet.
+    if (localStorage.getItem(BIRTHDAY_LAST_NOTIFIED_KEY) === todayDateKey) {
+        console.log("Birthday check skipped: Notification already sent today.");
+        return;
+    }
+    
+    // Ensure all prerequisites are met
+    if (!currentUserId || Notification.permission !== 'granted' || Object.keys(allBirthdays).length === 0) {
+        return; 
+    }
+
+    const todayMonthDayKey = getMonthDayKey(today);
+
+    // 1. Find today's birthdays
+    const birthdaysToday = Object.entries(allBirthdays).map(([id, bday]) => ({ ...bday, id })).filter(bday => {
+        if (!bday || !bday.birthdate) return false;
+        
+        let bdayKey;
+        const birthdate = bday.birthdate.trim();
+
+        if (birthdate.length === 5) { // MM-DD format
+            const [m, d] = birthdate.split('-');
+            bdayKey = `${parseInt(m)}-${parseInt(d)}`;
+        } else if (birthdate.length === 10) { // YYYY-MM-DD format
+            // Extract MM and DD from YYYY-MM-DD
+            const dateParts = birthdate.split('-');
+            const m = dateParts[1];
+            const d = dateParts[2];
+            bdayKey = `${parseInt(m)}-${parseInt(d)}`;
+        } else {
+            return false;
+        }
+        
+        return bdayKey === todayMonthDayKey;
+    });
+
+    // 2. Send notification if birthdays are found
+    if (birthdaysToday.length > 0) {
+        let notificationTitle;
+        let notificationBody;
+
+        if (birthdaysToday.length === 1) {
+            notificationTitle = `🎂 IT'S TODAY! Happy Birthday to ${birthdaysToday[0].name}! 🎉`;
+            notificationBody = `Don't forget to send a quick message and make their day special! 🥳`;
+        } else {
+            notificationTitle = `🎈 Multiple Birthdays Today! (${birthdaysToday.length} people) 🎁`;
+            const namesList = birthdaysToday.map(bday => `🌟 ${bday.name}`).join('\n');
+            notificationBody = `Here's your reminder list:\n${namesList}`;
+        }
+
+        // Use a unique Tag to prevent duplicates if this function is called immediately after a previous one
+        const uniqueTag = NOTIFICATION_TAG + today.getTime(); 
+        
+        new Notification(notificationTitle, {
+            body: notificationBody,
+            icon: 'https://ui-avatars.com/api/?name=B&background=3b82f6&color=fff&size=40', 
+            tag: uniqueTag 
+        });
+        
+        // --- NEW: Set the tracker in localStorage ---
+        localStorage.setItem(BIRTHDAY_LAST_NOTIFIED_KEY, todayDateKey);
+        console.log("Birthday notification displayed and daily tracker set.");
+    }
+}
+
+/**
+ * Starts the periodic scheduling of the notification check.
+ */
+function startBirthdayScheduler() {
+    // Clear any previous scheduler
+    if(birthdaySchedulerIntervalId) {
+        clearInterval(birthdaySchedulerIntervalId);
+    }
+    
+    // Set the periodic interval to ensure the check runs every 6 hours (4 times a day)
+    birthdaySchedulerIntervalId = setInterval(checkAndNotify, NOTIFICATION_INTERVAL_MS);
+    console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours.`);
+}
+
+
+// =================================================================
+// 3. APPLICATION LOGIC (Data and UI)
+// =================================================================
+
+/**
+ * Loads the user's birthday data from Firebase using an active listener 
+ * and immediately triggers the notification check when data changes.
+ */
 function loadBirthdayData() {
-    if (!currentUserId) return;
+    if (!currentUserId) return;
 
-    const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
-    birthdaysRef.on('value', (snapshot) => {
-        allBirthdays = snapshot.val() || {};
-        console.log("Birthday data updated from Firebase.");
-    }, (error) => {
-        console.error("Firebase Read Failed:", error);
-    });
+    const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
+    birthdaysRef.on('value', (snapshot) => {
+        allBirthdays = snapshot.val() || {};
+        console.log("Birthday data updated from Firebase.");
+        
+        // Initial check on data load. The internal tracker prevents repeat notifications for the same day.
+        checkAndNotify(); 
+    }, (error) => {
+        console.error("Firebase Read Failed:", error);
+    });
 }
 
-// Function used by the scheduler to get the most current data
-function getBirthdayData() {
-    return allBirthdays;
+function updateUI(user) {
+    const userName = user.displayName || 'Dashboard User';
+    const userEmail = user.email || 'user@example.com';
+    let initial = (user.email && user.email.length > 0) ? user.email[0].toUpperCase() : 'U';
+    
+    const photoPlaceholder = `https://ui-avatars.com/api/?name=${initial}&background=3b82f6&color=fff&size=100`; 
+    const userPhoto = user.photoURL || photoPlaceholder; 
+
+    document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => el.textContent = userName);
+    document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => el.textContent = userEmail);
+    document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => el.src = userPhoto); 
+    
+    currentUserId = user.uid;
 }
 
+window.logout = function() {
+    if(birthdaySchedulerIntervalId) {
+        clearInterval(birthdaySchedulerIntervalId);
+    }
+    auth.signOut().then(() => { 
+        window.location.href = 'index.html'; 
+    }).catch(error => { 
+        console.error('Sign out failed:', error);
+        alert('Sign out failed: ' + error.message); 
+    });
+}
 
-// --- DOM ELEMENTS & EVENT LISTENERS ---
+// --- DOM ELEMENTS & EVENT LISTENERS (Kept as is for compatibility) ---
 const menuBtn = document.getElementById('menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
 const profileToggleBtn = document.getElementById('profile-toggle-btn');
@@ -493,179 +493,53 @@ const profileChevron = document.getElementById('profileChevron');
 const desktopLogoutBtn = document.getElementById('desktopLogout');
 
 if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
 }
 if (profileToggleBtn && mobileProfilePanel && profileChevron) {
-    profileToggleBtn.addEventListener('click', () => {
-        const isShown = mobileProfilePanel.classList.toggle('show');
-        if (isShown) {
-            profileChevron.classList.add('rotate-180');
-        } else {
-            profileChevron.classList.remove('rotate-180');
-        }
-    });
+    profileToggleBtn.addEventListener('click', () => {
+        const isShown = mobileProfilePanel.classList.toggle('show');
+        if (isShown) {
+            profileChevron.classList.add('rotate-180');
+        } else {
+            profileChevron.classList.remove('rotate-180');
+        }
+    });
 }
 if (desktopLogoutBtn) {
-    desktopLogoutBtn.addEventListener('click', window.logout);
+    desktopLogoutBtn.addEventListener('click', window.logout);
 }
 
 
-// --- FIREBASE AUTH STATE MANAGEMENT ---
-auth.onAuthStateChanged(user => {
-    if (user) {
-        // User is signed in
-        updateUI(user);
-        
-        // 1. Request permission
-        requestNotificationPermission(); 
+// =================================================================
+// 4. AUTH STATE MANAGEMENT (The App Entry Point)
+// =================================================================
 
-        // 2. Start the Firebase data listener (updates 'allBirthdays')
-        loadBirthdayData(); 
-        
-        // 3. Start the periodic scheduler (runs checkAndNotify() immediately)
-        startBirthdayScheduler(getBirthdayData, currentUserId); 
-        
-    } else {
-        // User is signed out, redirect to login page
-        window.location.href = 'index.html';
-    }
+auth.onAuthStateChanged(user => {
+    if (user) {
+        console.log("User logged in. Initializing app and notifications.");
+        
+        updateUI(user);
+        
+        // 1. Request permission
+        requestNotificationPermission(); 
+
+        // 2. Start the Firebase data listener (updates global 'allBirthdays' and calls checkAndNotify immediately)
+        loadBirthdayData(); 
+        
+        // 3. Start the periodic scheduler (runs checkAndNotify every 6 hours)
+        startBirthdayScheduler(); 
+        
+    } else {
+        // User is signed out, redirect to login page
+        window.location.href = 'index.html';
+    }
 });
 </script>
-<script>
-    /**
- * birthday_notifications.js
- * Handles requesting notification permission and scheduling the periodic birthday check.
- * Includes logic to ensure notifications for today's birthdays only show once per day.
- */
-export const notificationModule = (function() {
-    // Constant for the 6-hour interval (21,600,000 milliseconds)
-    const NOTIFICATION_INTERVAL_MS = 21600000; 
-    // Key used to store the last notification date in Local Storage
-    const LAST_NOTIFIED_KEY = 'lastBirthdayNotificationDate';
-
-    /**
-     * Prompts the user for permission to display browser notifications.
-     */
-    function requestNotificationPermission() {
-        if (!('Notification' in window)) {
-            console.warn('This browser does not support desktop notifications.');
-            return;
-        }
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('Notification permission granted.');
-            } else {
-                console.warn('Notification permission denied or blocked.');
-            }
-        });
-    }
-
-    /**
-     * Helper to check if a notification has already been sent today.
-     */
-    function hasNotificationBeenSentToday() {
-        const today = new Date().toDateString();
-        const lastNotified = localStorage.getItem(LAST_NOTIFIED_KEY);
-        return lastNotified === today;
-    }
-
-    /**
-     * Records the current date in Local Storage, preventing further notifications today.
-     */
-    function recordNotificationSent() {
-        const today = new Date().toDateString();
-        localStorage.setItem(LAST_NOTIFIED_KEY, today);
-    }
-
-    /**
-     * Checks the loaded birthday data for today's birthdays and triggers a notification.
-     * @param {object} birthdays - The user's current birthday data object from Firebase.
-     */
-    function checkAndNotify(birthdays) {
-        // 1. Basic checks
-        if (Notification.permission !== 'granted' || !birthdays || Object.keys(birthdays).length === 0) {
-            return; 
-        }
-
-        // 2. Daily check: If already notified today, stop.
-        if (hasNotificationBeenSentToday()) {
-            console.log('Notification check skipped: Already notified today.');
-            return;
-        }
-
-        const today = new Date();
-        const todayMonthDayKey = `${today.getMonth() + 1}-${today.getDate()}`; // e.g., "9-30"
-
-        // 3. Find today's birthdays
-        const birthdaysToday = Object.values(birthdays).filter(bday => {
-            if (!bday.birthdate) return false;
-            
-            if (bday.birthdate.length === 5) {
-                const [m, d] = bday.birthdate.split('-');
-                return `${parseInt(m)}-${parseInt(d)}` === todayMonthDayKey;
-            } else if (bday.birthdate.length === 10) {
-                const bdayDate = new Date(bday.birthdate);
-                return bdayDate.getMonth() === today.getMonth() && bdayDate.getDate() === today.getDate();
-            }
-            return false;
-        });
-
-        // 4. Send notification and record if birthdays are found
-        if (birthdaysToday.length > 0) {
-            let notificationTitle;
-            let notificationBody;
-
-            if (birthdaysToday.length === 1) {
-                notificationTitle = `🥳 Happy Birthday to ${birthdaysToday[0].name}! 🎂`;
-                notificationBody = `Don't forget to wish ${birthdaysToday[0].name} a wonderful day!`;
-            } else {
-                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
-                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
-            }
-
-            // Display the notification
-            new Notification(notificationTitle, {
-                body: notificationBody,
-                icon: 'https://via.placeholder.com/40',
-                tag: 'birthday-reminder-notification' 
-            });
-
-            // Record the current date so we don't send another notification until tomorrow
-            recordNotificationSent(); 
-            console.log("Birthday notification displayed and recorded for today.");
-        }
-    }
-    
-    /**
-     * Starts the periodic scheduling of the notification check.
-     * @param {function} dataGetter - Function provided by the main script to retrieve the latest allBirthdays object.
-     */
-    function startBirthdayScheduler(dataGetter) {
-        // Define the function that checks and notifies
-        const scheduledCheck = () => {
-            const currentBirthdays = dataGetter();
-            checkAndNotify(currentBirthdays);
-        };
-
-        // Run the initial check immediately on login/page load
-        scheduledCheck(); 
-
-        // Set the periodic interval to ensure the check runs even if the page is left open
-        setInterval(scheduledCheck, NOTIFICATION_INTERVAL_MS);
-        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours, but will only notify once per day.`);
-    }
-
-    return {
-        requestPermission: requestNotificationPermission,
-        startScheduler: startBirthdayScheduler,
-    };
-})();
-</script>
-
 
 
 </body>
 </html>
+
 
