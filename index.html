@@ -1,673 +1,682 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>My Personal Website</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script> 
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
     <style>
-        /* Reusable Animations */
-        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
-        .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
-        .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
-        .animate-card { animation: cardPop 0.5s ease-out both; }
-        
-        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
-        @keyframes cardPop {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Shared Styles: Keeping Animations in the head for clean execution */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            overflow-x: hidden;
+        }
+        @keyframes fadeInZoom {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideInLeft {
+            0% { opacity: 0; transform: translateX(-50px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            0% { opacity: 0; transform: translateX(50px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInUp {
+            0% { opacity: 0; transform: translateY(50px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        /* Increased title size slightly for impact */
+        .section-title {
+            font-size: 2rem; /* Was 1.875rem (text-3xl equivalent) */
+            font-weight: 700;
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 2.5rem; /* Increased margin for spacing */
+        }
+        .parallax-bg {
+            background-image: url('https://source.unsplash.com/1600x900/?organization,security,data');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
         }
 
-        /* Custom Styles for Professional Look */
-        nav a { transition: color 0.3s, transform 0.2s ease-out;}
-        nav a:hover { color: #1e40af; transform: translateY(-2px); }
-        body { min-height: 100vh; display: flex; flex-direction: column; }
-        .content-wrapper { flex-grow: 1; }
-
-        /* Mobile Menu correction */
-        #mobile-menu {
-             position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20;
-             transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-             max-height: 0; overflow: hidden; opacity: 0;
-             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+        /* --- FIX: MESSAGE BOX STYLES ADDED HERE --- */
+        #msgBox {
+            /* Initial state for hidden/off-screen */
+            opacity: 0;
+            transform: translateX(100%);
+            /* Transition for smooth animation */
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+            /* Ensure it is block/flex for content */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Added gap for icon/text separation */
         }
-        #mobile-menu:not(.hidden) {
-            max-height: 80vh; overflow-y: auto; opacity: 1;
+        #msgBox.show {
+            /* End state for visible/on-screen */
+            opacity: 1;
+            transform: translateX(0);
         }
-        #mobile-menu a, #profile-toggle-btn {
-            display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0;
-            border-radius: 0.375rem; text-align: left; width: 100%;
+        #msgBox.success {
+            background-color: #d1fae5; /* Tailwind bg-green-100 */
+            color: #065f46; /* Tailwind text-green-800 */
+            border-color: #34d399; /* Tailwind border-green-400 */
         }
-        #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #f3f4f6; }
-        #mobile-menu a.active { background-color: #eff6ff; color: #1e40af; font-weight: 600; }
-
-        /* --- SIDEBAR STYLES (Desktop) --- */
-        .sidebar-desktop {
-            width: 320px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem;
-            border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); 
-            align-self: flex-start; position: sticky; top: 6rem;
-            min-height: calc(100vh - 8rem); 
-        }
-        .sidebar-nav-internal a {
-            display: flex; align-items: center; padding: 0.8rem 0.6rem; margin-bottom: 0.5rem;
-            border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500;
-            font-size: 1.05rem; transition: all 0.2s;
-        }
-        .sidebar-nav-internal a:hover,
-        .sidebar-nav-internal a.active {
-            background-color: #eff6ff; color: #1e40af; transform: translateX(3px);
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-        }
-        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; }
-        
-        .dashboard-wrapper {
-            max-width: 1400px; width: 90%; margin-left: auto; margin-right: auto;
-            padding-left: 0; padding-right: 0;
-        }
-        .dashboard-main-content { flex-grow: 1; }
-
-        /* Profile Panel Styling */
-        #mobileProfilePanel {
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-            max-height: 0; opacity: 0; overflow: hidden; margin-bottom: 0;
-        }
-        #mobileProfilePanel.show {
-            max-height: 200px; opacity: 1; margin-bottom: 1rem;
+        #msgBox.error {
+            background-color: #fee2e2; /* Tailwind bg-red-100 */
+            color: #991b1b; /* Tailwind text-red-800 */
+            border-color: #f87171; /* Tailwind border-red-400 */
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-700 font-sans">
+<body class="min-h-screen flex flex-col justify-between">
 
-<div class="content-wrapper">
-
-    <div class="hidden md:block fade-in">
-        <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
-            <div class="flex items-center gap-2 slide-left">
-                <i class="fas fa-user-circle text-3xl text-blue-800"></i>
-                <h1 class="text-2xl font-bold text-gray-900">My Personal Website</h1>
+    <nav class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-4">
+            <div class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-user-circle text-2xl text-blue-600"></i>
+                <span class="font-bold text-gray-800">My Personal Website</span>
             </div>
+        </div>
+    </nav>
 
-            <nav class="flex items-center gap-8 text-lg font-normal text-gray-600 slide-right">
-                <a href="home.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-house"></i> Home</a>
-                <a href="adress.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-tasks"></i> Address</a>
-                <a href="income.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-link"></i> Links</a>
-                <a href="calender.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-calendar-days"></i> Calendar</a>
-                <a href="birthday.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-cake-candles"></i> Birthday</a>
-                <a href="password.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-lock"></i> Passwords</a>
-            </nav>
+    <main class="flex-grow flex items-center justify-center p-6 lg:p-12 relative">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 items-center max-w-7xl">
 
-            <div class="flex items-center gap-4 slide-left">
-                <div class="text-right">
-                    <p id="desktopUserName" class="font-semibold text-gray-800 text-base">Dashboard User</p>
-                    <p id="desktopUserEmail" class="text-sm text-gray-500">user@example.com</p>
+            <div class="hidden lg:block space-y-6" style="animation: slideInLeft 1s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Financial Management</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Track your income and expenses to gain a clear, real-time understanding of your cash flow. Set and monitor your savings goals with visual progress bars.
+                    </p>
                 </div>
-                <img id="desktopUserPhoto" src="https://via.placeholder.com/100" alt="User Photo" class="w-12 h-12 rounded-full border border-gray-300"/>
-                <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 text-sm transition duration-150">Logout</button>
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-address-book text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Secure Contacts Manager</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Keep all your contacts organized and secure. Easily add, edit, or delete contact information, including names, emails, and birthdays.
+                    </p>
+                </div>
             </div>
-        </header>
 
-        <div class="dashboard-wrapper mt-6 flex gap-6">
-            
-            <aside class="sidebar-desktop fade-in">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Core Data</h3>
-                <nav class="sidebar-nav-internal flex flex-col">
-                    <a href="dashboard.html" class="active"><i class="fas fa-columns"></i> Dashboard</a>
-                    <a href="profile.html"><i class="fas fa-user-gear"></i> Profile Settings</a>
-                    <a href="contact.html"><i class="fas fa-address-book"></i> Contact Details</a>
-                    <a href="data-backup.html"><i class="fas fa-database"></i> Data Backup</a>
-                    <a href="security.html"><i class="fas fa-shield-halved"></i> Security Log</a>
-                    
-                    <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">Productivity</h4>
-                    <a href="daily-task.html"><i class="fas fa-list-check"></i> Daily Tasks</a>
-                    <a href="notes.html"><i class="fas fa-note-sticky"></i> Notes</a>
-                    <a href="reminders.html"><i class="fas fa-bell"></i> Reminders</a>
-                    <a href="files.html"><i class="fas fa-folder"></i> File Storage</a>
+            <div class="w-full flex justify-center items-center relative">
+                <div id="loginCard" class="bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Login to Your Hub</h2>
+                    <p class="text-gray-600 mb-6 text-sm">Access your secure personal dashboard with your Google account and PIN.</p>
+                    <button id="googleLoginBtn" class="flex items-center justify-center gap-2 text-base font-semibold px-5 py-3 rounded-full bg-white text-gray-800 border-2 border-blue-600 shadow-md mx-auto hover:bg-blue-600 hover:text-white" style="transition: all 0.2s ease; transform: scale(1.0); " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1.0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 20px; height: 20px;"> Sign in with Google
+                    </button>
+                </div>
 
-                    <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">System</h4>
-                    <a href="report-finance.html"><i class="fas fa-chart-line"></i> Analytics</a>
-                    <a href="settings.html"><i class="fas fa-gear"></i> App Settings</a>
-                    <a href="help.html"><i class="fas fa-circle-question"></i> Help & Support</a>
-                </nav>
-            </aside>
-            
-            <main class="dashboard-main-content p-8 bg-white rounded shadow fade-in">
-                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Welcome to Your Personal Web Hub 💼</h2>
+                <div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
                 
-                <p class="text-lg text-gray-600 mb-8 border-b pb-4">
-                    This personalized dashboard is designed to be your central command center, helping you organize, manage, and secure all aspects of your digital life and web usage in one private, convenient space.
-                </p>
+                <div id="pinCard" class="hidden bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center">
+                    <h2 id="pinTitle" class="text-2xl font-bold mb-4 text-gray-800">Enter PIN</h2>
 
-                <h3 class="text-2xl font-bold text-gray-800 mb-6 mt-6 border-b pb-2">Maximize Your Life and Career 🚀</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-3 border rounded-lg mb-3 text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+
+                    <div id="resetPinInputs" class="hidden flex flex-col gap-2 mb-3">
+                        <input id="currentPinInput" type="password" maxlength="6" placeholder="Current PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                        <input id="newPinInput" type="password" maxlength="6" placeholder="New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                        <input id="confirmNewPinInput" type="password" maxlength="6" placeholder="Confirm New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+                    </div>
                     
-                    <div class="animate-card p-6 bg-blue-50 border-t-4 border-blue-700 rounded-lg shadow-lg" style="animation-delay: 0.1s;">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-calendar-check text-3xl text-blue-600 mr-3"></i>
-                            <h4 class="text-xl font-semibold text-blue-800">Enhance Daily Life</h4>
-                        </div>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Effortless Organization:** Track birthdays, appointments, and personal links in one place, ensuring you never miss an important date or resource.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Digital Safety:** Securely store all your passwords and sensitive contact information using Firebase authentication, giving you peace of mind.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Personal Finances:** Log your Income details privately to keep track of your financial goals and status.</li>
-                        </ul>
-                    </div>
-
-                    <div class="animate-card p-6 bg-green-50 border-t-4 border-green-700 rounded-lg shadow-lg" style="animation-delay: 0.2s;">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-chart-line text-3xl text-green-600 mr-3"></i>
-                            <h4 class="text-xl font-semibold text-green-800">Boost Professional Work</h4>
-                        </div>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Focused Productivity:** Use Daily Tasks and Notes tools to manage projects and capture ideas instantly, improving workflow efficiency.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Data Oversight:** Access Analytics and Security Logs to monitor your account activity, crucial for compliance and security in any professional role.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Information Retrieval:** Centralize business links and contact details, making it faster to access essential professional resources.</li>
-                        </ul>
-                    </div>
+                    <button id="pinActionBtn" 
+                        class="w-full py-3 rounded-lg bg-blue-600 text-white font-semibold shadow-md mb-2 text-base hover:bg-blue-700 transition duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
+                    </button>
+                    <p class="mt-2 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
+                    <p class="mt-1 text-sm text-blue-600 cursor-pointer hover:underline" id="resetPinBtn">Reset PIN</p>
                 </div>
+            </div>
 
-                <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Core Features Overview</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-4 bg-gray-100 border-l-4 border-gray-600 rounded-lg">
-                        <p class="font-bold text-gray-800 flex items-center mb-2"><i class="fas fa-key mr-2"></i> Confidential Data Storage</p>
-                        <p class="text-sm text-gray-700">Secure vaults for storing Passwords, financial Income, and Contact Details privately.</p>
+            <div class="hidden lg:block space-y-6" style="animation: slideInRight 1s ease-out forwards; opacity: 0; animation-delay: 0.6s;">
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-lock text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Advanced Password Vault</h3>
                     </div>
-                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-700 rounded-lg">
-                        <p class="font-bold text-yellow-800 flex items-center mb-2"><i class="fas fa-cogs mr-2"></i> Custom Configuration</p>
-                        <p class="text-sm text-gray-700">Personalize your experience and system behavior using the dedicated Profile Settings and App Settings.</p>
-                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Secure all your online credentials in one place with military-grade encryption. Access them with your personal PIN for instant login.
+                    </p>
                 </div>
-            </main>
+                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-link text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Stop losing important websites. Organize your bookmarks and digital resources in a centralized, categorized hub for easy access.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="py-12 md:py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <i class="fas fa-database text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <i class="fas fa-users text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Personal & Professional</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <i class="fas fa-shield-alt text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Designed with security at its core. Your personal information stays private and under your control, always.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+<section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Key Benefits</h2>
+            <div class="space-y-8 relative border-l-4 border-blue-500 pl-4 max-w-3xl mx-auto">
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-bullseye mr-2"></i> Stay Focused</h3>
+                    <p class="text-gray-600 text-base">No distractions—only essential tools you need daily to save time and improve productivity.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-coins mr-2"></i> Smarter Finances</h3>
+                    <p class="text-gray-600 text-base">Automatically track your income, savings, and expenses in a visually engaging way.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-globe mr-2"></i> Access Anywhere</h3>
+                    <p class="text-gray-600 text-base">Fully cloud-based—your data follows you across all devices, with secure access.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title mb-10" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">How It Works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <i class="fas fa-user-plus text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 1: Get Started</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Sign up instantly using your **Google account**. This provides a secure, familiar, and quick way to get access to your personal hub.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <i class="fas fa-key text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 2: Set Your PIN</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        For an added layer of security, you'll be prompted to create a personal **4-6 digit PIN**. This ensures that only you can access your data.
+                    </p>
+                </div>
+                <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <i class="fas fa-cubes text-4xl text-blue-500 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-1">Step 3: Start Organizing</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Once inside, you're free to use our suite of tools: manage your finances, store passwords securely, and organize your digital contacts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section class="py-12 md:py-16">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <div class="mb-3">
+                        <i class="fas fa-user-shield text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Advanced Security Protocols</h3>
+                    <p class="text-gray-600 text-sm">Your data is protected by a two-factor authentication system, combining a secure Google login with a personal PIN.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <div class="mb-3">
+                        <i class="fas fa-lightbulb text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">All-in-One Convenience</h3>
+                    <p class="text-gray-600 text-sm">Say goodbye to scattered apps. Manage your finances, contacts, passwords, and links from a single, seamless dashboard.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <div class="mb-3">
+                        <i class="fas fa-cogs text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Seamless User Experience</h3>
+                    <p class="text-gray-600 text-sm">Our modern, intuitive interface is designed for simplicity, making it easy for anyone to get organized without a steep learning curve.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.7s;">
+                    <div class="mb-3">
+                        <i class="fas fa-mobile-alt text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Mobile-Friendly Design</h3>
+                    <p class="text-gray-600 text-sm">Access your personal hub on the go, with a design optimized for any device, from your desktop to your smartphone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+<section class="py-12 md:py-16 mt-10 text-white" 
+    style="
+        /* Tailwind bg-blue-600 */
+        background-color: #2563EB; 
+        /* Subtle Wave Pattern for texture and depth */
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\' preserveAspectRatio=\'none\'><path fill=\'rgba(255, 255, 255, 0.05)\' d=\'M0,50 C15,90 35,20 50,50 C65,80 85,10 100,50 L100,100 L0,100 Z\' /></svg>');
+        background-size: 100% 200px;
+        background-repeat: repeat-x;
+        background-position: bottom;
+    ">
+    <div class="container mx-auto px-6 text-center" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">
+        <h2 class="text-3xl font-bold mb-10">What Our Users Say</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl backdrop-blur-sm" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                <p class="text-base italic mb-3 leading-relaxed">
+                    "I've tried so many productivity apps, but this one is different. It's a game-changer for keeping all my professional and personal info in one place. The security is top-notch."
+                </p>
+                <cite class="font-semibold text-base not-italic">- Vaishali Kulkarni, Homemaker</cite>
+            </blockquote>
+            <blockquote class="bg-white/10 p-5 rounded-lg shadow-xl backdrop-blur-sm" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <p class="text-base italic mb-3 leading-relaxed">
+                    "The financial tracker is simple yet powerful, and I love that I can access my data from anywhere. It's truly a must-have."
+                </p>
+                <cite class="font-semibold text-base not-italic">- Gajanan Kulkarni, Assistant Superintendent.</cite>
+            </blockquote>
         </div>
     </div>
+</section>
 
-    <div class="block md:hidden fade-in">
-        <header class="bg-white shadow-md sticky top-0 z-30">
-            <div class="flex justify-between items-center py-2 px-4">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-user-circle text-2xl text-blue-800"></i>
-                    <h1 class="text-xl font-bold text-gray-900">My Personal Website</h1>
-                </div>
-                <button id="menu-btn" class="text-gray-700 hover:text-blue-700 focus:outline-none p-2 rounded-lg">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-            </div>
 
-            <nav id="mobile-menu" class="hidden bg-white px-6 pb-6 space-y-1 text-base font-normal text-gray-800">
-                
-                <h3 class="font-bold text-sm text-gray-700 mb-2 pt-2">MAIN NAVIGATION</h3>
-                <a href="home.html"><i class="fas fa-house mr-3"></i> Home</a>
-                <a href="address.html"><i class="fas fa-tasks mr-3"></i> Address</a>
-                <a href="income.html"><i class="fas fa-wallet mr-3"></i> Income</a>
-                <a href="links.html"><i class="fas fa-link mr-3"></i> Links</a>
-                <a href="calender.html"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
-                <a href="birthday.html"><i class="fas fa-cake-candles mr-3"></i> Birthday</a>
-                <a href="password.html"><i class="fas fa-lock mr-3"></i> Passwords</a>
-
-                <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">CORE DATA</p>
-                <a href="dashboard.html" class="active"><i class="fas fa-columns mr-3"></i> Dashboard</a>
-                <a href="profile.html"><i class="fas fa-user-gear mr-3"></i> Profile Settings</a>
-                <a href="contact.html"><i class="fas fa-address-book mr-3"></i> Contact Details</a>
-                <a href="data-backup.html"><i class="fas fa-database mr-3"></i> Data Backup</a>
-                <a href="security.html"><i class="fas fa-shield-halved mr-3"></i> Security Log</a>
-                
-
-                <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">PRODUCTIVITY</p>
-                <a href="daily-task.html"><i class="fas fa-list-check mr-3"></i> Daily Tasks</a>
-                <a href="notes.html"><i class="fas fa-note-sticky mr-3"></i> Notes</a>
-                <a href="reminders.html"><i class="fas fa-bell mr-3"></i> Reminders</a>
-                <a href="files.html"><i class="fas fa-folder mr-3"></i> File Storage</a>
-
-                <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">SYSTEM</p>
-                <a href="report-finance.html"><i class="fas fa-chart-line mr-3"></i> Analytics</a>
-                <a href="settings.html"><i class="fas fa-gear mr-3"></i> App Settings</a>
-                <a href="help.html"><i class="fas fa-circle-question mr-3"></i> Help & Support</a>
-
-                <button id="profile-toggle-btn" class="flex items-center gap-2 mt-4 w-full text-left font-medium text-gray-800 border-t pt-3 hover:bg-gray-100">
-                    <i class="fas fa-user-circle text-2xl"></i>
-                    <span class="font-medium">Profile</span>
-                    <i class="fas fa-chevron-down ml-auto transition-transform duration-300" id="profileChevron"></i>
-                </button>
-
-                <div id="mobileProfilePanel" class="mt-2 p-3 border rounded bg-gray-50 space-y-2">
-                    <div class="flex items-center gap-3">
-                         <img id="mobileUserPhoto" src="https://via.placeholder.com/100/3b82f6/ffffff?text=U" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
-                        <div>
-                            <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                            <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                        </div>
-                    </div>
-                    
-                    <button onclick="logout()" class="bg-red-700 text-white px-3 py-2 rounded-full hover:bg-red-800 text-sm mt-2 w-full">Logout</button>
-                </div>
-                
-            </nav>
-        </header>
-
-        <main class="w-full p-4 bg-white rounded shadow fade-in">
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Your Personal Web Hub 💼</h2>
-            
-            <p class="text-md text-gray-600 mb-6 border-b pb-3">
-                This dashboard is your command center for managing and securing your digital life. Tap the menu ($\equiv$) for all navigation and features.
-            </p>
-
-            <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Maximize Your Life and Career 🚀</h3>
-            <ul class="space-y-3 mb-6 text-gray-700 list-disc list-inside ml-2 text-sm">
-                <li>Centralize birthdays, calendars, and personal links for **effortless organization**.</li>
-                <li>Securely store all your **Passwords** and sensitive data with robust **Security Logs**.</li>
-                <li>Manage **Daily Tasks** and review **Analytics** to boost your professional productivity and oversight.</li>
-            </ul>
-
-            <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Core Features</h3>
-            <div class="grid grid-cols-1 gap-4">
-                <div class="p-3 bg-blue-50 border-l-4 border-blue-700 rounded-lg">
-                    <p class="font-bold text-blue-800 flex items-center mb-1 text-sm"><i class="fas fa-key mr-2"></i> Confidential Data Storage</p>
-                    <p class="text-xs text-gray-700">Secure vaults for Passwords and financial Income.</p>
-                </div>
-                <div class="p-3 bg-green-50 border-l-4 border-green-700 rounded-lg">
-                    <p class="font-bold text-green-800 flex items-center mb-1 text-sm"><i class="fas fa-tasks mr-2"></i> Workflow Management</p>
-                    <p class="text-xs text-gray-700">Tools for managing Daily Tasks and Notes.</p>
-                </div>
-            </div>
-            
-        </main>
-    </div>
-
-</div> 
-
-<footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
-    &copy; 2025 Personal Website | All rights reserved
+<footer class="bg-white text-gray-900 text-center py-4 text-sm mt-10">
+    &copy; 2025 My Personal Website | All Rights Reserved.
 </footer>
-
-<script type="module">
-// --------------------------------------------------------------------------------
-// --- PART 1: NOTIFICATION MODULE (Simulates notifications.js) ---
-// --------------------------------------------------------------------------------
-
-// Create a named export for the notification logic
-const notifications = (function() {
-    const NOTIFICATION_INTERVAL_MS = 21600000; // 6 hours
-    const NOTIFICATION_LOCAL_STORAGE_KEY = 'lastBirthdayNotificationDate';
-    const NOTIFICATION_TAG = 'birthday-reminder-notification';
-
-    function requestNotificationPermission() {
-        if (!('Notification' in window)) {
-            console.warn('This browser does not support desktop notifications.');
-            return;
-        }
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('Notification permission granted.');
-            } else {
-                console.warn('Notification permission denied or blocked.');
-            }
-        });
-    }
-
-    function displayNotification(title, body, iconUrl = 'https://via.placeholder.com/40') {
-        if (Notification.permission === 'granted') {
-            new Notification(title, {
-                body: body,
-                icon: iconUrl,
-                tag: NOTIFICATION_TAG
-            });
-        }
-    }
-
-    function getMonthDayKey(date) {
-        return `${date.getMonth() + 1}-${date.getDate()}`;
-    }
-
-    function checkAndNotify(allBirthdays, currentUserId) {
-        if (!currentUserId || Notification.permission !== 'granted' || !allBirthdays) {
-            return; 
-        }
-        
-        const today = new Date();
-        const todayKey = getMonthDayKey(today);
-
-        const lastNotifiedDate = localStorage.getItem(NOTIFICATION_LOCAL_STORAGE_KEY);
-        if (lastNotifiedDate === todayKey) {
-            console.log(`Notification already sent for today (${todayKey}). Skipping periodic check.`);
-            return; 
-        }
-
-        const birthdaysToday = Object.values(allBirthdays).filter(bday => {
-            if (!bday.birthdate) return false;
-            
-            let bdayKey;
-            const birthdate = bday.birthdate.trim();
-
-            if (birthdate.length === 5) { // MM-DD format
-                const [month, day] = birthdate.split('-');
-                bdayKey = `${parseInt(month)}-${parseInt(day)}`;
-            } else if (birthdate.length === 10) { // YYYY-MM-DD format
-                const dateParts = birthdate.split('-');
-                const bdayDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]); 
-                bdayKey = getMonthDayKey(bdayDate);
-            } else {
-                return false;
-            }
-            
-            return bdayKey === todayKey;
-        });
-
-        if (birthdaysToday.length > 0) {
-            let notificationTitle;
-            let notificationBody;
-            
-            if (birthdaysToday.length === 1) {
-                const bday = birthdaysToday[0];
-                notificationTitle = `🥳 Happy Birthday to ${bday.name}! 🎂`;
-                notificationBody = `Don't forget to wish ${bday.name} a wonderful day!`;
-            } else {
-                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
-                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
-            }
-
-            displayNotification(notificationTitle, notificationBody);
-            
-            localStorage.setItem(NOTIFICATION_LOCAL_STORAGE_KEY, todayKey);
-            console.log(`Notification sent for today. Local storage updated: ${todayKey}`);
-        }
-    }
-
-    function startBirthdayScheduler(birthdayDataGetter, currentUserId) {
-        const schedulerFunction = () => {
-            const allBirthdays = birthdayDataGetter();
-            checkAndNotify(allBirthdays, currentUserId);
-        };
-
-        schedulerFunction(); // Run initial check immediately after authentication
-        setInterval(schedulerFunction, NOTIFICATION_INTERVAL_MS);
-        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours.`);
-    }
-
-    // Export the functions we want the main script to use
-    return {
-        requestNotificationPermission,
-        startBirthdayScheduler
-    };
-})();
-
-
-// --------------------------------------------------------------------------------
-// --- PART 2: MAIN APP LOGIC (Imports from notifications module) ---
-// --------------------------------------------------------------------------------
-
-// Access the exported functions from the module defined above
-const { requestNotificationPermission, startBirthdayScheduler } = notifications;
-
-// --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
-const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "470207874652",
-    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-};
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const auth = firebase.auth();
-const database = firebase.database(); 
-
-let currentUserId = null;
-let allBirthdays = {}; // Global variable for birthday data
-
-
-// --- UTILITIES ---
-window.logout = function() {
-    auth.signOut().then(() => { 
-        window.location.href = 'index.html'; 
-    }).catch(error => { 
-        console.error('Sign out failed:', error);
-        alert('Sign out failed: ' + error.message); 
-    });
-}
-
-function updateUI(user) {
-    const userName = user.displayName || 'Dashboard User';
-    const userEmail = user.email || 'user@example.com';
-    let initial = 'U';
-    if (user.email && user.email.length > 0) {
-        initial = user.email[0].toUpperCase();
-    }
-    const photoPlaceholder = `https://via.placeholder.com/100/3b82f6/ffffff?text=${initial}`;
-    const userPhoto = user.photoURL || photoPlaceholder; 
-
-    const desktopUserName = document.getElementById('desktopUserName');
-    const desktopUserEmail = document.getElementById('desktopUserEmail');
-    const desktopUserPhoto = document.getElementById('desktopUserPhoto');
-    const mobileUserName = document.getElementById('mobileUserName');
-    const mobileUserEmail = document.getElementById('mobileUserEmail');
-    const mobileUserPhoto = document.getElementById('mobileUserPhoto');
-
-    if (desktopUserName) desktopUserName.textContent = userName;
-    if (desktopUserEmail) desktopUserEmail.textContent = userEmail;
-    if (desktopUserPhoto) desktopUserPhoto.src = userPhoto;
-    if (mobileUserName) mobileUserName.textContent = userName;
-    if (mobileUserEmail) mobileUserEmail.textContent = userEmail;
-    if (mobileUserPhoto) mobileUserPhoto.src = userPhoto;
-
-    currentUserId = user.uid;
-}
-
-/**
- * Loads the user's birthday data from Firebase using an active listener.
- */
-function loadBirthdayData() {
-    if (!currentUserId) return;
-
-    const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
-    birthdaysRef.on('value', (snapshot) => {
-        allBirthdays = snapshot.val() || {};
-        console.log("Birthday data updated from Firebase.");
-    }, (error) => {
-        console.error("Firebase Read Failed:", error);
-    });
-}
-
-// Function used by the scheduler to get the most current data
-function getBirthdayData() {
-    return allBirthdays;
-}
-
-
-// --- DOM ELEMENTS & EVENT LISTENERS ---
-const menuBtn = document.getElementById('menu-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-const profileToggleBtn = document.getElementById('profile-toggle-btn');
-const mobileProfilePanel = document.getElementById('mobileProfilePanel');
-const profileChevron = document.getElementById('profileChevron');
-const desktopLogoutBtn = document.getElementById('desktopLogout');
-
-if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-}
-if (profileToggleBtn && mobileProfilePanel && profileChevron) {
-    profileToggleBtn.addEventListener('click', () => {
-        const isShown = mobileProfilePanel.classList.toggle('show');
-        if (isShown) {
-            profileChevron.classList.add('rotate-180');
-        } else {
-            profileChevron.classList.remove('rotate-180');
-        }
-    });
-}
-if (desktopLogoutBtn) {
-    desktopLogoutBtn.addEventListener('click', window.logout);
-}
-
-
-// --- FIREBASE AUTH STATE MANAGEMENT ---
-auth.onAuthStateChanged(user => {
-    if (user) {
-        // User is signed in
-        updateUI(user);
-        
-        // 1. Request permission
-        requestNotificationPermission(); 
-
-        // 2. Start the Firebase data listener (updates 'allBirthdays')
-        loadBirthdayData(); 
-        
-        // 3. Start the periodic scheduler (runs checkAndNotify() immediately)
-        startBirthdayScheduler(getBirthdayData, currentUserId); 
-        
-    } else {
-        // User is signed out, redirect to login page
-        window.location.href = 'index.html';
-    }
-});
-</script>
-<script>
-    /**
- * birthday_notifications.js
- * Handles requesting notification permission and scheduling the periodic birthday check.
- * Includes logic to ensure notifications for today's birthdays only show once per day.
- */
-export const notificationModule = (function() {
-    // Constant for the 6-hour interval (21,600,000 milliseconds)
-    const NOTIFICATION_INTERVAL_MS = 21600000; 
-    // Key used to store the last notification date in Local Storage
-    const LAST_NOTIFIED_KEY = 'lastBirthdayNotificationDate';
-
-    /**
-     * Prompts the user for permission to display browser notifications.
-     */
-    function requestNotificationPermission() {
-        if (!('Notification' in window)) {
-            console.warn('This browser does not support desktop notifications.');
-            return;
-        }
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                console.log('Notification permission granted.');
-            } else {
-                console.warn('Notification permission denied or blocked.');
-            }
-        });
-    }
-
-    /**
-     * Helper to check if a notification has already been sent today.
-     */
-    function hasNotificationBeenSentToday() {
-        const today = new Date().toDateString();
-        const lastNotified = localStorage.getItem(LAST_NOTIFIED_KEY);
-        return lastNotified === today;
-    }
-
-    /**
-     * Records the current date in Local Storage, preventing further notifications today.
-     */
-    function recordNotificationSent() {
-        const today = new Date().toDateString();
-        localStorage.setItem(LAST_NOTIFIED_KEY, today);
-    }
-
-    /**
-     * Checks the loaded birthday data for today's birthdays and triggers a notification.
-     * @param {object} birthdays - The user's current birthday data object from Firebase.
-     */
-    function checkAndNotify(birthdays) {
-        // 1. Basic checks
-        if (Notification.permission !== 'granted' || !birthdays || Object.keys(birthdays).length === 0) {
-            return; 
-        }
-
-        // 2. Daily check: If already notified today, stop.
-        if (hasNotificationBeenSentToday()) {
-            console.log('Notification check skipped: Already notified today.');
-            return;
-        }
-
-        const today = new Date();
-        const todayMonthDayKey = `${today.getMonth() + 1}-${today.getDate()}`; // e.g., "9-30"
-
-        // 3. Find today's birthdays
-        const birthdaysToday = Object.values(birthdays).filter(bday => {
-            if (!bday.birthdate) return false;
-            
-            if (bday.birthdate.length === 5) {
-                const [m, d] = bday.birthdate.split('-');
-                return `${parseInt(m)}-${parseInt(d)}` === todayMonthDayKey;
-            } else if (bday.birthdate.length === 10) {
-                const bdayDate = new Date(bday.birthdate);
-                return bdayDate.getMonth() === today.getMonth() && bdayDate.getDate() === today.getDate();
-            }
-            return false;
-        });
-
-        // 4. Send notification and record if birthdays are found
-        if (birthdaysToday.length > 0) {
-            let notificationTitle;
-            let notificationBody;
-
-            if (birthdaysToday.length === 1) {
-                notificationTitle = `🥳 Happy Birthday to ${birthdaysToday[0].name}! 🎂`;
-                notificationBody = `Don't forget to wish ${birthdaysToday[0].name} a wonderful day!`;
-            } else {
-                notificationTitle = `🎈 You have ${birthdaysToday.length} Birthdays Today! 🎁`;
-                notificationBody = `🎉 Here's the list:\n${birthdaysToday.map(bday => `• ${bday.name}`).join(', ')}`;
-            }
-
-            // Display the notification
-            new Notification(notificationTitle, {
-                body: notificationBody,
-                icon: 'https://via.placeholder.com/40',
-                tag: 'birthday-reminder-notification' 
-            });
-
-            // Record the current date so we don't send another notification until tomorrow
-            recordNotificationSent(); 
-            console.log("Birthday notification displayed and recorded for today.");
-        }
-    }
-    
-    /**
-     * Starts the periodic scheduling of the notification check.
-     * @param {function} dataGetter - Function provided by the main script to retrieve the latest allBirthdays object.
-     */
-    function startBirthdayScheduler(dataGetter) {
-        // Define the function that checks and notifies
-        const scheduledCheck = () => {
-            const currentBirthdays = dataGetter();
-            checkAndNotify(currentBirthdays);
-        };
-
-        // Run the initial check immediately on login/page load
-        scheduledCheck(); 
-
-        // Set the periodic interval to ensure the check runs even if the page is left open
-        setInterval(scheduledCheck, NOTIFICATION_INTERVAL_MS);
-        console.log(`Birthday scheduler started, checking every ${NOTIFICATION_INTERVAL_MS / 3600000} hours, but will only notify once per day.`);
-    }
-
-    return {
-        requestPermission: requestNotificationPermission,
-        startScheduler: startBirthdayScheduler,
-    };
-})();
-</script>
-
-
-
 </body>
 </html>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
+    <script>
+        emailjs.init("NbamX634Y_o570cNw");
+    </script>
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+
+    // Load Firebase (assuming the script tags for firebase SDKs are in the HTML head)
+    if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
+    const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
+    const provider = typeof firebase !== 'undefined' ? new firebase.auth.GoogleAuthProvider() : null;
+
+    let currentUID = null, currentEmail = null, currentPIN = null;
+    let isFirstTime = false;
+
+    // Cache DOM elements for instant access
+    const msgBoxEl = document.getElementById("msgBox");
+    const loginCardEl = document.getElementById("loginCard");
+    const pinCardEl = document = document.getElementById("pinCard");
+    const pinTitleEl = document.getElementById("pinTitle");
+    const pinActionBtnEl = document.getElementById("pinActionBtn");
+    const pinInputEl = document.getElementById("pinInput"); 
+    const resetInputsEl = document.getElementById("resetPinInputs"); 
+    const currentPinInputEl = document.getElementById("currentPinInput");
+    const newPinInputEl = document.getElementById("newPinInput");
+    const confirmNewPinInputEl = document.getElementById("confirmNewPinInput");
+    const forgotPinBtnEl = document.getElementById("forgotPinBtn"); 
+    const resetPinBtnEl = document.getElementById("resetPinBtn"); 
+
+
+    // Helper Functions
+    
+    /**
+     * Hashes a given PIN using SHA-256 for secure storage.
+     * @param {string} pin The PIN to be hashed.
+     * @returns {Promise<string>} The hexadecimal representation of the hash.
+     */
+    async function hashPIN(pin) {
+        if (!crypto.subtle) {
+            console.error("Crypto API not available.");
+            return pin; 
+        }
+        const buf = new TextEncoder().encode(pin);
+        const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+        
+        const hashArray = new Uint8Array(hashBuf);
+        const hexHash = Array.from(hashArray)
+            .map(b => b.toString(16).padStart(2, '0'))
+            .join('');
+        return hexHash;
+    }
+
+    /**
+     * Displays a temporary toast notification.
+     * @param {string} msg The message to display.
+     * @param {boolean} success True for success message, false for error.
+     */
+    function showMsg(msg, success = true) {
+        // Determine icon based on status
+        const iconClass = success ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        
+        // Add icon to message box content
+        msgBoxEl.innerHTML = `<i class="${iconClass} mr-2"></i><span>${msg}</span>`;
+        
+        // Use Tailwind class toggles (success/error are defined in <style>)
+        msgBoxEl.classList.remove('success', 'error', 'show'); 
+        msgBoxEl.classList.add(success ? 'success' : 'error');
+        
+        // Show the box instantly
+        msgBoxEl.style.display = "flex";
+
+        // Trigger transition on next animation frame
+        requestAnimationFrame(() => {
+            msgBoxEl.classList.add('show');
+        });
+        
+        // Hide after 10 seconds (UPDATED to 10000ms)
+        setTimeout(() => {
+            msgBoxEl.classList.remove('show');
+            // Hide element fully after transition is complete (300ms defined in CSS transition)
+            setTimeout(() => msgBoxEl.style.display = "none", 300);
+        }, 10000); // 💡 Duration changed to 10000ms (10 seconds)
+    }
+
+    /**
+     * Sends an email with the new PIN using EmailJS.
+     * @param {string} pin The PIN to send.
+     * @param {string} email The user's email address.
+     */
+    function sendEmailPin(pin, email) {
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+            console.error("EmailJS SDK is not loaded or initialized.");
+            showMsg("Warning: Email service is unavailable. The PIN was reset, but the recovery email could not be sent.", false);
+            return;
+        }
+        emailjs.send('service_2ucolxw', 'template_2lc2llr', { user_email: email, user_pin: pin })
+            .then(() => console.log("✅ PIN email sent"))
+            .catch(e => console.error("❌ Email error", e));
+    }
+
+    /**
+     * Fetches the current login attempt and lock status from Firestore.
+     */
+    async function getLock() {
+        if (!db || !currentUID) return { attempts: 0, lockUntil: 0 };
+        const doc = await db.collection("users").doc(currentUID).get();
+        if (!doc.exists) return { attempts: 0, lockUntil: 0 };
+        const d = doc.data();
+        return { attempts: d.attempts || 0, lockUntil: d.lockUntil?.toMillis() || 0 };
+    }
+
+    /**
+     * Updates the login attempt and lock status in Firestore (non-blocking).
+     */
+    function updateLock(attempts, lockUntil = null) {
+        if (!db || !currentUID) return;
+        const upd = { attempts };
+        if (lockUntil) upd.lockUntil = firebase.firestore.Timestamp.fromMillis(lockUntil);
+        else if (attempts === 0) upd.lockUntil = firebase.firestore.FieldValue.delete(); // Clear lockUntil field
+        
+        db.collection("users").doc(currentUID).update(upd).catch(e => console.error("Failed to update lock status:", e)); 
+    }
+
+    // Event Handlers
+// ----------------------------------------------------------------------
+    document.getElementById("googleLoginBtn").onclick = async () => {
+        if (!auth || !db || !provider) {
+             showMsg("Initialization Error: The required application services are not loaded. Please try again later.", false);
+             return;
+        }
+        try {
+            const result = await auth.signInWithPopup(provider);
+            currentUID = result.user.uid;
+            currentEmail = result.user.email;
+
+            // 🔥 MAX SPEED OPTIMIZATION: Initiate network call AND UI transition immediately
+            const docPromise = db.collection("users").doc(currentUID).get();
+            loginCardEl.classList.add("hidden");
+            
+            // Wait for the result to determine the state
+            const doc = await docPromise;
+
+            if (!doc.exists) {
+                isFirstTime = true;
+                pinTitleEl.textContent = "Set Your PIN";
+                pinActionBtnEl.textContent = "Set PIN";
+            } else {
+                const data = doc.data();
+                currentPIN = data.pin;
+                pinTitleEl.textContent = "Enter Your PIN";
+                pinActionBtnEl.textContent = "Verify PIN";
+            }
+            
+            // Now show the PIN card AFTER the button text is set
+            pinCardEl.classList.remove("hidden"); 
+
+        } catch (e) {
+            showMsg("Authentication Failed: Please ensure pop-ups are allowed and try logging in again. Error: " + e.message, false);
+        }
+    }
+// ----------------------------------------------------------------------
+    document.getElementById("pinActionBtn").onclick = async () => {
+        const resetInputs = resetInputsEl;
+        const pinInput = pinInputEl.value;
+        const MAX_ATTEMPTS = 5;
+
+        // 1. PIN Input Validation (Fastest Check)
+        if (!pinInput && resetInputs.classList.contains("hidden") && !isFirstTime) {
+            showMsg("Please enter your 4-6 digit PIN to proceed.", false);
+            return;
+        }
+
+        // 2. PIN Reset Logic 
+        if (!resetInputs.classList.contains("hidden")) {
+            const cur = currentPinInputEl.value;
+            const newPin = newPinInputEl.value;
+            const conf = confirmNewPinInputEl.value;
+
+            if (!cur || !newPin || !conf) {
+                showMsg("Please complete all fields to reset your PIN.", false);
+                return;
+            }
+            if (newPin.length < 4 || newPin.length > 6 || isNaN(newPin)) {
+                showMsg("The new PIN must be a 4 to 6 digit number.", false);
+                return;
+            }
+            if (newPin !== conf) {
+                showMsg("The New PIN and Confirm New PIN do not match. Please re-enter.", false);
+                return;
+            }
+            
+            const hashedCur = await hashPIN(cur);
+            if (hashedCur !== currentPIN) {
+                showMsg("The Current PIN you entered is incorrect. Please try again.", false);
+                return;
+            }
+
+            const hashedNew = await hashPIN(newPin);
+            currentPIN = hashedNew;
+            db.collection("users").doc(currentUID).update({ pin: hashedNew, attempts: 0, lockUntil: null })
+                .then(() => {
+                    showMsg("✅ Success! Your PIN has been updated. You will now be redirected to the dashboard.", true);
+                    // ⭐ FIX: Add delay before redirecting
+                    setTimeout(() => {
+                         window.location.href = "home.html"; 
+                    }, 1000); 
+                })
+                .catch(e => showMsg("An error occurred while saving the new PIN. Please try again.", false));
+            return;
+        }
+
+        // 3. First Time PIN Set Logic
+        if (isFirstTime) {
+            if (pinInput.length < 4 || pinInput.length > 6 || isNaN(pinInput)) {
+                showMsg("The PIN must be a 4 to 6 digit number.", false);
+                return;
+            }
+            const hashed = await hashPIN(pinInput);
+            currentPIN = hashed;
+            db.collection("users").doc(currentUID).set({ pin: hashed, attempts: 0, lockUntil: null })
+                .then(() => {
+                    showMsg("✅ Account Setup Complete! Your PIN has been saved. Redirecting to your dashboard...", true);
+                    // ⭐ FIX: Add delay before redirecting
+                    setTimeout(() => {
+                         window.location.href = "home.html"; 
+                    }, 1000); 
+                })
+                .catch(e => showMsg("An error occurred during initial PIN setup. Please try again.", false));
+            return;
+        }
+
+        // 4. PIN Verification Logic (Optimized Fail-Fast)
+
+        const { attempts, lockUntil } = await getLock();
+        const now = Date.now();
+
+        if (lockUntil && now < lockUntil) {
+            const mins = Math.ceil((lockUntil - now) / 90000);
+            showMsg(`⛔ Account Locked: Too many failed attempts. Please wait ${mins} minute(s) before trying again.`, false);
+            return;
+        }
+
+        const hashed = await hashPIN(pinInput);
+
+        if (hashed === currentPIN) {
+            updateLock(0);
+           
+          
+            setTimeout(() => {
+                window.location.href = "home.html";
+            }, 1000);
+        } else {
+            let newAtt = attempts + 1;
+            let newLock = null;
+            
+            // Lockout policy: 3rd attempt locks for 5 mins. 4th or more locks for 24 hours.
+            if (newAtt >= 3) {
+                 newLock = (newAtt === 3) ? (now + 5 * 60 * 1000) : (now + 24 * 60 * 60 * 1000); 
+            }
+            
+            updateLock(newAtt, newLock); 
+            
+            if (newLock) {
+                const lockDuration = newAtt === 3 ? "5 minutes" : "24 hours";
+                showMsg(`⛔ Account Locked: You have exceeded the maximum number of attempts. Access is restricted for ${lockDuration}.`, false);
+            } else {
+                showMsg(`⚠️ Incorrect PIN. You have ${MAX_ATTEMPTS - newAtt} attempts remaining before your account is locked.`, false);
+            }
+        }
+    }
+// ----------------------------------------------------------------------
+    document.getElementById("forgotPinBtn").onclick = async () => {
+        if (!currentEmail || !currentUID) {
+            showMsg("Please sign in with your Google account first to use this feature.", false);
+            return;
+        }
+        
+        // Ensure UI is in the correct state (hide reset inputs if they were visible)
+        pinInputEl.classList.remove("hidden");
+        resetInputsEl.classList.add("hidden");
+
+        const newPin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit PIN
+        const hashed = await hashPIN(newPin);
+        currentPIN = hashed; // Update local state
+        
+        // Update DB: save new hashed PIN and reset lock status
+        db.collection("users").doc(currentUID).update({ pin: hashed, attempts: 0, lockUntil: null })
+            .then(() => {
+                 pinInputEl.value = "";
+                 sendEmailPin(newPin, currentEmail); 
+                 showMsg(" A new  PIN has been sent to your registered email address. Please check your inbox or spam folder to log in.", true);
+            })
+            .catch(e => showMsg("An unexpected error occurred while processing your PIN recovery request. Please try again.", false));
+    }
+// ----------------------------------------------------------------------
+    document.getElementById("resetPinBtn").onclick = () => {
+        if (!currentPIN) {
+            showMsg("Please sign in first to access the PIN change option.", false);
+            return;
+        }
+
+        // Clear all PIN inputs for a fresh start
+        pinInputEl.value = "";
+        currentPinInputEl.value = "";
+        newPinInputEl.value = "";
+        confirmNewPinInputEl.value = "";
+        
+        // Update UI state
+        pinInputEl.classList.add("hidden");
+        resetInputsEl.classList.remove("hidden");
+        pinTitleEl.textContent = "Change Your PIN";
+        pinActionBtnEl.textContent = "Save New PIN";
+
+        showMsg("ℹ️ To change your PIN, enter your current PIN, then choose and confirm your new PIN.", true);
+    }
+// ----------------------------------------------------------------------
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
