@@ -7,83 +7,135 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
-<!-- jsPDF & autoTable -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <style>
-  body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin:0; }
-  nav a { text-decoration:none; color:black; font-size:17px; padding:5px; }
-  nav a:hover { text-decoration:none; font-size:17px; padding:5px; }
-  .calendar-cell { min-height: 80px; padding:0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
-  .calendar-cell:hover { background:#e5e7eb; }
-  .today { border: 2px solid #3b82f6; }
-  .sunday { background-color:#f97316; color:#fff; }
-  .sunday:hover { background-color:#2563eb; }
-  #existingTasks { overflow-y:auto; }
-  #existingTasks::-webkit-scrollbar { width:8px; }
-  #existingTasks::-webkit-scrollbar-thumb { background:#bbb; border-radius:4px; }
-  #existingTasks::-webkit-scrollbar-thumb:hover { background:#888; }
+    /* Base Styles */
+    body { 
+        font-family: Arial, sans-serif; 
+        background-color: #f3f4f6; 
+        margin:0; 
+        /* Prevents horizontal scroll */
+        overflow-x: hidden;
+    }
+    nav a { text-decoration:none; padding:5px; }
+    
+    /* Calendar Cell Base */
+    .calendar-cell { 
+        min-height: 80px; 
+        padding:0.5rem; 
+        border-radius:0.5rem; 
+        border:1px solid #d1d5db; 
+        background:#fff; 
+        cursor:pointer; 
+        transition: background-color 0.2s;
+        overflow: hidden; 
+    }
+    .calendar-cell:hover { background:#e5e7eb; }
+    .today { border: 2px solid #3b82f6; }
+    .sunday { background-color:#f97316; color:#fff; }
+    .sunday:hover { background-color:#2563eb; }
+    
+    /* Scrollbar for existing tasks (Laptop/Desktop Base) */
+    #existingTasks { 
+        overflow-y:auto; 
+        max-height: 400px; /* Default for larger screens */
+        font-size: 18px; 
+        padding: 10px; 
+    }
+    #existingTasks::-webkit-scrollbar { width:8px; }
+    #existingTasks::-webkit-scrollbar-thumb { background:#bbb; border-radius:4px; }
+    #existingTasks::-webkit-scrollbar-thumb:hover { background:#888; }
+    
+    /* Internal task item styling for better mobile fit */
+    #existingTasks > div {
+        padding: 10px; 
+        margin-bottom: 8px;
+    }
 
-  body { font-family: Arial, sans-serif; background-color: #f3f4f6; margin:0; }
-  nav a { text-decoration:none; color:black; font-size:17px; padding:5px; }
-  nav a:hover { text-decoration:none; font-size:17px; padding:5px; }
-  .calendar-cell { min-height: 80px;min-width: 100px; padding:0.5rem; border-radius:0.5rem; border:1px solid #d1d5db; background:#fff; cursor:pointer; }
-  .calendar-cell:hover { background:#e5e7eb; }
-  .today { border: 2px solid #3b82f6; }
-  .sunday { background-color:#f97316; color:#fff; }
-  .sunday:hover { background-color:#2563eb; }
-  #existingTasks { overflow-y:auto; }
-  #existingTasks::-webkit-scrollbar { width:8px; }
-  #existingTasks::-webkit-scrollbar-thumb { background:#bbb; border-radius:4px; }
-  #existingTasks::-webkit-scrollbar-thumb:hover { background:#888; }
+    /* Responsive Calendar Grid */
+    #calendar { display:grid; gap:5px; width: 100%; } 
 
-  /* Responsive Calendar Grid */
-  #calendar { display:grid; gap:5px; }
+    /* Mobile (Small Screens): max-width: 767px (Tailwind 'md' breakpoint) */
+    @media (max-width: 767px) {
+      #calendar { grid-template-columns: repeat(2, 1fr); gap: 4px; }
+      .calendar-cell { font-size: 16px; } 
+      
+      /* Mobile Task Modal Adjustments */
+      #taskModal { 
+        max-height: 95vh; 
+        height: auto;
+      }
+      
+      /* FIX: Increase cut icon size on mobile */
+      #closeModal {
+          font-size: 32px !important; 
+          padding: 0 4px;
+      }
 
-  /* Mobile: max 2 cells per row, smaller task container */
-  @media (max-width: 639px) {
-    #calendar { grid-template-columns: repeat(2, 1fr); }
-    #existingTasks { max-height:200px; }
-  }
+      /* Reduced Max Height for Task List on Mobile */
+      #existingTasks { 
+        max-height: 200px; 
+        padding: 8px; 
+      } 
 
-  /* Tablet: 4 cells per row */
-  @media (min-width: 640px) and (max-width:1023px) {
-    #calendar { grid-template-columns: repeat(4, 1fr); gap:6px; }
-    #existingTasks { max-height:300px; }
-  }
+      /* Adjust modal contents for mobile */
+      #taskModal .flex-1 { min-width: 0; }
+      
+      /* FIX: Increase description font size on mobile */
+      #taskModal .task-desc { 
+          font-size: 0.9rem; /* Slightly larger than text-sm (0.875rem) */
+      } 
+      
+      /* Ensure the list item buttons are compact (icon only) */
+      #existingTasks .flex-shrink-0 button { 
+        padding: 6px 8px; /* Slightly more padding for touch target */
+        font-size: 0.9rem; /* Smaller font/icon size */
+      }
+      
+      /* Mobile Main Content Padding for Fixed Nav */
+      .main-content-padding {
+          padding-top: 150px; /* Adjust for mobile nav height + mobile menu height */
+      }
+    }
 
-  /* Laptop & Desktop: 7 cells per row, wider width */
-  @media (min-width: 1524px) {
-    #calendar { grid-template-columns: repeat(7, 1fr); gap:10px; max-width:1600px; margin:auto; }
-    #existingTasks { max-height:400px; }
-  }
-#existingTasks {
-  max-height: 400px; /* increased from 30rem */
-  overflow-y: auto;
-  font-size: 25px; /* already present */
-}
+    /* Tablet/Desktop (Medium Screens): 768px to 1023px */
+    @media (min-width: 768px) and (max-width:1023px) {
+      #calendar { grid-template-columns: repeat(4, 1fr); gap:6px; }
+      #existingTasks { max-height:300px; }
+      .main-content-padding {
+          padding-top: 100px; /* Adjust for fixed desktop nav height */
+      }
+    }
+    
+    /* Desktop (Large Screens): 1024px and up */
+    @media (min-width: 1024px) {
+      #calendar { 
+        /* Enforces minimum 170px width */
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); 
+        gap:10px; 
+        max-width:1400px; 
+        margin:auto; 
+        font-size: 20px; 
+      }
+      #existingTasks { max-height:400px; }
+      
+      /* Re-enforce 7 columns when the screen is wide enough */
+      @media (min-width: 1250px) { 
+        #calendar {
+          grid-template-columns: repeat(7, 1fr);
+        }
+      }
+      /* Desktop Main Content Padding for Fixed Nav */
+      .main-content-padding {
+          padding-top: 90px;
+      }
+    }
 
-nav a {
-  text-decoration: none;
-  color: black;
-  font-size: 17px;
-
-  
-
-}
-
-
-
-</style>
-
-
-
-  <style>
     /* Reusable Animations */
     .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
     .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
@@ -91,134 +143,111 @@ nav a {
 
     @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
     @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
-    @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
-
-    nav a { transition: transform 0.3s, color 0.3s; }
-    nav a:hover { transform: translateY(-2px); color: #3b82f6; } /* Tailwind blue-500 */
-  </style>
+    @keyframes slideRight { to { opacity: 1; transform: transform: translateX(0); } }
+    
+</style>
 </head>
 <body class="bg-gray-50">
+<nav class="bg-white shadow-lg fixed w-full z-50 top-0">
+  <div class="container mx-auto flex justify-between items-center py-4 px-1 md:px-1">
+        
+        <div class="flex items-center text-xl font-bold text-gray-800">
+            <i class="fas fa-user-circle" style="font-size: 28px; color: #4f46e5;"></i>
+            <span class="pl-2" style="font-size: 22px;">My Personal Website</span>
+        </div>
+        
+        <div class="hidden md:flex space-x-6 font-medium">
+            <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+            <a href="adress.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-map-marker-alt"></i> Address</a>
+            <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        </div>
 
-<!-- NAVBAR -->
-<nav class="bg-white shadow-md fixed w-full z-50">
-  <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
-    <div class="flex items-center gap-2 text-xl font-bold text-black">
-      <i class="fas fa-user"></i> My Personal Website
+        <div class="hidden md:flex items-center gap-4">
+            <div class="text-right">
+                <p id="userName" class="font-bold text-gray-900">Loading...</p>
+                <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+            </div>
+            <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5;">
+            <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300">Logout</button>
+        </div>
+
+        <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
     </div>
 
-    <!-- Desktop Links -->
-    <div class="hidden md:flex space-x-6">
-      <a href="home.html" class="flex items-center gap-2"><i class="fas fa-house"></i> Home</a>
-      <a href="adress.html" class="flex items-center gap-2"><i class="fas fa-tasks"></i> Address</a>
-      <a href="income.html" class="flex items-center gap-2"><i class="fas fa-wallet"></i> Income</a>
-      <a href="links.html" class="flex items-center gap-2"><i class="fas fa-link"></i> Links</a>
-      <a href="calender.html" class="flex items-center gap-2"><i class="fas fa-calendar-days"></i> Calendar</a>
-      <a href="password.html" class="flex items-center gap-2"><i class="fas fa-lock"></i> Passwords</a>
+    <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+        <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
+        <a href="adress.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-map-marker-alt"></i> Address</a>
+        <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+        <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+        <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+        <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
+        <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        <div class="border-t border-gray-300 mt-2 pt-2">
+            <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+            <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+            <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
+        </div>
     </div>
-
-    <!-- Desktop User Info -->
-    <div class="hidden md:flex items-center gap-4">
-      <div class="text-right">
-        <p id="userName" class="font-medium text-gray-800">User Name</p>
-        <p id="userEmail" class="text-sm text-gray-600">user@example.com</p>
-      </div>
-      <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full">
-      <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm">Logout</button>
-    </div>
-
-    <!-- Mobile Menu Button -->
-    <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-  </div>
-
-  <!-- Mobile Links -->
-  <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm">
-    <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-house"></i> Home</a>
-    <a href="adress.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-tasks"></i> Address</a>
-    <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-key"></i> Passwords</a>
-    <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-wallet"></i> Income</a>
-    <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-link"></i> Links</a>
-    <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-100"><i class="fas fa-calendar-alt"></i> Calendar</a>
-    <div class="border-t border-gray-200 mt-2 pt-2">
-      <p id="mobileUserName" class="font-medium text-gray-800">User Name</p>
-      <p id="mobileUserEmail" class="text-xs text-gray-500">user@example.com</p>
-      <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 mt-2 w-full">Logout</button>
-    </div>
-  </div>
 </nav>
 
-<!-- MAIN -->
-<main class="pt-24 px-1 md:px-1 flex flex-col gap-2 max-w-6xl mx-auto ">
+<main class="main-content-padding px-0 md:px-8 flex flex-col gap-2 mx-auto w-full max-w-7xl">
 
-  <!-- Search & Download -->
-<div class="flex flex-col md:flex-row justify-between items-center gap-1 md:gap-5 mb-10">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 mb-6 px-4 md:px-0">
     <input type="text" id="searchInput" placeholder="Search tasks..."
-      class="flex-1 p-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm"
+      class="flex-1 p-3 rounded-full border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-sm w-full md:w-auto"
       oninput="searchTasks()">
     <button id="downloadMonthTasks"
-      class="mt-2 md:mt-0 px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-md hover:bg-emerald-700 transition">Download
-      Month Tasks</button>
+      class="mt-2 md:mt-0 px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-md hover:bg-emerald-700 transition w-full md:w-auto">
+      Download Month Tasks
+    </button>
   </div>
- <div id="searchResults" class="mt-1"></div>
+  <div id="searchResults" class="mt-1 px-4 md:px-0"></div>
 
 <script>
   // Select button and mobile menu
 const menuBtn = document.getElementById("menu-btn");
-const mobileMenu = document.getElementById("mobileMenu");
+const mobileMenu = document.getElementById("mobileMenu"); // NOTE: Updated ID to match your new nav structure
 
 // Toggle menu on click
 menuBtn.addEventListener("click", () => {
   mobileMenu.classList.toggle("hidden"); // show/hide menu
 });
-
-
 </script>
 
-
-
-
-
-
-
-
-
-  <!-- Calendar Navigation -->
-  <div class="flex justify-between items-center mb-2">
+  <div class="flex justify-between items-center mb-2 px-4 md:px-0">
     <button onclick="changeMonth(-1)" class="px-3 py-1 border rounded hover:bg-gray-100">← Prev</button>
     <h2 id="monthYear" class="text-lg font-semibold text-center flex-1">Month Year</h2>
     <button onclick="changeMonth(1)" class="px-3 py-1 border rounded hover:bg-gray-100">Next →</button>
   </div>
 
-<!-- Calendar -->
-<!-- Calendar -->
-<div id="calendar" class="text-[20px]" style="width: 1300px;"></div>
+<div id="calendar" class="text-[20px]"></div>
 
 </main>
 
-<!-- Overlay -->
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40 text-white text-2xl flex items-center justify-center">
 </div>
 
-<!-- Modal -->
 <div id="taskModal" 
-     class="fixed bg-white shadow-xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-6xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[500px]">
+      class="fixed bg-white shadow-xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto">
 
 
-  <!-- Modal Header -->
   <div class="flex justify-between items-center mb-4">
     <h2 id="modalDate" class="text-[22px] md:text-[20px] font-bold">Tasks for date</h2>
     <button id="closeModal" 
             class="text-gray-500 hover:text-red-500 text-[20px] md:text-[28px] font-bold transition duration-200">&times;</button>
   </div>
 
-  <!-- Modal Body -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
     
-    <!-- Add/Edit Task -->
     <div>
       <input id="taskTitle" type="text" placeholder="Title" 
-             class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]  ">
+            class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px]">
       <textarea id="taskDesc" placeholder="Description" 
-                class="border border-gray-500 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px] min-h-[250px] "></textarea>
+                 class="border border-gray-500 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-[18px] min-h-[150px] md:min-h-[250px]"></textarea>
       <div class="flex gap-3">
         <button id="saveTaskBtn" 
                 class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-200 font-bold text-[18px]">
@@ -231,57 +260,23 @@ menuBtn.addEventListener("click", () => {
       </div>
     </div>
 
-    <!-- Existing Tasks -->
-    <div id="existingTasks" class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-[30rem] overflow-y-auto text-[25px]">
-      <!-- Example saved task -->
-      <div class="flex justify-between items-center p-5 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition">
-        <div>
-          <strong class="text-[24px] md:text-[20px] font-bold">Task Title</strong>
-          <p class="text-[20px] md:text-[20px] text-gray-800 leading-relaxed">Task description here</p>
-        </div>
-        <div class="flex gap-3">
-          <button class="editBtn bg-yellow-400 text-white px-4 py-2 rounded shadow hover:bg-yellow-500 transition font-bold text-[18px]">
-            Edit
-          </button>
-          <button class="deleteBtn bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 transition font-bold text-[18px]">
-            Delete
-          </button>
-        </div>
-      </div>
+    <div id="existingTasks" class="border border-gray-300 rounded-lg p-4 bg-gray-50 text-[18px]">
+      <div class="text-center text-gray-500 italic">No tasks yet.</div>
     </div>
 
   </div>
 </div>
 
-
-
-
-
- 
-
-</div>
 <footer class="mt-12 pt-3 pb-3 bg-white text-gray-600 text-center text-sm border-t">
   &copy; 2025 Personal Website | All rights reserved
 </footer>
- 
-
-<!-- Firebase compat libs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
-<!-- jsPDF + AutoTable for PDF export -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
-
+  
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
 
 
 <script>
@@ -326,13 +321,28 @@ function capitalizeFirstLetter(str) {
 auth.onAuthStateChanged(user => {
   if(user){
     currentUser = user;
-    document.getElementById("userName").textContent = user.displayName || "User";
+    // Update user info for Desktop and Mobile menus
+    document.getElementById("userName").textContent = user.displayName || "User Name";
     document.getElementById("userEmail").textContent = user.email;
-    if(user.photoURL) document.getElementById("userPhoto").src = user.photoURL;
-    document.getElementById("mobileUserName").textContent = user.displayName || "User";
+    document.getElementById("mobileUserName").textContent = user.displayName || "User Name";
     document.getElementById("mobileUserEmail").textContent = user.email;
+    
+    // NOTE: Updated element IDs to match the new Navbar structure
+    const userPhotoDesktop = document.getElementById("userPhoto");
+    const userPhotoMobile = document.getElementById("mobileUserPhoto"); // Added ID for mobile photo if you add it to the mobile menu
+    
+    if(user.photoURL) {
+        if(userPhotoDesktop) userPhotoDesktop.src = user.photoURL;
+        // if(userPhotoMobile) userPhotoMobile.src = user.photoURL; 
+    } else {
+        // Fallback for placeholder image
+        if(userPhotoDesktop) userPhotoDesktop.src = "https://via.placeholder.com/40";
+        // if(userPhotoMobile) userPhotoMobile.src = "https://via.placeholder.com/40";
+    }
+
     renderCalendar();
   } else {
+    // Redirect unauthenticated users
     auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
   }
 });
@@ -357,12 +367,13 @@ function renderCalendar(){
   const firstDay=new Date(y,m,1), start=(firstDay.getDay()+6)%7;
   const days=new Date(y,m+1,0).getDate();
 
+  // Create empty cells for padding
   for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
 
   for(let d=1;d<=days;d++){
     const dateObj=new Date(y,m,d), iso=toISODate(dateObj);
     const cell=document.createElement("div");
-    cell.className="calendar-cell text-center text-gray-800 p-4 rounded-lg hover:bg-blue-50 cursor-pointer transition text-[17px]";
+    cell.className="calendar-cell text-center text-gray-800 p-4 rounded-lg hover:bg-blue-50 cursor-pointer transition";
     if(dateObj.toDateString()===new Date().toDateString()) cell.classList.add("today");
     if(dateObj.getDay()===0) cell.classList.add("sunday");
 
@@ -383,7 +394,8 @@ function renderCalendar(){
 function openModal(dateISO) {
   function formatDatePlusOne(dateISO) {
     const d = new Date(dateISO);
-    d.setDate(d.getDate() + 1);
+    // Add one day to show the correct date (due to ISO date timezone offset handling)
+    d.setDate(d.getDate() + 1); 
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
@@ -434,7 +446,7 @@ document.getElementById("saveTaskBtn").addEventListener("click",()=>{
   document.getElementById("taskDesc").value="";
 });
 
-// --- Load Tasks ---
+// --- Load Tasks (for calendar view) ---
 function loadTasks(date){
   const c=document.getElementById(`tasks-${date}`); if(!c) return;
   db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
@@ -445,9 +457,10 @@ function loadTasks(date){
   });
 }
 
+// --- Load Tasks (for modal view) ---
 function loadModalTasks(date){
   const cont = document.getElementById("existingTasks");
-  cont.innerHTML = "Loading...";
+  cont.innerHTML = `<div class="text-center text-blue-500 font-semibold">Loading...</div>`;
   
   db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
     const data = snap.val(); 
@@ -457,20 +470,21 @@ function loadModalTasks(date){
     
     Object.entries(data).forEach(([id, t]) => {
       const div = document.createElement("div");
-      div.className = "flex justify-between items-center p-4 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition text-lg";
+      div.className = "flex justify-between items-start p-4 mb-3 bg-white rounded-lg shadow hover:bg-blue-50 transition text-lg";
       div.innerHTML = `
-        <div>
-          <strong class="block text-gray-800">${capitalizeFirstLetter(t.title)}</strong>
-          <p class="text-gray-600 whitespace-pre-wrap break-words">${t.desc || ""}</p>
+        <div class="flex-1 min-w-0 mr-4">
+          <strong class="block text-gray-800 truncate">${capitalizeFirstLetter(t.title)}</strong>
+          <p class="text-gray-900 whitespace-pre-wrap break-words task-desc">${t.desc || ""}</p> 
         </div>
       `;
       
       const btns = document.createElement("div");
-      btns.className = "flex gap-2";
+      btns.className = "flex flex-col gap-2 flex-shrink-0";
       
       const e = document.createElement("button");
+      // Icon only for Edit button
       e.innerHTML = `<i class="fas fa-edit"></i>`;
-      e.className = "bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-full shadow";
+      e.className = "bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-1 rounded-lg shadow text-sm";
       e.onclick = () => {
         editTaskId = id;
         document.getElementById("taskTitle").value = t.title;
@@ -478,10 +492,11 @@ function loadModalTasks(date){
       };
       
       const dBtn = document.createElement("button");
+      // Icon only for Delete button
       dBtn.innerHTML = `<i class="fas fa-trash"></i>`;
-      dBtn.className = "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-full shadow";
+      dBtn.className = "bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow text-sm";
       dBtn.onclick = () => {
-        if(confirm("Delete?")) {
+        if(confirm("Are you sure you want to delete this task?")) {
           db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(() => {
             loadModalTasks(date); 
             renderCalendar();
@@ -504,14 +519,27 @@ document.getElementById("downloadMonthTasks").addEventListener("click",async()=>
   const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
   const data = snap.val()||{}, pdfData=[];
   for(let d=1; d<=new Date(y,m+1,0).getDate(); d++){
-    const iso=toISODate(new Date(y,m,d)), dateStr=formatDate(new Date(y,m,d));
+    const iso=toISODate(new Date(y,m,d)); 
+    // Format date for the PDF (d-m-y format)
+    const dateStr = `${String(d).padStart(2,"0")}-${String(m+1).padStart(2,"0")}-${y}`; 
     if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr, capitalizeFirstLetter(t.title), t.desc||""]));
   }
   if(!pdfData.length) return alert("No tasks this month.");
-  const {jsPDF}=window.jspdf; const doc=new jsPDF();
+  
+  // Use the window.jspdf reference
+  const {jsPDF}=window.jspdf; 
+  const doc=new jsPDF();
   doc.setFontSize(18);
   doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
-  doc.autoTable({startY:30,head:[["Date","Title","Description"]],body:pdfData});
+  
+  // Create table using autoTable
+  doc.autoTable({
+    startY:30,
+    head:[["Date","Title","Description"]],
+    body:pdfData,
+    styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
+    headStyles: { fillColor: [52, 73, 94] }
+  });
   doc.save(`Tasks_${m+1}-${y}.pdf`);
 });
 
@@ -526,62 +554,60 @@ function searchTasks() {
     if (!query) return;
 
     const user = firebase.auth().currentUser;
-    if (!user) return resultsContainer.innerHTML = "<p style='padding: 10px;'>User not logged in.</p>";
+    if (!user) return resultsContainer.innerHTML = "<p class='p-3 bg-white rounded-lg shadow'>User not logged in.</p>";
 
     db.ref(`users/${user.uid}/tasks`).once("value").then(snapshot => {
       const allTasks = snapshot.val();
-      if(!allTasks) return resultsContainer.innerHTML="<p style='padding:10px;'>No tasks found.</p>";
+      if(!allTasks) return resultsContainer.innerHTML="<p class='p-3 bg-white rounded-lg shadow'>No tasks found.</p>";
 
       let found=0;
       const addedTasks = new Set();
+      const resultsDiv = document.createElement("div");
+      resultsDiv.className = "bg-white p-4 shadow-lg rounded-lg max-h-80 overflow-y-auto";
 
       Object.entries(allTasks).sort((a,b)=>new Date(b[0])-new Date(a[0])).forEach(([date,tasks])=>{
         Object.entries(tasks).forEach(([id, task])=>{
           const titleMatch = task.title?.toLowerCase().includes(query);
           const descMatch = task.desc?.toLowerCase().includes(query);
-          const uniqueKey = `${task.title?.toLowerCase().trim()}-${task.desc?.toLowerCase().trim()}-${date}`;
+          const uniqueKey = `${task.title?.toLowerCase().trim()}-${task.desc?.toLowerCase().trim()}-${date}`; 
+          
           if((titleMatch||descMatch) && !addedTasks.has(uniqueKey)){
             addedTasks.add(uniqueKey); found++;
 
             const currentDateObj = new Date(date);
-            const nextDate = new Date(currentDateObj); nextDate.setDate(currentDateObj.getDate()+1);
-            const formattedNextDate = nextDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+            const displayDate = new Date(currentDateObj); 
+            displayDate.setDate(currentDateObj.getDate()+1);
+            const formattedNextDate = displayDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
 
             const taskDiv = document.createElement("div");
-            taskDiv.style.border="1px solid #ddd"; taskDiv.style.borderRadius="8px";
-            taskDiv.style.padding="12px"; taskDiv.style.marginBottom="12px";
-            taskDiv.style.background="#e6f0ff"; taskDiv.style.boxShadow="0 2px 6px rgba(0,0,0,0.05)";
-            taskDiv.style.cursor="pointer"; taskDiv.style.transition="background 0.2s ease";
+            taskDiv.className = "border-b border-gray-200 p-3 hover:bg-yellow-50 cursor-pointer transition";
             taskDiv.addEventListener("click",()=>openModal(date));
-            taskDiv.addEventListener("mouseenter",()=>taskDiv.style.background="#ffeb66");
-            taskDiv.addEventListener("mouseleave",()=>taskDiv.style.background="#e6f0ff");
 
             taskDiv.innerHTML = `
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <strong style="font-size:1.1em;">${capitalizeFirstLetter(task.title)}</strong>
-                <span style="color:#555;font-size:17px;"><em>${formattedNextDate}</em></span>
+              <div class="flex justify-between items-center">
+                <strong class="text-lg text-blue-700">${capitalizeFirstLetter(task.title)}</strong>
+                <span class="text-sm text-gray-500">${formattedNextDate}</span>
               </div>
-              <div style="margin-top:6px;">${task.desc||'No Description'}</div>
+              <div class="text-gray-600 text-sm mt-1">${task.desc||'No Description'}</div>
             `;
-            resultsContainer.appendChild(taskDiv);
+            resultsDiv.appendChild(taskDiv);
           }
         });
       });
-
-      if(found===0) resultsContainer.innerHTML="<p style='padding:10px;'>No matching tasks found.</p>";
-    }).catch(err=>{console.error(err); resultsContainer.innerHTML="<p style='padding:10px;'>Error retrieving tasks.</p>";});
+      
+      if(found > 0) {
+        resultsContainer.appendChild(resultsDiv);
+      } else {
+        resultsContainer.innerHTML="<p class='p-3 bg-white rounded-lg shadow'>No matching tasks found.</p>";
+      }
+      
+    }).catch(err=>{console.error(err); resultsContainer.innerHTML="<p class='p-3 bg-red-100 rounded-lg shadow text-red-700'>Error retrieving tasks.</p>";});
   },300);
 }
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
 
 
 
