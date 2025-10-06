@@ -223,17 +223,15 @@
 
 window.handleAuth = function () {
     if (auth.currentUser) {
-        auth.signOut()
-            .then(() => {
-                // ✅ Redirect to index.html after successful logout
-                window.location.href = "index.html";
-            })
-            .catch((error) => console.error('Logout error:', error));
+        // 🔥 Instant redirect (no waiting for .then)
+        auth.signOut();
+        window.location.replace("index.html"); 
     } else {
         auth.signInWithPopup(googleProvider)
             .catch((error) => alert(`Login Failed: ${error.message}`));
     }
 };
+
 
 
     auth.onAuthStateChanged(updateUI);
@@ -465,3 +463,4 @@ window.handleAuth = function () {
 </body>
 
 </html>
+
