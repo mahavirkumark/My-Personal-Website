@@ -146,6 +146,11 @@
             </section>
         </div>
     </main>
+<style>
+  #loginBtn {
+    display: none;
+  }
+</style>
 
     <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm border-t border-gray-200">
         &copy; 2025 Personal Website | All rights reserved
@@ -221,17 +226,18 @@
         }
     }
 
-window.handleAuth = function () {
-    if (auth.currentUser) {
-        // 🚀 Instantly redirect, no async wait
-        window.location.replace("index.html");
-        // Background logout (non-blocking)
-        auth.signOut().catch(() => {});
+auth.onAuthStateChanged((user) => {
+    const loginBtn = document.getElementById("loginBtn");
+
+    if (user) {
+        // User is signed in → maybe redirect to home page
+        window.location.replace("home.html");
     } else {
-        auth.signInWithPopup(googleProvider)
-            .catch((error) => alert(`Login Failed: ${error.message}`));
+        // User is signed out → now show the button safely
+        if (loginBtn) loginBtn.style.display = "block";
     }
-};
+});
+
 
 
 
@@ -464,5 +470,6 @@ window.handleAuth = function () {
 </body>
 
 </html>
+
 
 
