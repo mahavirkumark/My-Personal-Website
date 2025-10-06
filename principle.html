@@ -221,15 +221,20 @@
         }
     }
 
-    window.handleAuth = function () {
-        if (auth.currentUser) {
-            auth.signOut().catch((error) => console.error('Logout error:', error));
-        } else {
-            auth.signInWithPopup(googleProvider).catch((error) =>
-                alert(`Login Failed: ${error.message}`)
-            );
-        }
-    };
+window.handleAuth = function () {
+    if (auth.currentUser) {
+        auth.signOut()
+            .then(() => {
+                // ✅ Redirect to index.html after successful logout
+                window.location.href = "index.html";
+            })
+            .catch((error) => console.error('Logout error:', error));
+    } else {
+        auth.signInWithPopup(googleProvider)
+            .catch((error) => alert(`Login Failed: ${error.message}`));
+    }
+};
+
 
     auth.onAuthStateChanged(updateUI);
 
@@ -458,4 +463,5 @@
 </script>
 
 </body>
+
 </html>
