@@ -226,17 +226,18 @@
         }
     }
 
-auth.onAuthStateChanged((user) => {
-    const loginBtn = document.getElementById("loginBtn");
-
-    if (user) {
-        // User is signed in → maybe redirect to home page
-        window.location.replace("home.html");
+window.handleAuth = function () {
+    if (auth.currentUser) {
+        // 🚀 Instantly redirect, no async wait
+        window.location.replace("index.html");
+        // Background logout (non-blocking)
+        auth.signOut().catch(() => {});
     } else {
-        // User is signed out → now show the button safely
-        if (loginBtn) loginBtn.style.display = "block";
+        auth.signInWithPopup(googleProvider)
+            .catch((error) => alert(`Login Failed: ${error.message}`));
     }
-});
+};
+
 
 
 
@@ -470,6 +471,7 @@ auth.onAuthStateChanged((user) => {
 </body>
 
 </html>
+
 
 
 
