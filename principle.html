@@ -223,9 +223,10 @@
 
 window.handleAuth = function () {
     if (auth.currentUser) {
-        // 🔥 Instant redirect (no waiting for .then)
-        auth.signOut();
-        window.location.replace("index.html"); 
+        // 🚀 Instantly redirect, no async wait
+        window.location.replace("index.html");
+        // Background logout (non-blocking)
+        auth.signOut().catch(() => {});
     } else {
         auth.signInWithPopup(googleProvider)
             .catch((error) => alert(`Login Failed: ${error.message}`));
@@ -463,4 +464,5 @@ window.handleAuth = function () {
 </body>
 
 </html>
+
 
