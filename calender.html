@@ -490,12 +490,21 @@ auth.onAuthStateChanged(user => {
 
         renderCalendar();
     } else {
-        auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        // --- FAST LOGOUT CHANGE ---
+        // If no user is logged in, DO NOT force them to sign in immediately.
+        // This allows the user to stay logged out after clicking the logout button.
+        // You can add a prompt or redirect them to a specific landing page here if needed.
+        // For now, we'll redirect them to the index page if they land here without a session.
+        location.href="index.html"; 
     }
 });
 
 function logout(){
-    auth.signOut().then(()=>location.href="index.html");
+    // This function is already fast and correct for Firebase logout.
+    auth.signOut().then(() => {
+        // Redirect to index.html after successful sign-out
+        location.href="index.html";
+    });
 }
 
 // --- Calendar ---
@@ -1140,6 +1149,7 @@ document.addEventListener("keydown", e => {
 
 </body>
 </html>
+
 
 
 
