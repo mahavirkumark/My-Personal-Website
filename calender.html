@@ -445,9 +445,13 @@ let currentUser = null;
 let currentDate = new Date();
 let selectedDate = null;
 let editTaskId = null;
+
+// --- DOM Element References ---
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const body = document.body;
+// FIX: Define downloadButton globally for search logic
+const downloadButton = document.getElementById("downloadMonthTasks");
 
 // --- Helpers ---
 const toISODate = d => {
@@ -475,6 +479,9 @@ function capitalizeFirstLetter(str) {
 auth.onAuthStateChanged(user => {
     if(user){
         currentUser = user;
+        // The original code had redundant UI updates, but since the user hasn't
+        // requested to clean them up yet, we'll keep the original logic block, 
+        // ensuring the calendar renders.
         document.getElementById("userName").textContent = user.displayName || "User Name";
         document.getElementById("userEmail").textContent = user.email;
         document.getElementById("mobileUserName").textContent = user.displayName || "User Name";
@@ -490,21 +497,19 @@ auth.onAuthStateChanged(user => {
 
         renderCalendar();
     } else {
-        // --- FAST LOGOUT CHANGE ---
-        // If no user is logged in, DO NOT force them to sign in immediately.
-        // This allows the user to stay logged out after clicking the logout button.
-        // You can add a prompt or redirect them to a specific landing page here if needed.
-        // For now, we'll redirect them to the index page if they land here without a session.
-        location.href="index.html"; 
+        // Corrected logic: only redirect if not on the login page (index.html is assumed to be login/landing).
+        if (window.location.pathname !== '/index.html' && !window.location.pathname.endsWith('/')) {
+            window.location.href = "index.html"; 
+        }
     }
 });
 
 function logout(){
-    // This function is already fast and correct for Firebase logout.
+    // FIX: Added missing closing brace/parenthesis for the promise chain.
     auth.signOut().then(() => {
         // Redirect to index.html after successful sign-out
         location.href="index.html";
-    
+    }); // <-- Added missing parenthesis and brace
 }
 
 // --- Calendar ---
@@ -514,7 +519,11 @@ function changeMonth(offset){
 }
 
 function renderCalendar(){
+    if (!currentUser) return; // Guard to prevent calendar rendering if no user is logged in
+    
     const cal=document.getElementById("calendar");
+    if(!cal) return;
+
     cal.innerHTML="";
     const y=currentDate.getFullYear(), m=currentDate.getMonth();
     document.getElementById("monthYear").textContent=
@@ -551,9 +560,12 @@ function renderCalendar(){
 
 // --- Modal ---
 function openModal(dateISO) {
+    if (!currentUser) return alert("Please sign in to manage tasks.");
+    
     function formatModalDate(dateISO) {
         const d = new Date(dateISO);
-        const dt = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+        // Use local time for formatting
+        const dt = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); 
         const day = String(dt.getDate()).padStart(2, "0");
         const month = String(dt.getMonth() + 1).padStart(2, "0");
         const year = dt.getFullYear();
@@ -579,15 +591,19 @@ function closeModal(){
     document.getElementById("taskModal").classList.add("hidden");
     document.getElementById("existingTasks").innerHTML="";
     // Hide search results and reset search bar when closing modal
-    searchInput.value = "";
-    searchResults.innerHTML = "";
+    if(searchInput) searchInput.value = "";
+    if(searchResults) searchResults.innerHTML = "";
     body.classList.remove("search-active");
+    // Ensure download button visibility is restored
+    if (downloadButton) downloadButton.style.display = 'block'; 
 }
 document.getElementById("closeModal").addEventListener("click",closeModal);
 document.getElementById("cancelTaskBtn").addEventListener("click",closeModal);
 
 // --- Save Task ---
 document.getElementById("saveTaskBtn").addEventListener("click",()=>{
+    if (!currentUser) return alert("User not logged in.");
+
     const title=document.getElementById("taskTitle").value.trim();
     const desc=document.getElementById("taskDesc").value.trim();
     if(!title) return alert("Enter task title.");
@@ -618,6 +634,7 @@ document.getElementById("saveTaskBtn").addEventListener("click",()=>{
 
 // --- Load Tasks (for calendar view) ---
 function loadTasks(date){
+    if (!currentUser) return;
     const c=document.getElementById(`tasks-${date}`); if(!c) return;
     db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
         const data=snap.val(); c.innerHTML="";
@@ -634,7 +651,10 @@ function loadTasks(date){
 
 // --- Load Tasks (for modal view) ---
 function loadModalTasks(date){
+    if (!currentUser) return;
     const cont = document.getElementById("existingTasks");
+    if (!cont) return;
+
     cont.innerHTML = `<div class="text-center text-blue-500 font-semibold p-3">Loading tasks...</div>`;
     
     db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
@@ -645,11 +665,11 @@ function loadModalTasks(date){
         
         Object.entries(data).forEach(([id, t]) => {
             const div = document.createElement("div");
-            div.className = "flex justify-between items-start bg-white shadow-md rounded-lg hover:bg-blue-50 transition space-x-2"; 
+            div.className = "flex justify-between items-start bg-white shadow-md rounded-lg p-3 my-2 hover:bg-blue-50 transition space-x-2"; 
             div.innerHTML = `
                 <div class="flex-1 min-w-0 mr-4">
                     <strong class="block truncate">${t.title}</strong> 
-                    <p class="whitespace-pre-wrap break-words task-desc mt-1">${t.desc || ""}</p> 
+                    <p class="whitespace-pre-wrap break-words task-desc mt-1 text-sm text-gray-600">${t.desc || ""}</p> 
                 </div>
             `;
             
@@ -661,7 +681,6 @@ function loadModalTasks(date){
             e.className = "bg-yellow-500 hover:bg-yellow-600 text-white p-2 rounded-lg shadow-md text-base transition";
             e.onclick = () => {
                 editTaskId = id;
-                // When loading for edit, display the saved (capitalized) title
                 document.getElementById("taskTitle").value = t.title; 
                 document.getElementById("taskDesc").value = t.desc || "";
             };
@@ -687,63 +706,61 @@ function loadModalTasks(date){
 }
 
 // --- PDF Download ---
-document.getElementById("downloadMonthTasks").addEventListener("click",async()=>{
-    if(!currentUser) return alert("User not logged in.");
-    const y=currentDate.getFullYear(), m=currentDate.getMonth();
-    const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-    const data = snap.val()||{}, pdfData=[];
-    for(let d=1; d<=new Date(y,m+1,0).getDate(); d++){
-        const iso=toISODate(new Date(y,m,d)); 
-        const dateStr = `${String(d).padStart(2,"0")}-${String(m+1).padStart(2,"0")}-${y}`; 
-        if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr, t.title, t.desc||""]));
-    }
-    if(!pdfData.length) return alert("No tasks this month.");
-    
-    const {jsPDF}=window.jspdf; 
-    const doc=new jsPDF();
-    doc.setFontSize(18);
-    doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
-    
-    doc.autoTable({
-        startY:30,
-        head:[["Date","Title","Description"]],
-        body:pdfData,
-        styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
-        headStyles: { fillColor: [52, 73, 94] }
+if (downloadButton) {
+    downloadButton.addEventListener("click",async()=>{
+        if(!currentUser) return alert("User not logged in.");
+        
+        // Check for jspdf library
+        const {jsPDF}=window.jspdf || {}; 
+        if (!jsPDF) return alert("PDF generation failed: jsPDF library is not loaded.");
+
+        const y=currentDate.getFullYear(), m=currentDate.getMonth();
+        const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
+        const data = snap.val()||{}, pdfData=[];
+        
+        for(let d=1; d<=new Date(y,m+1,0).getDate(); d++){
+            const iso=toISODate(new Date(y,m,d)); 
+            const dateStr = `${String(d).padStart(2,"0")}-${String(m+1).padStart(2,"0")}-${y}`; 
+            if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr, t.title, t.desc||""]));
+        }
+
+        if(!pdfData.length) return alert("No tasks this month.");
+        
+        const doc=new jsPDF();
+        doc.setFontSize(18);
+        doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
+        
+        doc.autoTable({
+            startY:30,
+            head:[["Date","Title","Description"]],
+            body:pdfData,
+            styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
+            headStyles: { fillColor: [52, 73, 94] }
+        });
+        doc.save(`Tasks_${m+1}-${y}.pdf`);
     });
-    doc.save(`Tasks_${m+1}-${y}.pdf`);
-});
+}
+
+// --- Search Functions ---
 let debounceTimeout;
 
 function searchTasks() {
     const query = searchInput.value.toLowerCase().trim();
     clearTimeout(debounceTimeout);
     
-    // 🛑 FIX: IMMEDIATE REVERT TO NORMAL VIEW IF QUERY IS EMPTY
     if (!query) {
         body.classList.remove("search-active");
         searchResults.innerHTML = "";
-        
-        // Ensure the download button visibility is toggled back on
-        // Assuming 'downloadButton' is globally defined as in the previous fix
-        if (typeof downloadButton !== 'undefined' && downloadButton) { 
-             downloadButton.style.display = 'block'; 
-        }
-        return; // Stop function execution immediately
+        if (downloadButton) downloadButton.style.display = 'block'; 
+        return; 
     }
     
-    // Only apply active state and hide button if there is a query (if we haven't returned above)
     body.classList.add("search-active");
-    if (typeof downloadButton !== 'undefined' && downloadButton) { 
-        downloadButton.style.display = 'none';
-    }
+    if (downloadButton) downloadButton.style.display = 'none';
 
-
-    // The debounce logic only runs if there is actually a query to process
     debounceTimeout = setTimeout(() => {
         searchResults.innerHTML = "";
         
-        // Double-check the input value *after* delay in case the user quickly cleared it
         if (!searchInput.value.toLowerCase().trim()) return;
 
         const user = firebase.auth().currentUser;
@@ -755,22 +772,18 @@ function searchTasks() {
         db.ref(`users/${user.uid}/tasks`).once("value").then(snapshot => {
             const allTasks = snapshot.val();
             
-            // Check again before displaying results
             if (!searchInput.value.toLowerCase().trim()) return; 
 
             if (!allTasks) {
-                searchResults.innerHTML = `
-                    <p class='p-3 bg-white rounded-xl shadow-lg border border-gray-100 text-center'>No tasks found.</p>`;
+                searchResults.innerHTML = `<p class='p-3 bg-white rounded-xl shadow-lg border border-gray-100 text-center'>No tasks found.</p>`;
                 return;
             }
 
             let found = 0;
             const addedTasks = new Set();
             const resultsDiv = document.createElement("div");
-            // NOTE: max-h-96 is used here as a placeholder height for the results container.
             resultsDiv.className = "bg-white p-4 shadow-xl rounded-xl max-h-96 overflow-y-auto custom-scroll border border-gray-100";
 
-            // 🔹 Sort by date (newest first)
             const sortedDates = Object.keys(allTasks).sort((a, b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
@@ -804,7 +817,6 @@ function searchTasks() {
                             <div class="text-gray-600 text-sm mt-1 truncate">${task.desc || 'No Description'}</div>
                         `;
 
-                        // 🟢 Click to open modal for that date
                         taskDiv.addEventListener("click", () => openModal(date));
                         resultsDiv.appendChild(taskDiv);
                     }
@@ -833,44 +845,33 @@ function searchTasks() {
 // SEARCH INPUT EVENT LISTENERS
 // ============================
 
-// Activate on focus
-searchInput.addEventListener("focus", () => {
-    // Re-run searchTasks on focus. searchTasks handles adding/removing 'search-active' and button visibility
-    searchTasks();
-});
+if (searchInput) {
+    searchInput.addEventListener("focus", searchTasks);
 
-// Blur: hide results if empty (This is now largely a backup, as keyup handles the instant clear)
-searchInput.addEventListener("blur", () => {
-    setTimeout(() => {
-        // If the input is truly empty after 200ms, ensure the active state is removed
-        if (searchInput.value.trim() === "") {
-             body.classList.remove("search-active");
-             searchResults.innerHTML = "";
-             // Ensure the download button is visible on blur/clear
-             if (typeof downloadButton !== 'undefined' && downloadButton) { 
-                 downloadButton.style.display = 'block';
-             }
-        }
-    }, 200);
-});
+    searchInput.addEventListener("blur", () => {
+        setTimeout(() => {
+            if (searchInput.value.trim() === "") {
+                 body.classList.remove("search-active");
+                 searchResults.innerHTML = "";
+                 if (downloadButton) downloadButton.style.display = 'block';
+            }
+        }, 200);
+    });
 
-// Re-run while typing (The primary driver for the instant revert fix)
-searchInput.addEventListener("keyup", searchTasks);
+    searchInput.addEventListener("keyup", searchTasks);
+}
 
-// ESC key clears search
 document.addEventListener("keydown", e => {
     if (e.key === "Escape" && body.classList.contains("search-active")) {
         searchInput.value = "";
         searchResults.innerHTML = "";
         body.classList.remove("search-active");
         searchInput.blur();
-        // Restore button visibility
-        if (typeof downloadButton !== 'undefined' && downloadButton) { 
-             downloadButton.style.display = 'block'; 
-        }
+        if (downloadButton) downloadButton.style.display = 'block'; 
     }
 });
 </script>
+
 <div id="gemini-chat-widget-embed" class="floating-chat-container">
     <div class="chat-window">
         <div id="chat-box-widget">
@@ -1056,13 +1057,15 @@ document.addEventListener("keydown", e => {
     let history = [];
 
     // --- Widget Toggling Logic ---
-    chatToggle.addEventListener('click', () => {
-        chatWindow.classList.toggle('open');
-        chatToggle.classList.toggle('open');
-        if (chatWindow.classList.contains('open')) {
-             userInput.focus();
-        }
-    });
+    if (chatToggle) {
+        chatToggle.addEventListener('click', () => {
+            chatWindow.classList.toggle('open');
+            chatToggle.classList.toggle('open');
+            if (chatWindow.classList.contains('open')) {
+                userInput.focus();
+            }
+        });
+    }
 
     /**
      * Appends a message to the chat box.
@@ -1141,14 +1144,27 @@ document.addEventListener("keydown", e => {
     }
 
     // Event listener for the form submission
-    inputForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendMessage();
-    });
+    if (inputForm) {
+        inputForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendMessage();
+        });
+    }
 </script>
 
-</body>
-</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
