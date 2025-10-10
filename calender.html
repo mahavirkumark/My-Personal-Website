@@ -14,7 +14,152 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <style>
-    /* Base Styles */
+
+    /* --- Base Styles for Floating Widget --- */
+    .floating-chat-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999; /* Ensure it's above all page content */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        font-family: 'Arial', sans-serif; /* Ensure consistent font */
+    }
+
+    /* --- Chat Button (Logo) Styling --- */
+    #chat-toggle-button {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-color: #4285F4; /* Google Blue */
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        font-size: 24px;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #chat-toggle-button:hover {
+        background-color: #3367D6;
+        transform: scale(1.05);
+    }
+
+    /* AI/Logo Icon Styling */
+    #chat-toggle-button i {
+        /* This uses FontAwesome for a common chat/AI look */
+        transition: transform 0.3s ease;
+    }
+
+    /* Change icon when chat is open (e.g., to an X) */
+    #chat-toggle-button.open {
+        background-color: #DC3545; /* Red/Close color */
+    }
+    #chat-toggle-button.open i:before {
+        content: "\f00d"; /* FontAwesome 'xmark' icon */
+    }
+
+    /* --- Chat Window Styling --- */
+    .chat-window {
+        width: 330px; /* Standard widget width */
+        height: 400px; /* Standard widget height */
+        background: white;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+        
+        /* Initial State: Hidden and scaled down */
+        transform: scale(0);
+        transform-origin: bottom right;
+        transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .chat-window.open {
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* --- Chat Window Content (Modified for Widget size) --- */
+    #chat-box-widget {
+        flex-grow: 1;
+        padding: 15px;
+        overflow-y: auto;
+        background-color: #f0f4f9; /* Lighter background */
+        scroll-behavior: smooth;
+    }
+
+    .message {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        border-radius: 16px;
+        max-width: 85%;
+        word-wrap: break-word;
+        line-height: 1.4;
+        font-size: 14px;
+    }
+
+    .user-message {
+        background-color: #4285F4;
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 4px;
+    }
+
+    .gemini-message {
+        background-color: #dceaf7;
+        color: #333;
+        margin-right: auto;
+        border-bottom-left-radius: 4px;
+    }
+    
+    /* --- Input Form --- */
+    #input-form-widget {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+        background-color: #ffffff;
+    }
+
+    #user-input-widget {
+        flex-grow: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin-right: 8px;
+        font-size: 14px;
+    }
+
+    #send-button-widget {
+        padding: 8px 15px;
+        border: none;
+        background-color: #34A853; /* Google Green */
+        color: white;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s;
+        font-size: 14px
+    }
+
+    #send-button-widget:hover:not(:disabled) {
+        background-color: #2E7D32;
+    }
+
+    #send-button-widget:disabled {
+        background-color: #A5D6A7;
+        cursor: not-allowed;
+    }
+
     body { 
         font-family: Arial, sans-serif; 
         background-color: #f3f4f6; 
@@ -358,6 +503,22 @@ body.search-active #searchResults {
     </div>
     <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div>
 
+<div id="gemini-chat-widget-embed" class="floating-chat-container">
+    <div class="chat-window">
+        <div id="chat-box-widget">
+            <div class="message gemini-message">Hello! I'm a Gemini-powered chat assistant. Ask me anything!</div>
+        </div>
+
+        <form id="input-form-widget">
+            <input type="text" id="user-input-widget" placeholder="Type your message..." required>
+            <button type="submit" id="send-button-widget">Send</button>
+        </form>
+    </div>
+
+    <button id="chat-toggle-button" aria-label="Toggle Chatbot">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+</div>
 
 <script>
     // Select button and mobile menu
@@ -872,169 +1033,8 @@ document.addEventListener("keydown", e => {
 });
 </script>
 
-<div id="gemini-chat-widget-embed" class="floating-chat-container">
-    <div class="chat-window">
-        <div id="chat-box-widget">
-            <div class="message gemini-message">Hello! I'm a Gemini-powered chat assistant. Ask me anything!</div>
-        </div>
 
-        <form id="input-form-widget">
-            <input type="text" id="user-input-widget" placeholder="Type your message..." required>
-            <button type="submit" id="send-button-widget">Send</button>
-        </form>
-    </div>
 
-    <button id="chat-toggle-button" aria-label="Toggle Chatbot">
-        <i class="fas fa-comment-dots"></i>
-    </button>
-</div>
-
-<style>
-    /* --- Base Styles for Floating Widget --- */
-    .floating-chat-container {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999; /* Ensure it's above all page content */
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        font-family: 'Arial', sans-serif; /* Ensure consistent font */
-    }
-
-    /* --- Chat Button (Logo) Styling --- */
-    #chat-toggle-button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: #4285F4; /* Google Blue */
-        color: white;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
-        font-size: 24px;
-        transition: all 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #chat-toggle-button:hover {
-        background-color: #3367D6;
-        transform: scale(1.05);
-    }
-
-    /* AI/Logo Icon Styling */
-    #chat-toggle-button i {
-        /* This uses FontAwesome for a common chat/AI look */
-        transition: transform 0.3s ease;
-    }
-
-    /* Change icon when chat is open (e.g., to an X) */
-    #chat-toggle-button.open {
-        background-color: #DC3545; /* Red/Close color */
-    }
-    #chat-toggle-button.open i:before {
-        content: "\f00d"; /* FontAwesome 'xmark' icon */
-    }
-
-    /* --- Chat Window Styling --- */
-    .chat-window {
-        width: 330px; /* Standard widget width */
-        height: 400px; /* Standard widget height */
-        background: white;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        border-radius: 10px;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 15px;
-        
-        /* Initial State: Hidden and scaled down */
-        transform: scale(0);
-        transform-origin: bottom right;
-        transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .chat-window.open {
-        transform: scale(1);
-        opacity: 1;
-        pointer-events: auto;
-    }
-
-    /* --- Chat Window Content (Modified for Widget size) --- */
-    #chat-box-widget {
-        flex-grow: 1;
-        padding: 15px;
-        overflow-y: auto;
-        background-color: #f0f4f9; /* Lighter background */
-        scroll-behavior: smooth;
-    }
-
-    .message {
-        margin-bottom: 8px;
-        padding: 8px 12px;
-        border-radius: 16px;
-        max-width: 85%;
-        word-wrap: break-word;
-        line-height: 1.4;
-        font-size: 14px;
-    }
-
-    .user-message {
-        background-color: #4285F4;
-        color: white;
-        margin-left: auto;
-        border-bottom-right-radius: 4px;
-    }
-
-    .gemini-message {
-        background-color: #dceaf7;
-        color: #333;
-        margin-right: auto;
-        border-bottom-left-radius: 4px;
-    }
-    
-    /* --- Input Form --- */
-    #input-form-widget {
-        display: flex;
-        padding: 10px;
-        border-top: 1px solid #ccc;
-        background-color: #ffffff;
-    }
-
-    #user-input-widget {
-        flex-grow: 1;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 20px;
-        margin-right: 8px;
-        font-size: 14px;
-    }
-
-    #send-button-widget {
-        padding: 8px 15px;
-        border: none;
-        background-color: #34A853; /* Google Green */
-        color: white;
-        border-radius: 20px;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.2s;
-        font-size: 14px
-    }
-
-    #send-button-widget:hover:not(:disabled) {
-        background-color: #2E7D32;
-    }
-
-    #send-button-widget:disabled {
-        background-color: #A5D6A7;
-        cursor: not-allowed;
-    }
-</style>
 
 <script>
     // ----------------------------------------------------------------------
@@ -1152,12 +1152,7 @@ document.addEventListener("keydown", e => {
     }
 </script>
 
-</body>
 </html>
-
-
-
-
 
 
 
