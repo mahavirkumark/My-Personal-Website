@@ -13,432 +13,215 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<style>
 
-    /* --- Base Styles for Floating Widget --- */
+<style>
+    /* Custom styles for the calendar grid and responsiveness */
+    .main-content-padding {
+        /* Adds space for the fixed navbar */
+        padding-top: 100px; 
+    }
+    .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: bold;
+        padding-bottom: 5px;
+        color: #4b5563; /* gray-600 */
+        font-size: 16px;
+    }
+    #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px; /* gap-2 */
+    }
+    .calendar-cell {
+        border: 1px solid #e5e7eb; /* gray-200 */
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
+        transition: transform 0.2s;
+        height: 150px; /* Standardize height */
+        overflow: hidden; 
+    }
+    .calendar-cell:hover {
+        border-color: #60a5fa; /* blue-400 */
+        transform: translateY(-1px);
+        cursor: pointer;
+    }
+    /* Distinct border and color for today (Blue) */
+    .today {
+        border: 2px solid #3b82f6; /* blue-500 */
+        background-color: #eff6ff; /* blue-50 */
+    }
+    /* Default weekend style for Saturday */
+    .weekend {
+        background-color: #fef2f2; /* red-50 */
+    }
+    /* FIX: Orange color for Sunday cells */
+    .sunday-cell {
+        background-color: #fffbeb; /* light amber-50 */
+        border-color: orange; /* amber-400 */
+    }
+    
+    .custom-scroll {
+        /* Standard scrollbar for existing tasks and calendar cells */
+        scrollbar-width: thin;
+        scrollbar-color: #ccc transparent;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
+    }
+
+    /* FIX: Blur Effect - Blurs everything except search container and results */
+    .search-active .main-content-padding > div:not(.search-container):not(#searchResults) {
+        filter: blur(2px);
+        pointer-events: none;
+        transition: filter 0.3s;
+    }
+    /* Ensure search results and the modal are above everything */
+    #searchResults, #taskModal, #overlay {
+        z-index: 60;
+    }
+    #searchResults {
+        position: absolute;
+        top: 150px; 
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 1024px; 
+        pointer-events: all; /* Important: ensures results are clickable */
+    }
+    /* FIX: Close button hover style */
+    #closeModal:hover {
+        background-color: #ef4444; /* red-500 */
+        color: white !important;
+        border-radius: 50%;
+        transform: rotate(15deg);
+    }
+
+    /* --- Chatbot Styles for Right Bottom Corner --- */
     .floating-chat-container {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 9999; /* Ensure it's above all page content */
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        font-family: 'Arial', sans-serif; /* Ensure consistent font */
+        z-index: 100; /* High z-index to ensure it's on top */
     }
 
-    /* --- Chat Button (Logo) Styling --- */
     #chat-toggle-button {
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background-color: #4285F4; /* Google Blue */
+        background-color: #4f46e5; /* Indigo-600 */
         color: white;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        cursor: pointer;
         font-size: 24px;
-        transition: all 0.3s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
     }
 
     #chat-toggle-button:hover {
-        background-color: #3367D6;
+        background-color: #4338ca; /* Indigo-700 */
         transform: scale(1.05);
     }
-
-    /* AI/Logo Icon Styling */
-    #chat-toggle-button i {
-        /* This uses FontAwesome for a common chat/AI look */
-        transition: transform 0.3s ease;
-    }
-
-    /* Change icon when chat is open (e.g., to an X) */
-    #chat-toggle-button.open {
-        background-color: #DC3545; /* Red/Close color */
-    }
-    #chat-toggle-button.open i:before {
-        content: "\f00d"; /* FontAwesome 'xmark' icon */
-    }
-
-    /* --- Chat Window Styling --- */
+    
     .chat-window {
-        width: 330px; /* Standard widget width */
-        height: 400px; /* Standard widget height */
-        background: white;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        border-radius: 10px;
+        /* FIX: Hidden by default */
+        display: none; 
+        position: absolute;
+        bottom: 70px;
+        right: 0;
+        width: 350px;
+        height: 450px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         overflow: hidden;
-        display: flex;
         flex-direction: column;
-        margin-bottom: 15px;
-        
-        /* Initial State: Hidden and scaled down */
-        transform: scale(0);
-        transform-origin: bottom right;
-        transition: transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s ease;
-        opacity: 0;
-        pointer-events: none;
+        transition: all 0.3s;
     }
 
+    /* FIX: Show the chat window when the 'open' class is toggled */
     .chat-window.open {
-        transform: scale(1);
-        opacity: 1;
-        pointer-events: auto;
+        display: flex;
     }
 
-    /* --- Chat Window Content (Modified for Widget size) --- */
     #chat-box-widget {
         flex-grow: 1;
         padding: 15px;
         overflow-y: auto;
-        background-color: #f0f4f9; /* Lighter background */
-        scroll-behavior: smooth;
+        background-color: #f9fafb; /* gray-50 */
+        border-bottom: 1px solid #e5e7eb;
     }
 
     .message {
-        margin-bottom: 8px;
         padding: 8px 12px;
-        border-radius: 16px;
-        max-width: 85%;
-        word-wrap: break-word;
-        line-height: 1.4;
+        margin-bottom: 8px;
+        border-radius: 15px;
+        max-width: 80%;
         font-size: 14px;
-    }
-
-    .user-message {
-        background-color: #4285F4;
-        color: white;
-        margin-left: auto;
-        border-bottom-right-radius: 4px;
+        line-height: 1.4;
     }
 
     .gemini-message {
-        background-color: #dceaf7;
-        color: #333;
+        background-color: #e0f2fe; /* light blue */
+        color: #1e40af; /* dark blue */
+        align-self: flex-start;
         margin-right: auto;
-        border-bottom-left-radius: 4px;
     }
-    
-    /* --- Input Form --- */
+
+    .user-message {
+        background-color: #4f46e5; /* indigo */
+        color: white;
+        align-self: flex-end;
+        margin-left: auto;
+    }
+
     #input-form-widget {
         display: flex;
         padding: 10px;
-        border-top: 1px solid #ccc;
-        background-color: #ffffff;
+        border-top: 1px solid #e5e7eb;
     }
 
     #user-input-widget {
         flex-grow: 1;
-        padding: 8px;
-        border: 1px solid #ddd;
+        padding: 10px;
+        border: 1px solid #ccc;
         border-radius: 20px;
-        margin-right: 8px;
+        margin-right: 10px;
         font-size: 14px;
+        outline: none;
     }
 
     #send-button-widget {
-        padding: 8px 15px;
-        border: none;
-        background-color: #34A853; /* Google Green */
+        background-color: #4f46e5;
         color: white;
+        border: none;
+        padding: 10px 15px;
         border-radius: 20px;
         cursor: pointer;
-        font-weight: bold;
+        font-weight: 600;
         transition: background-color 0.2s;
-        font-size: 14px
     }
 
-    #send-button-widget:hover:not(:disabled) {
-        background-color: #2E7D32;
+    #send-button-widget:hover {
+        background-color: #4338ca;
     }
 
-    #send-button-widget:disabled {
-        background-color: #A5D6A7;
-        cursor: not-allowed;
-    }
-
-    body { 
-        font-family: Arial, sans-serif; 
-        background-color: #f3f4f6; 
-        margin:0; 
-        overflow-x: hidden;
-    }
-    nav a { text-decoration:none; padding:5px; }
-    
-    /* Custom Scrollbar and Smooth Scrolling */
-    .custom-scroll {
-        overflow-y: auto;
-        padding-right: 5px; 
-        scroll-behavior: smooth; 
-    }
-
-body.search-active #searchResults {
-    /* Apply 110 pixels margin-top when search is active */
-    margin-top: 110px !important; 
-}
-
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-thumb { background:#9ca3af; border-radius:3px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background:#6b7280; }
-
-    /* Calendar Cell Base - MODERNIZED */
-    .calendar-cell { 
-        min-height: 80px; 
-        padding:0.5rem; 
-        border-radius:0.75rem; 
-        border:1px solid #e5e7eb; 
-        background:#fff; 
-        cursor:pointer; 
-        transition: all 0.2s ease-in-out;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); 
-        overflow: hidden; 
-    }
-    .calendar-cell:hover { 
-        background:#f3f4f6; 
-        transform: translateY(-1px); 
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
-    }
-    .today { border: 2px solid #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); } 
-    .sunday { background-color:#f97316; color:#fff; border-color: #ea580c; }
-    .sunday:hover { background-color:#c2410c; }
-    
-    /* Task list container base (Default/Laptop View) */
-    #existingTasks { 
-        max-height: 400px; /* Laptop Max Height */
-        padding: 10px; 
-    }
-    #existingTasks > div {
-        background-color: #fff;
-        border: 1px solid #f3f4f6;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        padding: 12px; 
-        margin-bottom: 10px;
-        transition: all 0.15s;
-    }
-    
-    /* Saved data font size and color (Default/Laptop View) */
-    #existingTasks strong {
-        font-size: 1.25rem; /* text-xl */
-        color: #1f2937; /* text-gray-800 */
-    }
-    #existingTasks p.task-desc {
-        font-size: 1rem; /* text-base */
-        color: #374151; /* text-gray-700 */
-    }
-
-    /* Search Bar container spacing (Default/Laptop View) */
-    .search-container {
-        margin-bottom: 1.5rem; /* Default margin */
-    }
-
-    /* Responsive Calendar Grid */
-    #calendar { display:grid; gap:5px; width: 100%; } 
-
-    /* Mobile (Small Screens): max-width: 767px (Tailwind 'md' breakpoint) */
-    @media (max-width: 767px) {
-        
-        /* FIX: REDUCED MODAL PADDING (INCREASES PERCEIVED TASK LIST WIDTH) */
-        #taskModal {
-            padding: 1rem !important; /* Reduced from p-6 (1.5rem) */
-        }
-        
-        /* FIX: REDUCED MAX-HEIGHT OF TASK CONTAINER AND SET BACKGROUND TO WHITE */
-        #existingTasks { 
-            max-height: 270px; /* Reduced Max Height on Mobile (from 250px) */
-            padding: 0px 6px 0px 0px; 
-            margin-top: 5px; /* Minimal top margin */
-            border-radius: 0.5rem; 
-            background: #fff; /* FIX: Set background to white to remove the gray unwanted background */
-        } 
-        
-        /* FIX: REDUCED MARGIN-BOTTOM FOR INDIVIDUAL TASK ITEMS */
-        #existingTasks > div {
-            padding: 6px; 
-            margin-bottom: 4px; /* Reduced from 6px to 4px */
-        }
-        
-        #modalDate {
-            font-size: 1.125rem !important; /* text-lg */
-        }
-        
-        /* Reduced NAV height */
-        .nav-content-padding { 
-            padding-top: 5px; 
-            padding-bottom: 15px; 
-        }
-
-        /* Calendar Grid */
-        #calendar { grid-template-columns: repeat(2, 1fr); gap: 4px; padding: 0; }
-        
-        /* Reduced Task Container Heading Font (Mobile) */
-        #existingTasks strong {
-            font-size: 1rem; /* text-base */
-        }
-        
-        /* Reduced Placeholder Height of Task Title (Mobile View) */
-        #taskModal #taskTitle {
-            padding-top: 8px; 
-            padding-bottom: 8px; 
-        }
-
-        /* Reduced Task Detail Height (Mobile View) */
-        #taskModal #taskDesc {
-            min-height: 80px !important; 
-            max-height: 100px !important; 
-        }
-        
-        /* Saved Data Width & Layout */
-        #existingTasks > div {
-            flex-wrap: nowrap; 
-            align-items: flex-start; 
-        }
-        
-        /* REDUCE EDIT/DELETE BUTTON SIZE/HEIGHT */
-        #existingTasks .flex-shrink-0 button {
-            padding: 5px !important; /* Reduced padding */
-            font-size: 0.875rem !important; /* Smaller text/icon size (text-sm) */
-            height: 30px; /* Explicit height control */
-            width: 30px; /* Explicit width control */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #existingTasks .flex-shrink-0 {
-            flex-direction: row; 
-            gap: 4px; /* Smaller gap */
-            width: auto; 
-        }
-        #existingTasks > div > div:first-child {
-            min-width: calc(100% - 70px); /* Adjusted width for space */
-            margin-right: 8px; 
-        }
-        
-        /* REDUCE SAVE/CANCEL BUTTON SIZE/HEIGHT */
-        #saveTaskBtn, #cancelTaskBtn {
-            padding-top: 6px !important; 
-            padding-bottom: 6px !important; 
-            font-size: 0.875rem !important;
-            height: 36px; 
-        }
-        
-        /* Search Result Styling (Mobile) */
-        .search-result-title { 
-            font-size: 1rem; 
-            color: #1f2937;
-        } 
-        .search-result-desc { 
-            font-size: 0.875rem; 
-            color: #374151;
-        } 
-        .search-result-date { 
-            font-size: 0.75rem; 
-            color: #4b5563;
-        }
-        
-        /* Task Modal body: Ensures vertical stacking on mobile */
-        #taskModal .grid-cols-1.md\:grid-cols-2 {
-            grid-template-columns: 1fr;
-            gap: 0.75rem; /* Reduced gap from 5 (1.25rem) to 3 (0.75rem) to save space */
+    /* Responsive adjustments for chat window */
+    @media (max-width: 640px) {
+        .chat-window {
+            width: 90vw;
+            height: 70vh;
+            bottom: 80px;
+            right: 5vw;
         }
     }
-
-    /* Tablet/Desktop (Medium Screens): 768px to 1023px */
-    @media (min-width: 768px) and (max-width:1023px) {
-        #calendar { grid-template-columns: repeat(4, 1fr); gap:6px; }
-        
-        /* Increased margin between nav and search bar in tablet view */
-        .search-container {
-            margin-top: 1.5rem; 
-            margin-bottom: 2rem;
-        }
-        .main-content-padding { padding-top: 110px; }
-    }
-    
-    /* Desktop (Large Screens): 1024px and up */
-    @media (min-width: 1024px) {
-        #calendar { 
-            grid-template-columns: repeat(7, 1fr); 
-            gap:10px; 
-            max-width:1400px; 
-        }
-        
-        /* Increased Margin of Nav and Search Bar (Laptop View) */
-        .search-container {
-            margin-top: 3rem; 
-            margin-bottom: 3rem; 
-        }
-        
-        /* Reduced Placeholder Height of Task and Detail (Laptop View) */
-        #taskModal #taskTitle {
-            padding-top: 1;
-            padding-bottom: 1px;
-        }
-        #taskModal #taskDesc {
-            min-height: 120px !important; 
-        }
-    }
-
-    /* Main Content Padding control */
-    .main-content-padding {
-        padding-top: 50px; /* Default desktop */
-    }
-    /* Reduced padding-top for mobile view to reduce distance to nav bar/search area */
-    @media (max-width: 767px) {
-        .main-content-padding { padding-top: 80px; padding-left: 10px; padding-right: 10px; }
-    }
-    
-    /* --- YOUTUBE-LIKE SEARCH BEHAVIOR STYLES --- */
-    /* Hide non-search content when the search input is focused */
-    body.search-active #calendar-controls,
-    body.search-active #calendar,
-    body.search-active #downloadMonthTasks {
-        display: none !important;
-    }
-    
-    /* Maximize search results area */
-    body.search-active #searchResults {
-        position: fixed;
-        top: 130px; /* Adjust based on your nav/search bar height */
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 40; /* Above regular content, below modal */
-        padding: 0 16px 16px; /* Match main padding */
-        /* Enable scrolling within search results container */
-        overflow-y: auto; 
-    }
-
-    /* Adjust main content padding when search is active to keep search results visible */
-    @media (min-width: 768px) {
-        body.search-active .main-content-padding {
-            padding-top: 100px; 
-        }
-        body.search-active #searchResults {
-            top: 100px; 
-        }
-    }
-    @media (max-width: 767px) {
-        body.search-active #searchResults {
-            top: 130px; 
-        }
-    }
-    
-    /* Positioning the Footer 500px Below Viewport when Search is Active */
-    body.search-active footer {
-        position: absolute; 
-        /* The key calculation: 100vh (bottom of viewport) + 500px */
-        top: calc(100vh + 500px); 
-        bottom: auto; 
-        width: 100%;
-        margin-top: 0; 
-        padding-top: 4px; 
-        z-index: 30; 
-    }
-    /* ------------------------------------------- */
 </style>
 </head>
 <body class="bg-gray-50">
@@ -450,7 +233,6 @@ body.search-active #searchResults {
             <span style="font-size: 22px;">My Personal Website</span>
         </div>
         
-
         <div class="hidden md:flex space-x-6 font-medium">
             <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
             <a href="adress.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-map-marker-alt"></i> Address</a>
@@ -491,6 +273,7 @@ body.search-active #searchResults {
         <button onclick="logout()" class="bg-red-600 text-white px-3 py-2 rounded-full hover:bg-red-700 mt-2 w-full shadow-md">Logout</button>
     </div>
 </nav>
+
 <main class="main-content-padding flex flex-col gap-2 mx-auto w-full max-w-7xl">
 
     <div class="search-container flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 px-4 md:px-0 pt-4 md:pt-0">
@@ -500,12 +283,13 @@ body.search-active #searchResults {
             class="px-5 py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-full md:w-auto font-semibold text-base">
             <i class="fas fa-download mr-2"></i> Download Month Tasks
         </button>
+        
     </div>
     <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div>
 
 <div id="gemini-chat-widget-embed" class="floating-chat-container">
-    <div class="chat-window">
-        <div id="chat-box-widget">
+    <div id="chatWindow" class="chat-window">
+        <div id="chat-box-widget" class="custom-scroll">
             <div class="message gemini-message">Hello! I'm a Gemini-powered chat assistant. Ask me anything!</div>
         </div>
 
@@ -520,24 +304,23 @@ body.search-active #searchResults {
     </button>
 </div>
 
-<script>
-    // Select button and mobile menu
-const menuBtn = document.getElementById("menu-btn");
-const mobileMenu = document.getElementById("mobileMenu"); 
-
-// Toggle menu on click
-menuBtn.addEventListener("click", () => {
-    mobileMenu.classList.toggle("hidden"); 
-});
-</script>
 
     <div id="calendar-controls" class="flex justify-between items-center mb-2 px-4 md:px-0">
         <button onclick="changeMonth(-1)" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold">← Prev</button>
         <h2 id="monthYear" class="text-xl md:text-2xl font-bold text-center flex-1">Month Year</h2>
         <button onclick="changeMonth(1)" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold">Next →</button>
     </div>
-
-<div id="calendar" class="text-base md:text-[22px] pb-8"></div>
+    
+    <div class="calendar-header hidden md:grid">
+        <div>Mon</div>
+        <div>Tue</div>
+        <div>Wed</div>
+        <div>Thu</div>
+        <div>Fri</div>
+        <div class="text-red-500">Sat</div>
+        <div class="text-red-500">Sun</div>
+    </div>
+    <div id="calendar" class="text-base md:text-[22px] pb-8"></div>
 
 </main>
 
@@ -551,7 +334,7 @@ menuBtn.addEventListener("click", () => {
     <div class="flex justify-between items-center mb-4 border-b pb-3">
         <h2 id="modalDate" class="text-xl md:text-2xl font-extrabold text-blue-700">Tasks for date</h2> 
         <button id="closeModal" 
-                class="text-gray-500 hover:text-red-600 text-[32px] font-bold transition duration-200">&times;</button>
+                class="text-gray-500 hover:text-white text-[32px] font-bold transition duration-200 p-1">&times;</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
@@ -587,7 +370,133 @@ menuBtn.addEventListener("click", () => {
 </body>
 </html>
 <script>
-// --- Firebase Config ---
+// --- Mobile Menu Toggle (from previous code) ---
+const menuBtn = document.getElementById("menu-btn");
+const mobileMenu = document.getElementById("mobileMenu"); 
+if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden"); 
+    });
+}
+    
+// ----------------------------------------------------------------------
+// ⚠️ CRITICAL STEP ⚠️: PASTE YOUR API KEY HERE
+// You MUST replace this with your actual, unexposed API key.
+// ----------------------------------------------------------------------
+const API_KEY_WIDGET = "AIzaSyAx9Jo2cGzFqPSuWr-zjoMh_5taBpwONOA"; // <--- REPLACE THIS KEY
+
+const API_URL_WIDGET = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY_WIDGET;
+
+// DOM Element References for the Widget
+const chatWindow = document.querySelector('.chat-window');
+const chatToggle = document.getElementById('chat-toggle-button');
+const chatBox = document.getElementById('chat-box-widget');
+const inputForm = document.getElementById('input-form-widget');
+const userInput = document.getElementById('user-input-widget');
+const sendButton = document.getElementById('send-button-widget');
+
+// This array stores the entire conversation history (critical for maintaining context)
+let history = [];
+
+// --- Widget Toggling Logic ---
+if (chatToggle && chatWindow) {
+    // The previous simple toggle has been replaced with your provided logic
+    chatToggle.addEventListener('click', () => {
+        chatWindow.classList.toggle('open');
+        chatToggle.classList.toggle('open');
+        if (chatWindow.classList.contains('open')) {
+            userInput.focus();
+        }
+    });
+}
+
+/**
+ * Appends a message to the chat box.
+ */
+function appendMessage(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'gemini-message');
+    messageDiv.innerText = text;
+    chatBox.appendChild(messageDiv);
+    
+    // Scroll to the latest message
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+/**
+ * Sends the user's message to the Gemini API and processes the response.
+ */
+async function sendMessage() {
+    const userText = userInput.value.trim();
+    if (!userText) return;
+
+    // 1. Display user message and update history
+    appendMessage(userText, 'user');
+    
+    history.push({
+        role: "user",
+        parts: [{ text: userText }]
+    });
+
+    // Clear input and disable button while waiting for API response
+    userInput.value = '';
+    sendButton.disabled = true;
+
+    try {
+        const response = await fetch(API_URL_WIDGET, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: history,
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Request failed with status ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
+            const geminiText = data.candidates[0].content.parts[0].text;
+            
+            // 2. Display Gemini's response and update history
+            appendMessage(geminiText, 'gemini');
+            
+            history.push({
+                role: "model",
+                parts: [{ text: geminiText }]
+            });
+        } else {
+            appendMessage("Error: Could not get a valid response from Gemini. Check the response structure.", 'gemini');
+        }
+
+    } catch (error) {
+        console.error('Error sending message to Gemini:', error);
+        appendMessage("Sorry, I ran into an error. Please check the browser console for details.", 'gemini');
+        history.pop();
+    } finally {
+        // Re-enable the send button
+        sendButton.disabled = false;
+        userInput.focus();
+    }
+}
+
+// Event listener for the form submission
+if (inputForm) {
+    inputForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendMessage();
+    });
+}
+// --- END of Gemini Widget Logic ---
+
+
+// --- Firebase Config (NOTE: Use your actual keys) ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -611,18 +520,17 @@ let editTaskId = null;
 const searchInput = document.getElementById("searchInput");
 const searchResults = document.getElementById("searchResults");
 const body = document.body;
-// FIX: Define downloadButton globally for search logic
 const downloadButton = document.getElementById("downloadMonthTasks");
+const modalElement = document.getElementById("taskModal");
+const overlayElement = document.getElementById("overlay");
+const closeModalBtn = document.getElementById("closeModal");
+const cancelTaskBtn = document.getElementById("cancelTaskBtn");
 
 // --- Helpers ---
 const toISODate = d => {
     const dt = new Date(d);
+    // Use UTC methods to generate the ISO date string to avoid timezone issues when keying in Firebase
     return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
-};
-
-const formatDate = d => {
-    const dt = new Date(d);
-    return `${String(dt.getDate()).padStart(2,"0")}-${String(dt.getMonth()+1).padStart(2,"0")}-${dt.getFullYear()}`;
 };
 
 /**
@@ -640,9 +548,6 @@ function capitalizeFirstLetter(str) {
 auth.onAuthStateChanged(user => {
     if(user){
         currentUser = user;
-        // The original code had redundant UI updates, but since the user hasn't
-        // requested to clean them up yet, we'll keep the original logic block, 
-        // ensuring the calendar renders.
         document.getElementById("userName").textContent = user.displayName || "User Name";
         document.getElementById("userEmail").textContent = user.email;
         document.getElementById("mobileUserName").textContent = user.displayName || "User Name";
@@ -658,7 +563,7 @@ auth.onAuthStateChanged(user => {
 
         renderCalendar();
     } else {
-        // Corrected logic: only redirect if not on the login page (index.html is assumed to be login/landing).
+        // Redirect if not authenticated
         if (window.location.pathname !== '/index.html' && !window.location.pathname.endsWith('/')) {
             window.location.href = "index.html"; 
         }
@@ -666,11 +571,9 @@ auth.onAuthStateChanged(user => {
 });
 
 function logout(){
-    // FIX: Added missing closing brace/parenthesis for the promise chain.
     auth.signOut().then(() => {
-        // Redirect to index.html after successful sign-out
         location.href="index.html";
-    }); // <-- Added missing parenthesis and brace
+    }); 
 }
 
 // --- Calendar ---
@@ -680,7 +583,7 @@ function changeMonth(offset){
 }
 
 function renderCalendar(){
-    if (!currentUser) return; // Guard to prevent calendar rendering if no user is logged in
+    if (!currentUser) return; 
     
     const cal=document.getElementById("calendar");
     if(!cal) return;
@@ -690,30 +593,47 @@ function renderCalendar(){
     document.getElementById("monthYear").textContent=
         currentDate.toLocaleString("default",{month:"long",year:"numeric"});
 
-    const firstDay=new Date(y,m,1), start=(firstDay.getDay()+6)%7;
+    const firstDay=new Date(y,m,1);
+    // Calculate the starting offset: getDay() returns 0 (Sun) to 6 (Sat).
+    // (getDay() + 6) % 7 maps Sun=6, Mon=0, Tue=1, etc. -> Week starts Mon(0)
+    const start=(firstDay.getDay()+6)%7; 
     const days=new Date(y,m+1,0).getDate();
 
+    // Add empty divs for previous month's days
     for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
 
+    // Add days of the current month
     for(let d=1;d<=days;d++){
-        const dateObj=new Date(y,m,d), iso=toISODate(dateObj);
+        // Create a UTC-neutral date for reliable ISO key generation
+        const dateObj=new Date(Date.UTC(y, m, d)); 
+        const iso=toISODate(dateObj);
         const cell=document.createElement("div");
         cell.className="calendar-cell text-center text-gray-800";
         
         const today = new Date();
         const todayISO = toISODate(today);
 
+        // Today's Date Border (Blue)
         if(iso === todayISO) cell.classList.add("today");
-        if(dateObj.getDay()===0) cell.classList.add("sunday");
+        
+        // Weekend check: getUTCDay() for consistency. Sunday (0) or Saturday (6)
+        const dayOfWeek = dateObj.getUTCDay(); // Using UTC day to match the dateObj
+        if(dayOfWeek === 6) cell.classList.add("weekend"); // Saturday 
+        
+        // Apply orange background to Sundays
+        if(dayOfWeek === 0) { // Sunday
+            cell.classList.add("sunday-cell");
+        }
 
         cell.innerHTML=`
             <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
                 <span class="text-xl md:text-2xl">${d}</span>
-                <span class="text-base text-gray-600">${dateObj.toLocaleString("en-US",{weekday:"short"})}</span>
+                <span class="text-base text-gray-600 md:hidden">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>
             </div>
             <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
         `;
-        cell.onclick=()=>openModal(iso);
+        // Attach onclick event
+        cell.onclick=()=>openModal(iso); 
         cal.appendChild(cell);
         loadTasks(iso);
     }
@@ -724,13 +644,16 @@ function openModal(dateISO) {
     if (!currentUser) return alert("Please sign in to manage tasks.");
     
     function formatModalDate(dateISO) {
-        const d = new Date(dateISO);
-        // Use local time for formatting
-        const dt = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); 
-        const day = String(dt.getDate()).padStart(2, "0");
-        const month = String(dt.getMonth() + 1).padStart(2, "0");
-        const year = dt.getFullYear();
-        const weekday = dt.toLocaleDateString("en-US", { weekday: "long" });
+        // Re-construct Date object using the ISO date parts as UTC date
+        const parts = dateISO.split('-').map(Number);
+        const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); 
+
+        // Format using UTC methods for consistency
+        const day = String(dt.getUTCDate()).padStart(2, "0");
+        const month = String(dt.getUTCMonth() + 1).padStart(2, "0");
+        const year = dt.getUTCFullYear();
+        // Use toLocaleDateString with 'UTC' timezone for the weekday
+        const weekday = dt.toLocaleDateString("en-US", { weekday: "long", timeZone: 'UTC' });
         return `${day}-${month}-${year} (${weekday})`;
     }
 
@@ -740,26 +663,29 @@ function openModal(dateISO) {
     document.getElementById("taskTitle").value = "";
     document.getElementById("taskDesc").value = "";
 
-    document.getElementById("overlay").classList.remove("hidden");
-    document.getElementById("taskModal").classList.remove("hidden");
+    overlayElement.classList.remove("hidden");
+    modalElement.classList.remove("hidden");
 
     loadModalTasks(dateISO);
 }
 
 function closeModal(){
     selectedDate=null; editTaskId=null;
-    document.getElementById("overlay").classList.add("hidden");
-    document.getElementById("taskModal").classList.add("hidden");
+    overlayElement.classList.add("hidden");
+    modalElement.classList.add("hidden");
     document.getElementById("existingTasks").innerHTML="";
-    // Hide search results and reset search bar when closing modal
+    
+    // Reset search state
     if(searchInput) searchInput.value = "";
     if(searchResults) searchResults.innerHTML = "";
     body.classList.remove("search-active");
-    // Ensure download button visibility is restored
     if (downloadButton) downloadButton.style.display = 'block'; 
 }
-document.getElementById("closeModal").addEventListener("click",closeModal);
-document.getElementById("cancelTaskBtn").addEventListener("click",closeModal);
+
+// Attach event listeners for close buttons
+closeModalBtn.addEventListener("click", closeModal);
+cancelTaskBtn.addEventListener("click", closeModal);
+
 
 // --- Save Task ---
 document.getElementById("saveTaskBtn").addEventListener("click",()=>{
@@ -800,6 +726,7 @@ function loadTasks(date){
     db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
         const data=snap.val(); c.innerHTML="";
         if(data) {
+            // Display only the first 3 tasks
             Object.values(data).slice(0, 3).forEach(t=>{ 
                 c.innerHTML+=`<div class="truncate px-1" style="font-size: 0.875rem">• ${t.title}</div>`; 
             });
@@ -871,7 +798,6 @@ if (downloadButton) {
     downloadButton.addEventListener("click",async()=>{
         if(!currentUser) return alert("User not logged in.");
         
-        // Check for jspdf library
         const {jsPDF}=window.jspdf || {}; 
         if (!jsPDF) return alert("PDF generation failed: jsPDF library is not loaded.");
 
@@ -879,9 +805,16 @@ if (downloadButton) {
         const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
         const data = snap.val()||{}, pdfData=[];
         
+        // Loop through all days of the current displayed month
         for(let d=1; d<=new Date(y,m+1,0).getDate(); d++){
-            const iso=toISODate(new Date(y,m,d)); 
-            const dateStr = `${String(d).padStart(2,"0")}-${String(m+1).padStart(2,"0")}-${y}`; 
+            // Create UTC date for consistent ISO and display date
+            const dateObj = new Date(Date.UTC(y, m, d)); 
+            const iso=toISODate(dateObj); 
+            
+            // Format using UTC methods for consistency
+            const dateStr = `${String(dateObj.getUTCDate()).padStart(2,"0")}-${String(dateObj.getUTCMonth()+1).padStart(2,"0")}-${dateObj.getUTCFullYear()}`; 
+            
+            // Collect all tasks for this date
             if(data[iso]) Object.values(data[iso]).forEach(t=>pdfData.push([dateStr, t.title, t.desc||""]));
         }
 
@@ -898,7 +831,7 @@ if (downloadButton) {
             styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [52, 73, 94] }
         });
-        doc.save(`Tasks_${m+1}-${y}.pdf`);
+        doc.save(`Tasks_${currentDate.toLocaleString("default",{month:"short"})}_${y}.pdf`);
     });
 }
 
@@ -922,7 +855,7 @@ function searchTasks() {
     debounceTimeout = setTimeout(() => {
         searchResults.innerHTML = "";
         
-        if (!searchInput.value.toLowerCase().trim()) return;
+        if (!searchInput.value.toLowerCase().trim()) return; 
 
         const user = firebase.auth().currentUser;
         if (!user) {
@@ -945,6 +878,7 @@ function searchTasks() {
             const resultsDiv = document.createElement("div");
             resultsDiv.className = "bg-white p-4 shadow-xl rounded-xl max-h-96 overflow-y-auto custom-scroll border border-gray-100";
 
+            // Sort dates in descending order (newest first)
             const sortedDates = Object.keys(allTasks).sort((a, b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
@@ -962,10 +896,15 @@ function searchTasks() {
                         addedTasks.add(uniqueKey);
                         found++;
 
-                        const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+                        // Re-construct Date object for display 
+                        const parts = date.split('-').map(Number);
+                        // Use UTC date to avoid local timezone offsets affecting the display date
+                        const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); 
+                        const formattedDate = dt.toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
-                            year: 'numeric'
+                            year: 'numeric',
+                            timeZone: 'UTC' // Explicitly use UTC for display consistency
                         });
 
                         const taskDiv = document.createElement("div");
@@ -1008,149 +947,121 @@ function searchTasks() {
 
 if (searchInput) {
     searchInput.addEventListener("focus", searchTasks);
+    // Trigger search as user types
+    searchInput.addEventListener("keyup", searchTasks); 
 
     searchInput.addEventListener("blur", () => {
+        // Use a timeout to allow clicks on search results before results disappear
         setTimeout(() => {
+            // Only hide results and blur effect if input is empty after delay
             if (searchInput.value.trim() === "") {
-                 body.classList.remove("search-active");
-                 searchResults.innerHTML = "";
-                 if (downloadButton) downloadButton.style.display = 'block';
+                body.classList.remove("search-active");
+                searchResults.innerHTML = "";
+                if (downloadButton) downloadButton.style.display = 'block';
             }
-        }, 200);
-    });
-
-    searchInput.addEventListener("keyup", searchTasks);
+        }, 200); 
+    }); 
 }
-
-document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && body.classList.contains("search-active")) {
-        searchInput.value = "";
-        searchResults.innerHTML = "";
-        body.classList.remove("search-active");
-        searchInput.blur();
-        if (downloadButton) downloadButton.style.display = 'block'; 
-    }
-});
 </script>
 
 
 
 
-<script>
-    // ----------------------------------------------------------------------
-    // ⚠️ CRITICAL STEP ⚠️: PASTE YOUR API KEY HERE
-    // You MUST replace this with your actual, unexposed API key.
-    // ----------------------------------------------------------------------
-    const API_KEY_WIDGET = "AIzaSyAx9Jo2cGzFqPSuWr-zjoMh_5taBpwONOA"; // <--- REPLACE THIS KEY
+
+
+<style>
+    /* Custom styles for the calendar grid and responsiveness */
+    .main-content-padding {
+        /* Adds space for the fixed navbar */
+        padding-top: 100px; 
+    }
+    .calendar-header {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: bold;
+        padding-bottom: 5px;
+        color: #4b5563; /* gray-600 */
+        font-size: 16px;
+    }
+    #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px; /* gap-2 */
+    }
+    .calendar-cell {
+        border: 1px solid #e5e7eb; /* gray-200 */
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
+        transition: transform 0.2s;
+        height: 150px; /* Standardize height */
+        overflow: hidden; 
+    }
+    .calendar-cell:hover {
+        border-color: #60a5fa; /* blue-400 */
+        transform: translateY(-1px);
+        cursor: pointer;
+    }
+    /* FIX: Distinct border and color for today (Blue) */
+    .today {
+        border: 2px solid #3b82f6; /* blue-500 */
+        background-color: #eff6ff; /* blue-50 */
+    }
+    /* Default weekend style for Saturday */
+    .weekend {
+        background-color: #fef2f2; /* red-50 */
+    }
+    /* FIX: Orange color for Sunday cells */
+    .sunday-cell {
+        background-color: #fffbeb; /* light amber-50 */
+    background-color: orange;
+    }
     
-    const API_URL_WIDGET = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY_WIDGET;
-    
-    // DOM Element References for the Widget
-    const chatWindow = document.querySelector('.chat-window');
-    const chatToggle = document.getElementById('chat-toggle-button');
-    const chatBox = document.getElementById('chat-box-widget');
-    const inputForm = document.getElementById('input-form-widget');
-    const userInput = document.getElementById('user-input-widget');
-    const sendButton = document.getElementById('send-button-widget');
-
-    // This array stores the entire conversation history (critical for maintaining context)
-    let history = [];
-
-    // --- Widget Toggling Logic ---
-    if (chatToggle) {
-        chatToggle.addEventListener('click', () => {
-            chatWindow.classList.toggle('open');
-            chatToggle.classList.toggle('open');
-            if (chatWindow.classList.contains('open')) {
-                userInput.focus();
-            }
-        });
+    .custom-scroll {
+        /* Standard scrollbar for existing tasks and calendar cells */
+        scrollbar-width: thin;
+        scrollbar-color: #ccc transparent;
+    }
+    .custom-scroll::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 4px;
     }
 
-    /**
-     * Appends a message to the chat box.
-     */
-    function appendMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message');
-        messageDiv.classList.add(sender === 'user' ? 'user-message' : 'gemini-message');
-        messageDiv.innerText = text;
-        chatBox.appendChild(messageDiv);
-        
-        // Scroll to the latest message
-        chatBox.scrollTop = chatBox.scrollHeight;
+    /* FIX: The search-active class now applies the filter to main content elements */
+    /* This ensures that the search results and the search container itself remain unblurred and clickable. */
+    .search-active .main-content-padding > div:not(.search-container):not(#searchResults) {
+        filter: blur(2px);
+        pointer-events: none;
+        transition: filter 0.3s;
     }
-
-    /**
-     * Sends the user's message to the Gemini API and processes the response.
-     */
-    async function sendMessage() {
-        const userText = userInput.value.trim();
-        if (!userText) return;
-
-        // 1. Display user message and update history
-        appendMessage(userText, 'user');
-        
-        history.push({
-            role: "user",
-            parts: [{ text: userText }]
-        });
-
-        // Clear input and disable button while waiting for API response
-        userInput.value = '';
-        sendButton.disabled = true;
-
-        try {
-            const response = await fetch(API_URL_WIDGET, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: history,
-                })
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`API Request failed with status ${response.status}: ${errorText}`);
-            }
-
-            const data = await response.json();
-            
-            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
-                const geminiText = data.candidates[0].content.parts[0].text;
-                
-                // 2. Display Gemini's response and update history
-                appendMessage(geminiText, 'gemini');
-                
-                history.push({
-                    role: "model",
-                    parts: [{ text: geminiText }]
-                });
-            } else {
-                appendMessage("Error: Could not get a valid response from Gemini. Check the response structure.", 'gemini');
-            }
-
-        } catch (error) {
-            console.error('Error sending message to Gemini:', error);
-            appendMessage("Sorry, I ran into an error. Please check the browser console for details.", 'gemini');
-            history.pop();
-        } finally {
-            // Re-enable the send button
-            sendButton.disabled = false;
-            userInput.focus();
-        }
+    /* Ensure search results and the modal are above everything */
+    #searchResults, #taskModal, #overlay {
+        z-index: 60;
     }
-
-    // Event listener for the form submission
-    if (inputForm) {
-        inputForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            sendMessage();
-        });
+    #searchResults {
+        position: absolute;
+        top: 150px; 
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        max-width: 1024px; 
+        pointer-events: all; /* Important: ensures results are clickable */
     }
-</script>
+    /* FIX: Close button hover style */
+    #closeModal:hover {
+        background-color: #ef4444; /* red-500 */
+        color: white !important;
+        border-radius: 50%;
+        transform: rotate(15deg);
+    }
+</style>
+
+
 
 </html>
 
