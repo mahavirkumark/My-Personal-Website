@@ -728,10 +728,12 @@ function loadTasks(date){
         if(data) {
             // Display only the first 3 tasks
             Object.values(data).slice(0, 3).forEach(t=>{ 
-                c.innerHTML+=`<div class="truncate px-1" style="font-size: 0.875rem">• ${t.title}</div>`; 
+                // Increased font size to text-base (1rem/16px)
+                c.innerHTML+=`<div class="truncate px-1 text-base">• ${t.title}</div>`; 
             });
             if(Object.keys(data).length > 3) {
-                 c.innerHTML+=`<div class="text-xs text-gray-500 mt-1">...${Object.keys(data).length - 3} more</div>`;
+                 // Increased font size for "...more" to text-sm
+                 c.innerHTML+=`<div class="text-sm text-gray-500 mt-1">...${Object.keys(data).length - 3} more</div>`;
             }
         }
     });
@@ -742,6 +744,12 @@ function loadModalTasks(date){
     if (!currentUser) return;
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
+
+    // ⚠️ SCROLLBAR MODIFICATION ⚠️:
+    // 1. Set max height to max-h-96 (24rem/384px) for desktop/larger screens.
+    // 2. Set overflow-y-auto to enable the scrollbar when content exceeds max-h.
+    // 3. Keep 'custom-scroll' if you have specific CSS for it.
+    cont.className = "max-h-96 overflow-y-auto custom-scroll"; 
 
     cont.innerHTML = `<div class="text-center text-blue-500 font-semibold p-3">Loading tasks...</div>`;
     
@@ -756,8 +764,8 @@ function loadModalTasks(date){
             div.className = "flex justify-between items-start bg-white shadow-md rounded-lg p-3 my-2 hover:bg-blue-50 transition space-x-2"; 
             div.innerHTML = `
                 <div class="flex-1 min-w-0 mr-4">
-                    <strong class="block truncate">${t.title}</strong> 
-                    <p class="whitespace-pre-wrap break-words task-desc mt-1 text-sm text-gray-600">${t.desc || ""}</p> 
+                    <strong class="block truncate text-xl">${t.title}</strong> 
+                    <p class="whitespace-pre-wrap break-words task-desc mt-1 text-lg text-gray-600">${t.desc || ""}</p> 
                 </div>
             `;
             
@@ -775,7 +783,10 @@ function loadModalTasks(date){
             
             const dBtn = document.createElement("button");
             dBtn.innerHTML = `<i class="fas fa-trash"></i>`;
-            dBtn.className = "bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow-md text-base transition";
+            
+            // Added proper hover for the delete button
+            dBtn.className = "bg-red-500 hover:bg-red-700 text-white p-2 rounded-lg shadow-md hover:shadow-lg text-base transition duration-150 ease-in-out";
+            
             dBtn.onclick = () => {
                 if(confirm("Are you sure you want to delete this task?")) {
                     db.ref(`users/${currentUser.uid}/tasks/${date}/${id}`).remove().then(() => {
@@ -966,9 +977,6 @@ if (searchInput) {
 
 
 
-
-
-
 <style>
     /* Custom styles for the calendar grid and responsiveness */
     .main-content-padding {
@@ -982,7 +990,7 @@ if (searchInput) {
         font-weight: bold;
         padding-bottom: 5px;
         color: #4b5563; /* gray-600 */
-        font-size: 16px;
+        font-size: 20px;
     }
     #calendar {
         display: grid;
@@ -1063,13 +1071,10 @@ if (searchInput) {
 
 
 
+
+
+
 </html>
-
-
-
-
-
-
 
 
 
