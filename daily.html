@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Tasks - My Personal Website</title>
+    <title> My Personal Website</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -515,13 +515,13 @@ function loadTaskData() {
         renderTasks(); // Re-render the UI whenever data changes
     }, (error) => {
         console.error("Firebase Read Failed:", error);
-     
+    
     });
 }
 
 
 // =================================================================
-// 3. UI RENDERING AND SEARCH LOGIC (MODIFIED)
+// 3. UI RENDERING AND SEARCH LOGIC (MODIFIED for flexible Date Search)
 // =================================================================
 
 /**
@@ -542,7 +542,7 @@ function createTaskListItem(taskId, task, isToday, isUpcoming, isOverdue) {
     details.className = 'flex-1 min-w-0';
     
     // Style classes
-    const taskNameClass = task.completed ? 'text-gray-700 font-semibold task-name' : 'text-gray-800 font-semibold';
+    const taskNameClass = task.completed ? 'text-gray-700 font-semibold task-name line-through' : 'text-gray-800 font-semibold';
     li.classList.toggle('task-completed', task.completed);
     
     // Determine status badge and background color based on status and list context
@@ -550,16 +550,16 @@ function createTaskListItem(taskId, task, isToday, isUpcoming, isOverdue) {
     let bgColor = 'bg-white';
     
     if (task.completed) {
-        // Completed items get a green background (No badge needed for completed list)
+        // Completed items get a green background
         bgColor = 'bg-green-50';
     } else if (isToday) {
-        // Today items get a specific background (No badge needed for today list)
+        // Today items get a specific background
         bgColor = 'bg-indigo-50';
     } else if (isOverdue) {
-        // Overdue items get a specific background (No badge needed for overdue list)
+        // Overdue items get a specific background
         bgColor = 'bg-red-50'; 
     } else if (isUpcoming) {
-        // Upcoming items only get a background color, no badge (as requested)
+        // Upcoming items only get a background color
         bgColor = 'bg-yellow-50';
     }
     
@@ -567,7 +567,6 @@ function createTaskListItem(taskId, task, isToday, isUpcoming, isOverdue) {
     
     const dateText = formatDateForDisplay(task.date) + (task.time ? ' @ ' + task.time : '');
 
-    // Note: statusBadge is empty for all lists now, as requested, to avoid redundancy.
     details.innerHTML = `
         <div class="flex items-center justify-between">
             <p class="${taskNameClass}">${task.name}</p>
@@ -665,13 +664,24 @@ function renderTasks() {
     sortedTaskIds.forEach(taskId => {
         const task = allTasks[taskId];
 
-        // CRITICAL FIX: Ensure the task object and its name property exist before reading
         if (!task || !task.name) {
             console.warn(`Skipping corrupted task entry: ${taskId}`);
-            return; // Skip to the next task ID
+            return; 
         }
         
+        // --- MODIFIED ENHANCEMENT FOR FLEXIBLE DATE SEARCH ---
         const taskNameLower = task.name.toLowerCase();
+        
+        // Split the YYYY-MM-DD date to get the day number
+        const dateParts = task.date.split('-'); 
+        // We get the day (DD) and remove any leading zero to match single digit inputs (e.g., '05' -> '5')
+        const dayNumber = dateParts.length === 3 ? parseInt(dateParts[2], 10) : ''; 
+        
+        const taskDateDisplay = formatDateForDisplay(task.date).toLowerCase();
+        
+        // Create a super-string including everything: name, full date, formatted date, and just the day number
+        const searchableText = `${taskNameLower} ${task.date} ${taskDateDisplay} ${dayNumber}`; 
+        // --------------------------------------------------------
         
         const isToday = task.date === TODAY_DATE_KEY;
         const isUpcoming = task.date > TODAY_DATE_KEY;
@@ -680,22 +690,22 @@ function renderTasks() {
 
         if (task.completed) {
             // --- Completed Task Logic ---
-            if (!completedSearchTerm || taskNameLower.includes(completedSearchTerm)) {
+            if (!completedSearchTerm || searchableText.includes(completedSearchTerm)) {
                 completedList.appendChild(createTaskListItem(taskId, task, false, false, false));
             }
         } else {
             // --- Incomplete Task Logic ---
             if (isToday) {
-                // Task is due today
+                // Today list is not filtered by search
                 todayList.appendChild(createTaskListItem(taskId, task, true, false, false));
             } else if (isUpcoming) {
                 // Task is due in the future
-                if (!incompleteSearchTerm || taskNameLower.includes(incompleteSearchTerm)) {
+                if (!incompleteSearchTerm || searchableText.includes(incompleteSearchTerm)) {
                     upcomingList.appendChild(createTaskListItem(taskId, task, false, true, false));
                 }
             } else if (isOverdue) {
                 // Overdue Tasks only (for the Incomplete List)
-                 if (!incompleteSearchTerm || taskNameLower.includes(incompleteSearchTerm)) {
+                if (!incompleteSearchTerm || searchableText.includes(incompleteSearchTerm)) {
                     incompleteList.appendChild(createTaskListItem(taskId, task, false, false, true));
                 }
             }
@@ -814,6 +824,6 @@ function setupEventListeners() {
 
 // Initialize event listeners when the DOM is ready
 document.addEventListener('DOMContentLoaded', setupEventListeners);
-    </script>
+</script>
 </body>
 </html>
