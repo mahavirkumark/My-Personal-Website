@@ -15,174 +15,281 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-    /* Custom styles for the calendar grid and responsiveness */
+    /* Global Styles */
+    body {
+        font-family: 'Times New Roman', Times, serif; 
+        color: #334155; /* Charcoal Text */
+        transition: filter 0.3s ease; 
+        background-color: #f8fafc; /* Very light blue-gray background */
+    }
     .main-content-padding {
-        /* Adds space for the fixed navbar */
         padding-top: 100px; 
     }
+    
+    /* Calendar Styles */
     .calendar-header {
-        display: grid;
+        display: none; 
         grid-template-columns: repeat(7, 1fr);
         text-align: center;
         font-weight: bold;
         padding-bottom: 5px;
-        color: #4b5563; /* gray-600 */
-        font-size: 16px;
+        color: #4b5563; 
+        font-size: 18px; 
     }
+
+    /* Desktop Calendar Grid: 7 Columns */
     #calendar {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 8px; /* gap-2 */
-    }
-    .calendar-cell {
-        border: 1px solid #e5e7eb; /* gray-200 */
-        border-radius: 8px;
-        padding: 8px;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
-        transition: transform 0.2s;
-        height: 150px; /* Standardize height */
-        overflow: hidden; 
-    }
-    .calendar-cell:hover {
-        border-color: #60a5fa; /* blue-400 */
-        transform: translateY(-1px);
-        cursor: pointer;
-    }
-    /* Distinct border and color for today (Blue) */
-    .today {
-        border: 2px solid #3b82f6; /* blue-500 */
-        background-color: #eff6ff; /* blue-50 */
-    }
-    /* Default weekend style for Saturday */
-    .weekend {
-        background-color: #fef2f2; /* red-50 */
-    }
-    /* FIX: Orange color for Sunday cells */
-    .sunday-cell {
-        background-color: #fffbeb; /* light amber-50 */
-        border-color: orange; /* amber-400 */
+        gap: 8px; 
     }
     
+    /* MOBILE Calendar Grid: 2 Columns - (FIXED) */
+    @media (max-width: 767px) {
+        #calendar {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+    }
+    
+    .calendar-cell {
+        border: 1px solid #e5e7eb; 
+        border-radius: 8px;
+        padding: 8px;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); 
+        transition: transform 0.2s, box-shadow 0.2s;
+        height: 150px; 
+        overflow: hidden; /* CRITICAL: Hides content that exceeds cell height */
+        background-color: white;
+    }
+    .calendar-cell:hover {
+        border-color: #4f46e5; 
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        cursor: pointer;
+    }
+    .today {
+        border: 2px solid #4f46e5; 
+        background-color: #eef2ff; 
+    }
+    .sunday-cell {
+        background-color: #fff7ed; 
+        border-color: #f97316; 
+        border-width: 2px;
+    }
+    
+    /* Scrollbar */
     .custom-scroll {
-        /* Standard scrollbar for existing tasks and calendar cells */
         scrollbar-width: thin;
-        scrollbar-color: #ccc transparent;
+        scrollbar-color: #94a3b8 transparent; 
     }
     .custom-scroll::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
+        width: 6px;
+        height: 6px;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 4px;
+        background-color: #94a3b8;
+        border-radius: 6px;
     }
 
-    /* FIX: Blur Effect - Blurs everything except search container and results */
-    .search-active .main-content-padding > div:not(.search-container):not(#searchResults) {
-        filter: blur(2px);
-        pointer-events: none;
-        transition: filter 0.3s;
+    /* Search Overlays and Styles (FIXED FOR POSITIONING) */
+    .search-overlay-background {
+        display: none; 
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh; /* Covers the whole screen */
+        background-color: rgba(255, 255, 255, 0.98); 
+        z-index: 55; 
+        pointer-events: none; 
     }
-    /* Ensure search results and the modal are above everything */
-    #searchResults, #taskModal, #overlay {
-        z-index: 60;
+    .search-active .search-overlay-background {
+        display: block;
+        pointer-events: all;
     }
+    .search-active .search-container {
+        /* This container is the fixed part that holds input/dropdown */
+        position: fixed; 
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 1rem 1rem; 
+        background-color: white; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 56; 
+        display: flex !important;
+        flex-direction: row;
+        /* Ensure it covers the full width and matches nav padding */
+        padding-top: 20px; 
+        padding-bottom: 20px;
+    }
+    
+    /* Search Results Positioning (CRITICAL FIX) */
     #searchResults {
-        position: absolute;
-        top: 150px; 
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 1024px; 
-        pointer-events: all; /* Important: ensures results are clickable */
+        position: relative; /* Default state */
+        z-index: 57; 
+        padding-top: 0; /* Default state */
+        max-width: 100%;
+        margin-left: auto;
+        margin-right: auto;
     }
-    /* FIX: Close button hover style */
+
+    .search-active #searchResults {
+        /* Repositioned to start below the fixed search bar */
+        position: fixed; /* Fix the search results */
+        top: 100px; /* Start below the nav/search (approx. 100px height) */
+        left: 0;
+        right: 0;
+        max-width: 1120px; /* Match max-w-7xl of the main container */
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* The actual results content must scroll */
+    .search-results-panel {
+        background-color: white;
+        padding: 1rem;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-radius: 0.75rem;
+        max-height: calc(100vh - 120px); /* Fill the rest of the screen minus fixed header */
+        overflow-y: auto; /* Enable scrolling on the results panel */
+        border: 1px solid #e5e7eb;
+    }
+
+    .search-active .floating-chat-container {
+        display: none;
+    }
+
+    /* Modal Close button hover style */
+    #closeModal {
+        color: #ef4444; /* Default red X */
+        transition: all 0.2s;
+    }
     #closeModal:hover {
-        background-color: #ef4444; /* red-500 */
+        background-color: #ef4444; 
         color: white !important;
         border-radius: 50%;
-        transform: rotate(15deg);
+        transform: scale(1.1); 
     }
 
-    /* --- Chatbot Styles for Right Bottom Corner --- */
+    /* ======================================= */
+    /* CHATBOT STYLES */
+    /* ======================================= */
+
     .floating-chat-container {
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 100; /* High z-index to ensure it's on top */
+        bottom: 20px; 
+        right: 20px; 
+        z-index: 100; 
+        max-width: 90vw; 
+        max-height: 90vh;
     }
 
+    /* Toggle Button (Teal-Green Accent) */
     #chat-toggle-button {
         width: 60px;
         height: 60px;
         border-radius: 50%;
-        background-color: #4f46e5; /* Indigo-600 */
+        background-color: #059669; /* Teal-Green */
         color: white;
         font-size: 24px;
         border: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 15px rgba(5, 150, 105, 0.5);
         cursor: pointer;
         transition: background-color 0.3s, transform 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #chat-toggle-button:hover {
+        background-color: #047857;
+        transform: scale(1.1);
     }
 
-    #chat-toggle-button:hover {
-        background-color: #4338ca; /* Indigo-700 */
-        transform: scale(1.05);
+    .chat-window {
+        /* Default state: hidden and off-screen */
+        display: flex; 
+        flex-direction: column;
+        position: fixed; 
+        bottom: 0; 
+        right: 0; 
+        width: 400px; 
+        height: 600px; 
+        background-color: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
+        overflow: hidden;
+        transition: transform 0.3s ease-out;
+        transform: translate(calc(100% + 20px), 0); 
+        border-radius: 15px; 
+        border: 1px solid #e5e7eb;
+    }
+
+    .chat-window.open {
+        /* Open state: slide into view */
+        transform: translate(0, 0); 
     }
     
-    .chat-window {
-        /* FIX: Hidden by default */
-        display: none; 
-        position: absolute;
-        bottom: 70px;
-        right: 0;
-        width: 350px;
-        height: 450px;
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-        overflow: hidden;
-        flex-direction: column;
-        transition: all 0.3s;
+    /* Ensure toggle button is hidden when chat is open */
+    .chat-window.open + #chat-toggle-button {
+        display: none;
     }
 
-    /* FIX: Show the chat window when the 'open' class is toggled */
-    .chat-window.open {
+    /* Chat Window Header (Charcoal Gray) */
+    .chat-window-header {
+        flex-shrink: 0; 
         display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #334155; /* Charcoal Gray */
+        color: white;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     }
 
+    /* Chat Box (Scrollable Content) */
     #chat-box-widget {
-        flex-grow: 1;
+        flex-grow: 1; 
         padding: 15px;
         overflow-y: auto;
-        background-color: #f9fafb; /* gray-50 */
+        background-color: #fafafa; 
         border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        flex-direction: column; 
     }
 
     .message {
-        padding: 8px 12px;
-        margin-bottom: 8px;
-        border-radius: 15px;
-        max-width: 80%;
-        font-size: 14px;
+        padding: 10px 15px; 
+        margin-bottom: 12px;
+        border-radius: 20px; 
+        max-width: 85%;
+        font-size: 15px; 
         line-height: 1.4;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s;
     }
 
+    /* Gemini Message (Soft Gray) */
     .gemini-message {
-        background-color: #e0f2fe; /* light blue */
-        color: #1e40af; /* dark blue */
+        background-color: #f3f4f6; 
+        color: #334155; 
         align-self: flex-start;
-        margin-right: auto;
+        border-top-left-radius: 5px; 
     }
 
+    /* User Message (Teal-Green Accent) */
     .user-message {
-        background-color: #4f46e5; /* indigo */
+        background-color: #059669; /* Teal-Green */
         color: white;
         align-self: flex-end;
-        margin-left: auto;
+        border-top-right-radius: 5px; 
     }
 
+    /* Input Form */
     #input-form-widget {
+        flex-shrink: 0; 
         display: flex;
         padding: 10px;
         border-top: 1px solid #e5e7eb;
@@ -190,41 +297,49 @@
 
     #user-input-widget {
         flex-grow: 1;
-        padding: 10px;
+        padding: 12px 18px; 
         border: 1px solid #ccc;
-        border-radius: 20px;
+        border-radius: 25px;
         margin-right: 10px;
-        font-size: 14px;
+        font-size: 15px;
         outline: none;
+        transition: border-color 0.2s;
+    }
+    #user-input-widget:focus {
+        border-color: #059669;
     }
 
+    /* Send Button (Teal-Green Accent) */
     #send-button-widget {
-        background-color: #4f46e5;
+        background-color: #059669;
         color: white;
         border: none;
-        padding: 10px 15px;
-        border-radius: 20px;
+        padding: 10px 20px;
+        border-radius: 25px;
         cursor: pointer;
         font-weight: 600;
-        transition: background-color 0.2s;
+        transition: background-color 0.2s, transform 0.1s;
     }
 
     #send-button-widget:hover {
-        background-color: #4338ca;
+        background-color: #047857;
     }
-
-    /* Responsive adjustments for chat window */
+    
+    /* Mobile adjustments for chat window */
     @media (max-width: 640px) {
         .chat-window {
-            width: 90vw;
-            height: 70vh;
-            bottom: 80px;
-            right: 5vw;
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0; 
+            transform: translate(100%, 0); 
+        }
+        .chat-window.open {
+            transform: translate(0, 0);
         }
     }
 </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-f8fafc">
 
 <nav class="bg-white shadow-xl fixed w-full z-50 top-0 border-b border-gray-100">
     <div class="container mx-auto flex justify-between items-center p-4 md:px-6 nav-content-padding"> 
@@ -234,13 +349,13 @@
         </div>
         
         <div class="hidden md:flex space-x-6 font-medium">
-            <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-         
-            <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
-            <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
-            <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-blue-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+          
+            <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
         </div>
 
         <div class="hidden md:flex items-center gap-4">
@@ -256,13 +371,13 @@
     </div>
 
     <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 shadow-inner">
-        <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-house"></i> Home</a>
+        <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-house"></i> Home</a>
         
-        <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
-        <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
-        <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
-        <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-link"></i> Links</a>
-        <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-600 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+        <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+        <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+        <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-link"></i> Links</a>
+        <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
         <div class="border-t border-gray-300 mt-2 pt-2 flex items-center gap-3">
              <img id="mobileUserPhoto" src="https://via.placeholder.com/40" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #4f46e5;">
             <div>
@@ -274,23 +389,44 @@
     </div>
 </nav>
 
+<div class="search-overlay-background"></div>
+
 <main class="main-content-padding flex flex-col gap-2 mx-auto w-full max-w-7xl">
 
     <div class="search-container flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 px-4 md:px-0 pt-4 md:pt-0">
-        <input type="text" id="searchInput" placeholder="Search tasks..."
-            class="flex-1 p-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-base w-full md:w-auto">
+        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-3">
+            <input type="text" id="searchInput" placeholder="Search tasks..."
+                class="p-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-full flex-1">
+            
+            <select id="searchTimeframe" class="p-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base">
+                <option value="1year">Last 1 Year (Default)</option>
+                <option value="alltime">All Time</option>
+            </select>
+        </div>
+        
         <button id="downloadMonthTasks"
             class="px-5 py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-full md:w-auto font-semibold text-base">
             <i class="fas fa-download mr-2"></i> Download Month Tasks
         </button>
         
     </div>
-    <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div>
+    <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div> 
 
 <div id="gemini-chat-widget-embed" class="floating-chat-container">
     <div id="chatWindow" class="chat-window">
+        
+        <div class="chat-window-header">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-brain"></i> 
+                Intelligent Assistant
+            </h3>
+            <button id="closeChatBtn" class="text-white opacity-80 hover:opacity-100 transition duration-200">
+                 <i class="fas fa-times fa-2x"></i>
+            </button>
+        </div>
+        
         <div id="chat-box-widget" class="custom-scroll">
-            <div class="message gemini-message">Hello! I'm a Gemini-powered chat assistant. Ask me anything!</div>
+            <div class="message gemini-message">Hello! I'm your Intelligent Assistant. Ask me anything about your tasks, calendar, or use me for general help!</div>
         </div>
 
         <form id="input-form-widget">
@@ -332,21 +468,21 @@
 
 
     <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 id="modalDate" class="text-xl md:text-2xl font-extrabold text-blue-700">Tasks for date</h2> 
+        <h2 id="modalDate" class="text-xl md:text-2xl font-extrabold text-indigo-700">Tasks for date</h2> 
         <button id="closeModal" 
-                class="text-gray-500 hover:text-white text-[32px] font-bold transition duration-200 p-1">&times;</button>
+                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
         
         <div class="flex flex-col">
             <input id="taskTitle" type="text" placeholder="Title" 
-                class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg shadow-sm">
+                class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
             <textarea id="taskDesc" placeholder="Details (optional)" 
-                      class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
+                      class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
             <div class="flex gap-3 mt-2">
                 <button id="saveTaskBtn" 
-                        class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-xl shadow-lg hover:bg-blue-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Save Task
                 </button>
                 <button id="cancelTaskBtn" 
@@ -356,7 +492,7 @@
             </div>
         </div>
 
-        <div id="existingTasks" class="border border-gray-200 rounded-xl p-3 bg-gray-50 custom-scroll shadow-inner">
+        <div id="existingTasks" class="border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner">
             <div class="text-center text-gray-500 italic p-3">No tasks yet.</div>
         </div>
 
@@ -367,8 +503,6 @@
     &copy; 2025 Personal Website | All rights reserved
 </footer>
 
-</body>
-</html>
 <script>
 // --- Mobile Menu Toggle (from previous code) ---
 const menuBtn = document.getElementById("menu-btn");
@@ -388,8 +522,9 @@ const API_KEY_WIDGET = "AIzaSyAx9Jo2cGzFqPSuWr-zjoMh_5taBpwONOA"; // <--- REPLAC
 const API_URL_WIDGET = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY_WIDGET;
 
 // DOM Element References for the Widget
-const chatWindow = document.querySelector('.chat-window');
+const chatWindow = document.getElementById('chatWindow');
 const chatToggle = document.getElementById('chat-toggle-button');
+const closeChatBtn = document.getElementById('closeChatBtn');
 const chatBox = document.getElementById('chat-box-widget');
 const inputForm = document.getElementById('input-form-widget');
 const userInput = document.getElementById('user-input-widget');
@@ -399,16 +534,30 @@ const sendButton = document.getElementById('send-button-widget');
 let history = [];
 
 // --- Widget Toggling Logic ---
-if (chatToggle && chatWindow) {
-    // The previous simple toggle has been replaced with your provided logic
-    chatToggle.addEventListener('click', () => {
+function toggleChat(shouldOpen) {
+    if (shouldOpen === true) {
+        chatWindow.classList.add('open');
+        // Hide the toggle button by relying on the CSS rule for .chat-window.open + #chat-toggle-button
+        userInput.focus();
+    } else if (shouldOpen === false) {
+        chatWindow.classList.remove('open');
+        // Show the toggle button automatically
+    } else {
         chatWindow.classList.toggle('open');
-        chatToggle.classList.toggle('open');
+        // If it was opened by toggle, try to focus
         if (chatWindow.classList.contains('open')) {
             userInput.focus();
         }
-    });
+    }
 }
+
+if (chatToggle) {
+    chatToggle.addEventListener('click', () => toggleChat(true));
+}
+if (closeChatBtn) {
+    closeChatBtn.addEventListener('click', () => toggleChat(false));
+}
+
 
 /**
  * Appends a message to the chat box.
@@ -498,13 +647,13 @@ if (inputForm) {
 
 // --- Firebase Config (NOTE: Use your actual keys) ---
 const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "608060704076",
-    appId: "1:608060704076:web:c98e275ae1f449bc2a5e5f"
+   apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+     authDomain: "sk12-58e9e.firebaseapp.com",
+     databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+     projectId: "sk12-58e9e",
+     storageBucket: "sk12-58e9e.appspot.com",
+     messagingSenderId: "147194239940",
+     appId: "1:147194239940:web:c66474c95c7e2dd8dffada"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -518,6 +667,7 @@ let editTaskId = null;
 
 // --- DOM Element References ---
 const searchInput = document.getElementById("searchInput");
+const searchTimeframe = document.getElementById("searchTimeframe");
 const searchResults = document.getElementById("searchResults");
 const body = document.body;
 const downloadButton = document.getElementById("downloadMonthTasks");
@@ -525,6 +675,7 @@ const modalElement = document.getElementById("taskModal");
 const overlayElement = document.getElementById("overlay");
 const closeModalBtn = document.getElementById("closeModal");
 const cancelTaskBtn = document.getElementById("cancelTaskBtn");
+const searchOverlayBackground = document.querySelector('.search-overlay-background');
 
 // --- Helpers ---
 const toISODate = d => {
@@ -599,8 +750,10 @@ function renderCalendar(){
     const start=(firstDay.getDay()+6)%7; 
     const days=new Date(y,m+1,0).getDate();
 
-    // Add empty divs for previous month's days
-    for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
+    // Only add blank cells for desktop view (7 columns)
+    if (window.innerWidth >= 768) {
+        for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
+    }
 
     // Add days of the current month
     for(let d=1;d<=days;d++){
@@ -613,22 +766,29 @@ function renderCalendar(){
         const today = new Date();
         const todayISO = toISODate(today);
 
-        // Today's Date Border (Blue)
+        // Today's Date Border (Indigo)
         if(iso === todayISO) cell.classList.add("today");
         
         // Weekend check: getUTCDay() for consistency. Sunday (0) or Saturday (6)
         const dayOfWeek = dateObj.getUTCDay(); // Using UTC day to match the dateObj
         if(dayOfWeek === 6) cell.classList.add("weekend"); // Saturday 
         
-        // Apply orange background to Sundays
+        // Apply orange background to Sundays 
         if(dayOfWeek === 0) { // Sunday
             cell.classList.add("sunday-cell");
         }
+        
+        // Include the Day of the Week (Mon, Tue, etc.) only on mobile
+        let dayOfWeekText = '';
+        if (window.innerWidth < 768) {
+            dayOfWeekText = `<span class="text-base text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
+        }
+
 
         cell.innerHTML=`
             <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
                 <span class="text-xl md:text-2xl">${d}</span>
-                <span class="text-base text-gray-600 md:hidden">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>
+                ${dayOfWeekText}
             </div>
             <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
         `;
@@ -675,16 +835,20 @@ function closeModal(){
     modalElement.classList.add("hidden");
     document.getElementById("existingTasks").innerHTML="";
     
-    // Reset search state
+    // Reset search view
     if(searchInput) searchInput.value = "";
     if(searchResults) searchResults.innerHTML = "";
     body.classList.remove("search-active");
     if (downloadButton) downloadButton.style.display = 'block'; 
+    if (searchTimeframe) searchTimeframe.style.display = 'block';
+    searchOverlayBackground.style.display = 'none'; 
 }
 
 // Attach event listeners for close buttons
 closeModalBtn.addEventListener("click", closeModal);
 cancelTaskBtn.addEventListener("click", closeModal);
+// ADDED: Listener to close search when clicking on the overlay background
+searchOverlayBackground.addEventListener("click", closeModal);
 
 
 // --- Save Task ---
@@ -726,13 +890,11 @@ function loadTasks(date){
     db.ref(`users/${currentUser.uid}/tasks/${date}`).on("value",snap=>{
         const data=snap.val(); c.innerHTML="";
         if(data) {
-            // Display only the first 3 tasks
+            // Display only the first 3 tasks. Removed 'truncate' class to show full title.
             Object.values(data).slice(0, 3).forEach(t=>{ 
-                // Increased font size to text-base (1rem/16px)
-                c.innerHTML+=`<div class="truncate px-1 text-base">• ${t.title}</div>`; 
+                c.innerHTML+=`<div class="px-1 text-base">• ${t.title}</div>`; 
             });
             if(Object.keys(data).length > 3) {
-                 // Increased font size for "...more" to text-sm
                  c.innerHTML+=`<div class="text-sm text-gray-500 mt-1">...${Object.keys(data).length - 3} more</div>`;
             }
         }
@@ -745,13 +907,10 @@ function loadModalTasks(date){
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
 
-    // ⚠️ SCROLLBAR MODIFICATION ⚠️:
-    // 1. Set max height to max-h-96 (24rem/384px) for desktop/larger screens.
-    // 2. Set overflow-y-auto to enable the scrollbar when content exceeds max-h.
-    // 3. Keep 'custom-scroll' if you have specific CSS for it.
-    cont.className = "max-h-96 overflow-y-auto custom-scroll"; 
+    // SCROLLBAR MODIFICATION: Set max height and overflow for scrollbar
+    cont.className = "max-h-96 overflow-y-auto custom-scroll border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner"; 
 
-    cont.innerHTML = `<div class="text-center text-blue-500 font-semibold p-3">Loading tasks...</div>`;
+    cont.innerHTML = `<div class="text-center text-indigo-500 font-semibold p-3">Loading tasks...</div>`;
     
     db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
         const data = snap.val(); 
@@ -761,10 +920,10 @@ function loadModalTasks(date){
         
         Object.entries(data).forEach(([id, t]) => {
             const div = document.createElement("div");
-            div.className = "flex justify-between items-start bg-white shadow-md rounded-lg p-3 my-2 hover:bg-blue-50 transition space-x-2"; 
+            div.className = "flex justify-between items-start bg-white shadow-md rounded-lg p-3 my-2 hover:bg-indigo-50 transition space-x-2"; 
             div.innerHTML = `
                 <div class="flex-1 min-w-0 mr-4">
-                    <strong class="block truncate text-xl">${t.title}</strong> 
+                    <strong class="block text-xl">${t.title}</strong> 
                     <p class="whitespace-pre-wrap break-words task-desc mt-1 text-lg text-gray-600">${t.desc || ""}</p> 
                 </div>
             `;
@@ -782,9 +941,9 @@ function loadModalTasks(date){
             };
             
             const dBtn = document.createElement("button");
-            dBtn.innerHTML = `<i class="fas fa-trash"></i>`;
+            dBtn.innerHTML = `<i class="fas fa-trash text-white"></i>`; 
             
-            // Added proper hover for the delete button
+            // Delete button styling (no rotation)
             dBtn.className = "bg-red-500 hover:bg-red-700 text-white p-2 rounded-lg shadow-md hover:shadow-lg text-base transition duration-150 ease-in-out";
             
             dBtn.onclick = () => {
@@ -840,59 +999,108 @@ if (downloadButton) {
             head:[["Date","Title","Description"]],
             body:pdfData,
             styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
-            headStyles: { fillColor: [52, 73, 94] }
+            headStyles: { fillColor: [51, 65, 85] } /* Charcoal color for PDF header */
         });
         doc.save(`Tasks_${currentDate.toLocaleString("default",{month:"short"})}_${y}.pdf`);
     });
 }
 
-// --- Search Functions ---
+// --- Search Functions (FINAL FIX) ---
 let debounceTimeout;
+let isSearchInputFocused = false; 
+
+function closeSearchView() {
+    isSearchInputFocused = false;
+    body.classList.remove("search-active");
+    searchResults.innerHTML = "";
+    if (downloadButton) downloadButton.style.display = 'block'; 
+    if (searchTimeframe) searchTimeframe.style.display = 'block';
+    searchOverlayBackground.style.display = 'none';
+    
+    // Reset body to allow page scrolling again
+    document.body.style.overflow = 'auto'; 
+}
 
 function searchTasks() {
     const query = searchInput.value.toLowerCase().trim();
+    const timeframe = searchTimeframe.value;
     clearTimeout(debounceTimeout);
     
-    if (!query) {
-        body.classList.remove("search-active");
-        searchResults.innerHTML = "";
-        if (downloadButton) downloadButton.style.display = 'block'; 
+    // --- 1. Control Search View Display ---
+    if (!query && !isSearchInputFocused) {
+        // Only collapse if empty AND not focused (e.g., cleared input and clicked away)
+        closeSearchView();
         return; 
     }
     
+    // Activate search view
     body.classList.add("search-active");
+    searchOverlayBackground.style.display = 'block'; 
     if (downloadButton) downloadButton.style.display = 'none';
+    if (searchTimeframe) searchTimeframe.style.display = 'block'; 
+    
+    // Prevent main body from scrolling
+    document.body.style.overflow = 'hidden';
 
+    if (chatWindow.classList.contains('open')) {
+        toggleChat(false);
+    }
+
+    if (!query) {
+        searchResults.innerHTML = `
+            <div class='search-results-panel'>
+                <p class='p-3 bg-white rounded-xl text-center text-gray-500'>
+                    Start typing to search your tasks...
+                </p>
+            </div>`;
+        return;
+    }
+
+    // --- 2. Perform Search with Debounce ---
     debounceTimeout = setTimeout(() => {
         searchResults.innerHTML = "";
         
-        if (!searchInput.value.toLowerCase().trim()) return; 
-
         const user = firebase.auth().currentUser;
         if (!user) {
-            searchResults.innerHTML = `<p class='p-3 bg-white rounded-lg shadow text-center'>User not logged in.</p>`;
+            searchResults.innerHTML = `<div class='search-results-panel'><p class='p-3 bg-white rounded-lg text-center'>User not logged in.</p></div>`;
             return;
         }
 
         db.ref(`users/${user.uid}/tasks`).once("value").then(snapshot => {
             const allTasks = snapshot.val();
             
+            // Re-check query in case it was cleared during the debounce delay
             if (!searchInput.value.toLowerCase().trim()) return; 
 
             if (!allTasks) {
-                searchResults.innerHTML = `<p class='p-3 bg-white rounded-xl shadow-lg border border-gray-100 text-center'>No tasks found.</p>`;
+                searchResults.innerHTML = `<div class='search-results-panel'><p class='p-3 bg-white rounded-xl text-center'>No tasks found.</p></div>`;
                 return;
+            }
+
+            let cutoffDate = null;
+            if (timeframe === '1year') {
+                cutoffDate = new Date();
+                cutoffDate.setUTCFullYear(cutoffDate.getUTCFullYear() - 1);
+                cutoffDate.setUTCHours(0, 0, 0, 0); 
             }
 
             let found = 0;
             const addedTasks = new Set();
+            
+            // CRITICAL FIX: The results container must have the scrollbar classes
             const resultsDiv = document.createElement("div");
-            resultsDiv.className = "bg-white p-4 shadow-xl rounded-xl max-h-96 overflow-y-auto custom-scroll border border-gray-100";
-
-            // Sort dates in descending order (newest first)
+            resultsDiv.className = "search-results-panel custom-scroll"; 
+            
             const sortedDates = Object.keys(allTasks).sort((a, b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
+                if (cutoffDate) {
+                    const taskDate = new Date(date);
+                    if (taskDate < cutoffDate) {
+                        return; 
+                    }
+                }
+
                 const tasks = allTasks[date];
                 if (!tasks) return;
 
@@ -902,33 +1110,34 @@ function searchTasks() {
                     const titleMatch = title.includes(query);
                     const descMatch = desc.includes(query);
 
-                    const uniqueKey = `${title}-${desc}-${date}`;
+                    const uniqueKey = `${date}-${id}`;
                     if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
                         addedTasks.add(uniqueKey);
                         found++;
 
-                        // Re-construct Date object for display 
                         const parts = date.split('-').map(Number);
-                        // Use UTC date to avoid local timezone offsets affecting the display date
                         const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); 
                         const formattedDate = dt.toLocaleDateString('en-GB', {
                             day: '2-digit',
                             month: 'short',
                             year: 'numeric',
-                            timeZone: 'UTC' // Explicitly use UTC for display consistency
+                            timeZone: 'UTC' 
                         });
 
                         const taskDiv = document.createElement("div");
-                        taskDiv.className = "border border-gray-100 hover:border-yellow-400 hover:bg-yellow-50 transition p-3 rounded-lg mb-2 cursor-pointer";
+                        taskDiv.className = "border border-gray-100 hover:border-indigo-400 hover:bg-indigo-50 transition p-3 rounded-lg mb-2 cursor-pointer";
                         taskDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="text-gray-800">${task.title || 'Untitled Task'}</strong>
-                                <span class="text-xs text-gray-500">${formattedDate}</span>
+                                <strong class="search-result-title">${task.title || 'Untitled Task'}</strong>
+                                <span class="search-result-date">${formattedDate}</span>
                             </div>
-                            <div class="text-gray-600 text-sm mt-1 truncate">${task.desc || 'No Description'}</div>
+                            <div class="search-result-desc mt-1 truncate">${task.desc || 'No Description'}</div>
                         `;
 
-                        taskDiv.addEventListener("click", () => openModal(date));
+                        taskDiv.addEventListener("click", () => {
+                            closeSearchView(); 
+                            openModal(date);
+                        });
                         resultsDiv.appendChild(taskDiv);
                     }
                 });
@@ -938,144 +1147,66 @@ function searchTasks() {
                 searchResults.appendChild(resultsDiv);
             } else {
                 searchResults.innerHTML = `
-                    <p class='p-3 bg-white rounded-xl shadow-lg border border-gray-100 text-center'>
-                        No matching tasks found for "${query}".
-                    </p>`;
+                    <div class='search-results-panel'>
+                        <p class='p-3 bg-white rounded-xl text-center'>
+                            No matching tasks found for "${query}" in the selected timeframe (${timeframe === '1year' ? 'Last 1 Year' : 'All Time'}).
+                        </p>
+                    </div>`;
             }
         }).catch(err => {
             console.error(err);
             searchResults.innerHTML = `
-                <p class='p-3 bg-red-100 rounded-lg shadow text-red-700 text-center'>
-                    Error retrieving tasks.
-                </p>`;
+                <div class='search-results-panel'>
+                    <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>
+                        Error retrieving tasks.
+                    </p>
+                </div>`;
         });
     }, 300);
 }
 
 // ============================
-// SEARCH INPUT EVENT LISTENERS
+// SEARCH INPUT EVENT LISTENERS 
 // ============================
 
 if (searchInput) {
-    searchInput.addEventListener("focus", searchTasks);
-    // Trigger search as user types
+    // 1. On focus, ensure search view is active and run search (to display guide text/results)
+    searchInput.addEventListener("focus", () => {
+        isSearchInputFocused = true;
+        searchTasks();
+    }); 
+    
+    // 2. On keyup, run search immediately
     searchInput.addEventListener("keyup", searchTasks); 
+    
+    // 3. On timeframe change, run search immediately
+    searchTimeframe.addEventListener("change", searchTasks);
 
+    // 4. On blur (losing focus), if the input is empty, close the view (this handles mobile keyboard close)
     searchInput.addEventListener("blur", () => {
-        // Use a timeout to allow clicks on search results before results disappear
-        setTimeout(() => {
-            // Only hide results and blur effect if input is empty after delay
-            if (searchInput.value.trim() === "") {
-                body.classList.remove("search-active");
-                searchResults.innerHTML = "";
-                if (downloadButton) downloadButton.style.display = 'block';
-            }
-        }, 200); 
+        isSearchInputFocused = false;
+        if (searchInput.value.trim() === "") {
+            // Delay closing to give time for a result click to register
+            setTimeout(closeSearchView, 150); 
+        }
     }); 
 }
+
+// Rerender calendar on resize to switch between 7-column and 2-column view
+window.addEventListener('resize', () => {
+    // Debounce the resize event for performance
+    clearTimeout(window.resizeTimer);
+    window.resizeTimer = setTimeout(renderCalendar, 200);
+});
+
+// Initial call to render the calendar on page load
+// This is already done in auth.onAuthStateChanged but ensures mobile detection is correct.
+if (currentUser) {
+    renderCalendar();
+}
 </script>
-
-
-
-<style>
-    /* Custom styles for the calendar grid and responsiveness */
-    .main-content-padding {
-        /* Adds space for the fixed navbar */
-        padding-top: 100px; 
-    }
-    .calendar-header {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        text-align: center;
-        font-weight: bold;
-        padding-bottom: 5px;
-        color: #4b5563; /* gray-600 */
-        font-size: 20px;
-    }
-    #calendar {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px; /* gap-2 */
-    }
-    .calendar-cell {
-        border: 1px solid #e5e7eb; /* gray-200 */
-        border-radius: 8px;
-        padding: 8px;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
-        transition: transform 0.2s;
-        height: 150px; /* Standardize height */
-        overflow: hidden; 
-    }
-    .calendar-cell:hover {
-        border-color: #60a5fa; /* blue-400 */
-        transform: translateY(-1px);
-        cursor: pointer;
-    }
-    /* FIX: Distinct border and color for today (Blue) */
-    .today {
-        border: 2px solid #3b82f6; /* blue-500 */
-        background-color: #eff6ff; /* blue-50 */
-    }
-    /* Default weekend style for Saturday */
-    .weekend {
-        background-color: #fef2f2; /* red-50 */
-    }
-    /* FIX: Orange color for Sunday cells */
-    .sunday-cell {
-        background-color: #fffbeb; /* light amber-50 */
-    background-color: orange;
-    }
-    
-    .custom-scroll {
-        /* Standard scrollbar for existing tasks and calendar cells */
-        scrollbar-width: thin;
-        scrollbar-color: #ccc transparent;
-    }
-    .custom-scroll::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
-    }
-    .custom-scroll::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 4px;
-    }
-
-    /* FIX: The search-active class now applies the filter to main content elements */
-    /* This ensures that the search results and the search container itself remain unblurred and clickable. */
-    .search-active .main-content-padding > div:not(.search-container):not(#searchResults) {
-        filter: blur(2px);
-        pointer-events: none;
-        transition: filter 0.3s;
-    }
-    /* Ensure search results and the modal are above everything */
-    #searchResults, #taskModal, #overlay {
-        z-index: 60;
-    }
-    #searchResults {
-        position: absolute;
-        top: 150px; 
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 1024px; 
-        pointer-events: all; /* Important: ensures results are clickable */
-    }
-    /* FIX: Close button hover style */
-    #closeModal:hover {
-        background-color: #ef4444; /* red-500 */
-        color: white !important;
-        border-radius: 50%;
-        transform: rotate(15deg);
-    }
-</style>
-
-
-
-
-
-
+</body>
 </html>
-
 
 
 
