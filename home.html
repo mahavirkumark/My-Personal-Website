@@ -286,47 +286,7 @@
 <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
     &copy; 2025 Personal Website | All rights reserved
 </footer>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Dashboard - Automated Email</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="https://cdn.tailwindcss.com"></script> 
-</head>
-<body class="bg-gray-100">
-
-    <div id="dashboard" class="p-4">
-        <h1 class="text-2xl font-bold mb-4">Your Automated Birthday Email Dashboard</h1>
-        
-        <div class="bg-white p-6 rounded-lg shadow-lg">
-            <div class="flex items-center space-x-4">
-                <img id="desktopUserPhoto" class="h-16 w-16 rounded-full" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo">
-                <div>
-                    <p id="desktopUserName" class="text-xl font-semibold">Loading User...</p>
-                    <p id="desktopUserEmail" class="text-sm text-gray-500">Loading Email...</p>
-                </div>
-            </div>
-            
-            <p class="mt-4 text-green-600 font-medium">
-                ✅ **Automated Email System Status: ACTIVE**
-            </p>
-            <p class="text-sm text-gray-600">
-                A secure server process runs every morning to check for birthdays and sends mail via EmailJS. 
-                No button clicks are needed!
-            </p>
-
-            <button onclick="window.logout()" id="desktopLogout" 
-                    class="mt-6 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition duration-200">
-                Logout
-            </button>
-        </div>
-    </div>
 
 <script type="module">
 // =================================================================
@@ -464,6 +424,7 @@ auth.onAuthStateChanged(user => {
 </script>
 </body>
 </html>
+
 
 
 
