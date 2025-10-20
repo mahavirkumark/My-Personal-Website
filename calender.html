@@ -1125,13 +1125,14 @@ function searchTasks() {
                         });
 
                         const taskDiv = document.createElement("div");
-                        taskDiv.className = "border border-gray-100 hover:border-indigo-400 hover:bg-indigo-50 transition p-3 rounded-lg mb-2 cursor-pointer";
+                        // **MODIFIED:** Increased font size using 'text-lg' and 'text-base' for better visibility
+                        taskDiv.className = "border border-gray-100 hover:border-indigo-400 hover:bg-indigo-50 transition p-3 rounded-lg mb-2 cursor-pointer duration-150";
                         taskDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="search-result-title">${task.title || 'Untitled Task'}</strong>
-                                <span class="search-result-date">${formattedDate}</span>
+                                <strong class="search-result-title text-lg">${task.title || 'Untitled Task'}</strong>
+                                <span class="search-result-date text-base">${formattedDate}</span>
                             </div>
-                            <div class="search-result-desc mt-1 truncate">${task.desc || 'No Description'}</div>
+                            <div class="search-result-desc mt-1 truncate text-base">${task.desc || 'No Description'}</div>
                         `;
 
                         taskDiv.addEventListener("click", () => {
@@ -1207,6 +1208,7 @@ if (currentUser) {
 </script>
 </body>
 </html>
+
 
 
 
