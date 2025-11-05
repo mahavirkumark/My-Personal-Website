@@ -57,7 +57,7 @@
             /* Transition for smooth animation */
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
             /* Ensure it is block/flex for content */
-            display: flex;
+            display: none; /* Changed from flex to none, JS sets it to flex on showMsg() call */
             align-items: center;
             gap: 8px; /* Added gap for icon/text separation */
         }
@@ -470,7 +470,7 @@
         dom.pinCardEl.classList.remove("hidden");
     }
 
-    // Google Login Handler - NOW USES REDIRECT
+    // Google Login Handler - NOW USES REDIRECT (FIXES COOP ERROR)
     dom.googleLoginBtn.onclick = async () => {
         if (!auth || !db || !provider) {
              showMsg("Initialization Error: The required application services are not loaded. Please try again later.", false);
@@ -478,6 +478,7 @@
         }
         try {
             showMsg("Redirecting to Google for sign-in...", true);
+            // This is the CRITICAL change: switch to signInWithRedirect
             await auth.signInWithRedirect(provider);
             // Execution stops here and resumes in handleRedirectResult() after return
         } catch (e) {
@@ -488,7 +489,7 @@
     // PIN Action Handler (Set, Verify, or Reset)
     dom.pinActionBtn.onclick = async () => {
         const pinInput = dom.pinInputEl.value;
-        const { resetInputsEl, pinActionBtnEl } = dom;
+        const { resetInputsEl } = dom;
 
         // 1. PIN Reset Logic (Checking if resetInputs are visible)
         if (!resetInputsEl.classList.contains("hidden")) {
@@ -659,7 +660,7 @@
 
             } else if (auth.currentUser) {
                 // Case 2: User is already signed in (e.g., page refresh after initial login)
-                // We re-process them to ensure state is set correctly
+                // This prevents the user from being sent back to the Google sign-in every time
                 await handleUserLogin(auth.currentUser);
                 // Do not show a message here to avoid spamming on refresh
 
@@ -681,57 +682,6 @@
     handleRedirectResult();
     // ----------------------------------------------------------------------
 </script>
-</body>
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
