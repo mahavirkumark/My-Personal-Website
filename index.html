@@ -322,7 +322,7 @@
     const auth = typeof firebase !== 'undefined' ? firebase.auth() : null;
     const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
     const provider = typeof firebase !== 'undefined' ? new firebase.auth.GoogleAuthProvider() : null;
-    const MAX_ATTEMPTS = 5; // Define constant for max attempts
+    const MAX_ATTEMPTS = 5;
 
     // Single State Object for User and Session Data
     const state = {
@@ -332,11 +332,10 @@
         isFirstTime: false,
     };
 
-    // Cache ALL DOM elements (Using const for immutable references)
+    // Cache ALL DOM elements
     const dom = {
         msgBoxEl: document.getElementById("msgBox"),
         loginCardEl: document.getElementById("loginCard"),
-        // Fix for typo: document = document.getElementById("pinCard")
         pinCardEl: document.getElementById("pinCard"),
         pinTitleEl: document.getElementById("pinTitle"),
         pinActionBtnEl: document.getElementById("pinActionBtn"),
@@ -365,9 +364,7 @@
         }
         const buf = new TextEncoder().encode(pin);
         const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-
         const hashArray = new Uint8Array(hashBuf);
-        // Optimized mapping for faster array-to-hex conversion
         const hexHash = Array.from(hashArray, b => b.toString(16).padStart(2, '0')).join('');
         return hexHash;
     }
@@ -376,11 +373,10 @@
      * Displays a temporary toast notification.
      */
     function showMsg(msg, success = true) {
-        const { msgBoxEl } = dom; // Destructuring for cleaner access
+        const { msgBoxEl } = dom;
         const iconClass = success ? 'fas fa-check-circle' : 'fas fa-times-circle';
 
         msgBoxEl.innerHTML = `<i class="${iconClass} mr-2"></i><span>${msg}</span>`;
-
         msgBoxEl.classList.remove('success', 'error', 'show');
         msgBoxEl.classList.add(success ? 'success' : 'error');
 
@@ -393,7 +389,7 @@
         setTimeout(() => {
             msgBoxEl.classList.remove('show');
             setTimeout(() => msgBoxEl.style.display = "none", 300);
-        }, 10000); // 10 seconds
+        }, 10000);
     }
 
     /**
@@ -420,7 +416,7 @@
         const d = doc.data();
         return {
             attempts: d.attempts || 0,
-            lockUntil: d.lockUntil ? d.lockUntil.toMillis() : 0 // Handle Timestamp.toMillis() if it exists
+            lockUntil: d.lockUntil ? d.lockUntil.toMillis() : 0
         };
     }
 
@@ -430,56 +426,62 @@
     function updateLock(attempts, lockUntil = null) {
         if (!db || !state.currentUID) return;
         const upd = { attempts };
-        
+
         if (lockUntil === null && attempts === 0) {
-            upd.lockUntil = firebase.firestore.FieldValue.delete(); // Clear lockUntil field when successful
+            upd.lockUntil = firebase.firestore.FieldValue.delete();
         } else if (lockUntil) {
             upd.lockUntil = firebase.firestore.Timestamp.fromMillis(lockUntil);
         }
-        
+
         db.collection("users").doc(state.currentUID).update(upd).catch(e => console.error("Failed to update lock status:", e));
     }
 
     // ----------------------------------------------------------------------
-    // 3. EVENT HANDLERS
+    // 3. CORE LOGIC & EVENT HANDLERS
     // ----------------------------------------------------------------------
 
-    // Google Login Handler
+    /**
+     * Handles the user flow after a successful Google sign-in (either first time or returning).
+     */
+    async function handleUserLogin(user) {
+        state.currentUID = user.uid;
+        state.currentEmail = user.email;
+
+        // Hide the login card immediately
+        dom.loginCardEl.classList.add("hidden");
+        dom.pinCardEl.classList.add("hidden"); // Keep hidden until state is determined
+
+        // Fetch user data from Firestore
+        const doc = await db.collection("users").doc(state.currentUID).get();
+
+        if (!doc.exists) {
+            state.isFirstTime = true;
+            dom.pinTitleEl.textContent = "Set Your PIN";
+            dom.pinActionBtnEl.textContent = "Set PIN";
+        } else {
+            const data = doc.data();
+            state.currentPIN = data.pin;
+            state.isFirstTime = false;
+            dom.pinTitleEl.textContent = "Enter Your PIN";
+            dom.pinActionBtnEl.textContent = "Verify PIN";
+        }
+
+        // Show the PIN card
+        dom.pinCardEl.classList.remove("hidden");
+    }
+
+    // Google Login Handler - NOW USES REDIRECT
     dom.googleLoginBtn.onclick = async () => {
         if (!auth || !db || !provider) {
              showMsg("Initialization Error: The required application services are not loaded. Please try again later.", false);
              return;
         }
         try {
-            // Using sign-in-with-popup as in original code, despite security warnings
-            const result = await auth.signInWithPopup(provider);
-            
-            // Update state
-            state.currentUID = result.user.uid;
-            state.currentEmail = result.user.email;
-
-            // Initiating DB call and UI transition simultaneously for performance
-            const docPromise = db.collection("users").doc(state.currentUID).get();
-            dom.loginCardEl.classList.add("hidden");
-
-            const doc = await docPromise;
-
-            if (!doc.exists) {
-                state.isFirstTime = true;
-                dom.pinTitleEl.textContent = "Set Your PIN";
-                dom.pinActionBtnEl.textContent = "Set PIN";
-            } else {
-                const data = doc.data();
-                state.currentPIN = data.pin;
-                state.isFirstTime = false;
-                dom.pinTitleEl.textContent = "Enter Your PIN";
-                dom.pinActionBtnEl.textContent = "Verify PIN";
-            }
-
-            dom.pinCardEl.classList.remove("hidden");
-
+            showMsg("Redirecting to Google for sign-in...", true);
+            await auth.signInWithRedirect(provider);
+            // Execution stops here and resumes in handleRedirectResult() after return
         } catch (e) {
-            showMsg("Authentication Failed: Please ensure pop-ups are allowed and try logging in again. Error: " + e.message, false);
+            showMsg("Login initiation failed: " + e.message, false);
         }
     };
 
@@ -547,7 +549,6 @@
 
         // 3. PIN Verification Logic (Default flow)
 
-        // PIN Input Validation (Only for verification flow)
          if (!pinInput) {
              showMsg("Please enter your 4-6 digit PIN to proceed.", false);
              return;
@@ -567,7 +568,7 @@
 
         if (hashed === state.currentPIN) {
             showMsg("Login successful! Redirecting...", true);
-            updateLock(0); // Reset attempts and clear lock
+            updateLock(0);
             setTimeout(() => {
                 window.location.href = "home.html";
             }, 1000);
@@ -577,7 +578,6 @@
 
             // Lockout policy
             if (newAtt >= 3) {
-                 // 3rd attempt locks for 5 mins (300000ms), 4th or more locks for 24 hours (86400000ms)
                  const lockDurationMs = newAtt === 3 ? (5 * 60 * 1000) : (24 * 60 * 60 * 1000);
                  newLock = now + lockDurationMs;
             }
@@ -601,15 +601,13 @@
             return;
         }
 
-        // Ensure UI is in the correct state
         dom.pinInputEl.classList.remove("hidden");
         dom.resetInputsEl.classList.add("hidden");
 
-        const newPin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate 4-digit PIN
+        const newPin = Math.floor(1000 + Math.random() * 9000).toString();
         const hashed = await hashPIN(newPin);
-        state.currentPIN = hashed; // Update local state
+        state.currentPIN = hashed;
 
-        // Update DB: save new hashed PIN and reset lock status
         db.collection("users").doc(state.currentUID).update({ pin: hashed, attempts: 0, lockUntil: null })
             .then(() => {
                  dom.pinInputEl.value = "";
@@ -626,13 +624,11 @@
             return;
         }
 
-        // Clear all PIN inputs for a fresh start
         dom.pinInputEl.value = "";
         dom.currentPinInputEl.value = "";
         dom.newPinInputEl.value = "";
         dom.confirmNewPinInputEl.value = "";
 
-        // Update UI state
         dom.pinInputEl.classList.add("hidden");
         dom.resetInputsEl.classList.remove("hidden");
         dom.pinTitleEl.textContent = "Change Your PIN";
@@ -640,10 +636,54 @@
 
         showMsg("ℹ️ To change your PIN, enter your current PIN, then choose and confirm your new PIN.", true);
     };
+
+    // ----------------------------------------------------------------------
+    // 4. POST-REDIRECT HANDLER (CRITICAL FOR FIXING COOP ERROR)
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks for authentication result after a redirect and processes the user.
+     * Also handles existing signed-in users on page refresh.
+     */
+    async function handleRedirectResult() {
+        if (!auth || !db) return;
+
+        try {
+            // Check for result after returning from Google
+            const result = await auth.getRedirectResult();
+
+            if (result && result.user) {
+                // Case 1: Just successfully signed in via redirect
+                await handleUserLogin(result.user);
+                showMsg("Successfully signed in with Google.", true);
+
+            } else if (auth.currentUser) {
+                // Case 2: User is already signed in (e.g., page refresh after initial login)
+                // We re-process them to ensure state is set correctly
+                await handleUserLogin(auth.currentUser);
+                // Do not show a message here to avoid spamming on refresh
+
+            } else {
+                // Case 3: No user is signed in, show the login card
+                dom.loginCardEl.classList.remove("hidden");
+                dom.pinCardEl.classList.add("hidden");
+            }
+
+        } catch (e) {
+            // Handle errors after the redirect (like user closing the window before sign-in)
+            showMsg("Authentication Failed: Please try logging in again. Error: " + e.message, false);
+            dom.loginCardEl.classList.remove("hidden");
+            dom.pinCardEl.classList.add("hidden");
+        }
+    }
+
+    // ⭐ IMPORTANT: Execute the handler immediately on page load
+    handleRedirectResult();
     // ----------------------------------------------------------------------
 </script>
 </body>
 </html>
+
 
 
 
