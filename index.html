@@ -290,16 +290,18 @@
     <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
     <script>
-        emailjs.init("NbamX634Y_o570cNw");
+        // Initialize EmailJS with your Public Key
+        emailjs.init("NbamX634Y_o570cNw"); 
     </script>
 <script>
     // ----------------------------------------------------------------------
     // 1. CONFIGURATION & INITIALIZATION
     // ----------------------------------------------------------------------
+    // !! IMPORTANT !! REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
     const firebaseConfig = {
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", // <-- Your API Key
         authDomain: "sk12-58e9e.firebaseapp.com",
-        projectId: "sk12-58e9e",
+        projectId: "sk12-58e9e", // <-- Your Project ID
         storageBucket: "sk12-58e9e.appspot.com",
         messagingSenderId: "470207874652",
         appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
@@ -349,14 +351,19 @@
      */
     async function hashPIN(pin) {
         if (!crypto.subtle) {
-            console.error("Crypto API not available.");
+            console.error("Crypto API not available. Returning unhashed PIN.");
             return pin;
         }
-        const buf = new TextEncoder().encode(pin);
-        const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-        const hashArray = new Uint8Array(hashBuf);
-        const hexHash = Array.from(hashArray, b => b.toString(16).padStart(2, '0')).join('');
-        return hexHash;
+        try {
+            const buf = new TextEncoder().encode(pin);
+            const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+            const hashArray = new Uint8Array(hashBuf);
+            const hexHash = Array.from(hashArray, b => b.toString(16).padStart(2, '0')).join('');
+            return hexHash;
+        } catch (e) {
+            console.error("PIN hashing failed:", e);
+            return pin; // Fallback in case of crypto error
+        }
     }
 
     /**
@@ -402,13 +409,19 @@
      */
     async function getLock() {
         if (!db || !state.currentUID) return { attempts: 0, lockUntil: 0 };
-        const doc = await db.collection("users").doc(state.currentUID).get();
-        if (!doc.exists) return { attempts: 0, lockUntil: 0 };
-        const d = doc.data();
-        return {
-            attempts: d.attempts || 0,
-            lockUntil: d.lockUntil ? d.lockUntil.toMillis() : 0
-        };
+        try {
+            const doc = await db.collection("users").doc(state.currentUID).get();
+            if (!doc.exists) return { attempts: 0, lockUntil: 0 };
+            const d = doc.data();
+            return {
+                attempts: d.attempts || 0,
+                lockUntil: d.lockUntil ? d.lockUntil.toMillis() : 0
+            };
+        } catch (e) {
+            console.error("Error fetching lock status from Firestore:", e);
+            showMsg("Error connecting to database. Check your Firestore rules or connection.", false);
+            return { attempts: MAX_ATTEMPTS, lockUntil: Date.now() + 10000 }; // Fail safe: temporary lock
+        }
     }
 
     /**
@@ -436,47 +449,64 @@
      * Handles the user flow after a successful Google sign-in (either first time or returning).
      */
     async function handleUserLogin(user) {
+        if (!db) {
+            showMsg("Database connection failed. Cannot proceed.", false);
+            return;
+        }
+
         state.currentUID = user.uid;
         state.currentEmail = user.email;
 
-        // Hide the login card immediately
+        // CRITICAL UI HIDING
         dom.loginCardEl.classList.add("hidden");
         dom.pinCardEl.classList.add("hidden"); 
 
-        // Fetch user data from Firestore
-        const doc = await db.collection("users").doc(state.currentUID).get();
+        try {
+            // Fetch user data from Firestore
+            const doc = await db.collection("users").doc(state.currentUID).get();
 
-        if (!doc.exists) {
-            // First time user: Needs to set a PIN
-            state.isFirstTime = true;
-            dom.pinTitleEl.textContent = "Set Your PIN";
-            dom.pinActionBtnEl.textContent = "Set PIN";
-            dom.forgotPinBtnEl.classList.add("hidden"); // Cannot reset a PIN that doesn't exist
-            dom.resetPinBtnEl.classList.add("hidden"); 
-        } else {
-            // Returning user: Needs to verify PIN
-            const data = doc.data();
-            state.currentPIN = data.pin;
-            state.isFirstTime = false;
-            dom.pinTitleEl.textContent = "Enter Your PIN";
-            dom.pinActionBtnEl.textContent = "Verify PIN";
-            dom.forgotPinBtnEl.classList.remove("hidden");
-            dom.resetPinBtnEl.classList.remove("hidden");
+            if (!doc.exists) {
+                // First time user: Needs to set a PIN
+                state.isFirstTime = true;
+                dom.pinTitleEl.textContent = "Set Your PIN";
+                dom.pinActionBtnEl.textContent = "Set PIN";
+                dom.forgotPinBtnEl.classList.add("hidden"); 
+                dom.resetPinBtnEl.classList.add("hidden"); 
+                dom.pinInputEl.classList.remove("hidden"); // Ensure PIN input is visible
+                dom.resetInputsEl.classList.add("hidden"); // Ensure reset inputs are hidden
+            } else {
+                // Returning user: Needs to verify PIN
+                const data = doc.data();
+                state.currentPIN = data.pin;
+                state.isFirstTime = false;
+                dom.pinTitleEl.textContent = "Enter Your PIN";
+                dom.pinActionBtnEl.textContent = "Verify PIN";
+                dom.forgotPinBtnEl.classList.remove("hidden");
+                dom.resetPinBtnEl.classList.remove("hidden");
+                dom.pinInputEl.classList.remove("hidden"); 
+                dom.resetInputsEl.classList.add("hidden");
+            }
+            
+            // CRITICAL UI SHOWING
+            dom.pinCardEl.classList.remove("hidden");
+
+        } catch (e) {
+            console.error("Firestore user data fetch failed:", e);
+            showMsg("Login flow interrupted. Check your **Firestore Security Rules** in the Firebase Console.", false);
+             // Revert to login card on fatal error
+            dom.loginCardEl.classList.remove("hidden");
+            dom.pinCardEl.classList.add("hidden");
         }
-
-        // Show the PIN card
-        dom.pinCardEl.classList.remove("hidden");
     }
 
     // Google Login Handler
     dom.googleLoginBtn.onclick = async () => {
         if (!auth || !db || !provider) {
-             showMsg("Initialization Error: The required application services are not loaded. Please try again later.", false);
+             showMsg("Initialization Error: Required application services are not loaded.", false);
              return;
         }
         try {
             showMsg("Redirecting to Google for sign-in...", true);
-            // Use signInWithRedirect to avoid Cross-Origin-Opener-Policy issues
             await auth.signInWithRedirect(provider);
         } catch (e) {
             showMsg("Login initiation failed: " + e.message, false);
@@ -488,7 +518,7 @@
         const pinInput = dom.pinInputEl.value;
         const { resetInputsEl } = dom;
 
-        // 1. PIN Reset Logic
+        // 1. PIN Reset/Change Logic (when reset inputs are visible)
         if (!resetInputsEl.classList.contains("hidden")) {
             const cur = dom.currentPinInputEl.value;
             const newPin = dom.newPinInputEl.value;
@@ -515,10 +545,10 @@
 
             const hashedNew = await hashPIN(newPin);
             state.currentPIN = hashedNew;
-            // Reset attempts and lockout after successful PIN change
+            
             db.collection("users").doc(state.currentUID).update({ pin: hashedNew, attempts: 0, lockUntil: null })
                 .then(() => {
-                    showMsg("✅ Success! Your PIN has been updated. You will now be redirected to the dashboard.", true);
+                    showMsg("✅ Success! Your PIN has been updated. Redirecting to the dashboard.", true);
                     setTimeout(() => {
                           window.location.href = "home.html";
                     }, 1000);
@@ -535,15 +565,15 @@
             }
             const hashed = await hashPIN(pinInput);
             state.currentPIN = hashed;
-            // Create new user document with PIN
+            
             db.collection("users").doc(state.currentUID).set({ pin: hashed, attempts: 0, lockUntil: null, email: state.currentEmail })
                 .then(() => {
-                    showMsg("✅ Account Setup Complete! Your PIN has been saved. Redirecting to your dashboard...", true);
+                    showMsg("✅ Account Setup Complete! Redirecting to your dashboard...", true);
                     setTimeout(() => {
                           window.location.href = "home.html";
                     }, 1000);
                 })
-                .catch(e => showMsg("An error occurred during initial PIN setup. Please try again.", false));
+                .catch(e => showMsg("An error occurred during initial PIN setup. Please try again. Check Firestore rules.", false));
             return;
         }
 
@@ -627,16 +657,15 @@
 
     // Reset PIN UI Toggle Handler
     dom.resetPinBtnEl.onclick = () => {
-        if (!state.currentPIN) {
-            showMsg("Please sign in first to access the PIN change option.", false);
+        if (!state.currentPIN && !state.isFirstTime) {
+            showMsg("Please complete the initial login process first.", false);
             return;
         }
 
-        // Show/Hide inputs to switch between Verify PIN and Reset PIN modes
         const isResetMode = !dom.resetInputsEl.classList.contains("hidden");
 
         if (isResetMode) {
-             // Switching back to Verify PIN mode
+            // Switching back to Verify PIN mode
             dom.pinInputEl.classList.remove("hidden");
             dom.resetInputsEl.classList.add("hidden");
             dom.pinTitleEl.textContent = "Enter Your PIN";
@@ -672,8 +701,8 @@
 
             if (result && result.user) {
                 // Successfully signed in via redirect
+                showMsg("Successfully signed in with Google. Proceeding to PIN verification...", true);
                 await handleUserLogin(result.user);
-                showMsg("Successfully signed in with Google. Please proceed with your PIN.", true);
 
             } else if (auth.currentUser) {
                 // 2. User is already signed in (e.g., page refresh)
@@ -686,20 +715,15 @@
             }
 
         } catch (e) {
-            // Handle errors after the redirect (like user closing the window before sign-in)
             console.error("Authentication Failed:", e);
             showMsg("Authentication Failed: Please try logging in again. Error: " + e.message, false);
+            // Ensure login UI is visible on error
             dom.loginCardEl.classList.remove("hidden");
             dom.pinCardEl.classList.add("hidden");
         }
     }
 
-    // ⭐ IMPORTANT: Execute the handler immediately on page load to process the redirect result
+    // ⭐ IMPORTANT: Execute the handler immediately on page load
     handleRedirectResult();
     // ----------------------------------------------------------------------
 </script>
-
-
-
-
-
