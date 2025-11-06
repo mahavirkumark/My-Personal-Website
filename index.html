@@ -282,268 +282,80 @@
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
     // --- Firebase Configuration Using Your Provided ID ---
-const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "470207874652",
-    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
 
-if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
-    firebase.initializeApp(firebaseConfig);
-}
+    if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+    }
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-const provider = new firebase.auth.GoogleAuthProvider();
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-let currentUID = null, currentEmail = null, currentPIN = null;
-let isFirstTime = false;
+    let currentUID = null;
+    let currentEmail = null;
 
-const msgBoxEl = document.getElementById("msgBox");
-const loginCardEl = document.getElementById("loginCard");
-const pinCardEl = document.getElementById("pinCard");
-const pinTitleEl = document.getElementById("pinTitle");
-const pinActionBtnEl = document.getElementById("pinActionBtn");
-const pinInputEl = document.getElementById("pinInput"); 
-const resetInputsEl = document.getElementById("resetPinInputs"); 
-const currentPinInputEl = document.getElementById("currentPinInput");
-const newPinInputEl = document.getElementById("newPinInput");
-const confirmNewPinInputEl = document.getElementById("confirmNewPinInput");
-const forgotPinBtnEl = document.getElementById("forgotPinBtn"); 
-const resetPinBtnEl = document.getElementById("resetPinBtn"); 
-
-// --- Helper Functions ---
-async function hashPIN(pin) {
-    if (!crypto.subtle) return pin;
-    const buf = new TextEncoder().encode(pin);
-    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-    return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Enhanced function to display the message box (Toast Notification) 
- * using the defined CSS classes for success/error.
- */
-function showMsg(msg, success = true, duration = 6000) {
-    // 1. Clear previous state and determine style class
-    msgBoxEl.className = ''; 
-    msgBoxEl.classList.add(success ? 'success' : 'error');
+    const msgBoxEl = document.getElementById("msgBox");
+    const loginCardEl = document.getElementById("loginCard");
     
-    // 2. Set Content
-    const iconClass = success ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
-    msgBoxEl.innerHTML = `<i class="${iconClass}"></i><span class="flex-grow">${msg}</span>`;
-    
-    // 3. Trigger Fade-in and Slide-in
-    requestAnimationFrame(() => {
-        msgBoxEl.classList.add('show');
-    });
+    // --- Helper Function for Toast Messages ---
+    function showMsg(msg, success = true, duration = 6000) {
+        // 1. Clear previous state and determine style class
+        msgBoxEl.className = ''; 
+        msgBoxEl.classList.add(success ? 'success' : 'error');
+        
+        // 2. Set Content
+        const iconClass = success ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+        msgBoxEl.innerHTML = `<i class="${iconClass}"></i><span class="flex-grow">${msg}</span>`;
+        
+        // 3. Trigger Fade-in and Slide-in
+        requestAnimationFrame(() => {
+            msgBoxEl.classList.add('show');
+        });
 
-    // 4. Set Timeout to Hide
-    setTimeout(() => {
-        msgBoxEl.classList.remove('show');
-        // Wait for the transition (0.3s) to complete before clearing all styles
+        // 4. Set Timeout to Hide
         setTimeout(() => {
-            msgBoxEl.className = '';
-        }, 300); 
-    }, duration); 
-}
-
-async function getLock() {
-    if (!db || !currentUID) return { attempts: 0, lockUntil: 0 };
-    const doc = await db.collection("users").doc(currentUID).get();
-    if (!doc.exists) return { attempts: 0, lockUntil: 0 };
-    const d = doc.data();
-    return { attempts: d.attempts || 0, lockUntil: d.lockUntil || 0 };
-}
-
-function updateLock(attempts, lockUntil = null) {
-    if (!db || !currentUID) return;
-    const upd = { attempts: attempts };
-    if (lockUntil) upd.lockUntil = lockUntil;
-    else if (attempts === 0) upd.lockUntil = firebase.firestore.FieldValue.delete();
-    db.collection("users").doc(currentUID).update(upd).catch(e => console.error("Failed to update lock:", e)); 
-}
-
-// --- Event Handlers ---
-document.getElementById("googleLoginBtn").onclick = async () => {
-    try {
-        const result = await auth.signInWithPopup(provider);
-        currentUID = result.user.uid;
-        currentEmail = result.user.email;
-
-        const doc = await db.collection("users").doc(currentUID).get();
-
-        if (!doc.exists) {
-            isFirstTime = true;
-            pinTitleEl.textContent = "Set Your PIN";
-            pinActionBtnEl.textContent = "Set PIN";
-            showMsg("Welcome! Please set a 4-6 digit PIN for extra security.", true);
-        } else {
-            isFirstTime = false;
-            const data = doc.data();
-            currentPIN = data.pin;
-            pinTitleEl.textContent = "Enter Your PIN";
-            pinActionBtnEl.textContent = "Verify PIN";
-            showMsg("Sign-in successful. Enter your PIN to continue.", true);
-        }
-        
-        // Reset pin input and visible card
-        pinInputEl.value = "";
-        resetInputsEl.classList.add("hidden");
-
-        pinCardEl.classList.remove("hidden");
-        loginCardEl.classList.add("hidden");
-    } catch (e) {
-        showMsg("Login failed: " + e.message, false);
-    }
-};
-
-pinActionBtnEl.onclick = async () => {
-    const pinInput = pinInputEl.value;
-    const MAX_ATTEMPTS = 5;
-
-    // --- PIN RESET LOGIC ---
-    if (!resetInputsEl.classList.contains("hidden")) {
-        const cur = currentPinInputEl.value;
-        const newPin = newPinInputEl.value;
-        const conf = confirmNewPinInputEl.value;
-
-        if (!cur || !newPin || !conf) {
-            showMsg("Complete all fields to reset PIN.", false);
-            return;
-        }
-        if (newPin.length < 4 || newPin.length > 6 || isNaN(newPin)) {
-            showMsg("New PIN must be 4-6 digits.", false);
-            return;
-        }
-        if (newPin !== conf) {
-            showMsg("New PIN and confirm do not match.", false);
-            return;
-        }
-        const hashedCur = await hashPIN(cur);
-        if (hashedCur !== currentPIN) {
-            showMsg("Current PIN incorrect.", false);
-            return;
-        }
-        const hashedNew = await hashPIN(newPin);
-        currentPIN = hashedNew;
-        db.collection("users").doc(currentUID).update({ pin: hashedNew, attempts: 0, lockUntil: null })
-            .then(() => {
-                showMsg("PIN updated. Redirecting...", true);
-                // Clear inputs
-                currentPinInputEl.value = newPinInputEl.value = confirmNewPinInputEl.value = "";
-                // Switch back to verification view
-                resetInputsEl.classList.add("hidden");
-                pinInputEl.classList.remove("hidden");
-                pinTitleEl.textContent = "Enter Your PIN";
-                pinActionBtnEl.textContent = "Verify PIN";
-
-                setTimeout(() => { window.location.href = "home.html"; }, 1000); // Redirect upon success
-            })
-            .catch(e => showMsg("Error updating PIN: " + e.message, false));
-        return;
+            msgBoxEl.classList.remove('show');
+            setTimeout(() => {
+                msgBoxEl.className = '';
+            }, 300); 
+        }, duration); 
     }
 
-    // --- INITIAL PIN SETUP LOGIC ---
-    if (isFirstTime) {
-        if (pinInput.length < 4 || pinInput.length > 6 || isNaN(pinInput)) {
-            showMsg("PIN must be 4-6 digits.", false);
-            return;
+    // --- Event Handler for Google Login ---
+    document.getElementById("googleLoginBtn").onclick = async () => {
+        try {
+            const result = await auth.signInWithPopup(provider);
+            currentUID = result.user.uid;
+            currentEmail = result.user.email;
+
+            // Check if user document exists (for new user setup)
+            const doc = await db.collection("users").doc(currentUID).get();
+
+            if (!doc.exists) {
+                // First time login: Create the user document (no PIN needed)
+                await db.collection("users").doc(currentUID).set({ 
+                    email: currentEmail,
+                });
+            }
+            
+            // --- IMMEDIATE REDIRECTION FOR FAST SIGN-IN ---
+            
+            setTimeout(() => { window.location.href = "home.html"; }, 1000); 
+
+        } catch (e) {
+            showMsg("Login failed: " + e.message, false);
         }
-        const hashed = await hashPIN(pinInput);
-        currentPIN = hashed;
-        db.collection("users").doc(currentUID).set({ 
-            email: currentEmail,
-            pin: hashed, 
-            attempts: 0, 
-            lockUntil: null 
-        })
-            .then(() => {
-                showMsg("Account setup complete. Redirecting...", true);
-                setTimeout(() => { window.location.href = "home.html"; }, 1000); // Redirect upon success
-            })
-            .catch(e => showMsg("Error during PIN setup: " + e.message, false));
-        return;
-    }
-
-    // --- PIN VERIFICATION / LOGIN LOGIC ---
-    const { attempts, lockUntil } = await getLock();
-    const now = Date.now();
-    if (lockUntil && now < lockUntil) {
-        // Calculate remaining time
-        const remaining = Math.ceil((lockUntil - now) / 60000);
-        showMsg(`Account locked due to too many failed attempts. Wait ${remaining} minute${remaining !== 1 ? 's' : ''}.`, false);
-        return;
-    }
-
-    const hashed = await hashPIN(pinInput);
-    if (hashed === currentPIN) {
-        updateLock(0);
-        showMsg("Login successful! Redirecting...", true);
-        setTimeout(() => { window.location.href = "home.html"; }, 1000); // Redirect upon success
-    } else {
-        let newAtt = attempts + 1;
-        let newLock = null;
-        
-        // Brute-force logic: 3 attempts -> 5 min lock. 4 attempts -> 24 hour lock.
-        if (newAtt >= 3) {
-             const lockMinutes = (newAtt === 3) ? 5 : (newAtt >= 4 ? 24 * 60 : 0);
-             newLock = now + (lockMinutes * 60 * 1000);
-        }
-
-        updateLock(newAtt, newLock);
-        pinInputEl.value = ""; // Clear input after failed attempt
-
-        if (newLock) {
-            const lockMessage = (newAtt === 3) ? '5 minutes' : '24 hours';
-            showMsg(`Incorrect PIN. Account locked for ${lockMessage}.`, false);
-        } else {
-            showMsg(`Incorrect PIN. ${MAX_ATTEMPTS - newAtt} attempts left before lock.`, false);
-        }
-    }
-};
-
-forgotPinBtnEl.onclick = async () => {
-    if (!currentEmail || !currentUID) {
-        showMsg("Please sign in with Google first to recover your PIN.", false);
-        return;
-    }
-    
-    // Switch to clean PIN input view if needed
-    pinInputEl.classList.remove("hidden");
-    resetInputsEl.classList.add("hidden");
-    pinTitleEl.textContent = "Enter Your PIN";
-    pinActionBtnEl.textContent = "Verify PIN";
-
-    // Simulate sending a temporary password/link for security
-    // In a real application, this would trigger an email or SMS service
-    showMsg("A PIN reset link has been sent to your registered Google email. Check your inbox to proceed.", true);
-    
-    // You must NOT actually reset the PIN client-side upon "forgot PIN" 
-    // for security reasons. The user must follow the link in the email.
-};
-
-resetPinBtnEl.onclick = () => {
-    if (!currentPIN) {
-        showMsg("Please sign in with Google first to change your PIN.", false);
-        return;
-    }
-    // Clear all inputs and switch view
-    pinInputEl.value = "";
-    currentPinInputEl.value = "";
-    newPinInputEl.value = "";
-    confirmNewPinInputEl.value = "";
-
-    pinInputEl.classList.add("hidden");
-    resetInputsEl.classList.remove("hidden");
-    pinTitleEl.textContent = "Change Your PIN";
-    pinActionBtnEl.textContent = "Save New PIN";
-    showMsg("To change your PIN, enter current and new PIN.", true);
-};
+    };
 </script>
 </body>
 </html>
+
 
