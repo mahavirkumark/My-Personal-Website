@@ -255,145 +255,115 @@
     const editIdInput = document.getElementById('edit-id');
     
     // New DOM references for the ADD form
-    const newDateInput = document.getElementById('birthdate'); 
-    const newAgeInput = document.getElementById('age'); 
+const newDateInput = document.getElementById('birthdate'); 
+const newAgeInput = document.getElementById('age'); 
 
+function updateDateFromAge(dateInput, ageInput) {
+    const age = parseInt(ageInput.value);
+    const dateInputValue = dateInput.value;
+    let monthDay = '';
 
-    // --- Core Calculation Function ---
-    /**
-     * Calculates the full birthdate (YYYY-MM-DD) and updates the date input field.
-     * @param {HTMLInputElement} dateInput - The date input element (provides MM-DD).
-     * @param {HTMLInputElement} ageInput - The age input element (provides Age).
-     */
-  function updateDateFromAge(dateInput, ageInput) {
-        const age = parseInt(ageInput.value);
-        const dateInputValue = dateInput.value;
-        let monthDay = '';
-
-        if (dateInputValue && dateInputValue.length === 10) {
-            monthDay = dateInputValue.substring(5); // Extracts MM-DD
-        }
-
-        if (isNaN(age) || age <= 0) {
-            if (monthDay) {
-                dateInput.value = `${new Date().getFullYear()}-${monthDay}`;
-            } else {
-                dateInput.value = '';
-            }
-            return;
-        }
-
-        if (!monthDay) {
-            // Cannot calculate accurately without month/day, so we exit
-            // The user should be forced to select a month/day first.
-            dateInput.value = ''; 
-            return; 
-        }
-
-        const currentYear = new Date().getFullYear();
-        const today = new Date();
-        
-        // Extract month and day from the MM-DD string
-        const [birthMonth, birthDay] = monthDay.split('-').map(Number);
-        
-        // Check if the birthday has passed this year
-        let birthYear = currentYear - age;
-
-        const currentMonth = today.getMonth() + 1;
-        const currentDay = today.getDate();
-
-        // Scenario: You enter 21 years old, and your birthday is in December (which hasn't happened yet in Nov 2025).
-        // This means you are currently 20 and will turn 21 soon. The birth year should be (2025 - 21) + 1 = 2005.
-        // If your birthday has already passed (e.g., in Jan), you are currently 21, and the birth year is 2004.
-        
-
-        if (currentMonth < birthMonth || (currentMonth === birthMonth && currentDay < birthDay)) {
-            // If the birthday is in the future this year (or today, but today is handled correctly)
-            // The age you entered (X) is the age they *will be* at their birthday this year.
-            // The actual birth year must be one year earlier to account for the current age being X-1.
-            birthYear = currentYear - age;
-
-        } else {
-            // If the birthday has already passed this year (or is today)
-            // The age you entered (X) is their current age.
-            // The actual birth year is (Current Year - Age).
-            birthYear = currentYear - age;
-        }
-        
-        /*
-         * Reworked Logic based on your example (13 Dec 2003, 21 years old in Nov 2025):
-         * 1. You enter Age = 21. Current year = 2025.
-         * 2. Birth month (12) > Current month (11). Birthday hasn't passed.
-         * 3. The person is currently 21. Their birth year is 2004 (2025 - 21 = 2004). This is the bug.
-         * 4. If they are *currently* 21 and the birthday hasn't passed, their birth year must be 2003, and they'll turn 22 next month.
-         * The age input should be interpreted as the age they **currently are**.
-         */
-        
-        let calculatedBirthYear;
-        const bdayOccurredThisYear = (currentMonth > birthMonth) || (currentMonth === birthMonth && currentDay >= birthDay);
-
-        if (bdayOccurredThisYear) {
-            // If birthday passed (or is today), the entered age IS their current age.
-            // E.g., Today is Jan 2025. They entered Age 21. Bday was Jan 2024. Birth Year = 2025 - 21 = 2004. (Correct)
-            calculatedBirthYear = currentYear - age;
-        } else {
-            // If birthday is in the future, the entered age IS their current age, but their birth year is one year less.
-            // E.g., Today is Nov 2025. They entered Age 21. Bday is Dec 2025. They are currently 21, but will turn 22.
-            // Birth Year must be 2025 - 21 - 1 = 2003. (Correct)
-            calculatedBirthYear = currentYear - age - 1;
+    // 1. Try to extract MM-DD from the birthdate input value
+    if (dateInputValue && dateInputValue.length >= 5) {
+        // Get the last 5 characters: -MM-DD or MM-DD 
+        monthDay = dateInputValue.length === 10 ? dateInputValue.substring(5) : dateInputValue;
+        // Ensure monthDay is correctly formatted as MM-DD
+        if (monthDay.startsWith('-')) {
+             monthDay = monthDay.substring(1);
         }
-        
-        dateInput.value = `${calculatedBirthYear}-${monthDay}`;
-    }
+    }
+
+    // 2. Handle invalid/empty Age
+    if (isNaN(age) || age <= 0) {
+        // If age is invalid, but month/day is available, set the year to current year
+        if (monthDay && monthDay.length === 5 && monthDay.includes('-')) {
+             dateInput.value = `${new Date().getFullYear()}-${monthDay}`;
+        } else {
+             dateInput.value = ''; // Clear date if neither age nor month/day are valid
+        }
+        return;
+    }
+
+    // 3. Handle valid Age, but missing Month/Day
+    if (!monthDay || monthDay.length !== 5 || !monthDay.includes('-')) {
+        // If the month/day is missing, we cannot calculate the birth year. Exit.
+        return; 
+    }
+
+    // Extract month and day from the MM-DD string
+    const [birthMonth, birthDay] = monthDay.split('-').map(Number);
     
-    // --- Event Listeners ---
-    // Real-time update for ADD form
-    if(newAgeInput && newDateInput) {
-        newAgeInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
-        newDateInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
+    const currentYear = new Date().getFullYear();
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // 1-indexed month
+    const currentDay = today.getDate();
+
+    let calculatedBirthYear;
+    
+    // Check if the current day/month is on or after the birthday this year
+    const bdayOccurredThisYear = (currentMonth > birthMonth) || 
+                                 (currentMonth === birthMonth && currentDay >= birthDay);
+
+    if (bdayOccurredThisYear) {
+        // Birthday passed (or is today): Age is current age. Birth Year = Current Year - Age.
+        calculatedBirthYear = currentYear - age;
+    } else {
+        // Birthday is in the future: Age is current age. Birth Year = Current Year - Age - 1.
+        calculatedBirthYear = currentYear - age - 1;
     }
     
-    // Real-time update for EDIT modal
-    editAgeInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
-    editDateInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
+    // Set the final YYYY-MM-DD value
+    dateInput.value = `${calculatedBirthYear}-${monthDay}`;
+}
+    
+// --- Event Listeners ---
+// Real-time update for ADD form
+if(newAgeInput && newDateInput) {
+    newAgeInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
+    newDateInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
+}
+    
+// Real-time update for EDIT modal
+editAgeInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
+editDateInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
 
     
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+});
 
-    toggleNotesBtn.addEventListener('click', () => {
-        notesContainer.classList.toggle('hidden');
-        if (notesContainer.classList.contains('hidden')) {
-            toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-        } else {
-            toggleNotesBtn.innerHTML = '<i class="fas fa-minus mr-2"></i> Hide Notes';
-        }
-    });
+toggleNotesBtn.addEventListener('click', () => {
+    notesContainer.classList.toggle('hidden');
+    if (notesContainer.classList.contains('hidden')) {
+        toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
+    } else {
+        toggleNotesBtn.innerHTML = '<i class="fas fa-minus mr-2"></i> Hide Notes';
+    }
+});
 
-    addNoteBtn.addEventListener('click', () => {
-        addNoteField(notesFields);
-    });
+addNoteBtn.addEventListener('click', () => {
+    addNoteField(notesFields);
+});
 
-    editAddNoteBtn.addEventListener('click', () => {
-        addNoteField(editNotesContainer);
-    });
+editAddNoteBtn.addEventListener('click', () => {
+    addNoteField(editNotesContainer);
+});
 
-    addBirthdayForm.addEventListener('submit', handleAddBirthday);
-    editForm.addEventListener('submit', handleEditBirthday);
-    closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+addBirthdayForm.addEventListener('submit', handleAddBirthday);
+editForm.addEventListener('submit', handleEditBirthday);
+closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
 
-    allItemsList.addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        
-        const listItem = e.target.closest('li');
-        const birthdayId = listItem.dataset.birthdayId;
-        const contactId = listItem.dataset.contactId;
-        const name = listItem.dataset.name;
+allItemsList.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    
+    const listItem = e.target.closest('li');
+    const birthdayId = listItem.dataset.birthdayId;
+    const contactId = listItem.dataset.contactId;
+    const name = listItem.dataset.name;
 
-        if (btn.classList.contains('delete-btn')) {
-             if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
+    if (btn.classList.contains('delete-btn')) {
+            if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
                 if (birthdayId) {
                     deleteBirthday(birthdayId);
                 }
@@ -401,527 +371,527 @@
                     deleteContact(contactId);
                 }
             }
-        } else if (btn.classList.contains('edit-btn')) {
-            if (confirm(`Do you want to edit the details for ${name}?`)) {
-                if(birthdayId) {
-                    openEditModal(birthdayId);
-                }
-            }
-        } else if (btn.classList.contains('add-birthday-btn')) {
-            document.getElementById('name').value = name;
-            document.getElementById('mobile').value = listItem.dataset.mobile || '';
-            document.getElementById('birthdate').value = '';
-            document.getElementById('age').value = '';
-        } else if (btn.classList.contains('share-contact-btn')) {
-            const contact = allContacts[contactId];
-            if (contact) {
-                shareContact(contact);
-            } else {
-                console.error("No contact details to share for this entry.");
-            }
-        } else if (btn.classList.contains('share-birthday-btn')) {
-            const birthday = allBirthdays[birthdayId];
-            if (birthday) {
-                shareBirthday(birthday);
-            } else {
-                console.error("No birthday details to share for this entry.");
+    } else if (btn.classList.contains('edit-btn')) {
+        if (confirm(`Do you want to edit the details for ${name}?`)) {
+            if(birthdayId) {
+                openEditModal(birthdayId);
             }
         }
+    } else if (btn.classList.contains('add-birthday-btn')) {
+        document.getElementById('name').value = name;
+        document.getElementById('mobile').value = listItem.dataset.mobile || '';
+        document.getElementById('birthdate').value = '';
+        document.getElementById('age').value = '';
+    } else if (btn.classList.contains('share-contact-btn')) {
+        const contact = allContacts[contactId];
+        if (contact) {
+            shareContact(contact);
+        } else {
+            console.error("No contact details to share for this entry.");
+        }
+    } else if (btn.classList.contains('share-birthday-btn')) {
+        const birthday = allBirthdays[birthdayId];
+        if (birthday) {
+            shareBirthday(birthday);
+        } else {
+            console.error("No birthday details to share for this entry.");
+        }
+    }
+});
+
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    renderAllItems(searchTerm);
+});
+
+
+// --- Helper Functions ---
+function addNoteField(container, title = '', content = '') {
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'flex items-center gap-2 mb-2';
+    noteDiv.innerHTML = `
+        <input type="text" value="${title}" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
+        <input type="text" value="${content}" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
+        <button type="button" class="text-red-500 hover:text-red-700 remove-note-btn"><i class="fas fa-times-circle"></i></button>
+    `;
+    container.appendChild(noteDiv);
+    noteDiv.querySelector('.remove-note-btn').addEventListener('click', () => {
+        noteDiv.remove();
+    });
+}
+
+/**
+ * @param {string} birthdate - Must be in YYYY-MM-DD format.
+ * @returns {number|null} The calculated age or null if format is incorrect.
+ */
+function calculateAge(birthdate) {
+    if (!birthdate || birthdate.length !== 10) return null; // Ensure full YYYY-MM-DD format
+
+    const today = new Date();
+    const [birthYear, birthMonth, birthDay] = birthdate.split('-').map(Number);
+    
+    if (isNaN(birthYear) || isNaN(birthMonth) || isNaN(birthDay)) return null;
+
+    let age = today.getFullYear() - birthYear;
+    const m = today.getMonth() + 1 - birthMonth; // +1 because getMonth is 0-indexed
+    
+    if (m < 0 || (m === 0 && today.getDate() < birthDay)) {
+        age--;
+    }
+    return age;
+}
+
+/**
+ * @param {string} birthdate - Must be in YYYY-MM-DD format.
+ * @returns {Date|null} The Date object for the next birthday.
+ */
+function getNextBirthdayDate(birthdate) {
+    if (!birthdate || birthdate.length !== 10) return null;
+    
+    const today = new Date();
+    const [year, month, day] = birthdate.split('-').map(Number);
+    
+    // Month is 0-indexed in Date constructor (month - 1)
+    let nextBirthday = new Date(today.getFullYear(), month - 1, day);
+    
+    // Check if the birthday has passed this year
+    if (nextBirthday < today) {
+        nextBirthday.setFullYear(today.getFullYear() + 1);
+    }
+    return nextBirthday;
+}
+
+function getUpcomingBirthdays(birthdays) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalize to midnight for accurate day comparison
+
+    const upcoming = Object.values(birthdays).filter(item => {
+        if (!item.birthdate || item.birthdate.length !== 10) return false;
+        
+        const nextBday = getNextBirthdayDate(item.birthdate);
+        if (!nextBday) return false;
+        
+        // Calculate difference in days (ignoring time)
+        const diffTime = nextBday.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // Filter for birthdays in the next 2 to 6 days
+        return diffDays > 1 && diffDays <= 6;
+    }).sort((a, b) => {
+        return getNextBirthdayDate(a.birthdate) - getNextBirthdayDate(b.birthdate);
+    });
+    return upcoming;
+}
+
+function getTodayAndTomorrowBirthdays(birthdays) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    const todayBirthdays = Object.values(birthdays).filter(item => {
+        if (!item.birthdate || item.birthdate.length !== 10) return false;
+        
+        const [year, month, day] = item.birthdate.split('-').map(Number);
+        
+        // Compare month and day (Date constructor uses 0-indexed month)
+        return today.getMonth() === (month - 1) && today.getDate() === day;
+    });
+    
+    const tomorrowBirthdays = Object.values(birthdays).filter(item => {
+        if (!item.birthdate || item.birthdate.length !== 10) return false;
+
+        const [year, month, day] = item.birthdate.split('-').map(Number);
+
+        // Compare month and day (Date constructor uses 0-indexed month)
+        return tomorrow.getMonth() === (month - 1) && tomorrow.getDate() === day;
     });
 
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        renderAllItems(searchTerm);
-    });
+    return { todayBirthdays, tomorrowBirthdays };
 
-
-    // --- Helper Functions ---
-    function addNoteField(container, title = '', content = '') {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'flex items-center gap-2 mb-2';
-        noteDiv.innerHTML = `
-            <input type="text" value="${title}" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
-            <input type="text" value="${content}" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
-            <button type="button" class="text-red-500 hover:text-red-700 remove-note-btn"><i class="fas fa-times-circle"></i></button>
-        `;
-        container.appendChild(noteDiv);
-        noteDiv.querySelector('.remove-note-btn').addEventListener('click', () => {
-            noteDiv.remove();
-        });
-    }
-    
-    /**
-     * @param {string} birthdate - Must be in YYYY-MM-DD format.
-     * @returns {number|null} The calculated age or null if format is incorrect.
-     */
-    function calculateAge(birthdate) {
-        if (!birthdate || birthdate.length !== 10) return null; // Ensure full YYYY-MM-DD format
-
-        const today = new Date();
-        const [birthYear, birthMonth, birthDay] = birthdate.split('-').map(Number);
-        
-        if (isNaN(birthYear) || isNaN(birthMonth) || isNaN(birthDay)) return null;
-
-        let age = today.getFullYear() - birthYear;
-        const m = today.getMonth() + 1 - birthMonth; // +1 because getMonth is 0-indexed
-        
-        if (m < 0 || (m === 0 && today.getDate() < birthDay)) {
-            age--;
-        }
-        return age;
-    }
-    
-    /**
-     * @param {string} birthdate - Must be in YYYY-MM-DD format.
-     * @returns {Date|null} The Date object for the next birthday.
-     */
-    function getNextBirthdayDate(birthdate) {
-        if (!birthdate || birthdate.length !== 10) return null;
-        
-        const today = new Date();
-        const [year, month, day] = birthdate.split('-').map(Number);
-        
-        // Month is 0-indexed in Date constructor (month - 1)
-        let nextBirthday = new Date(today.getFullYear(), month - 1, day);
-        
-        // Check if the birthday has passed this year
-        if (nextBirthday < today) {
-            nextBirthday.setFullYear(today.getFullYear() + 1);
-        }
-        return nextBirthday;
-    }
-
-    function getUpcomingBirthdays(birthdays) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); // Normalize to midnight for accurate day comparison
-
-        const upcoming = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-            
-            const nextBday = getNextBirthdayDate(item.birthdate);
-            if (!nextBday) return false;
-            
-            // Calculate difference in days (ignoring time)
-            const diffTime = nextBday.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            // Filter for birthdays in the next 2 to 6 days
-            return diffDays > 1 && diffDays <= 6;
-        }).sort((a, b) => {
-            return getNextBirthdayDate(a.birthdate) - getNextBirthdayDate(b.birthdate);
-        });
-        return upcoming;
-    }
-
-    function getTodayAndTomorrowBirthdays(birthdays) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        const todayBirthdays = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-            
-            const [year, month, day] = item.birthdate.split('-').map(Number);
-            
-            // Compare month and day (Date constructor uses 0-indexed month)
-            return today.getMonth() === (month - 1) && today.getDate() === day;
-        });
-        
-        const tomorrowBirthdays = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-
-            const [year, month, day] = item.birthdate.split('-').map(Number);
-
-            // Compare month and day (Date constructor uses 0-indexed month)
-            return tomorrow.getMonth() === (month - 1) && tomorrow.getDate() === day;
-        });
-
-        return { todayBirthdays, tomorrowBirthdays };
-
-    }
+}
 
 function renderBirthdayList(listId, items) {
-        const list = document.getElementById(listId);
-        list.innerHTML = '';
-        if (items.length === 0) {
-            list.innerHTML = `<li class="text-gray-500 text-center">${listId === 'today-list' ? 'No birthdays today.' : listId === 'tomorrow-list' ? 'No birthdays tomorrow.' : 'No upcoming birthdays.'}</li>`;
-            return;
-        }
-        items.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm';
-            li.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <i class="fas fa-gift text-lg text-indigo-500"></i>
-                    <div>
-                        <p class="font-bold text-gray-900">${item.name}</p>
-                        ${item.birthdate ? `<p class="text-sm text-gray-600">${new Date(item.birthdate.length === 5 ? `2000-${item.birthdate}` : item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>` : ''}
-                    </div>
+    const list = document.getElementById(listId);
+    list.innerHTML = '';
+    if (items.length === 0) {
+        list.innerHTML = `<li class="text-gray-500 text-center">${listId === 'today-list' ? 'No birthdays today.' : listId === 'tomorrow-list' ? 'No birthdays tomorrow.' : 'No upcoming birthdays.'}</li>`;
+        return;
+    }
+    items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm';
+        li.innerHTML = `
+            <div class="flex items-center gap-4">
+                <i class="fas fa-gift text-lg text-indigo-500"></i>
+                <div>
+                    <p class="font-bold text-gray-900">${item.name}</p>
+                    ${item.birthdate ? `<p class="text-sm text-gray-600">${new Date(item.birthdate.length === 5 ? `2000-${item.birthdate}` : item.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</p>` : ''}
                 </div>
-            `;
-            list.appendChild(li);
-        });
+            </div>
+        `;
+        list.appendChild(li);
+    });
+}
+    
+function renderAllItems(searchTerm = '') {
+    const list = document.getElementById('all-items-list');
+    list.innerHTML = '';
+    
+    let combinedItemsMap = new Map();
+    
+    // Process Contacts first
+    for (const key in allContacts) {
+        const contact = allContacts[key];
+        const item = { ...contact, contactId: key, isContact: true, isBirthday: false };
+        combinedItemsMap.set(contact.name.toLowerCase(), item);
+    }
+
+    // Process Birthdays and merge with existing contacts
+    for (const key in allBirthdays) {
+        const birthday = allBirthdays[key];
+        const existingItem = combinedItemsMap.get(birthday.name.toLowerCase());
+        if (existingItem) {
+            // When merging, the birthday data is usually more complete
+            existingItem.birthdate = birthday.birthdate;
+            existingItem.age = birthday.age;
+            existingItem.notes = birthday.notes;
+            existingItem.isBirthday = true;
+            existingItem.birthdayId = key;
+            // Use the mobile from birthday if contact doesn't have it
+            if (!existingItem.mobile) existingItem.mobile = birthday.mobile;
+        } else {
+            const item = { ...birthday, birthdayId: key, isContact: false, isBirthday: true };
+            combinedItemsMap.set(birthday.name.toLowerCase(), item);
+        }
+    }
+
+    const filteredItems = Array.from(combinedItemsMap.values()).filter(item => 
+        (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+        (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
+        (item.mobile && item.mobile.toLowerCase().includes(searchTerm))
+    );
+    
+    if (filteredItems.length === 0) {
+        list.innerHTML = `<li class="text-center text-gray-500 p-4">No contacts or birthdays found.</li>`;
+        return;
     }
     
-    function renderAllItems(searchTerm = '') {
-        const list = document.getElementById('all-items-list');
-        list.innerHTML = '';
+    filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+
+    filteredItems.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm';
+        li.setAttribute('data-name', item.name);
+        if (item.contactId) li.setAttribute('data-contact-id', item.contactId);
+        if (item.birthdayId) li.setAttribute('data-birthday-id', item.birthdayId);
+        if (item.mobile) li.setAttribute('data-mobile', item.mobile);
         
-        let combinedItemsMap = new Map();
-        
-        // Process Contacts first
-        for (const key in allContacts) {
-            const contact = allContacts[key];
-            const item = { ...contact, contactId: key, isContact: true, isBirthday: false };
-            combinedItemsMap.set(contact.name.toLowerCase(), item);
+        let iconHtml = '';
+        if(item.isContact) {
+            iconHtml += `<i class="fas fa-address-card text-purple-500 text-2xl"></i>`;
+        }
+        if(item.isBirthday) {
+            iconHtml += `<i class="fas fa-birthday-cake text-red-500 text-2xl"></i>`;
         }
 
-        // Process Birthdays and merge with existing contacts
-        for (const key in allBirthdays) {
-            const birthday = allBirthdays[key];
-            const existingItem = combinedItemsMap.get(birthday.name.toLowerCase());
-            if (existingItem) {
-                // When merging, the birthday data is usually more complete
-                existingItem.birthdate = birthday.birthdate;
-                existingItem.age = birthday.age;
-                existingItem.notes = birthday.notes;
-                existingItem.isBirthday = true;
-                existingItem.birthdayId = key;
-                // Use the mobile from birthday if contact doesn't have it
-                if (!existingItem.mobile) existingItem.mobile = birthday.mobile;
-            } else {
-                const item = { ...birthday, birthdayId: key, isContact: false, isBirthday: true };
-                combinedItemsMap.set(birthday.name.toLowerCase(), item);
-            }
-        }
+        let ageDisplay = '';
+        let bdayDateDisplay = 'Not specified';
 
-        const filteredItems = Array.from(combinedItemsMap.values()).filter(item => 
-            (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-            (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
-            (item.mobile && item.mobile.toLowerCase().includes(searchTerm))
-        );
-        
-        if (filteredItems.length === 0) {
-            list.innerHTML = `<li class="text-center text-gray-500 p-4">No contacts or birthdays found.</li>`;
-            return;
-        }
-        
-        filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+        if (item.isBirthday) {
+            if (item.birthdate && item.birthdate.length === 10) {
+                const savedDate = new Date(item.birthdate);
+                bdayDateDisplay = savedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
-        filteredItems.forEach(item => {
-            const li = document.createElement('li');
-            li.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm';
-            li.setAttribute('data-name', item.name);
-            if (item.contactId) li.setAttribute('data-contact-id', item.contactId);
-            if (item.birthdayId) li.setAttribute('data-birthday-id', item.birthdayId);
-            if (item.mobile) li.setAttribute('data-mobile', item.mobile);
-            
-            let iconHtml = '';
-            if(item.isContact) {
-                iconHtml += `<i class="fas fa-address-card text-purple-500 text-2xl"></i>`;
-            }
-            if(item.isBirthday) {
-                iconHtml += `<i class="fas fa-birthday-cake text-red-500 text-2xl"></i>`;
-            }
-
-            let ageDisplay = '';
-            let bdayDateDisplay = 'Not specified';
-
-            if (item.isBirthday) {
-                if (item.birthdate && item.birthdate.length === 10) {
-                    const savedDate = new Date(item.birthdate);
-                    bdayDateDisplay = savedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-
-                    if (item.age) {
-                        ageDisplay = `(${item.age} Years Old)`;
-                    } else {
-                        const currentAge = calculateAge(item.birthdate);
-                        ageDisplay = currentAge !== null ? `(${currentAge} Years Old)` : '';
-                    }
-
-                } else if (item.age) {
+                if (item.age) {
                     ageDisplay = `(${item.age} Years Old)`;
+                } else {
+                    const currentAge = calculateAge(item.birthdate);
+                    ageDisplay = currentAge !== null ? `(${currentAge} Years Old)` : '';
                 }
-            }
 
-            let actionsHtml = '';
-            if (item.isBirthday) {
-                actionsHtml = `
-                    <button class="edit-btn bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-600 transition duration-300 text-sm"><i class="fas fa-edit"></i></button>
-                `;
-            } else {
-                actionsHtml = `
-                    <button class="add-birthday-btn bg-indigo-500 text-white px-3 py-2 rounded-full hover:bg-indigo-600 transition duration-300 text-sm">
-                        <i class="fas fa-plus"></i> Add Birthday
-                    </button>
-                `;
+            } else if (item.age) {
+                ageDisplay = `(${item.age} Years Old)`;
             }
-            
-            let shareButtonsHtml = '';
-            if(item.mobile || item.phone) { 
-                shareButtonsHtml += `<button class="share-contact-btn bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-mobile-alt"></i></button>`;
-            }
-            if(item.isBirthday) {
-                shareButtonsHtml += `<button class="share-birthday-btn bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition duration-300 text-sm"><i class="fas fa-gift"></i></button>`;
-            }
+        }
 
-
-            itemHtml = `
-                <div class="flex items-start gap-4 flex-grow">
-                    <div class="flex-shrink-0 flex items-center gap-2">
-                        ${iconHtml}
-                    </div>
-                    <div class="flex-grow">
-                        <p class="font-bold text-gray-900">${item.name}</p>
-                        ${item.mobile ? `<p class="text-sm text-gray-600"><i class="fas fa-mobile-alt mr-1"></i> ${item.mobile}</p>` : ''}
-                        ${item.phone ? `<p class="text-sm text-gray-600"><i class="fas fa-phone mr-1"></i> ${item.phone}</p>` : ''}
-                        ${item.isBirthday ? `
-                            <p class="text-sm text-gray-600">
-                                <i class="fas fa-calendar-alt mr-1"></i> 
-                                Birthday: ${bdayDateDisplay} 
-                                ${ageDisplay}
-                            </p>
-                        ` : ''}
-                        ${item.notes && item.notes.length > 0 ? `
-                            <div class="mt-2 text-sm text-gray-500">
-                                ${item.notes.map(note => `<p><i class="fas fa-sticky-note mr-1"></i> <strong>${note.title}:</strong> ${note.content}</p>`).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="flex-shrink-0 flex items-center gap-2">
-                    ${actionsHtml}
-                    <button class="delete-btn bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm"><i class="fas fa-trash-alt"></i></button>
-                    ${shareButtonsHtml}
-                </div>
+        let actionsHtml = '';
+        if (item.isBirthday) {
+            actionsHtml = `
+                <button class="edit-btn bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-600 transition duration-300 text-sm"><i class="fas fa-edit"></i></button>
             `;
-            li.innerHTML = itemHtml;
-            list.appendChild(li);
+        } else {
+            actionsHtml = `
+                <button class="add-birthday-btn bg-indigo-500 text-white px-3 py-2 rounded-full hover:bg-indigo-600 transition duration-300 text-sm">
+                    <i class="fas fa-plus"></i> Add Birthday
+                </button>
+            `;
+        }
+        
+        let shareButtonsHtml = '';
+        if(item.mobile || item.phone) { 
+            shareButtonsHtml += `<button class="share-contact-btn bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-mobile-alt"></i></button>`;
+        }
+        if(item.isBirthday) {
+            shareButtonsHtml += `<button class="share-birthday-btn bg-green-500 text-white px-3 py-2 rounded-full hover:bg-green-600 transition duration-300 text-sm"><i class="fas fa-gift"></i></button>`;
+        }
+
+
+        itemHtml = `
+            <div class="flex items-start gap-4 flex-grow">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    ${iconHtml}
+                </div>
+                <div class="flex-grow">
+                    <p class="font-bold text-gray-900">${item.name}</p>
+                    ${item.mobile ? `<p class="text-sm text-gray-600"><i class="fas fa-mobile-alt mr-1"></i> ${item.mobile}</p>` : ''}
+                    ${item.phone ? `<p class="text-sm text-gray-600"><i class="fas fa-phone mr-1"></i> ${item.phone}</p>` : ''}
+                    ${item.isBirthday ? `
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-calendar-alt mr-1"></i> 
+                            Birthday: ${bdayDateDisplay} 
+                            ${ageDisplay}
+                        </p>
+                    ` : ''}
+                    ${item.notes && item.notes.length > 0 ? `
+                        <div class="mt-2 text-sm text-gray-500">
+                            ${item.notes.map(note => `<p><i class="fas fa-sticky-note mr-1"></i> <strong>${note.title}:</strong> ${note.content}</p>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+            <div class="flex-shrink-0 flex items-center gap-2">
+                ${actionsHtml}
+                <button class="delete-btn bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm"><i class="fas fa-trash-alt"></i></button>
+                ${shareButtonsHtml}
+            </div>
+        `;
+        li.innerHTML = itemHtml;
+        list.appendChild(li);
+    });
+}
+
+// --- Firebase Functions ---
+    
+function handleAddBirthday(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const mobile = document.getElementById('mobile').value;
+    // The date input value contains the calculated YYYY-MM-DD
+    const birthdateToSave = newDateInput.value; 
+    const ageToSave = newAgeInput.value;
+    const notes = Array.from(notesFields.querySelectorAll('div')).map(div => ({
+        title: div.querySelector('.note-title').value,
+        content: div.querySelector('.note-content').value,
+    })).filter(note => note.title || note.content);
+
+    // Basic Validation check before saving
+    if (!name || !birthdateToSave || !ageToSave || isNaN(parseInt(ageToSave))) {
+        alert("Please ensure a name, a valid age, and a month/day are entered.");
+        return;
+    }
+
+    const newBirthday = { 
+        name, 
+        mobile, 
+        birthdate: birthdateToSave, 
+        age: ageToSave, 
+        notes 
+    };
+    
+    if (currentUserId) {
+        const newBdayRef = database.ref(`users/${currentUserId}/birthdays`).push();
+        newBdayRef.set(newBirthday).then(() => {
+            // Clear form on success
+            addBirthdayForm.reset();
+            notesContainer.classList.add('hidden');
+            notesFields.innerHTML = `<div class="flex items-center gap-2 mb-2"><input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title"><input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content"></div>`;
+            toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
+        }).catch(error => {
+            console.error("Error adding birthday: ", error);
+        });
+    } else {
+        alert("Please log in to save birthdays.");
+    }
+}
+
+function openEditModal(id) {
+    const itemToEdit = allBirthdays[id];
+    if (!itemToEdit) return;
+
+    editIdInput.value = id;
+    editNameInput.value = itemToEdit.name;
+    editMobileInput.value = itemToEdit.mobile || '';
+    
+    // Load the full YYYY-MM-DD date directly from the saved data
+    editDateInput.value = itemToEdit.birthdate && itemToEdit.birthdate.length === 10 ? itemToEdit.birthdate : '';
+
+    editAgeInput.value = itemToEdit.age || '';
+    
+    editNotesContainer.innerHTML = '';
+    if (itemToEdit.notes && itemToEdit.notes.length > 0) {
+        itemToEdit.notes.forEach(note => {
+            addNoteField(editNotesContainer, note.title, note.content);
+        });
+    } else {
+        addNoteField(editNotesContainer);
+    }
+    
+    // IMPORTANT: Trigger the calculation function after loading to display the full date
+    updateDateFromAge(editDateInput, editAgeInput);
+    
+    editModal.classList.remove('hidden');
+}
+
+function handleEditBirthday(e) {
+    e.preventDefault();
+    const id = editIdInput.value;
+    const name = editNameInput.value;
+    const mobile = editMobileInput.value;
+    // Get the value that was displayed/calculated in the date input
+    const birthdateToSave = editDateInput.value; 
+    const ageToSave = editAgeInput.value;
+    const notes = Array.from(editNotesContainer.querySelectorAll('div')).map(div => ({
+        title: div.querySelector('.note-title').value,
+        content: div.querySelector('.note-content').value,
+    })).filter(note => note.title || note.content);
+
+    // Basic Validation check before saving
+    if (!name || !birthdateToSave || !ageToSave || isNaN(parseInt(ageToSave))) {
+        alert("Please ensure a name, a valid age, and a month/day are entered.");
+        return;
+    }
+
+    const updatedBirthday = { 
+        name, 
+        mobile, 
+        birthdate: birthdateToSave, 
+        age: ageToSave, 
+        notes 
+    };
+
+    if (currentUserId && id) {
+        database.ref(`users/${currentUserId}/birthdays/${id}`).set(updatedBirthday)
+            .then(() => {
+                editModal.classList.add('hidden');
+            })
+            .catch(error => {
+                console.error("Error updating birthday: ", error);
+            });
+    }
+}
+
+function deleteBirthday(id) {
+    if (currentUserId) {
+        database.ref(`users/${currentUserId}/birthdays/${id}`).remove()
+            .catch(error => {
+                console.error("Error removing birthday: ", error);
+            });
+    }
+}
+    
+function deleteContact(id) {
+    if (currentUserId) {
+        database.ref(`users/${currentUserId}/contacts/${id}`).remove()
+            .catch(error => {
+                console.error("Error removing contact: ", error);
+            });
+    }
+}
+
+function shareBirthday(birthday) {
+    let shareText = `Name: ${birthday.name}!`;
+    
+    if(birthday.birthdate && birthday.birthdate.length === 10) {
+        shareText += `\nBirth Date: ${new Date(birthday.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
+    }
+    
+    if (birthday.age) {
+        shareText += `\nThey are ${birthday.age} years old.`;
+    }
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `Birthday Reminder: ${birthday.name}`,
+            text: shareText
+        }).catch(error => console.error('Error sharing:', error));
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            console.log('Birthday details copied to clipboard!');
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
         });
     }
-
-    // --- Firebase Functions ---
+}
     
-    function handleAddBirthday(e) {
-        e.preventDefault();
-        const name = document.getElementById('name').value;
-        const mobile = document.getElementById('mobile').value;
-        // The date input value contains the calculated YYYY-MM-DD
-        const birthdateToSave = newDateInput.value; 
-        const ageToSave = newAgeInput.value;
-        const notes = Array.from(notesFields.querySelectorAll('div')).map(div => ({
-            title: div.querySelector('.note-title').value,
-            content: div.querySelector('.note-content').value,
-        })).filter(note => note.title || note.content);
-
-        // Basic Validation check before saving
-        if (!name || !birthdateToSave || !ageToSave || isNaN(parseInt(ageToSave))) {
-            alert("Please ensure a name, a valid age, and a month/day are entered.");
-            return;
-        }
-
-        const newBirthday = { 
-            name, 
-            mobile, 
-            birthdate: birthdateToSave, 
-            age: ageToSave, 
-            notes 
-        };
-        
-        if (currentUserId) {
-            const newBdayRef = database.ref(`users/${currentUserId}/birthdays`).push();
-            newBdayRef.set(newBirthday).then(() => {
-                // Clear form on success
-                addBirthdayForm.reset();
-                notesContainer.classList.add('hidden');
-                notesFields.innerHTML = `<div class="flex items-center gap-2 mb-2"><input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title"><input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content"></div>`;
-                toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-            }).catch(error => {
-                console.error("Error adding birthday: ", error);
-            });
-        } else {
-            alert("Please log in to save birthdays.");
-        }
+function shareContact(contact) {
+    let shareText = `Name: ${contact.name}`;
+    if(contact.mobile) {
+        shareText += `\nMobile No: ${contact.mobile}`;
+    }
+    if(contact.phone) {
+        shareText += `\nPhone: ${contact.phone}`;
     }
 
-    function openEditModal(id) {
-        const itemToEdit = allBirthdays[id];
-        if (!itemToEdit) return;
-
-        editIdInput.value = id;
-        editNameInput.value = itemToEdit.name;
-        editMobileInput.value = itemToEdit.mobile || '';
-        
-        // Load the full YYYY-MM-DD date directly from the saved data
-        editDateInput.value = itemToEdit.birthdate && itemToEdit.birthdate.length === 10 ? itemToEdit.birthdate : '';
-
-        editAgeInput.value = itemToEdit.age || '';
-        
-        editNotesContainer.innerHTML = '';
-        if (itemToEdit.notes && itemToEdit.notes.length > 0) {
-            itemToEdit.notes.forEach(note => {
-                addNoteField(editNotesContainer, note.title, note.content);
-            });
-        } else {
-            addNoteField(editNotesContainer);
-        }
-        
-        // IMPORTANT: Trigger the calculation function after loading to display the full date
-        updateDateFromAge(editDateInput, editAgeInput);
-        
-        editModal.classList.remove('hidden');
+    if (navigator.share) {
+        navigator.share({
+            title: `Contact: ${contact.name}`,
+            text: shareText
+        }).catch(error => console.error('Error sharing:', error));
+    } else {
+        navigator.clipboard.writeText(shareText).then(() => {
+            console.log('Contact details copied to clipboard!');
+        }).catch(err => {
+            console.error('Could not copy text: ', err);
+        });
     }
+}
 
-    function handleEditBirthday(e) {
-        e.preventDefault();
-        const id = editIdInput.value;
-        const name = editNameInput.value;
-        const mobile = editMobileInput.value;
-        // Get the value that was displayed/calculated in the date input
-        const birthdateToSave = editDateInput.value; 
-        const ageToSave = editAgeInput.value;
-        const notes = Array.from(editNotesContainer.querySelectorAll('div')).map(div => ({
-            title: div.querySelector('.note-title').value,
-            content: div.querySelector('.note-content').value,
-        })).filter(note => note.title || note.content);
-
-        // Basic Validation check before saving
-        if (!name || !birthdateToSave || !ageToSave || isNaN(parseInt(ageToSave))) {
-            alert("Please ensure a name, a valid age, and a month/day are entered.");
-            return;
-        }
-
-        const updatedBirthday = { 
-            name, 
-            mobile, 
-            birthdate: birthdateToSave, 
-            age: ageToSave, 
-            notes 
-        };
-
-        if (currentUserId && id) {
-            database.ref(`users/${currentUserId}/birthdays/${id}`).set(updatedBirthday)
-                .then(() => {
-                    editModal.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error("Error updating birthday: ", error);
-                });
-        }
-    }
-
-    function deleteBirthday(id) {
-        if (currentUserId) {
-            database.ref(`users/${currentUserId}/birthdays/${id}`).remove()
-                .catch(error => {
-                    console.error("Error removing birthday: ", error);
-                });
-        }
-    }
-    
-    function deleteContact(id) {
-        if (currentUserId) {
-            database.ref(`users/${currentUserId}/contacts/${id}`).remove()
-                .catch(error => {
-                    console.error("Error removing contact: ", error);
-                });
-        }
-    }
-
-    function shareBirthday(birthday) {
-        let shareText = `Name: ${birthday.name}!`;
+// --- Data Retrieval and Display ---
+function initializeData() {
+    if (currentUserId) {
+        const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
         
-        if(birthday.birthdate && birthday.birthdate.length === 10) {
-            shareText += `\nBirth Date: ${new Date(birthday.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
-        }
-        
-        if (birthday.age) {
-            shareText += `\nThey are ${birthday.age} years old.`;
-        }
-        
-        if (navigator.share) {
-            navigator.share({
-                title: `Birthday Reminder: ${birthday.name}`,
-                text: shareText
-            }).catch(error => console.error('Error sharing:', error));
-        } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                console.log('Birthday details copied to clipboard!');
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
-        }
-    }
-    
-    function shareContact(contact) {
-        let shareText = `Name: ${contact.name}`;
-        if(contact.mobile) {
-            shareText += `\nMobile No: ${contact.mobile}`;
-        }
-        if(contact.phone) {
-            shareText += `\nPhone: ${contact.phone}`;
-        }
-
-        if (navigator.share) {
-            navigator.share({
-                title: `Contact: ${contact.name}`,
-                text: shareText
-            }).catch(error => console.error('Error sharing:', error));
-        } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                console.log('Contact details copied to clipboard!');
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
-        }
-    }
-
-    // --- Data Retrieval and Display ---
-    function initializeData() {
-        if (currentUserId) {
-            const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
+        // 1. Initial Load (runs once for notification and initial display)
+        birthdaysRef.once('value').then((snapshot) => {
+            allBirthdays = snapshot.val() || {};
+            renderDashboardLists();
+            renderAllItems(searchInput.value);
             
-            // 1. Initial Load (runs once for notification and initial display)
-            birthdaysRef.once('value').then((snapshot) => {
-                allBirthdays = snapshot.val() || {};
-                renderDashboardLists();
-                renderAllItems(searchInput.value);
-                
-                // Only check and notify after the initial data load is complete
-                if (!initialLoadComplete) {
-                    checkAndNotify();
-                    initialLoadComplete = true; 
-                }
-            }).catch(error => {
-                console.error("Error fetching initial birthday data:", error);
-            });
-            
-            // 2. Continuous Listener (runs for real-time updates)
-            birthdaysRef.on('value', (snapshot) => {
-                allBirthdays = snapshot.val() || {};
-                renderDashboardLists();
-                renderAllItems(searchInput.value); // Re-render when data changes
-            });
-            
-            function renderDashboardLists() {
-                const { todayBirthdays, tomorrowBirthdays } = getTodayAndTomorrowBirthdays(allBirthdays);
-                const upcomingBirthdays = getUpcomingBirthdays(allBirthdays);
-                document.getElementById('today-list').innerHTML = ''; // Clear lists before rendering
-                document.getElementById('tomorrow-list').innerHTML = '';
-                document.getElementById('upcoming-birthdays-list').innerHTML = '';
-                renderBirthdayList('today-list', todayBirthdays);
-                renderBirthdayList('tomorrow-list', tomorrowBirthdays);
-                renderBirthdayList('upcoming-birthdays-list', upcomingBirthdays);
+            // Only check and notify after the initial data load is complete
+            if (!initialLoadComplete) {
+                checkAndNotify();
+                initialLoadComplete = true; 
             }
-            
-            const contactsRef = database.ref(`users/${currentUserId}/contacts`);
-            contactsRef.on('value', (snapshot) => {
-                allContacts = snapshot.val() || {};
-                renderAllItems(searchInput.value);
-            });
+        }).catch(error => {
+            console.error("Error fetching initial birthday data:", error);
+        });
+        
+        // 2. Continuous Listener (runs for real-time updates)
+        birthdaysRef.on('value', (snapshot) => {
+            allBirthdays = snapshot.val() || {};
+            renderDashboardLists();
+            renderAllItems(searchInput.value); // Re-render when data changes
+        });
+        
+        function renderDashboardLists() {
+            const { todayBirthdays, tomorrowBirthdays } = getTodayAndTomorrowBirthdays(allBirthdays);
+            const upcomingBirthdays = getUpcomingBirthdays(allBirthdays);
+            document.getElementById('today-list').innerHTML = ''; // Clear lists before rendering
+            document.getElementById('tomorrow-list').innerHTML = '';
+            document.getElementById('upcoming-birthdays-list').innerHTML = '';
+            renderBirthdayList('today-list', todayBirthdays);
+            renderBirthdayList('tomorrow-list', tomorrowBirthdays);
+            renderBirthdayList('upcoming-birthdays-list', upcomingBirthdays);
         }
+        
+        const contactsRef = database.ref(`users/${currentUserId}/contacts`);
+        contactsRef.on('value', (snapshot) => {
+            allContacts = snapshot.val() || {};
+            renderAllItems(searchInput.value);
+        });
     }
+}
 
     // --- Notification Functions ---
     function requestNotificationPermission() {
@@ -938,13 +908,9 @@ function renderBirthdayList(listId, items) {
         }
     }
 
-   // A key to store the last notification timestamp in localStorage
-// A key to store the last notification timestamp in localStorage
 const LAST_NOTIFICATION_KEY = 'birthday_notification_timestamp';
 
-// ASSUMED: The following helper functions are defined elsewhere:
-// function calculateNextAge(birthdate) { ... }
-// function calculateAge(birthdate) { ... } 
+
 
 function checkAndNotify() {
     const today = new Date();
@@ -1028,6 +994,7 @@ function checkAndNotify() {
 </script>
 </body>
 </html>
+
 
 
 
