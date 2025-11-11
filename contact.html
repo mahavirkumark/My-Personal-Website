@@ -3,105 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Contacts - Responsive</title>
+    <title>My Contacts - Professional Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        /* Custom Tailwind Colors (Defining primary-indigo based on your common use of #4f46e5) */
+        /* Custom Colors & Shadows */
         .bg-primary-indigo { background-color: #4f46e5; }
         .hover\:bg-primary-indigo:hover { background-color: #4338ca; }
         .text-primary-indigo { color: #4f46e5; }
         .border-primary-indigo { border-color: #4f46e5; }
+        .bg-teal-500 { background-color: #14b8a6; } 
+        .hover\:bg-teal-600:hover { background-color: #0d9488; }
+        .bg-pink-600 { background-color: #db2777; } 
+
+        /* General Styles */
+        body {
+            padding-top: 80px;
+            min-height: 100vh;
+            font-family: ui-sans-serif, system-ui;
+            background-color: #f8fafc;
+        }
         
-        /* Custom Styles for Contact Card */
+        /* Contact Card Styling */
         .contact-card {
             display: flex;
             flex-direction: column; 
-            padding: 1.25rem;
+            padding: 1.5rem;
             background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            border-radius: 12px;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease-in-out;
+            border: 1px solid #e5e7eb;
         }
         .contact-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.1);
         }
         .contact-name {
             font-weight: 700;
             color: #1f2937;
             margin-bottom: 0.75rem;
-            border-bottom: 2px solid #e5e7eb;
+            border-bottom: 1px solid #eef2ff; 
             padding-bottom: 0.75rem;
         }
         .contact-details {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
+            justify-content: space-between;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
+        }
+        .contact-icon-group {
+            display: flex;
+            align-items: flex-start;
+            flex-grow: 1; 
+            align-items: center; 
         }
         .contact-icon {
             color: #6366f1;
             width: 1.25rem;
             text-align: center;
-            margin-right: 0.6rem;
-        }
-        
-        /* Action layout for one row, tightly grouped, aligned right */
-        .actions-container {
-            display: flex;
-            justify-content: flex-end; 
-            gap: 0.5rem; 
-            margin-top: 1rem;
-            padding-top: 0.75rem;
-            border-top: 1px solid #e5e7eb;
-        }
-        .action-btn {
-            width: 36px; 
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0.5rem;
+            margin-right: 0.75rem;
             flex-shrink: 0;
+            padding-top: 2px;
+            margin-right: 0; 
         }
 
-        /* Modal backdrop for full screen */
+        /* Modal backdrop/scrolling */
         .modal-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
             display: none; 
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            padding: 20px 0;
         }
-        /* Make the editMobile input textarea for multiple numbers */
-        #editMobile {
-            min-height: 80px;
+        .modal-content-box {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            width: 95%;
+            max-width: 650px; 
+            margin: 20px;
+            padding: 32px;
+            max-height: 90vh; 
+            overflow-y: auto; 
+        }
+        
+        /* Modal Input & Button Group */
+        .edit-input-group {
+            display: flex;
+            align-items: stretch; 
+            gap: 8px;
+        }
+        
+        /* MODERN INPUT STYLING */
+        #editForm input, 
+        #editForm textarea,
+        .edit-input-group input {
+            height: 42px !important; 
+            padding: 10px !important;
+            border: 1px solid #1f2937 !important; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); 
+            transition: all 0.2s;
+            color: #1f2937; 
+            background-color: #ffffff;
+            width: 100%; 
         }
 
-
-        /* Ensure the body padding accounts for the fixed nav height */
-        body {
-            padding-top: 80px;
-            min-height: 100vh;
+        #editBirthDate,
+        #editAnniversaryDate { 
+            height: 47px !important;
+            padding: 12px !important; 
+        }
+        
+        /* Ensure dynamic date fields look right */
+        .dynamic-row input[type="date"] {
+            height: 47px !important;
+            padding: 12px !important;
         }
 
-        @media (max-width: 640px) {
-            .search-and-button-group {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .actions-container {
-                justify-content: center; 
-            }
+        .edit-input-group .open-modal-link-btn, 
+        .edit-input-group .copy-btn-modal {
+            height: 42px !important; 
+        }
+
+        #editNote,
+        .trip-description { 
+            height: auto !important;
+            min-height: 80px; 
+        }
+
+        /* Dynamic Row Styling for Gifts/Assets */
+        .dynamic-row {
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #f9fafb;
+        }
+        .dynamic-row input, .dynamic-row textarea {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .edit-input-group input:focus {
+            outline: 2px solid #4f46e5 !important;
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 1px #4f46e5 !important;
+        }
+
+        /* Input Focus Styling */
+        input:focus, textarea:focus {
+            outline: 2px solid #4f46e5 !important;
+            border-color: #4f46e5 !important;
+        }
+        
+        #editForm input::placeholder,
+        #editForm textarea::placeholder {
+            color: #6b7280; 
+            font-size: 14px; 
+            opacity: 0.9; 
+        }
+        
+        /* Dynamic Grid */
+        #all-items-list {
+            display: grid;
+            gap: 1.5rem; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+        /* Action buttons in card */
+        .actions-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f3f4f6;
+        }
+        .actions-container .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Collapsible Header Styling */
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 767px) { 
+            body { padding-top: 64px; }
+            .search-and-button-group { flex-direction: column; gap: 1rem; }
+            .search-and-button-group > div, 
+            .search-and-button-group > label { width: 100%; }
+            .modal-content-box { margin: 10px; padding: 20px; }
+            #editForm .grid-cols-1.md\:grid-cols-2,
+            #editForm .grid-cols-1.md\:grid-cols-3 { grid-template-columns: 1fr; }
+            .edit-input-group { flex-wrap: wrap; }
+            .edit-input-group .open-modal-link-btn, 
+            .edit-input-group .copy-btn-modal { width: 100%; margin-top: 8px; }
         }
     </style>
 </head>
@@ -116,12 +241,12 @@
             
             <div class="hidden md:flex space-x-6 font-medium">
                 <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-             
-                <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+               
+               
                 <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
                 <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
                 <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
-                <a href="calender.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
 
             <div class="hidden md:flex items-center gap-4">
@@ -138,12 +263,11 @@
 
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
             <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
-           
-            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            
             <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
             <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
-            <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
             <div class="border-t border-gray-300 mt-2 pt-2">
                 <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
                 <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
@@ -157,22 +281,22 @@
             <i class="fas fa-address-book text-primary-indigo"></i> My Contacts
         </h1>
 
-        <div class="search-and-button-group flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md mb-6">
-            <div class="w-full sm:w-1/2 mb-4 sm:mb-0">
+        <div class="search-and-button-group flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md mb-6">
+            <div class="w-full md:w-1/2 mb-4 md:mb-0">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                    <input type="text" id="searchInput" placeholder="Search contacts by name, number, or notes..." 
-                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-indigo focus:border-primary-indigo">
+                    <input type="text" id="searchInput" placeholder="Search contacts by name, number, company, or note..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-indigo focus:border-primary-indigo shadow-sm">
                 </div>
             </div>
             
-            <label for="fileInput" class="w-full sm:w-auto text-center bg-primary-indigo text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition duration-150 shadow-md">
+            <label for="fileInput" class="w-full md:w-auto text-center bg-primary-indigo text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-indigo-700 transition duration-150 shadow-md">
                 <i class="fas fa-cloud-upload-alt mr-2"></i> Upload Contacts (VCF/TXT)
             </label>
             <input type="file" id="fileInput" class="hidden" accept=".vcf, .txt" onchange="processFile(this.files[0])">
         </div>
 
-        <div id="all-items-list" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div id="all-items-list">
             <p id="loading-message" class="loading-message text-center text-gray-500 col-span-full mt-10" style="display: none;">
                 <i class="fas fa-spinner fa-spin mr-2"></i> Loading contacts...
             </p>
@@ -184,7 +308,7 @@
     </footer>
 
     <div id="editModal" class="modal-backdrop">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6 md:p-8 transform transition-all duration-300">
+        <div id="modalContentBox" class="modal-content-box modal-content">
             <div class="flex justify-between items-center border-b pb-3 mb-4">
                 <h2 class="text-2xl font-bold text-gray-800"><i class="fas fa-edit mr-2 text-primary-indigo"></i> Edit Contact</h2>
                 <button onclick="closeEditModal()" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
@@ -192,657 +316,1260 @@
             <form id="editForm">
                 <input type="hidden" id="editContactId">
 
-                <div class="mb-4">
-                    <label for="editName" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="editName" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
-                </div>
-                <div class="mb-4">
-                    <label for="editMobile" class="block text-sm font-medium text-gray-700">Mobile Number(s) - One per line</label>
-                    <textarea id="editMobile" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo"></textarea>
-                </div>
-                <div class="mb-4">
-                    <label for="editEmail" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="editEmail" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
-                </div>
-                <div class="mb-4">
-                    <label for="editAddress" class="block text-sm font-medium text-gray-700">Address</label>
-                    <input type="text" id="editAddress" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
-                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="mb-4">
-                        <label for="editFacebook" class="block text-sm font-medium text-gray-700">Facebook URL/Handle</label>
-                        <input type="text" id="editFacebook" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                        <label for="editName" class="block text-xs font-medium text-gray-500">Name *</label>
+                        <input type="text" id="editName" required placeholder="Full Name" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
                     </div>
                     <div class="mb-4">
-                        <label for="editInstagram" class="block text-sm font-medium text-gray-700">Instagram Handle/URL</label>
-                        <input type="text" id="editInstagram" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:ring-primary-indigo focus:border-primary-indigo">
+                        <label for="editCompany" class="block text-xs font-medium text-gray-500">Company / Job Title</label>
+                        <input type="text" id="editCompany" placeholder="Job Title or Company Name" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
                     </div>
                 </div>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4">
+                        <label for="editMobile" class="block text-xs font-medium text-gray-500">Mobile Number (Primary)</label>
+                        <input type="tel" id="editMobile" placeholder="e.g., +91 9876543210 (First Number Found)" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                        <button type="button" id="whatsappPromptBtn" class="mt-1 text-xs text-green-600 hover:text-green-700 transition duration-150">
+                            <i class="fab fa-whatsapp"></i> Is this also their WhatsApp number?
+                        </button>
+                    </div>
+                    <div class="mb-4">
+                        <label for="editWhatsapp" class="block text-xs font-medium text-green-600"><i class="fab fa-whatsapp mr-1"></i> Secondary Number / WhatsApp</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editWhatsapp" placeholder="e.g., +91 1234567890 (Second Number Found/WhatsApp)" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="copy-btn-modal bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-150 shadow-sm" data-link-id="editWhatsapp" title="Copy Number"><i class="fas fa-copy"></i> Copy</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mt-4">
+                    <div class="mb-4 md:col-span-3">
+                        <label for="editEmail" class="block text-xs font-medium text-gray-500">Email</label>
+                        <input type="email" id="editEmail" placeholder="example@domain.com" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editHomeAddress" class="block text-xs font-medium text-gray-500">Home Address</label>
+                        <input type="text" id="editHomeAddress" placeholder="Home Street/City" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editOfficeAddress" class="block text-xs font-medium text-gray-500">Office/Work Address</label>
+                        <input type="text" id="editOfficeAddress" placeholder="Office Building/City" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                    <div class="mb-4">
+                        <label for="editLandmark" class="block text-xs font-medium text-gray-500">Landmark / Nearest Location</label>
+                        <input type="text" id="editLandmark" placeholder="e.g., Near City Park" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t pt-4 mt-4">
+                    <div class="mb-4 md:col-span-1">
+                        <label for="editAge" class="block text-xs font-medium text-gray-500">Age</label>
+                        <input type="number" id="editAge" min="0" max="150" placeholder="Age" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                    </div>
+                    <div class="mb-4 md:col-span-2">
+                        <label for="editBirthDate" class="block text-xs font-medium text-gray-500">Birth Date (YYYY-MM-DD)</label>
+                        <div class="edit-input-group">
+                            <input type="date" id="editBirthDate" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" onclick="clearBirthDate()" class="bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition duration-150 shadow-sm" title="Clear Date">
+                                <i class="fas fa-calendar-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4 md:col-span-3">
+                        <label for="editAnniversaryDate" class="block text-xs font-medium text-gray-500"><i class="fas fa-heart mr-1 text-red-500"></i> Anniversary Date (YYYY-MM-DD)</label>
+                        <input type="date" id="editAnniversaryDate" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo" style="height: 47px !important; padding: 12px !important;">
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="partner-info">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-people-arrows mr-2 text-teal-500"></i> Partner & Children Info</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="partner-info" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="mb-4 md:col-span-2">
+                                <label for="editPartnerName" class="block text-xs font-medium text-gray-500">Partner's Name</label>
+                                <input type="text" id="editPartnerName" placeholder="Partner's Full Name" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                            <div class="mb-4">
+                                <label for="editMaidenName" class="block text-xs font-medium text-gray-500">Maiden Name</label>
+                                <input type="text" id="editMaidenName" placeholder="Previous Surname" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="mb-4">
+                                <label for="editPartnerJob" class="block text-xs font-medium text-gray-500">Partner's Job / Institution</label>
+                                <input type="text" id="editPartnerJob" placeholder="Job/Company" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                            <div class="mb-4">
+                                <label for="editPartnerSalary" class="block text-xs font-medium text-gray-500">Partner's Salary/Income</label>
+                                <input type="text" id="editPartnerSalary" placeholder="e.g., 40000 USD" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                        </div>
+
+                        <h4 class="text-md font-semibold text-gray-600 mt-4 border-t pt-3">Children Details</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="mb-4">
+                                <label for="editNumberOfChildren" class="block text-xs font-medium text-gray-500">Number of Children</label>
+                                <input type="number" id="editNumberOfChildren" min="0" placeholder="0" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                            <div class="mb-4 md:col-span-3">
+                                <label for="editChildDetails" class="block text-xs font-medium text-gray-500">Child Details (Name, YOB, School - One per line)</label>
+                                <textarea id="editChildDetails" rows="3" placeholder="Mia, 2020, ABC School" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="family-details">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-people-roof mr-2 text-blue-500"></i> Family Details (Parents & Siblings)</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="family-details" class="hidden">
+                        
+                        <h4 class="text-md font-semibold text-gray-600 mb-3"><i class="fas fa-male mr-1"></i> Father's Details</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="editFatherName" placeholder="Father's Name" class="mb-4">
+                            <input type="text" id="editFatherJob" placeholder="Job/Pension/Institution" class="mb-4">
+                            <input type="text" id="editFatherSalary" placeholder="Salary/Pension Amount" class="mb-4">
+                            <input type="number" id="editFatherAge" placeholder="Age" min="0" max="150" class="mb-4">
+                        </div>
+
+                        <h4 class="text-md font-semibold text-gray-600 mt-4 mb-3"><i class="fas fa-female mr-1"></i> Mother's Details</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="text" id="editMotherName" placeholder="Mother's Name" class="mb-4">
+                            <input type="text" id="editMotherJob" placeholder="Job/Institution (or Home)" class="mb-4">
+                            <input type="text" id="editMotherSalary" placeholder="Salary/Income (Optional)" class="mb-4">
+                            <input type="number" id="editMotherAge" placeholder="Age" min="0" max="150" class="mb-4">
+                        </div>
+                        
+                        <h4 class="text-md font-semibold text-gray-600 mt-4 mb-3"><i class="fas fa-user-group mr-1"></i> Siblings (Brother/Sister)</h4>
+                        <textarea id="editSiblings" rows="2" placeholder="Sibling Name, Age, Job/Institution, Salary (One per line)" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo"></textarea>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="profile-info">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-star mr-2 text-yellow-500"></i> Profile & Preferences</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="profile-info" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="mb-4">
+                                <label for="editSchool" class="block text-xs font-medium text-gray-500">School/University Name</label>
+                                <input type="text" id="editSchool" placeholder="Alma Mater" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                            <div class="mb-4">
+                                <label for="editSkill" class="block text-xs font-medium text-gray-500">Key Skills (e.g., Coding, Marketing)</label>
+                                <input type="text" id="editSkill" placeholder="Skill 1, Skill 2" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="mb-4">
+                                <label for="editFavorite" class="block text-xs font-medium text-gray-500">Favorite Food/Hobby/Color/Band/Book</label>
+                                <input type="text" id="editFavorite" placeholder="e.g., Italian, Hiking, Blue, The Beatles, 1984" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                            <div class="mb-4">
+                                <label for="editMajorGoal" class="block text-xs font-medium text-gray-500">Current Major Goal/Project</label>
+                                <input type="text" id="editMajorGoal" placeholder="Next career step or personal project" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="financial-info">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-wallet mr-2 text-green-600"></i> Financial Info</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="financial-info" class="hidden">
+                        <div class="mb-4">
+                            <label for="editSalary" class="block text-xs font-medium text-gray-500">Your Salary / Income (Optional)</label>
+                            <input type="text" id="editSalary" placeholder="e.g., 50000 INR" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="health-info-detailed">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-briefcase-medical mr-2 text-red-500"></i> Health Info</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="health-info-detailed" class="hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="mb-4">
+                                <label for="editHealthConcern" class="block text-xs font-medium text-gray-500">Health Concern</label>
+                                <input type="text" id="editHealthConcern" placeholder="e.g., Allergies, back pain" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="editLastAdmitted" class="block text-xs font-medium text-gray-500">Last Medical Admitted (Date & Hospital Name)</label>
+                            <input type="text" id="editLastAdmitted" placeholder="e.g., 2024-05-10, City General Hospital" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-4 mt-4 space-y-4">
+                    <div class="collapsible-header" data-toggle="logged-data">
+                        <h3 class="text-lg font-semibold text-gray-700"><i class="fas fa-list-alt mr-2 text-primary-indigo"></i> Logged Data (Gifts, Assets, Trips)</h3>
+                        <i class="fas fa-plus toggle-icon"></i>
+                    </div>
+                    <div id="logged-data" class="hidden">
+                        
+                        <div class="mb-4">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2 flex justify-between items-center">
+                                Gifts Given
+                                <button type="button" onclick="addGiftRow({name: '', date: '', occasion: ''})" class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-150"><i class="fas fa-plus"></i> Add Gift</button>
+                            </h4>
+                            <div id="gift-list-container">
+                                </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2 flex justify-between items-center border-t pt-3">
+                                Assets Owned
+                                <button type="button" onclick="addAssetRow({name: '', date: '', price: '', location: ''})" class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-150"><i class="fas fa-plus"></i> Add Asset</button>
+                            </h4>
+                            <div id="asset-list-container">
+                                </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4 class="text-md font-semibold text-gray-600 mb-2 flex justify-between items-center border-t pt-3">
+                                Trip Data
+                                <button type="button" onclick="addTripRow({location: '', date: '', specialty: '', howToVisit: '', expense: '', review: '', description: ''})" class="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-150"><i class="fas fa-plus"></i> Add Trip</button>
+                            </h4>
+                            <div id="trip-list-container">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 mb-4 flex justify-center border-t pt-3">
+                    <button type="button" id="toggleExtraLinksBtn" class="px-3 py-1.5 bg-gray-100 text-primary-indigo border border-dashed border-gray-300 rounded-full hover:bg-gray-200 transition duration-150 shadow-sm">
+                        <i class="fas fa-plus mr-1"></i> Add/Edit Social Links
+                    </button>
+                </div>
+                <div id="extraSocialLinks" class="hidden border-b pb-4 mb-4">
+                    <p class="text-sm font-bold text-gray-700 mb-2">Social Links (URLs/Handles)</p>
+                    
+                    <div class="mb-4">
+                        <label for="editFacebook" class="block text-xs font-medium text-blue-600"><i class="fab fa-facebook mr-1"></i> Facebook</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editFacebook" placeholder="Profile URL or Handle" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-150 shadow-sm" data-link-id="editFacebook" data-base-url="https://facebook.com/">Open</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="editInstagram" class="block text-xs font-medium text-pink-600"><i class="fab fa-instagram mr-1"></i> Instagram</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editInstagram" placeholder="@handle or Profile URL" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition duration-150 shadow-sm" data-link-id="editInstagram" data-base-url="https://instagram.com/">Open</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="editTwitter" class="block text-xs font-medium text-blue-400"><i class="fab fa-twitter mr-1"></i> X (Twitter)</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editTwitter" placeholder="@handle" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition duration-150 shadow-sm" data-link-id="editTwitter" data-base-url="https://twitter.com/">Open</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="editThreads" class="block text-xs font-medium text-gray-700"><i class="fab fa-threads mr-1"></i> Threads</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editThreads" placeholder="@handle" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition duration-150 shadow-sm" data-link-id="editThreads" data-base-url="https://threads.net/@">Open</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="editLinkedin" class="block text-xs font-medium text-blue-700"><i class="fab fa-linkedin mr-1"></i> LinkedIn</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editLinkedin" placeholder="Profile URL" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition duration-150 shadow-sm" data-link-id="editLinkedin" data-base-url="https://linkedin.com/in/">Open</button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="editGithub" class="block text-xs font-medium text-gray-700"><i class="fab fa-github mr-1"></i> GitHub</label>
+                        <div class="edit-input-group">
+                            <input type="text" id="editGithub" placeholder="Username" class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo">
+                            <button type="button" class="open-modal-link-btn bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition duration-150 shadow-sm" data-link-id="editGithub" data-base-url="https://github.com/">Open</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4 border-t pt-4">
+                    <label for="editNote" class="block text-xs font-medium text-gray-500">Notes / Description</label>
+                    <textarea id="editNote" rows="3" placeholder="Add specific notes about this contact..." class="mt-1 block w-full border border-gray-300 shadow-sm focus:ring-primary-indigo focus:border-primary-indigo"></textarea>
+                </div>
+
                 <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-150">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-primary-indigo text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-150 shadow-md">Save Changes</button>
+                    <button type="button" onclick="closeEditModal()" class="px-5 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition duration-150 shadow-sm">Cancel</button>
+                    <button type="submit" class="px-5 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-150 shadow-md">Save Changes</button>
                 </div>
             </form>
         </div>
     </div>
-<script> 
-    // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES --- 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", 
-        authDomain: "sk12-58e9e.firebaseapp.com", 
-        projectId: "sk12-58e9e", 
-        storageBucket: "sk12-58e9e.appspot.com", 
-        messagingSenderId: "470207874652", 
-        appId: "1:470207874652:web:67ba1cf3629b7e5b144899" 
-    }; 
-    if (!firebase.apps.length) { 
-        firebase.initializeApp(firebaseConfig); 
-    } 
-    const database = firebase.database(); 
-    const auth = firebase.auth(); 
+<script>
+    // --- FIREBASE CONFIGURATION & GLOBAL VARIABLES ---
+    const firebaseConfig = {
+        // !!! REPLACE THESE PLACEHOLDERS WITH YOUR ACTUAL FIREBASE CONFIGURATION !!!
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const database = firebase.database();
+    const auth = firebase.auth();
 
-    let currentUserId = null; 
-    let allContacts = []; // Stores all raw {id, data} entries from Firebase 
-    const contactListContainer = document.getElementById('all-items-list'); 
-    const loadingMessage = document.getElementById('loading-message'); 
-    const searchInput = document.getElementById('searchInput'); 
-    const editModal = document.getElementById('editModal'); 
-    const editForm = document.getElementById('editForm'); 
+    let currentUserId = null;
+    let allContacts = [];
+    const CURRENT_YEAR = new Date().getFullYear();
+    const TODAY_MMDD = new Date().toISOString().substring(5, 10); 
+    const TODAY_TIMESTAMP = new Date().setHours(0, 0, 0, 0); 
 
-    let contactMap = new Map(); // Map of {Firebase ID: Contact Data} 
+    const contactListContainer = document.getElementById('all-items-list');
+    const loadingMessage = document.getElementById('loading-message');
+    const searchInput = document.getElementById('searchInput');
+    const editModal = document.getElementById('editModal');
+    const modalContentBox = document.getElementById('modalContentBox'); 
+    const editForm = document.getElementById('editForm');
+    const editBirthDateInput = document.getElementById('editBirthDate');
+    const editAgeInput = document.getElementById('editAge');
+    const whatsappPromptBtn = document.getElementById('whatsappPromptBtn');
+    const toggleExtraLinksBtn = document.getElementById('toggleExtraLinksBtn');
+    const extraSocialLinksContainer = document.getElementById('extraSocialLinks');
 
-    // --- UTILITIES --- 
-    window.logout = function() { 
-        auth.signOut().then(() => { window.location.href = 'index.html'; }).catch(error => { alert('Sign out failed: ' + error.message); }); 
-    } 
+    const giftListContainer = document.getElementById('gift-list-container');
+    const assetListContainer = document.getElementById('asset-list-container');
+    const tripListContainer = document.getElementById('trip-list-container'); // Trip List Container
 
-    function findAssociatedIds(primaryId) { 
-        const primaryContact = contactMap.get(primaryId); 
-        if (!primaryContact || !primaryContact.name) return [primaryId];  
 
-        const primaryName = primaryContact.name.trim().toLowerCase(); 
-        
-        const associatedIds = allContacts 
-            .filter(item => item.data.name && item.data.name.trim().toLowerCase() === primaryName) 
-            .map(item => item.id); 
+    let contactMap = new Map();
+    let birthdaysToday = []; 
+
+    // --- UTILITIES (Logout, Debounce, Age calculation) ---
+    window.logout = function() {
+        auth.signOut().then(() => { window.location.href = 'index.html'; }).catch(error => { alert('Sign out failed: ' + error.message); });
+    }
+    function debounce(func, delay) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), delay);
+        };
+    }
+    function calculateAge(birthDateString) {
+        if (!birthDateString) return null;
+        const today = new Date();
+        const birthDate = new Date(birthDateString);
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age >= 0 ? age : null;
+    }
+    function calculateBirthDateFromAge(age) {
+        if (!age || age < 0) return '';
+        const targetYear = CURRENT_YEAR - age;
+        const date = new Date();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${targetYear}-${month}-${day}`;
+    }
+    function showBirthdayNotification(contactId, contactName, age) {
+        if (!("Notification" in window)) return;
+        const storageKey = `bday_notified_${contactId}`;
+        const lastNotified = localStorage.getItem(storageKey);
+        if (lastNotified && parseInt(lastNotified) >= TODAY_TIMESTAMP) { return; }
+        const ageText = age ? `is now ${age} years old` : 'has a birthday today';
+        if (Notification.permission === "granted") {
+            new Notification(`🎂 Happy Birthday!`, {
+                body: `${contactName} ${ageText}. Wish them well!`,
+                icon: 'https://via.placeholder.com/128/ff0000/ffffff?text=B-DAY' 
+            });
+            localStorage.setItem(storageKey, Date.now());
+        } else if (Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+    }
+
+    // Share Functions (simplified for brevity)
+    window.shareContact = function(contact) {
+        let shareText = `${contact.name}\n`;
+        if (contact.mobile) shareText += `Phone: ${contact.mobile}\n`;
+        if (contact.whatsapp) shareText += `WhatsApp: ${contact.whatsapp}\n`;
+
+        if (navigator.share) {
+            navigator.share({ title: `${contact.name}'s Contact`, text: shareText.trim() }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(shareText.trim()).then(() => alert(`Contact info copied to clipboard for ${contact.name}.`));
+        }
+    }
+    window.shareAddress = function(contact) {
+        let shareText = `${contact.name}\n`;
+        if (contact.homeAddress) shareText += `Home Address: ${contact.homeAddress}\n`;
+        if (contact.officeAddress) shareText += `Office Address: ${contact.officeAddress}\n`;
+        if (contact.landmark) shareText += `Landmark: ${contact.landmark}`;
+        if (!contact.homeAddress && !contact.officeAddress) { alert(`Cannot share: ${contact.name} does not have a saved address.`); return; }
+
+        if (navigator.share) {
+            navigator.share({ title: `${contact.name}'s Address`, text: shareText.trim() }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(shareText.trim()).then(() => alert(`Address copied to clipboard for ${contact.name}.`));
+        }
+    }
+
+
+    // --- DATA PROCESSING: GROUPING LOGIC ---
+    function groupContactsByName(contacts) {
+        const groups = new Map();
+        birthdaysToday = [];
+
+        contacts.forEach(contact => {
+            const name = contact.data.name.trim();
+            if (!name) return;
+
+            const key = name.toLowerCase();
+
+            if (!groups.has(key)) {
+                groups.set(key, {
+                    name: name,
+                    members: [],
+                    emails: new Set(), mobiles: new Set(), whatsapps: new Set(),
+                    facebooks: new Set(), twitters: new Set(), instagrams: new Set(), notes: new Set(),
+                    companies: new Set(), birthdates: new Set(), salaries: new Set(), linkedins: new Set(),
+                    threads: new Set(), github: new Set(),
+                    // Core fields aggregated for rendering preview
+                    homeAddresses: new Set(), officeAddresses: new Set(), landmarks: new Set(),
+                });
+            }
+
+            const group = groups.get(key);
+            group.members.push(contact);
+
+            // Core field aggregation
+            if (contact.data.mobile) group.mobiles.add(contact.data.mobile);
+            if (contact.data.whatsapp) group.whatsapps.add(contact.data.whatsapp);
+            if (contact.data.email) group.emails.add(contact.data.email);
+            if (contact.data.company) group.companies.add(contact.data.company);
+            if (contact.data.homeAddress) group.homeAddresses.add(contact.data.homeAddress);
+            if (contact.data.officeAddress) group.officeAddresses.add(contact.data.officeAddress);
+            if (contact.data.landmark) group.landmarks.add(contact.data.landmark);
+            if (contact.data.salary) group.salaries.add(contact.data.salary);
+            if (contact.data.note) group.notes.add(contact.data.note);
             
-        return associatedIds;  
-    } 
+            // Birthday check
+            if (contact.data.birthDate && contact.data.birthDate.length >= 5) {
+                const mmdd = contact.data.birthDate.substring(5, 10);
+                if (mmdd === TODAY_MMDD) {
+                    const age = calculateAge(contact.data.birthDate);
+                    birthdaysToday.push({ id: contact.id, name, age }); 
+                }
+            }
+        });
 
+        birthdaysToday.forEach(bday => showBirthdayNotification(bday.id, bday.name, bday.age)); 
 
-    window.shareContact = function(contact) { 
-        const groupedContacts = groupContactsByName(allContacts); 
-        const primaryNameKey = contact.name.trim().toLowerCase(); 
-        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
+        return Array.from(groups.values()).sort((a, b) => {
+            const nameA = a.name.toUpperCase();
+            const nameB = b.name.toUpperCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+    }
 
-        if (!group) return; 
-
-        let shareText = `Name: ${group.name}\n`; 
+    // --- RENDERING: Contact Cards ---
+    function createDetailRow(iconClass, text, linkUrl, colorClass = 'text-gray-700') {
+        if (!text && !linkUrl) return '';
         
-        // Compile all unique mobile and WhatsApp numbers 
-        const allMobiles = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)])); 
-
-        if (allMobiles.length > 0) { 
-            shareText += '\n📞 Phone Numbers:'; 
-            allMobiles.forEach(num => { 
-                const isWhatsapp = group.whatsapps.has(num); 
-                shareText += ` ${num} ${isWhatsapp ? '(WhatsApp)' : ''}\n`; 
-            }); 
-        } else { 
-             shareText += '\n(No phone numbers available.)'; 
-        } 
-
-        const shareData = { 
-            title: `${group.name}'s Phone Contact`, 
-            text: shareText.trim() 
-        }; 
+        const isSocialLink = linkUrl && (linkUrl.includes('facebook') || linkUrl.includes('instagram') || linkUrl.includes('twitter') || linkUrl.includes('linkedin') || linkUrl.includes('github') || linkUrl.includes('threads'));
         
-        if (navigator.share) { 
-            navigator.share(shareData) 
-                .then(() => console.log('Contact shared successfully via Native API')) 
-                .catch((error) => { 
-                    console.warn('Native share failed or cancelled. Falling back to clipboard.', error); 
-                    navigator.clipboard.writeText(shareData.text) 
-                        .then(() => alert(`Share cancelled. Details copied to clipboard:\n\n${shareData.text}`)) 
-                        .catch(err => console.error("Clipboard write failed:", err)); 
-                }); 
-        } else { 
-            navigator.clipboard.writeText(shareData.text) 
-                .then(() => alert(`Native Share not supported. Details for ${group.name} copied to clipboard:\n\n${shareData.text}`)) 
-                .catch(err => console.error("Clipboard write failed:", err)); 
-        } 
-    } 
-    
- 
-    window.shareLocation = function(contact) { 
-        const groupedContacts = groupContactsByName(allContacts); 
-        const primaryNameKey = contact.name.trim().toLowerCase(); 
-        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
-
-        if (!group) return; 
-
-        let shareText = `Name: ${group.name}\n`; 
-        const address = Array.from(group.addresses)[0]; 
-
-        if (address) { 
-            shareText += `\nAddress: ${address}`; 
-        } else { 
-            shareText += '\n(No address available.)'; 
-        } 
-
-        const shareData = { 
-            title: `${group.name}'s Location`, 
-            text: shareText.trim() 
-        }; 
+        const url = linkUrl && linkUrl.startsWith('http') ? linkUrl : (linkUrl ? `https://${linkUrl}` : null);
+        const display = text;
+        const openBtn = isSocialLink ? `<a href="${url}" target="_blank" class="open-link-btn bg-primary-indigo text-white hover:bg-indigo-700 shadow-sm">Open</a>` : '';
         
-        if (navigator.share) { 
-            navigator.share(shareData) 
-                .then(() => console.log('Location shared successfully via Native API')) 
-                .catch((error) => { 
-                    console.warn('Native location share failed or cancelled. Falling back to clipboard.', error); 
-                    navigator.clipboard.writeText(shareData.text) 
-                        .then(() => alert(`Share cancelled. Location copied to clipboard:\n\n${shareData.text}`)) 
-                        .catch(err => console.error("Clipboard write failed:", err)); 
-                }); 
-        } else { 
-            navigator.clipboard.writeText(shareData.text) 
-                .then(() => alert(`Native Share not supported. Location for ${group.name} copied to clipboard:\n\n${shareData.text}`)) 
-                .catch(err => console.error("Clipboard write failed:", err)); 
-        } 
-    } 
+        let content;
+        if (isSocialLink) {
+            content = `<a href="${url}" target="_blank" class="truncate hover:text-primary-indigo">${display}</a>`;
+        } else if (linkUrl && (linkUrl.startsWith('tel:') || linkUrl.startsWith('mailto:'))) {
+            content = `<a href="${linkUrl}" class="hover:text-primary-indigo">${display}</a>`;
+        } else {
+            content = `<span>${display}</span>`;
+        }
 
+        return `
+            <p class="contact-details">
+                <span class="contact-icon-group">
+                    <i class="${iconClass} contact-icon ${colorClass}"></i> 
+                    <span class="${colorClass} truncate">${content}</span>
+                </span>
+                ${openBtn}
+            </p>
+        `;
+    };
 
-    // --- DATA PROCESSING: GROUPING LOGIC (Unchanged) --- 
-    function groupContactsByName(contacts) { 
-        const groups = new Map(); 
-
-        contacts.forEach(contact => { 
-            const name = contact.data.name ? contact.data.name.trim() : 'Unknown Contact'; 
-            const key = name.toLowerCase();  
-
-            if (!groups.has(key)) { 
-                groups.set(key, { 
-                    name: name, 
-                    members: [],  
-                    emails: new Set(), 
-                    addresses: new Set(), 
-                    mobiles: new Set(), 
-                    whatsapps: new Set(), 
-                    facebooks: new Set(), 
-                    twitters: new Set(), 
-                    instagrams: new Set(), 
-                    notes: new Set(), 
-                }); 
-            } 
-
-            const group = groups.get(key); 
-            group.members.push(contact); 
-
-            // Collect all unique data points from all members of the group 
-            if (contact.data.mobile) group.mobiles.add(contact.data.mobile); 
-            if (contact.data.whatsapp) group.whatsapps.add(contact.data.whatsapp); 
-            if (contact.data.email) group.emails.add(contact.data.email); 
-            if (contact.data.address) group.addresses.add(contact.data.address); 
-            if (contact.data.facebook) group.facebooks.add(contact.data.facebook); 
-            if (contact.data.instagram) group.instagrams.add(contact.data.instagram); 
-        }); 
-
-        const groupedArray = Array.from(groups.values()).sort((a, b) => { 
-            const nameA = a.name.toUpperCase(); 
-            const nameB = b.name.toUpperCase(); 
-            if (nameA < nameB) return -1; 
-            if (nameA > nameB) return 1; 
-            return 0; 
-        }); 
-
-        return groupedArray; 
-    } 
-
-    // --- RENDERING & EVENT ATTACHMENT --- 
-    function createGroupCard(group) { 
-        const card = document.createElement('div'); 
-        card.className = 'contact-card flex flex-col justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300';  
+    function createGroupCard(group) {
+        const card = document.createElement('div');
+        card.className = 'contact-card flex flex-col justify-between p-4 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300'; 
         
         const primaryId = group.members[0].id; 
+        const contactData = group.members[0].data; 
 
-        let mobileHtml = ''; 
-        const allNumbers = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)])); 
-        
-        if (allNumbers.length > 0) { 
-            allNumbers.forEach((number, index) => { 
-                const isMobile = group.mobiles.has(number); 
+        const fullBirthDate = contactData.birthDate;
+        const birthDateMMDD = fullBirthDate ? fullBirthDate.substring(5, 10) : null;
+        const currentAge = calculateAge(fullBirthDate);
+        const isBirthday = birthDateMMDD === TODAY_MMDD;
+
+
+        let mobileHtml = '';
+        const allNumbers = Array.from(new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)]));
+        const displayedNumbers = new Set();
+
+        if (allNumbers.length > 0) {
+            allNumbers.forEach((number) => {
+                if (displayedNumbers.has(number)) return;
+
                 const isWhatsapp = group.whatsapps.has(number); 
+                const isMobile = group.mobiles.has(number);
+
+                let iconHtml;
+                let linkUrl = `tel:${number}`;
+                let label = '';
+
+                // MODIFIED LOGIC: Display Phone then WhatsApp icon for combined numbers
+                if (isWhatsapp && isMobile) {
+                    iconHtml = `
+                        <i class="fas fa-mobile-alt text-gray-800" style="margin-right: 4px;"></i>
+                        <i class="fab fa-whatsapp text-green-500" style="margin-right: 8px;"></i>
+                    `;
+                    // Prioritize WhatsApp link for dual numbers
+                    linkUrl = `https://wa.me/${number.replace(/\D/g, '').replace(/^\+/, '')}`; 
+                    label = number; 
+                } else if (isWhatsapp) {
+                    iconHtml = `<i class="fab fa-whatsapp contact-icon text-green-500" style="margin-right: 8px;"></i>`; 
+                    linkUrl = `https://wa.me/${number.replace(/\D/g, '').replace(/^\+/, '')}`;
+                    label = number; 
+                } else if (isMobile) {
+                    iconHtml = `<i class="fas fa-mobile-alt contact-icon text-gray-800" style="margin-right: 8px;"></i>`;
+                    linkUrl = `tel:${number}`;
+                    label = number; 
+                } else {
+                    return; 
+                }
+
+                mobileHtml += `
+                    <p class="contact-details">
+                        <span class="contact-icon-group" style="gap: 0;">
+                            ${iconHtml}
+                            <a href="${linkUrl}" class="text-gray-800 hover:text-primary-indigo">${label}</a>
+                        </span>
+                    </p>
+                `;
+                displayedNumbers.add(number);
+            });
+        }
+
+        const email = Array.from(group.emails)[0];
+        
+        const homeAddress = contactData.homeAddress;
+        const officeAddress = contactData.officeAddress;
+        const landmark = contactData.landmark;
+        const company = Array.from(group.companies)[0];
+        const note = Array.from(group.notes)[0];
+
+
+        card.innerHTML = `
+            <div class="contact-info">
+                <h3 class="contact-name text-xl font-semibold mb-3">${group.name || 'Unknown Contact'}</h3>
+                <div class="space-y-1">
+                    ${ isBirthday ? `<p class="contact-details !justify-start text-red-600 font-bold mb-3 p-1 bg-red-50 rounded-md"><i class="fas fa-hand-holding-heart contact-icon"></i> Happy Birthday!</p>` : ''}
+
+                    ${mobileHtml}
+
+                    ${email ? `<p class="contact-details"><span class="contact-icon-group"><i class="fas fa-envelope contact-icon text-gray-700"></i> <a href="mailto:${email}" class="text-gray-700 hover:text-primary-indigo">${email}</a></span></p>` : ''}
+                    
+                    ${(homeAddress || officeAddress || landmark) ? `
+                        <div class="pt-3 border-t mt-2 border-gray-100 space-y-1">
+                            <h4 class="text-xs font-semibold text-gray-500">ADDRESS DETAILS</h4>
+                            ${homeAddress ? createDetailRow('fas fa-home', `Home: ${homeAddress}`, null, 'text-gray-700') : ''}
+                            ${officeAddress ? createDetailRow('fas fa-briefcase', `Office: ${officeAddress}`, null, 'text-gray-700') : ''}
+                            ${landmark ? createDetailRow('fas fa-map-pin', `Landmark: ${landmark}`, null, 'text-gray-500') : ''}
+                        </div>
+                    ` : ''}
+
+                    ${company ? createDetailRow('fas fa-building', company, null, 'text-gray-500 font-medium') : ''}
+                    ${note ? `<p class="contact-details text-gray-500 pt-2 border-t mt-2 border-gray-100"><i class="fas fa-sticky-note contact-icon"></i> <span class="text-xs italic">${note.substring(0, 50)}${note.length > 50 ? '...' : ''}</span></p>` : ''}
+                </div>
+            </div>
+            
+            <div class="actions-container">
+                <button class="action-btn edit-btn bg-yellow-500 hover:bg-yellow-600 text-white" data-id="${primaryId}" title="Edit" onclick="openEditModal('${primaryId}')"><i class="fas fa-pen"></i></button>
+                <button class="action-btn share-btn bg-primary-indigo hover:bg-indigo-700 text-white" data-id="${primaryId}" title="Share Contact" onclick="shareContact(contactMap.get('${primaryId}'))"><i class="fas fa-share-nodes"></i></button>
+                ${homeAddress || officeAddress ? `<button class="action-btn share-address-btn bg-teal-500 hover:bg-teal-600 text-white" data-id="${primaryId}" title="Share Address" onclick="shareAddress(contactMap.get('${primaryId}'))"><i class="fas fa-location-arrow"></i></button>` : ''}
+                <button class="action-btn delete-btn bg-red-500 hover:bg-red-600 text-white" data-id="${primaryId}" title="Delete"><i class="fas fa-trash-can"></i></button>
+            </div>
+        `;
+        return card;
+    }
+
+
+    // --- DYNAMIC ROW CREATION FUNCTIONS ---
+
+    window.addGiftRow = function(data = { name: '', date: '', occasion: '' }) {
+        const index = giftListContainer.children.length;
+        const div = document.createElement('div');
+        div.className = 'dynamic-row gift-row';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                <div class="md:col-span-4 flex justify-between items-center pb-2 border-b">
+                    <span class="text-xs font-medium text-gray-700">Gift #${index + 1}</span>
+                    <button type="button" onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+                <input type="text" name="gift_name" placeholder="Gift Name" value="${data.name || ''}" class="mt-1 col-span-2">
+                <input type="date" name="gift_date" placeholder="Date" value="${data.date || ''}" class="mt-1">
+                <input type="text" name="gift_occasion" placeholder="Occasion/Location/Purpose" value="${data.occasion || ''}" class="mt-1 col-span-4">
+            </div>
+        `;
+        giftListContainer.appendChild(div);
+    }
+
+    window.addAssetRow = function(data = { name: '', date: '', price: '', location: '' }) {
+        const index = assetListContainer.children.length;
+        const div = document.createElement('div');
+        div.className = 'dynamic-row asset-row';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                <div class="md:col-span-4 flex justify-between items-center pb-2 border-b">
+                    <span class="text-xs font-medium text-gray-700">Asset #${index + 1}</span>
+                    <button type="button" onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
+                <input type="text" name="asset_name" placeholder="Asset Name" value="${data.name || ''}" class="mt-1 col-span-2">
+                <input type="date" name="asset_date" placeholder="Date" value="${data.date || ''}" class="mt-1">
+                <input type="text" name="asset_price" placeholder="Price/Value" value="${data.price || ''}" class="mt-1">
+                <input type="text" name="asset_location" placeholder="Shop/City/Institution" value="${data.location || ''}" class="mt-1 col-span-4">
+            </div>
+        `;
+        assetListContainer.appendChild(div);
+    }
+    
+    // Trip Dynamic Row
+    window.addTripRow = function(data = { location: '', date: '', specialty: '', howToVisit: '', expense: '', review: '', description: '' }) {
+        const index = tripListContainer.children.length;
+        const div = document.createElement('div');
+        div.className = 'dynamic-row trip-row';
+        div.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+                <div class="md:col-span-4 flex justify-between items-center pb-2 border-b">
+                    <span class="text-xs font-medium text-gray-700">Trip #${index + 1}</span>
+                    <button type="button" onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700" title="Remove"><i class="fas fa-trash"></i></button>
+                </div>
                 
-                const marginClass = index === 0 ? '' : 'ml-6';  
-                // Prefer the WhatsApp icon if it's explicitly a WhatsApp number
-                const iconClass = isWhatsapp ? 'fab fa-whatsapp' : 'fas fa-phone-alt';  
-                const textColorClass = index === 0 ? 'text-gray-700' : 'text-gray-500'; 
+                <input type="text" name="trip_location" placeholder="Location" value="${data.location || ''}" class="mt-1 col-span-2">
+                <input type="date" name="trip_date" placeholder="Date" value="${data.date || ''}" class="mt-1">
+                <input type="text" name="trip_expense" placeholder="Total Expense" value="${data.expense || ''}" class="mt-1">
 
-                mobileHtml += `<p class="contact-details flex items-center ${marginClass}"> 
-                                    <i class="${iconClass} contact-icon w-4 text-center mr-2"></i>  
-                                    <a href="tel:${number}" class="${textColorClass} hover:text-primary-indigo">${number}</a> 
-                                    ${isWhatsapp ? `<a href="https://wa.me/${number.replace(/\D/g, '')}" target="_blank" title="WhatsApp" class="ml-2 text-green-500 hover:text-green-700"><i class="fab fa-whatsapp"></i></a>` : ''} 
-                                </p>`; 
-            }); 
-        } 
+                <input type="text" name="trip_specialty" placeholder="Specialty/Activity" value="${data.specialty || ''}" class="mt-1 col-span-2">
+                <input type="text" name="trip_howToVisit" placeholder="How to Visit (Transport)" value="${data.howToVisit || ''}" class="mt-1">
+                <input type="text" name="trip_review" placeholder="Place Review (Rating/Short Comment)" value="${data.review || ''}" class="mt-1">
+                
+                <textarea name="trip_description" placeholder="Description/Highlights" class="trip-description mt-1 col-span-4">${data.description || ''}</textarea>
+            </div>
+        `;
+        tripListContainer.appendChild(div);
+    }
 
-        const email = Array.from(group.emails)[0]; 
-        const address = Array.from(group.addresses)[0]; 
-        const facebook = Array.from(group.facebooks)[0]; 
-        const twitter = Array.from(group.twitters)[0]; 
-        const instagram = Array.from(group.instagrams)[0]; 
+    // --- MODAL & COLLAPSIBLE LOGIC ---
 
-        const facebookUrl = facebook ? (facebook.startsWith('http') ? facebook : `https://${facebook}`) : null; 
-        const facebookDisplay = facebookUrl ? (facebookUrl.includes('facebook.com') ? new URL(facebookUrl).pathname.replace(/^\/|[\/]+$/g, '') : facebook) : null; 
-        
-        const instagramUrl = instagram ? (instagram.startsWith('http') ? instagram : `https://${instagram}`) : null; 
-        const instagramDisplay = instagramUrl ? (instagramUrl.includes('instagram.com') ? new URL(instagramUrl).pathname.replace(/^\/|[\/]+$/g, '') : instagram) : null; 
+    window.clearBirthDate = function() {
+        document.getElementById('editBirthDate').value = '';
+        document.getElementById('editAge').value = '';
+        alert("Birth date cleared from the form. Click 'Save Changes' to remove it from the database.");
+    }
+    
+    window.openModalLink = function(linkId, baseUrl) {
+        const inputElement = document.getElementById(linkId);
+        let value = inputElement.value.trim();
+        if (!value) { alert('Please enter a URL or handle first.'); return; }
+        let fullUrl;
+        if (value.startsWith('http')) { fullUrl = value; } 
+        else if (baseUrl.includes('twitter.com') || baseUrl.includes('instagram.com') || baseUrl.includes('threads.net/@')) { fullUrl = `${baseUrl.replace(/\/$/, '')}/${value.replace(/^@/, '')}`; } 
+        else if (baseUrl.includes('linkedin.com/in/') || baseUrl.includes('github.com/')) { fullUrl = baseUrl.endsWith('/') ? `${baseUrl}${value}` : `${baseUrl}/${value}`; } 
+        else { fullUrl = `https://${value}`; }
+        window.open(fullUrl, '_blank');
+    };
+    
+    function attachModalLinkListeners() {
+        document.querySelectorAll('.open-modal-link-btn').forEach(button => {
+            button.onclick = () => {
+                const linkId = button.getAttribute('data-link-id');
+                const baseUrl = button.getAttribute('data-base-url');
+                window.openModalLink(linkId, baseUrl);
+            };
+        });
+        document.querySelectorAll('.copy-btn-modal').forEach(button => {
+            button.onclick = () => {
+                const linkId = button.getAttribute('data-link-id');
+                const input = document.getElementById(linkId);
+                if (input.value) {
+                    navigator.clipboard.writeText(input.value)
+                        .then(() => {
+                            const originalText = button.innerHTML;
+                            button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            setTimeout(() => { button.innerHTML = originalText; }, 1000);
+                        })
+                        .catch(err => {
+                            alert('Failed to copy. Please copy manually.');
+                            console.error('Copy failed:', err);
+                        });
+                }
+            };
+        });
+    }
+    
+    function initializeCollapsibleHeaders() {
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.removeEventListener('click', toggleCollapsible);
+            header.addEventListener('click', toggleCollapsible);
 
-
-        card.innerHTML = ` 
-            <div class="contact-info"> 
-                <h3 class="contact-name text-xl font-semibold mb-3">${group.name || 'Unknown Contact'}</h3> 
-                <div class="space-y-1"> 
-                    ${mobileHtml} 
-                    ${email ? `<p class="contact-details flex items-center"><i class="fas fa-envelope contact-icon w-4 text-center mr-2"></i> <a href="mailto:${email}" class="text-gray-700 hover:text-primary-indigo">${email}</a></p>` : ''} 
-                    
-                    ${facebookUrl ? `<p class="contact-details flex items-center"><i class="fab fa-facebook contact-icon text-blue-600 w-4 text-center mr-2"></i> <a href="${facebookUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${facebookDisplay || facebook}</a></p>` : ''} 
-                    ${twitter ? `<p class="contact-details flex items-center"><i class="fab fa-twitter contact-icon text-blue-400 w-4 text-center mr-2"></i> <a href="https://twitter.com/${twitter.replace(/^@/, '')}" target="_blank" class="text-gray-700 hover:text-primary-indigo">@${twitter.replace(/^@/, '')}</a></p>` : ''} 
-                    ${instagramUrl ? `<p class="contact-details flex items-center"><i class="fab fa-instagram contact-icon text-pink-600 w-4 text-center mr-2"></i> <a href="${instagramUrl}" target="_blank" class="text-gray-700 hover:text-primary-indigo">${instagramDisplay || instagram}</a></p>` : ''} 
-                    
-                    ${address ? `<p class="contact-details flex items-center"><i class="fas fa-map-marker-alt contact-icon w-4 text-center mr-2"></i> <span class="text-gray-700">${address}</span></p>` : ''} 
-                </div> 
-            </div> 
+            const targetId = header.getAttribute('data-toggle');
+            const targetElement = document.getElementById(targetId);
+            const icon = header.querySelector('.toggle-icon');
             
-            <div class="actions-container flex justify-end space-x-2 mt-4 pt-4 border-t border-gray-100"> 
-                <button class="action-btn edit-btn p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white" data-id="${primaryId}" title="Edit"><i class="fas fa-edit"></i></button> 
-                <button class="action-btn share-btn p-2 rounded-full bg-primary-indigo hover:bg-indigo-700 text-white" data-id="${primaryId}" title="Share Name and Phone"><i class="fas fa-share-alt"></i></button> 
-                ${address ? `<button class="action-btn share-address-btn p-2 rounded-full bg-teal-500 hover:bg-teal-600 text-white" data-id="${primaryId}" title="Share Name and Location"><i class="fas fa-map-marked-alt"></i></button>` : ''} 
-                <button class="action-btn delete-btn p-2 rounded-full bg-red-500 hover:bg-red-600 text-white" data-id="${primaryId}" title="Delete"><i class="fas fa-trash-alt"></i></button> 
-            </div> 
-        `; 
-        return card; 
-    } 
+            if (targetElement.classList.contains('hidden')) {
+                 icon.classList.remove('fa-minus');
+                 icon.classList.add('fa-plus');
+            } else {
+                 icon.classList.remove('fa-plus');
+                 icon.classList.add('fa-minus');
+            }
+        });
+    }
 
-    function renderContacts(contactsToRender) { 
-        contactListContainer.innerHTML = ''; 
-        
-        if (contactsToRender.length === 0) { 
-            contactListContainer.innerHTML = `<p class="loading-message text-center text-gray-500 col-span-full mt-10">${searchInput.value ? 'No contacts found matching your criteria.' : 'You have no contacts saved yet. Tap the Upload button to get started! ⬆️'}</p>`; 
-            return; 
-        } 
+    function toggleCollapsible(event) {
+        const header = event.currentTarget;
+        const targetId = header.getAttribute('data-toggle');
+        const targetElement = document.getElementById(targetId);
+        const icon = header.querySelector('.toggle-icon');
 
-        const groupedContacts = groupContactsByName(contactsToRender); 
-        
-        groupedContacts.forEach(group => { 
-            const contactCard = createGroupCard(group); 
-            if (contactCard) { 
-                contactListContainer.appendChild(contactCard); 
-            } 
-        }); 
-        
-        attachEventListeners(allContacts); 
-    } 
+        targetElement.classList.toggle('hidden');
+        if (targetElement.classList.contains('hidden')) {
+            icon.classList.remove('fa-minus');
+            icon.classList.add('fa-plus');
+        } else {
+            icon.classList.remove('fa-plus');
+            icon.classList.add('fa-minus');
+        }
+    }
 
-    function filterContacts() { 
-        const searchTerm = searchInput.value.toLowerCase(); 
-        const filtered = allContacts.filter(item => { 
-            const data = item.data; 
-            return (data.name && data.name.toLowerCase().includes(searchTerm)) || 
-                    (data.mobile && data.mobile.toLowerCase().includes(searchTerm)) || 
-                    (data.whatsapp && data.whatsapp.toLowerCase().includes(searchTerm)) || 
-                    (data.email && data.email.toLowerCase().includes(searchTerm)) || 
-                    (data.note && data.note.toLowerCase().includes(searchTerm)) || 
-                    (data.twitter && data.twitter.toLowerCase().includes(searchTerm)); 
-        }); 
-        renderContacts(filtered); 
-    } 
+    // NEW FUNCTION: Clears and Populates Dynamic Rows
+    function loadDynamicRows(dataString, container, createRowFn) {
+        container.innerHTML = '';
+        if (dataString) {
+            try {
+                // Attempt to parse JSON
+                const data = JSON.parse(dataString);
+                if (Array.isArray(data)) {
+                    data.forEach(item => createRowFn(item));
+                }
+            } catch (e) {
+                // If parsing fails, fall back to adding one empty row
+                console.warn("Failed to parse dynamic data (expected JSON array), loading default row:", e);
+                createRowFn(); 
+            }
+        }
+        if (container.children.length === 0) {
+            createRowFn(); // Always ensure at least one empty row for adding new input
+        }
+    }
 
-    function attachEventListeners(contacts) { 
-        contactMap = new Map(contacts.map(item => [item.id, item.data])); 
+    // NEW FUNCTION: Collects data from dynamic rows and serializes it to JSON string
+    function collectDynamicData(containerSelector, fieldNames) {
+        const rows = document.querySelectorAll(containerSelector + ' .dynamic-row');
+        const data = [];
+        rows.forEach(row => {
+            const item = {};
+            let isEmpty = true;
+            fieldNames.forEach(fieldName => {
+                const input = row.querySelector(`[name="${fieldName}"]`);
+                // Check if it's a regular input or a textarea (like trip description)
+                const value = input.value.trim();
+                
+                // Ensure we only include valid inputs
+                if (value !== '') {
+                    // Uses fieldName.split('_')[1] to get just 'name', 'date', 'occasion', etc.
+                    const keyName = fieldName.split('_').slice(1).join('_');
+                    item[keyName] = value;
+                    isEmpty = false;
+                }
+            });
+            // Only save rows where at least one field was entered
+            if (!isEmpty) {
+                data.push(item);
+            }
+        });
+        return data.length > 0 ? JSON.stringify(data) : null;
+    }
 
-        searchInput.removeEventListener('input', filterContacts); 
-        searchInput.addEventListener('input', filterContacts); 
+    // --- FIREBASE READ/WRITE FUNCTIONS ---
 
-        contactListContainer.querySelectorAll('.delete-btn').forEach(button => { 
-            button.onclick = (e) => { 
-                e.stopPropagation(); 
-                const id = e.currentTarget.getAttribute('data-id'); 
-                if (!currentUserId || !confirm(`Are you sure you want to delete the individual entry for ${contactMap.get(id)?.name || 'this contact entry'}?`)) return; 
-                database.ref(`users/${currentUserId}/contacts/${id}`).remove().catch(error => console.error("Error removing contact:", error)); 
-            }; 
-        }); 
+    function loadContacts() {
+        if (!currentUserId) {
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Authentication failed. Please log in again.</p>';
+            return;
+        }
         
-        contactListContainer.querySelectorAll('.share-btn').forEach(button => { 
-            button.onclick = (e) => { 
-                e.stopPropagation(); 
-                // Calls the updated shareContact function 
-                const rawContact = allContacts.find(c => c.id === e.currentTarget.getAttribute('data-id'))?.data; 
-                if (rawContact) { 
-                    shareContact(rawContact); 
-                } 
-            }; 
-        }); 
-        
-        contactListContainer.querySelectorAll('.share-address-btn').forEach(button => { 
-            button.onclick = (e) => { 
-                e.stopPropagation(); 
-                // Calls the NEW shareLocation function 
-                const rawContact = allContacts.find(c => c.id === e.currentTarget.getAttribute('data-id'))?.data; 
-                if (rawContact) { 
-                    shareLocation(rawContact); 
-                } 
-            }; 
-        }); 
-        
-        contactListContainer.querySelectorAll('.edit-btn').forEach(button => { 
-            button.onclick = (e) => { 
-                e.stopPropagation(); 
-                openEditModal(e.currentTarget.getAttribute('data-id')); 
-            }; 
-        }); 
-        
-        const menuBtn = document.getElementById('menu-btn'); 
-        const mobileMenu = document.getElementById('mobileMenu'); 
-        if (menuBtn && mobileMenu) { 
-            menuBtn.onclick = () => { 
-                mobileMenu.classList.toggle('hidden'); 
-                const icon = menuBtn.querySelector('i'); 
-                icon.classList.toggle('fa-bars'); 
-                icon.classList.toggle('fa-times'); 
-            }; 
-        } 
-    } 
+        contactListContainer.innerHTML = '';
+        loadingMessage.style.display = 'block';
 
-    function loadContacts() { 
-        if (!currentUserId) { 
-            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Please log in to view contacts.</p>'; 
-            return; 
-        } 
+        const dbRef = database.ref(`users/${currentUserId}/contacts`);
         
-        contactListContainer.innerHTML = ''; 
-        contactListContainer.appendChild(loadingMessage); 
-        loadingMessage.style.display = 'block'; 
-
-        const dbRef = database.ref(`users/${currentUserId}/contacts`); 
-        
-        dbRef.on('value', (snapshot) => { 
-            loadingMessage.style.display = 'none'; 
+        dbRef.on('value', (snapshot) => {
+            loadingMessage.style.display = 'none';
             
-            const contactsObject = snapshot.val(); 
-            let rawContacts = []; 
+            const contactsObject = snapshot.val();
+            let rawContacts = [];
 
-            if (contactsObject && typeof contactsObject === 'object') { 
-                Object.keys(contactsObject).forEach(contactId => { 
-                    if (contactsObject[contactId] && contactsObject[contactId].name) { 
-                        rawContacts.push({ 
-                            id: contactId, 
-                            data: contactsObject[contactId] 
-                        }); 
-                    } else if (contactsObject[contactId] === null) { 
-                        // Cleanup null entries 
-                        database.ref(`users/${currentUserId}/contacts/${contactId}`).remove(); 
-                    } 
-                }); 
-            } 
+            if (contactsObject && typeof contactsObject === 'object') {
+                Object.keys(contactsObject).forEach(contactId => {
+                    rawContacts.push({
+                        id: contactId,
+                        data: contactsObject[contactId]
+                    });
+                });
+            }
             
-            allContacts = rawContacts; 
+            allContacts = rawContacts;
             renderContacts(allContacts); 
             
-        }, (error) => { 
-            console.error("Firebase Read Error:", error); 
-            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">⛔ Error loading contacts. Check your Firebase rules!</p>'; 
-        }); 
-    } 
+        }, (error) => {
+            console.error("Firebase Read Error:", error);
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">⛔ Error loading contacts. Check your Firebase rules!</p>';
+        });
+    }
 
-    /** * Fetches and displays CONSOLIDATED data in the edit modal. 
-     */ 
-    function openEditModal(contactId) { 
-        const primaryContact = contactMap.get(contactId); 
-        if (!primaryContact) { 
-            alert("Contact not found."); 
-            return; 
-        } 
-
-        const groupedContacts = groupContactsByName(allContacts); 
-        const primaryNameKey = primaryContact.name.trim().toLowerCase(); 
-        const group = groupedContacts.find(g => g.name.toLowerCase() === primaryNameKey); 
-
-        if (!group) { 
-            alert("Contact group data error."); 
-            return; 
-        } 
-
-        // CONSOLIDATE ALL MOBILE NUMBERS (mobile and whatsapp) into a single string for the textarea 
-        const allNumbers = new Set([...Array.from(group.mobiles), ...Array.from(group.whatsapps)]); 
-        const mobileValue = Array.from(allNumbers).join('\n');  
-
-        // Populate fields 
-        document.getElementById('editContactId').value = contactId; 
-        document.getElementById('editName').value = group.name || ''; 
-        document.getElementById('editMobile').value = mobileValue || '';  
-        document.getElementById('editEmail').value = Array.from(group.emails)[0] || ''; 
-        document.getElementById('editFacebook').value = Array.from(group.facebooks)[0] || ''; 
-        document.getElementById('editInstagram').value = Array.from(group.instagrams)[0] || ''; 
-        document.getElementById('editAddress').value = Array.from(group.addresses)[0] || ''; 
+    // MAIN EDIT MODAL OPEN FUNCTION
+    window.openEditModal = function(contactId) {
+        const contact = contactMap.get(contactId);
+        if (!contact) {
+            alert("Contact not found.");
+            return;
+        }
         
-        editModal.style.display = 'flex'; 
-    } 
+        // FIX: Scroll to top when modal opens
+        const modalContent = document.getElementById('modalContentBox');
+        if (modalContent) {
+            modalContent.scrollTop = 0;
+        }
 
-    window.closeEditModal = function() { 
-        editModal.style.display = 'none'; 
-        editForm.reset(); 
-    } 
+        // Reset and initialize collapsible headers
+        document.getElementById('partner-info').classList.add('hidden');
+        document.getElementById('family-details').classList.add('hidden');
+        document.getElementById('profile-info').classList.add('hidden');
+        document.getElementById('financial-info').classList.add('hidden');
+        document.getElementById('health-info-detailed').classList.add('hidden');
+        document.getElementById('logged-data').classList.add('hidden');
+        initializeCollapsibleHeaders();
 
-    // --- CRITICAL FIX: CONSOLIDATE RECORDS ON EDIT SUBMIT --- 
-    editForm.addEventListener('submit', function(e) { 
-        e.preventDefault(); 
-        
-        const contactId = document.getElementById('editContactId').value; 
-        const existingData = contactMap.get(contactId) || {}; 
+        // Data prep (only relevant for number loading)
+        const groupKey = contact.name.toLowerCase();
+        const contactGroup = groupContactsByName(allContacts).find(g => g.name.toLowerCase() === groupKey);
+        let primaryNumber = contact.mobile || '';
+        let secondaryNumber = contact.whatsapp || '';
 
-        // 1. Parse the mobile input: It can contain one or more numbers separated by newlines, commas, or spaces.
-        const mobileInput = document.getElementById('editMobile').value.trim(); 
-        // Get all unique, non-empty numbers from the input
-        const numbers = Array.from(new Set(mobileInput.split(/[\n, ]+/).map(n => n.trim()).filter(n => n.length > 0))); 
+        if (contactGroup) {
+            const allUniqueNumbers = Array.from(new Set([...Array.from(contactGroup.mobiles), ...Array.from(contactGroup.whatsapps)]));
+            primaryNumber = allUniqueNumbers[0] || '';
+            if (allUniqueNumbers.length > 1 && allUniqueNumbers[1] !== primaryNumber) {
+                secondaryNumber = allUniqueNumbers[1];
+            } else if (allUniqueNumbers.length === 1 && allUniqueNumbers[0] === primaryNumber) {
+                 secondaryNumber = '';
+            }
+        }
         
-        const primaryMobile = numbers.length > 0 ? numbers[0] : '';
-        // Use the second unique number for WhatsApp, if it exists and is different
-        const whatsappMobile = numbers.length > 1 && numbers[1] !== primaryMobile ? numbers[1] : '';
+        // Populate Core/Static Fields
+        document.getElementById('editContactId').value = contactId;
+        document.getElementById('editName').value = contact.name || '';
+        document.getElementById('editCompany').value = contact.company || '';
+        document.getElementById('editMobile').value = primaryNumber;
+        document.getElementById('editWhatsapp').value = secondaryNumber; 
+        document.getElementById('editEmail').value = contact.email || '';
+        document.getElementById('editHomeAddress').value = contact.homeAddress || ''; 
+        document.getElementById('editOfficeAddress').value = contact.officeAddress || ''; 
+        document.getElementById('editLandmark').value = contact.landmark || ''; 
+        document.getElementById('editSalary').value = contact.salary || '';
+        document.getElementById('editBirthDate').value = contact.birthDate || '';
+        document.getElementById('editAge').value = calculateAge(contact.birthDate) || '';
 
-        const updatedData = { 
-            name: document.getElementById('editName').value.trim(), 
-            mobile: primaryMobile,  
-            email: document.getElementById('editEmail').value.trim(), 
-            facebook: document.getElementById('editFacebook').value.trim(), 
-            instagram: document.getElementById('editInstagram').value.trim(), 
-            address: document.getElementById('editAddress').value.trim(), 
-            // CRITICAL UPDATE: Save the secondary number here, which might be empty string
-            whatsapp: whatsappMobile, 
-            twitter: existingData.twitter || '', 
-            note: existingData.note || '', 
-        }; 
-        
-        if (!updatedData.name || !currentUserId) return; 
-        
-        // 2. Find all duplicate/fragmented records associated with this name 
-        const allIdsToConsolidate = findAssociatedIds(contactId); 
-        
-        // 3. Update the current record (primary record) with the new data 
-        const primaryRef = database.ref(`users/${currentUserId}/contacts/${contactId}`); 
-        
-        primaryRef.update(updatedData) 
-            .then(() => { 
-                // 4. Delete all other fragmented records for this contact name 
-                const idsToDelete = allIdsToConsolidate.filter(id => id !== contactId); 
-                
-                const deletePromises = idsToDelete.map(idToDelete => { 
-                    return database.ref(`users/${currentUserId}/contacts/${idToDelete}`).remove(); 
-                }); 
+        // Populate Extended Fields
+        document.getElementById('editAnniversaryDate').value = contact.anniversaryDate || '';
+        document.getElementById('editPartnerName').value = contact.partnerName || '';
+        document.getElementById('editPartnerJob').value = contact.partnerJob || '';
+        document.getElementById('editPartnerSalary').value = contact.partnerSalary || ''; 
+        document.getElementById('editMaidenName').value = contact.maidenName || '';
+        document.getElementById('editNumberOfChildren').value = contact.numberOfChildren || '';
+        document.getElementById('editChildDetails').value = contact.childDetails || ''; 
+        document.getElementById('editFatherName').value = contact.fatherName || ''; 
+        document.getElementById('editFatherJob').value = contact.fatherJob || ''; 
+        document.getElementById('editFatherSalary').value = contact.fatherSalary || ''; 
+        document.getElementById('editFatherAge').value = contact.fatherAge || ''; 
+        document.getElementById('editMotherName').value = contact.motherName || ''; 
+        document.getElementById('editMotherJob').value = contact.motherJob || ''; 
+        document.getElementById('editMotherSalary').value = contact.motherSalary || ''; 
+        document.getElementById('editMotherAge').value = contact.motherAge || ''; 
+        document.getElementById('editSiblings').value = contact.siblings || '';
+        document.getElementById('editSchool').value = contact.school || ''; 
+        document.getElementById('editSkill').value = contact.skill || '';
+        document.getElementById('editFavorite').value = contact.favorite || '';
+        document.getElementById('editMajorGoal').value = contact.majorGoal || '';
+        document.getElementById('editHealthConcern').value = contact.healthConcern || '';
+        document.getElementById('editLastAdmitted').value = contact.lastAdmitted || '';
+        document.getElementById('editNote').value = contact.note || '';
 
-                return Promise.all(deletePromises); 
-            }) 
-            .then(() => { 
-                console.log(`Successfully updated ${updatedData.name} and deleted ${allIdsToConsolidate.length - 1} duplicate records.`); 
+        // Load Dynamic Rows for Gifts, Assets and TRIPS
+        loadDynamicRows(contact.gifts, giftListContainer, window.addGiftRow);
+        loadDynamicRows(contact.assets, assetListContainer, window.addAssetRow);
+        loadDynamicRows(contact.trips, tripListContainer, window.addTripRow); 
+
+        // Social Links
+        document.getElementById('editFacebook').value = contact.facebook || '';
+        document.getElementById('editInstagram').value = contact.instagram || '';
+        document.getElementById('editTwitter').value = contact.twitter || '';
+        document.getElementById('editLinkedin').value = contact.linkedin || '';
+        document.getElementById('editThreads').value = contact.threads || ''; 
+        document.getElementById('editGithub').value = contact.github || ''; 
+
+        editModal.style.display = 'flex';
+        attachModalLinkListeners();
+    }
+
+
+    // EDIT FORM SUBMIT LOGIC (saves all fields)
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const contactId = document.getElementById('editContactId').value;
+        const savedBirthDate = document.getElementById('editBirthDate').value.trim();
+
+        // Collect Dynamic Data for Gifts, Assets, and TRIPS
+        const giftsData = collectDynamicData('#gift-list-container', ['gift_name', 'gift_date', 'gift_occasion']);
+        const assetsData = collectDynamicData('#asset-list-container', ['asset_name', 'asset_date', 'asset_price', 'asset_location']);
+        const tripsData = collectDynamicData('#trip-list-container', ['trip_location', 'trip_date', 'trip_specialty', 'trip_howToVisit', 'trip_expense', 'trip_review', 'trip_description']); // COLLECT TRIPS
+        
+        const updatedData = {
+            name: document.getElementById('editName').value.trim(),
+            mobile: document.getElementById('editMobile').value.trim(),
+            email: document.getElementById('editEmail').value.trim(),
+            company: document.getElementById('editCompany').value.trim(),
+            birthDate: savedBirthDate, 
+            salary: document.getElementById('editSalary').value.trim(),
+            note: document.getElementById('editNote').value.trim(),
+            whatsapp: document.getElementById('editWhatsapp').value.trim(), 
             
-                closeEditModal(); 
-            }) 
-            .catch(error => { 
-                console.error("Error updating/consolidating contact:", error); 
-                alert("Error updating contact: " + error.message); 
-            }); 
-    }); 
-    // --- END CRITICAL FIX --- 
+            // ADDRESS FIELDS
+            homeAddress: document.getElementById('editHomeAddress').value.trim(),
+            officeAddress: document.getElementById('editOfficeAddress').value.trim(),
+            landmark: document.getElementById('editLandmark').value.trim(),
 
+            // PARTNER / CHILD FIELDS
+            anniversaryDate: document.getElementById('editAnniversaryDate').value.trim(),
+            partnerName: document.getElementById('editPartnerName').value.trim(),
+            partnerJob: document.getElementById('editPartnerJob').value.trim(),
+            partnerSalary: document.getElementById('editPartnerSalary').value.trim(),
+            maidenName: document.getElementById('editMaidenName').value.trim(),
+            numberOfChildren: document.getElementById('editNumberOfChildren').value.trim(),
+            childDetails: document.getElementById('editChildDetails').value.trim(),
 
-    // --- FILE PARSING & SAVING --- 
+            // PARENT / SIBLING FIELDS
+            fatherName: document.getElementById('editFatherName').value.trim(),
+            fatherJob: document.getElementById('editFatherJob').value.trim(),
+            fatherSalary: document.getElementById('editFatherSalary').value.trim(),
+            fatherAge: document.getElementById('editFatherAge').value.trim(),
+            motherName: document.getElementById('editMotherName').value.trim(),
+            motherJob: document.getElementById('editMotherJob').value.trim(),
+            motherSalary: document.getElementById('editMotherSalary').value.trim(),
+            motherAge: document.getElementById('editMotherAge').value.trim(),
+            siblings: document.getElementById('editSiblings').value.trim(),
 
-    function saveContact(data) { 
-        if (!currentUserId || !data.name) return; 
-        const newContactRef = database.ref(`users/${currentUserId}/contacts`).push(); 
-        newContactRef.set({ 
-            name: data.name ? String(data.name).trim() : '', 
-            mobile: data.mobile ? String(data.mobile).trim() : '', 
-            email: data.email ? String(data.email).trim() : '', 
-            address: data.address ? String(data.address).trim() : '', 
-            facebook: data.facebook ? String(data.facebook).trim() : '', 
-            instagram: data.instagram ? String(data.instagram).trim() : '', 
-            whatsapp: data.whatsapp ? String(data.whatsapp).trim() : '', 
-            twitter: data.twitter ? String(data.twitter).trim() : '', 
-            note: data.note ? String(data.note).trim() : '', 
-            createdAt: firebase.database.ServerValue.TIMESTAMP  
-        }) 
-        .catch(error => { 
-            console.error("Error saving contact:", error); 
-            alert("Failed to save contact: " + error.message); 
-        }); 
-    } 
+            // PROFILE / HEALTH / LOGGED FIELDS
+            school: document.getElementById('editSchool').value.trim(),
+            skill: document.getElementById('editSkill').value.trim(),
+            favorite: document.getElementById('editFavorite').value.trim(),
+            majorGoal: document.getElementById('editMajorGoal').value.trim(),
+            healthConcern: document.getElementById('editHealthConcern').value.trim(),
+            lastAdmitted: document.getElementById('editLastAdmitted').value.trim(),
+            
+            // DYNAMIC FIELDS (Saved as JSON string)
+            gifts: giftsData, 
+            assets: assetsData, 
+            trips: tripsData, // SAVE TRIPS
 
+            // SOCIAL FIELDS
+            facebook: document.getElementById('editFacebook').value.trim(),
+            instagram: document.getElementById('editInstagram').value.trim(),
+            twitter: document.getElementById('editTwitter').value.trim(),
+            linkedin: document.getElementById('editLinkedin').value.trim(),
+            threads: document.getElementById('editThreads').value.trim(),
+            github: document.getElementById('editGithub').value.trim(), 
+        };
+        
+        // Prepare data for saving/deleting null values in Firebase
+        const dataToUpdate = {};
+        Object.keys(updatedData).forEach(key => {
+            const value = updatedData[key];
+            dataToUpdate[key] = (value === '' || value === null) ? null : value;
+        });
 
-    function processFile(file) { 
-        if (!file) return; 
-        loadingMessage.innerText = 'Processing file...'; 
-        loadingMessage.style.display = 'block'; 
-        document.getElementById('fileInput').value = '';  
+        if (!dataToUpdate.name || !currentUserId) {
+            alert("Name is required.");
+            return;
+        }
 
-        const reader = new FileReader(); 
-        reader.onload = (e) => { 
-            const content = e.target.result; 
-            const contacts = parseVCFContent(content);  
-
-            if (contacts.length === 0) { 
-                alert("No valid contacts found in the file."); 
-                loadingMessage.style.display = 'none'; 
-                return; 
-            } 
-
-            let savedCount = 0; 
-            contacts.forEach(contact => { 
-                if (contact.name && currentUserId) { 
-                    saveContact(contact); 
-                    savedCount++; 
-                } 
-            }); 
-
-            alert(`Successfully processed file and saved ${savedCount} contacts! Please use the 'Edit' function once per contact to consolidate all fragmented data into one record.`); 
-            loadingMessage.style.display = 'none'; 
-        }; 
-        reader.onerror = (e) => { 
-            alert('Error reading file: ' + e.target.error.name); 
-            loadingMessage.style.display = 'none'; 
-        }; 
-        reader.readAsText(file); 
-    } 
-    
-    function parseVCFContent(content) { 
-        const contacts = []; 
-        const vcards = content.split('END:VCARD').filter(block => block.trim().includes('BEGIN:VCARD')); 
-
-        vcards.forEach(vcardBlock => { 
-            const lines = vcardBlock.split('\n'); 
-            let currentContact = {}; 
-
-            for (const line of lines) { 
-                const trimmedLine = line.trim(); 
-                if (!trimmedLine || trimmedLine.startsWith('BEGIN:') || trimmedLine.startsWith('VERSION:') || trimmedLine.startsWith('END:')) continue; 
+        const contactRef = database.ref(`users/${currentUserId}/contacts/${contactId}`);
+        contactRef.update(dataToUpdate)
+            .then(() => {
+                closeEditModal();
+                alert("Contact saved successfully! Data will refresh shortly.");
                 
-                const parts = trimmedLine.split(':'); 
-                if (parts.length > 1) { 
-                    const keyAndParams = parts[0].toUpperCase();  
-                    const value = parts.slice(1).join(':').trim(); 
-                    const keyRoot = keyAndParams.split(';')[0];  
-
-                    if (keyRoot === 'FN' || keyRoot === 'N') { 
-                        if (keyRoot === 'FN') { 
-                             currentContact.name = value; 
-                        } else if (!currentContact.name) { 
-                            currentContact.name = value.split(';').filter(Boolean).join(' '); 
-                        } 
-                    } else if (keyRoot === 'TEL') { 
-                        const number = value.replace(/[^0-9+]/g, ''); 
-                        if (keyAndParams.includes('TYPE=CELL') || keyAndParams.includes('TYPE=MOBILE')) { 
-                            currentContact.mobile = currentContact.mobile || number; 
-                        } else if (keyAndParams.includes('TYPE=WHATSAPP')) { 
-                            currentContact.whatsapp = currentContact.whatsapp || number; 
-                        } else { 
-                            currentContact.mobile = currentContact.mobile || number;  
-                        } 
-                    } else if (keyRoot === 'EMAIL') { 
-                        currentContact.email = currentContact.email || value; 
-                    } else if (keyRoot === 'ADR') { 
-                        const addrParts = value.split(';'); 
-                        currentContact.address = addrParts.slice(2).filter(Boolean).join(', '); 
-                    } else if (keyRoot === 'URL') { 
-                        const url = value.toLowerCase(); 
-                        if (url.includes('facebook')) currentContact.facebook = currentContact.facebook || value; 
-                        if (url.includes('instagram')) currentContact.instagram = currentContact.instagram || value; 
-                        if (url.includes('twitter')) currentContact.twitter = currentContact.twitter || value; 
-                    } else if (keyRoot === 'NOTE') { 
-                        currentContact.note = currentContact.note || value; 
-                    } 
-                } 
-            } 
-
-            if (currentContact.name && (currentContact.mobile || currentContact.email || currentContact.address)) { 
-                contacts.push(currentContact); 
-            } 
-        }); 
-
-        return contacts; 
-    } 
+                // UX FIX: If search bar is not empty, re-filter the results to maintain context.
+                if (searchInput.value.trim() !== '') {
+                    filterContacts(); 
+                }
+            })
+            .catch(error => {
+                console.error("Error updating contact:", error);
+                alert("Error updating contact: " + error.message);
+            });
+    });
 
 
-    // --- INITIALIZATION --- 
-    auth.onAuthStateChanged(user => { 
-        if (user) { 
-            currentUserId = user.uid; 
-            document.getElementById('userName').textContent = user.displayName || 'User'; 
-            document.getElementById('userEmail').textContent = user.email || 'No Email'; 
-            document.getElementById('mobileUserName').textContent = user.displayName || 'User'; 
-            document.getElementById('mobileUserEmail').textContent = user.email || 'No Email'; 
-            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40'; 
-            loadContacts(); 
-        } else { 
-            // Redirect to login page if not authenticated 
-            window.location.href = 'index.html';  
-        } 
-    }); 
+    // --- AUXILIARY LOGIC ---
 
-    document.addEventListener('DOMContentLoaded', () => { 
-        const menuBtn = document.getElementById('menu-btn'); 
-        const mobileMenu = document.getElementById('mobileMenu'); 
-        if (menuBtn && mobileMenu) { 
-            menuBtn.onclick = () => { 
-                mobileMenu.classList.toggle('hidden'); 
-                const icon = menuBtn.querySelector('i'); 
-                icon.classList.toggle('fa-bars'); 
-                icon.classList.toggle('fa-times'); 
-            }; 
-        } 
-    }); 
+    window.closeEditModal = function() {
+        editModal.style.display = 'none';
+        editForm.reset();
+        extraSocialLinksContainer.classList.add('hidden');
+        toggleExtraLinksBtn.innerHTML = '<i class="fas fa-plus mr-1"></i> Add/Edit Social Links';
+    }
+
+    // Sync Age/Birthdate Inputs
+    editBirthDateInput.addEventListener('change', function() {
+        editAgeInput.value = calculateAge(this.value) || '';
+    });
+    editAgeInput.addEventListener('input', function() {
+        const age = parseInt(this.value);
+        if (age > 0) {
+            editBirthDateInput.value = calculateBirthDateFromAge(age);
+        } else {
+            editBirthDateInput.value = '';
+        }
+    });
+
+    // WhatsApp Quick Copy
+    if (whatsappPromptBtn) {
+        whatsappPromptBtn.addEventListener('click', () => {
+            const mobileNum = document.getElementById('editMobile').value.trim();
+            const whatsappInput = document.getElementById('editWhatsapp');
+
+            if (!mobileNum) { alert("Please enter a Mobile Number first."); return; }
+            if (confirm(`Set ${mobileNum} as the WhatsApp number?`)) {
+                whatsappInput.value = mobileNum;
+            }
+        });
+    }
+
+    // Toggle Social Links
+    if (toggleExtraLinksBtn && extraSocialLinksContainer) {
+        toggleExtraLinksBtn.addEventListener('click', () => {
+            const isHidden = extraSocialLinksContainer.classList.toggle('hidden');
+            toggleExtraLinksBtn.innerHTML = isHidden 
+                ? '<i class="fas fa-plus mr-1"></i> Add/Edit Social Links' 
+                : '<i class="fas fa-minus mr-1"></i> Hide Additional Links';
+        });
+    }
+    
+    // File Processing (Placeholder for VCF - unchanged)
+    function parseVCFContent(content) {
+        const contacts = [];
+        const vcards = content.split('BEGIN:VCARD').filter(v => v.trim() !== '' && v.includes('END:VCARD'));
+
+        vcards.forEach(vcardText => {
+            const lines = vcardText.split(/\r?\n/).map(line => line.trim()).filter(line => line !== '');
+            const contact = {};
+
+            lines.forEach(line => {
+                if (line.startsWith('FN:')) {
+                    contact.name = line.substring(3).replace(/;/g, ' ').trim();
+                } else if (line.startsWith('TEL;')) {
+                    const match = line.match(/TYPE=([^,;:]*)/i);
+                    const type = match ? match[1].toLowerCase() : 'mobile';
+                    const number = line.substring(line.indexOf(':') + 1).replace(/\s/g, '').replace(/[^0-9+]/g, '');
+
+                    if (type === 'mobile' || type === 'cell') {
+                        contact.mobile = number;
+                    } else if (!contact.mobile) {
+                        contact.mobile = number; 
+                    }
+                } else if (line.startsWith('EMAIL;')) {
+                    contact.email = line.substring(line.indexOf(':') + 1).trim();
+                } else if (line.startsWith('ORG:')) {
+                    contact.company = line.substring(4).replace(/;/g, ', ').trim();
+                } else if (line.startsWith('BDAY:')) {
+                    let bday = line.substring(5).trim();
+                    if (bday.length === 8 && /^\d+$/.test(bday)) { 
+                        contact.birthDate = `${bday.substring(0, 4)}-${bday.substring(4, 6)}-${bday.substring(6, 8)}`;
+                    } else if (bday.length >= 10 && bday.includes('-')) {
+                        contact.birthDate = bday.substring(0, 10); 
+                    }
+                } else if (line.startsWith('NOTE:')) {
+                    contact.note = line.substring(5).trim();
+                }
+            });
+
+            if (contact.name) {
+                Object.keys(contact).forEach(key => (contact[key] === '') && delete contact[key]);
+                contacts.push(contact);
+            }
+        });
+        return contacts;
+    }
+    function saveContactsToFirebase(contactsArray) {
+        if (!currentUserId || contactsArray.length === 0) return;
+        const updates = {};
+        const contactsRef = database.ref(`users/${currentUserId}/contacts`);
+        contactsArray.forEach(contactData => {
+            const newContactRef = contactsRef.push(); 
+            updates[newContactRef.key] = contactData;
+        });
+        return contactsRef.update(updates).then(() => { alert(`Successfully imported ${contactsArray.length} contacts!`); }).catch(error => { alert("Failed to import contacts: " + error.message); });
+    }
+
+    function renderContacts(contactsToRender) {
+        contactListContainer.innerHTML = '';
+        if (contactsToRender.length === 0) {
+            contactListContainer.innerHTML = `<p class="loading-message text-center text-gray-500 col-span-full mt-10">${searchInput.value ? 'No contacts found matching your criteria.' : 'You have no contacts saved yet. Tap the Upload button to get started! ⬆️'}</p>`;
+            return;
+        }
+
+        const groupedContacts = groupContactsByName(contactsToRender);
+        groupedContacts.forEach(group => {
+            const contactCard = createGroupCard(group);
+            if (contactCard) { contactListContainer.appendChild(contactCard); }
+        });
+        attachEventListeners(allContacts);
+    }
+
+    function filterContacts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const filtered = allContacts.filter(item => {
+            const data = item.data;
+            // Includes all text fields in the search for better UX
+            return (data.name?.toLowerCase().includes(searchTerm)) ||
+                   (data.mobile?.toLowerCase().includes(searchTerm)) ||
+                   (data.whatsapp?.toLowerCase().includes(searchTerm)) ||
+                   (data.email?.toLowerCase().includes(searchTerm)) ||
+                   (data.note?.toLowerCase().includes(searchTerm)) ||
+                   (data.company?.toLowerCase().includes(searchTerm)) ||
+                   (data.partnerName?.toLowerCase().includes(searchTerm)) || 
+                   (data.partnerJob?.toLowerCase().includes(searchTerm)) || 
+                   (data.maidenName?.toLowerCase().includes(searchTerm)) || 
+                   (data.childDetails?.toLowerCase().includes(searchTerm)) || 
+                   (data.homeAddress?.toLowerCase().includes(searchTerm)) || 
+                   (data.officeAddress?.toLowerCase().includes(searchTerm)) || 
+                   (data.landmark?.toLowerCase().includes(searchTerm)) || 
+                   (data.fatherName?.toLowerCase().includes(searchTerm)) || 
+                   (data.motherName?.toLowerCase().includes(searchTerm)) || 
+                   (data.siblings?.toLowerCase().includes(searchTerm)) || 
+                   (data.school?.toLowerCase().includes(searchTerm)) || 
+                   (data.skill?.toLowerCase().includes(searchTerm)) || 
+                   (data.favorite?.toLowerCase().includes(searchTerm)) || 
+                   (data.majorGoal?.toLowerCase().includes(searchTerm)) ||
+                   (data.healthConcern?.toLowerCase().includes(searchTerm)) ||
+                   (data.lastAdmitted?.toLowerCase().includes(searchTerm)) ||
+                   (data.gifts?.toLowerCase().includes(searchTerm)) ||
+                   (data.assets?.toLowerCase().includes(searchTerm)) ||
+                   (data.trips?.toLowerCase().includes(searchTerm)); 
+        });
+        renderContacts(filtered);
+    }
+    
+    function attachEventListeners(contacts) {
+        contactMap = new Map(contacts.map(item => [item.id, item.data]));
+        const debouncedFilter = debounce(filterContacts, 300); 
+
+        searchInput.removeEventListener('input', filterContacts); 
+        searchInput.addEventListener('input', debouncedFilter); 
+
+        contactListContainer.querySelectorAll('.delete-btn').forEach(button => {
+            button.onclick = (e) => {
+                e.stopPropagation();
+                const id = e.currentTarget.getAttribute('data-id');
+                if (!currentUserId || !confirm(`Are you sure you want to delete the entry for ${contactMap.get(id)?.name || 'this contact entry'}?`)) return;
+                database.ref(`users/${currentUserId}/contacts/${id}`).remove().catch(error => console.error("Error removing contact:", error));
+            };
+        });
+        
+        // Mobile Menu Logic
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (menuBtn && mobileMenu) {
+            menuBtn.onclick = () => {
+                mobileMenu.classList.toggle('hidden');
+                const icon = menuBtn.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            };
+        }
+    }
+
+
+    // --- INITIALIZATION ---
+    
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUserId = user.uid;
+            
+            const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+            const initial = displayName.charAt(0).toUpperCase();
+            const userPhotoURL = user.photoURL || `https://via.placeholder.com/40/4f46e5/ffffff?text=${initial}`;
+            
+            document.getElementById('userName').textContent = displayName;
+            document.getElementById('userEmail').textContent = user.email || 'No Email';
+            document.getElementById('mobileUserName').textContent = displayName;
+            document.getElementById('mobileUserEmail').textContent = user.email || 'No Email';
+            document.getElementById('userPhoto').src = userPhotoURL;
+            
+            loadContacts();
+        } else {
+            currentUserId = null;
+            document.getElementById('userName').textContent = 'Guest';
+            document.getElementById('userEmail').textContent = 'Signed Out';
+            document.getElementById('userPhoto').src = 'https://via.placeholder.com/40/ccc/ffffff?text=G';
+            contactListContainer.innerHTML = '<p class="loading-message text-center text-red-500 col-span-full mt-10">Please log in to view contacts.</p>';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
+        initializeCollapsibleHeaders();
+    });
 </script>
-</body>
 </html>
-
-
