@@ -208,7 +208,23 @@
                 
                 <h3 class="font-bold text-sm text-gray-700 mb-2 pt-2">MAIN NAVIGATION</h3>
                 <a href="home.html"><i class="fas fa-house mr-3"></i> Home</a>
-            
+                <button id="profile-toggle-btn" class="flex items-center gap-2 mt-4 w-full text-left font-medium text-gray-800 border-t pt-3 hover:bg-gray-100">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                    <span class="font-medium">Profile</span>
+                    <i class="fas fa-chevron-down ml-auto transition-transform duration-300" id="profileChevron"></i>
+                </button>
+
+                <div id="mobileProfilePanel" class="mt-2 p-3 border rounded bg-gray-50 space-y-2">
+                    <div class="flex items-center gap-3">
+                        <img id="mobileUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
+                        <div>
+                            <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+                            <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                        </div>
+                    </div>
+                    
+                    <button onclick="logout()" class="bg-red-700 text-white px-3 py-2 rounded-full hover:bg-red-800 text-sm mt-2 w-full">Logout</button>
+                </div>
                 <a href="income.html"><i class="fas fa-wallet mr-3"></i> Income</a>
                 <a href="links.html"><i class="fas fa-link mr-3"></i> Links</a>
                 <a href="calender.html"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
@@ -247,23 +263,7 @@
                 <a href="settings.html"><i class="fas fa-gear mr-3"></i> App Settings</a>
                 <a href="help.html"><i class="fas fa-circle-question mr-3"></i> Help & Support</a>
 
-                <button id="profile-toggle-btn" class="flex items-center gap-2 mt-4 w-full text-left font-medium text-gray-800 border-t pt-3 hover:bg-gray-100">
-                    <i class="fas fa-user-circle text-2xl"></i>
-                    <span class="font-medium">Profile</span>
-                    <i class="fas fa-chevron-down ml-auto transition-transform duration-300" id="profileChevron"></i>
-                </button>
-
-                <div id="mobileProfilePanel" class="mt-2 p-3 border rounded bg-gray-50 space-y-2">
-                    <div class="flex items-center gap-3">
-                        <img id="mobileUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
-                        <div>
-                            <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                            <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                        </div>
-                    </div>
-                    
-                    <button onclick="logout()" class="bg-red-700 text-white px-3 py-2 rounded-full hover:bg-red-800 text-sm mt-2 w-full">Logout</button>
-                </div>
+               
                 
             </nav>
         </header>
@@ -440,6 +440,7 @@ auth.onAuthStateChanged(user => {
 </script>
 </body>
 </html>
+
 
 
 
