@@ -20,8 +20,8 @@
         }
         /* Crucial CSS for Scrolling */
         .custom-scroll {
-            max-height: 340px;
-            overflow-y: auto; /* Ensures scrollbar appears when content exceeds max-height */
+            max-height: 500px; /* Max height requirement */
+            overflow-y: auto; 
         }
         
         /* Modern Input Focus Effect */
@@ -33,6 +33,13 @@
         /* Modal Backdrop */
         .modal {
             background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        /* Style for active navigation link */
+        .nav-link-active {
+            color: #4f46e5; 
+            font-weight: 700; 
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -47,7 +54,11 @@
             
             <div class="hidden md:flex space-x-6 font-medium">
                 <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-              
+                
+                <a href="essential.html" class="nav-link-active flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-shopping-basket"></i> Daily Essentials</a>
+
+                <a href="address.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
+                <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
                 <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
                 <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
                 <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
@@ -69,7 +80,10 @@
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
             <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
             
-           
+            <a href="essential.html" class="flex items-center gap-2 p-2 rounded nav-link-active hover:text-blue-500 transition duration-300"><i class="fas fa-shopping-basket"></i> Daily Essentials</a>
+
+            <a href="address.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-tasks"></i> Address</a>
+            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
             <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
             <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
@@ -81,9 +95,9 @@
             </div>
         </div>
     </nav>
-    <main class="container mx-auto p-4 md:p-6 flex-grow">
-        <h1 class="text-4xl font-extrabold text-gray-800 mb-4 flex items-center gap-3">
-            <i class="fas fa-cart-arrow-down text-indigo-700"></i> Daily Essentials Tracker
+    <main class="container mx-auto p-4 md:p-8 flex-grow">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 flex items-center gap-3">
+            <i class="fas fa-cart-arrow-down text-indigo-600"></i> Daily Essentials Tracker
         </h1>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -127,7 +141,7 @@
                 <div id="addStatus" class="mt-4 text-center text-sm font-medium"></div>
             </div>
             
-            <div class="md:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
+            <div class="col-span-1 md:col-span-2 bg-white p-6 rounded-2xl shadow-xl border border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3 flex items-center justify-between">
                     <span class="flex items-center gap-2"><i class="fas fa-list-check text-indigo-500"></i> My Saved Essentials</span>
                 </h2>
@@ -156,12 +170,9 @@
             <div id="modalDetailsContent" class="space-y-4 text-gray-700 text-lg">
                 </div>
 
-            <div class="mt-6 border-t pt-4 flex justify-between items-center">
+            <div class="mt-6 border-t pt-4 flex justify-end items-center">
                 <div id="modalActions" class="flex space-x-4">
                     </div>
-                <button type="button" onclick="closeDetailModal()" class="bg-gray-500 text-white px-5 py-2 rounded-xl hover:bg-gray-600 transition duration-150 font-semibold shadow-md">
-                    <i class="fas fa-times-circle mr-1"></i> Close View
-                </button>
             </div>
         </div>
     </div>
@@ -274,7 +285,7 @@
                     document.getElementById('mobileUserName').textContent = name;
                     document.getElementById('mobileUserEmail').textContent = email;
                     
-                    // Initialize or re-initialize app components if not done
+                    // Initialize or re-initialize app components
                     if (!essentialsRef) { 
                        initializeApp(user); 
                     }
@@ -373,12 +384,14 @@
             return `
                 <div id="item-${key}" class="essential-item item bg-white p-4 rounded-xl shadow-md border-l-4 ${borderStyle} transition duration-300 hover:shadow-lg hover:translate-y-[-2px]" data-name="${itemName.toLowerCase()}">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center space-x-3 min-w-0">
-                            <span class="text-xl font-bold text-gray-800 truncate">${itemName}</span>
-                            <span class="text-sm font-medium px-3 py-1 rounded-full ${tagClass} whitespace-nowrap">${dateDisplay}</span>
+                        <div class="flex items-center space-x-3 min-w-0 w-full md:w-auto">
+                            <span class="text-xl font-bold text-gray-800 truncate w-full">${itemName}</span> 
+                            
+                            <span class="hidden md:inline-flex text-sm font-medium px-3 py-1 rounded-full ${tagClass} whitespace-nowrap">${dateDisplay}</span>
                         </div>
-                        <button onclick="openDetailModal('${key}')" class="open-detail-btn bg-indigo-600 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-700 transition duration-300 shadow-md flex items-center justify-center ml-4">
-                            <span>Open Detail</span><i class="fas fa-arrow-right ml-2"></i>
+                        <button onclick="openDetailModal('${key}')" class="open-detail-btn bg-indigo-600 text-white text-xs px-2 py-1 md:text-sm md:px-4 md:py-2 rounded-full hover:bg-indigo-700 transition duration-300 shadow-md flex items-center justify-center flex-shrink-0 ml-2">
+                            <span class="hidden sm:inline">Open Detail</span>
+                            <i class="fas fa-arrow-right ml-0 sm:ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -438,7 +451,7 @@
             return function(key) {
                 if (confirm("Are you sure you want to delete this essential item?")) {
                     
-                    // ⭐️ OPTIMISTIC UI FIX 1: Manually remove item from the DOM instantly ⭐️
+                    // OPTIMISTIC UI FIX 1: Manually remove item from the DOM instantly 
                     const itemElement = document.getElementById(`item-${key}`);
                     if (itemElement) {
                         itemElement.style.display = 'none'; 
@@ -586,8 +599,7 @@
                     setTimeout(() => document.getElementById('addStatus').innerHTML = '', 3000);
                     this.reset();
                     
-                    // ⭐️ OPTIMISTIC UI FIX 2: Manually trigger render after successful save ⭐️
-                    // This forces the UI to pull the latest data right after the save completes.
+                    // OPTIMISTIC UI FIX: Manually trigger render after successful save 
                     essentialsRef.once('value', (snapshot) => {
                         renderEssentials(snapshot.val());
                     });
