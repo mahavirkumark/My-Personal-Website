@@ -96,7 +96,7 @@
         </div>
     </nav>
     <main class="container mx-auto p-4 md:p-8 flex-grow">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 flex items-center gap-3">
+        <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-8 flex items-center gap-3">
             <i class="fas fa-cart-arrow-down text-indigo-600"></i> Daily Essentials Tracker
         </h1>
         
@@ -313,7 +313,8 @@
         
         window.logout = function() {
             auth.signOut().then(() => {
-                alert("Successfully signed out. Please refresh the page.");
+                alert("Successfully signed out. Redirecting...");
+                window.location.href = 'index.html'; 
             }).catch((error) => {
                 console.error("Sign Out Error:", error);
                 alert("Error logging out: " + error.message);
@@ -390,8 +391,8 @@
                             <span class="hidden md:inline-flex text-sm font-medium px-3 py-1 rounded-full ${tagClass} whitespace-nowrap">${dateDisplay}</span>
                         </div>
                         <button onclick="openDetailModal('${key}')" class="open-detail-btn bg-indigo-600 text-white text-xs px-2 py-1 md:text-sm md:px-4 md:py-2 rounded-full hover:bg-indigo-700 transition duration-300 shadow-md flex items-center justify-center flex-shrink-0 ml-2">
-                            <span class="hidden sm:inline">Open Detail</span>
-                            <i class="fas fa-arrow-right ml-0 sm:ml-2"></i>
+                            <span class="hidden md:inline">Open Detail</span>
+                            <i class="fas fa-arrow-right ml-0 md:ml-2"></i>
                         </button>
                     </div>
                 </div>
