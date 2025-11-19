@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Essentials Tracker</title>
+    <title>My Personal Website</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
@@ -91,7 +91,7 @@
             </div>
         </div>
     </nav>
-    <main class="container mx-auto p-4 md:p-6 flex-grow">
+    <main class="container mx-auto p-2 md:p-4 flex-grow">
         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 flex items-center gap-2">
             <i class="fas fa-cart-arrow-down text-indigo-600"></i> Daily Essentials Tracker
         </h1>
@@ -103,11 +103,16 @@
                     <i class="fas fa-plus-circle text-indigo-500"></i> Add New Essential
                 </h2>
                 <form id="essentialForm" class="space-y-5">
-                    <div>
-                        <label for="productName" class="block text-sm font-semibold text-gray-700 mb-1">Essential Name (Optional)</label>
-                        <input type="text" id="productName" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="personName" class="block text-sm font-semibold text-gray-700 mb-1">Person Name (Optional)</label>
+                            <input type="text" id="personName" placeholder="e.g., John / Self" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label for="productName" class="block text-sm font-semibold text-gray-700 mb-1">Essential Name (Optional)</label>
+                            <input type="text" id="productName" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        </div>
                     </div>
-
                     <div>
                         <label for="purchaseDate" class="block text-sm font-semibold text-gray-700 mb-1">Purchase Date (Optional)</label>
                         <input type="date" id="purchaseDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition">
@@ -178,11 +183,16 @@
             <form id="editForm" class="space-y-4">
                 <input type="hidden" id="editKey">
                 
-                <div>
-                    <label for="editProductName" class="block text-sm font-semibold text-gray-700 mb-1">Essential Name (Optional)</label>
-                    <input type="text" id="editProductName" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="editPersonName" class="block text-sm font-semibold text-gray-700 mb-1">Person Name (Optional)</label>
+                        <input type="text" id="editPersonName" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                    </div>
+                    <div>
+                        <label for="editProductName" class="block text-sm font-semibold text-gray-700 mb-1">Essential Name (Optional)</label>
+                        <input type="text" id="editProductName" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm">
+                    </div>
                 </div>
-                
                 <div>
                     <label for="editPurchaseDate" class="block text-sm font-semibold text-gray-700 mb-1">Purchase Date (Optional)</label>
                     <input type="date" id="editPurchaseDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm">
@@ -363,6 +373,8 @@
         function createEssentialItemHTML(key, item) {
             const purchaseDateStr = item.purchaseDate;
             const itemName = item.productName || 'Unnamed Item';
+            // MODIFIED: Include personName and format for list display
+            const personName = item.personName ? `(For ${item.personName})` : ''; 
             const timeElapsed = calculateElapsedTime(purchaseDateStr);
             
             const dateDisplay = purchaseDateStr ? purchaseDateStr : 'Date N/A';
@@ -382,7 +394,7 @@
                 <div id="item-${key}" class="essential-item item bg-white p-4 rounded-xl shadow-md border-l-4 ${borderStyle} transition duration-300 hover:shadow-lg hover:translate-y-[-2px]" data-name="${itemName.toLowerCase()}">
                     <div class="flex justify-between items-center">
                         <div class="flex items-center space-x-3 min-w-0 w-full md:w-auto">
-                            <span class="text-xl font-bold text-gray-800 truncate w-full">${itemName}</span> 
+                            <span class="text-xl font-bold text-gray-800 truncate w-full">${itemName} <span class="text-base text-gray-500 font-normal ml-2">${personName}</span></span> 
                             
                             <span class="hidden md:inline-flex text-sm font-medium px-3 py-1 rounded-full ${tagClass} whitespace-nowrap">${dateDisplay}</span>
                         </div>
@@ -481,6 +493,8 @@
                         const purchaseDateText = purchaseDate ? new Date(purchaseDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
                         
                         const itemName = item.productName || 'Unnamed Item';
+                        // MODIFIED: Include itemPerson
+                        const itemPerson = item.personName || 'N/A';
                         const itemShop = item.shopName || 'N/A';
                         const itemCity = item.cityName || 'N/A';
                         const itemPrice = formatPrice(item.productPrice); 
@@ -492,6 +506,8 @@
                             <div class="space-y-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
                                 <p class="text-lg font-semibold text-indigo-700 border-b pb-2 mb-2 flex items-center gap-2"><i class="fas fa-box"></i> Item Details</p>
 
+                                <p class="flex items-center gap-3 text-base"><i class="fas fa-user text-indigo-500 w-5"></i> <span class="font-semibold">Purchased For:</span> ${itemPerson}</p>
+                                
                                 <p class="flex items-center gap-3 text-base"><i class="fas fa-calendar-day text-indigo-500 w-5"></i> <span class="font-semibold">Purchase Date:</span> ${purchaseDateText} ${purchaseDate ? '(' + purchaseDate + ')' : ''}</p>
                                 
                                 <p class="flex items-center gap-3 text-base"><i class="fas fa-store text-indigo-500 w-5"></i> <span class="font-semibold">Shop Name:</span> ${itemShop}</p>
@@ -525,6 +541,8 @@
                     const item = snapshot.val();
                     if (item) {
                         document.getElementById('editKey').value = key;
+                        // MODIFIED: Populate editPersonName
+                        document.getElementById('editPersonName').value = item.personName || '';
                         document.getElementById('editProductName').value = item.productName || '';
                         document.getElementById('editPurchaseDate').value = item.purchaseDate || '';
                         document.getElementById('editShopName').value = item.shopName || '';
@@ -547,7 +565,8 @@
                         const purchaseDateText = item.purchaseDate ? new Date(item.purchaseDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
                         const itemPrice = formatPrice(item.productPrice);
 
-                        const shareText = `Essential Item: ${item.productName || 'Unnamed'}\nPurchased: ${purchaseDateText} from ${item.shopName || 'N/A'} in ${item.cityName || 'N/A'}. Price: ${itemPrice}.`;
+                        // MODIFIED: Include personName in share text
+                        const shareText = `Essential Item: ${item.productName || 'Unnamed'} (For: ${item.personName || 'N/A'}). Purchased: ${purchaseDateText} from ${item.shopName || 'N/A'} in ${item.cityName || 'N/A'}. Price: ${itemPrice}.`;
 
                         if (navigator.share) {
                             navigator.share({
@@ -571,16 +590,21 @@
                 return;
             }
             
+            // MODIFIED: Read personName
+            const personName = document.getElementById('personName').value.trim();
             const productName = document.getElementById('productName').value.trim();
             const productPrice = document.getElementById('productPrice').value.trim(); 
 
-            if (!productName && !document.getElementById('purchaseDate').value && !document.getElementById('shopName').value.trim() && !productPrice && !document.getElementById('cityName').value.trim()) {
+            // MODIFIED: Update validation
+            if (!personName && !productName && !document.getElementById('purchaseDate').value && !document.getElementById('shopName').value.trim() && !productPrice && !document.getElementById('cityName').value.trim()) {
                 document.getElementById('addStatus').className = 'mt-4 text-center text-sm font-medium text-red-600';
                 document.getElementById('addStatus').innerHTML = `⚠️ Please enter at least one piece of information to save the item.`;
                 return;
             }
 
             const newEssential = {
+                // MODIFIED: Include personName
+                personName: personName,
                 productName: productName,
                 purchaseDate: document.getElementById('purchaseDate').value,
                 shopName: document.getElementById('shopName').value.trim(),
@@ -612,15 +636,20 @@
             e.preventDefault();
             
             const key = document.getElementById('editKey').value;
+            // MODIFIED: Read updatedPersonName
+            const updatedPersonName = document.getElementById('editPersonName').value.trim();
             const updatedProductName = document.getElementById('editProductName').value.trim();
             const updatedProductPrice = document.getElementById('editProductPrice').value.trim();
 
-            if (!updatedProductName && !document.getElementById('editPurchaseDate').value && !document.getElementById('editShopName').value.trim() && !updatedProductPrice && !document.getElementById('editCityName').value.trim()) {
+            // MODIFIED: Update validation
+            if (!updatedPersonName && !updatedProductName && !document.getElementById('editPurchaseDate').value && !document.getElementById('editShopName').value.trim() && !updatedProductPrice && !document.getElementById('editCityName').value.trim()) {
                 alert('⚠️ Cannot save an empty item. Please fill in at least the name or another detail.');
                 return;
             }
 
             const updatedEssential = {
+                // MODIFIED: Include personName
+                personName: updatedPersonName,
                 productName: updatedProductName,
                 purchaseDate: document.getElementById('editPurchaseDate').value,
                 shopName: document.getElementById('editShopName').value.trim(),
@@ -690,7 +719,6 @@
     </script>
 </body>
 </html>
-
 
 
 
