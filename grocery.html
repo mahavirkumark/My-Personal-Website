@@ -19,7 +19,9 @@
         /* Custom Tailwind Configuration */
         .primary-indigo { color: #4f46e5; }
         .text-primary-indigo { color: #4f46e5; }
-        body { padding-top: 64px; }
+        
+        /* 🛠️ FIX 1: Slightly Reduced Nav Height on Mobile (from 64px to 56px) */
+        body { padding-top: 56px; } 
         
         /* Mobile Order (Default) */
         .list-container-order { order: 1; }
@@ -37,20 +39,20 @@
             .list-container-order { order: 1; }
             .form-container-order { order: 0; }
             
-            /* 1. Reduced Padding for List Containers (p-6 -> p-5) */
+            /* Reduced Padding for List Containers */
             .lg\:list-p-5 { padding: 1.25rem; }
 
-            /* 2. Reduced Padding for Individual List Items (p-4 -> custom p-3.5) */
+            /* Reduced Padding for Individual List Items */
             .lg\:item-p-35 { 
-                padding: 0.875rem; /* Between p-3 (0.75rem) and p-4 (1rem) */
+                padding: 0.875rem; 
             }
 
-            /* 3. Form Collapse Styling */
+            /* Form Collapse Styling */
             #addItemContainer { 
-                padding: 0.75rem; /* Equivalent to p-3 (Collapsed Default) */
+                padding: 0.75rem; 
             }
             #addItemContainer.expanded {
-                 padding: 1.5rem; /* Equivalent to p-6 (Expanded State) */
+                 padding: 1.5rem; 
             }
         }
     </style>
@@ -58,10 +60,10 @@
 <body class="min-h-screen flex flex-col bg-gray-50">
 
     <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
-        <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
-            <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
-                <i class="fas fa-user-circle" style="font-size: 28px; color: #4f46e5;"></i>
-                <span style="font-size: 22px;">My Personal Website</span>
+        <div class="container mx-auto flex justify-between items-center p-3 md:px-8">
+            <div class="flex items-center gap-2 text-lg font-bold text-gray-800">
+                <i class="fas fa-user-circle" style="font-size: 24px; color: #4f46e5;"></i>
+                <span style="font-size: 20px;">My Personal Website</span>
             </div>
             
             <div class="hidden md:flex space-x-6 font-medium">
@@ -101,6 +103,7 @@
             </div>
         </div>
     </nav>
+
     <main class="container mx-auto p-4 md:p-8 flex-grow">
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 border-b-2 border-primary-indigo pb-2">
             <i class="fas fa-shopping-basket primary-indigo mr-2"></i> Real-time Grocery List
@@ -240,15 +243,14 @@
     <script>
         // =========================================================
         // 🛑🛑 STEP 1: YOUR FIREBASE CONFIGURATION 🛑🛑
-        // 🔑 IMPORTANT: Replace these values with your actual Firebase project configuration.
         // =========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", // Placeholder
-            authDomain: "sk12-58e9e.firebaseapp.com",        // Placeholder
-            projectId: "sk12-58e9e",                           // Placeholder
-            storageBucket: "sk12-58e9e.appspot.com",           // Placeholder
-            messagingSenderId: "470207874652",                 // Placeholder
-            appId: "1:470207874652:web:67ba1cf3629b7e5b144899"  // Placeholder
+            authDomain: "sk12-58e9e.firebaseapp.com",     // Placeholder
+            projectId: "sk12-58e9e",                       // Placeholder
+            storageBucket: "sk12-58e9e.appspot.com",       // Placeholder
+            messagingSenderId: "470207874652",             // Placeholder
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899" // Placeholder
         };
 
         // Initialize Firebase
@@ -280,34 +282,25 @@
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         };
 
-// Function to format the quantity part (Unit and Value)
-const formatQuantity = (item) => {
-    // Check if both value and unit exist
-    if (item.quantityValue && item.quantityUnit) {
-        return `${item.quantityValue} ${item.quantityUnit}`;
-    }
-    // Check if only value exists
-    if (item.quantityValue) return `${item.quantityValue}`;
-    // Check if only unit exists
-    if (item.quantityUnit) return `${item.quantityUnit}`;
-    
-    // Return an empty string if no quantity info is entered
-    return ''; 
-};
+        const formatQuantity = (item) => {
+            if (item.quantityValue && item.quantityUnit) {
+                return `${item.quantityValue} ${item.quantityUnit}`;
+            }
+            if (item.quantityValue) return `${item.quantityValue}`;
+            if (item.quantityUnit) return `${item.quantityUnit}`;
+            return ''; 
+        };
 
-// Function to combine Name and Quantity
-const formatItemText = (item) => {
-    const quantity = formatQuantity(item);
-    const name = item.name;
-    
-    // If quantity is an empty string, return only the name
-    if (quantity === '') {
-        return name;
-    }
-    
-    // Otherwise, return Name - Quantity
-    return `${name} - ${quantity}`; 
-};
+        const formatItemText = (item) => {
+            const quantity = formatQuantity(item);
+            const name = item.name;
+            
+            if (quantity === '') {
+                return name;
+            }
+            
+            return `${name} - ${quantity}`; 
+        };
 
         const checkAuth = () => {
             if (!currentUserId || !userRef) {
@@ -317,7 +310,6 @@ const formatItemText = (item) => {
             return true;
         };
 
-        // --- GLOBAL LOGOUT FUNCTION ---
         window.logout = () => {
             auth.signOut().then(() => {
                 window.location.href = 'index.html'; 
@@ -327,22 +319,18 @@ const formatItemText = (item) => {
             });
         };
 
-        // --- Core Form Toggle Logic ---
         const toggleForm = (isInitialLoad = false) => {
             const form = document.getElementById('addItemForm');
             const toggleFormBtn = document.getElementById('toggleFormBtn');
             const addItemContainer = document.getElementById('addItemContainer');
 
-            // Find the first input's parent div to check visibility
             const firstInputDiv = form.querySelector('div');
-            // If it's an initial load on a laptop screen, force collapse
             const isLaptop = window.innerWidth >= 1024;
             let isCurrentlyHidden = isInitialLoad ? isLaptop : (firstInputDiv ? firstInputDiv.classList.contains('hidden') : false);
 
             const formElements = form.querySelectorAll('div, button');
             
             formElements.forEach(el => {
-                // Ensure we don't hide the form tag itself, or the status message temporarily
                 if (el.id !== 'addItemForm' && el.id !== 'upload-status') {
                      if (isCurrentlyHidden) {
                          el.classList.remove('hidden');
@@ -380,20 +368,16 @@ const formatItemText = (item) => {
             itemDateInput.value = todayString;
             todayDateHeader.textContent = `Date: ${formatDate(todayString)}`;
             
-            // Initial state based on screen size (Laptop = collapsed)
             toggleForm(true); 
 
-            // --- Mobile Menu Toggle ---
             menuBtn.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
 
-            // --- Form Toggle Functionality ---
             toggleFormBtn.addEventListener('click', () => {
                 toggleForm();
             });
 
-            // --- Form Submission Handler ---
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
@@ -405,7 +389,7 @@ const formatItemText = (item) => {
                 const itemName = document.getElementById('item-name').value;
                 const itemQuantityValue = document.getElementById('item-quantity-value').value;
                 const itemQuantityUnit = document.getElementById('item-quantity-unit').value;
-                const itemDate = document.getElementById('item-date').value; // YYYY-MM-DD format
+                const itemDate = document.getElementById('item-date').value; 
                 const itemPhoto = document.getElementById('item-photo').files[0];
                 const uploadStatus = document.getElementById('upload-status');
                 
@@ -453,13 +437,12 @@ const formatItemText = (item) => {
         });
 
 
-        // --- Dynamic Item Element Creation (Uses lg:item-p-35) ---
+        // --- Dynamic Item Element Creation ---
         const createItemElement = (item, dateKey, isCompletedList = false) => {
             const isCompleted = item.completed;
             const itemDiv = document.createElement('div');
             const isToday = dateKey === getTodayDateString();
             
-            // Uses p-4 by default (mobile), uses custom class lg:item-p-35 for desktop reduction
             const baseClasses = 'flex items-center p-4 lg:item-p-35 rounded-xl shadow-md transition duration-300';
 
             if (isCompleted) {
@@ -476,12 +459,13 @@ const formatItemText = (item) => {
                 : `<button onclick="completeItem('${dateKey}', '${item.id}')" class="text-primary-indigo hover:text-indigo-700 p-2 text-2xl rounded-full hover:bg-indigo-100 transition" title="Mark as Taken">
                         <i class="fas fa-check-circle"></i>
                    </button>`;
-                   
+                    
+            // 🛑 FIX 4: Added hidden sm:block to hide edit button on mobile
             const editButton = isCompleted
                 ? '' 
-                : `<button onclick="editItem('${dateKey}', '${item.id}')" class="text-blue-500 hover:text-blue-700 p-2 text-2xl rounded-full hover:bg-blue-100 transition" title="Edit">
+                : `<button onclick="editItem('${dateKey}', '${item.id}')" class="text-blue-500 hover:text-blue-700 p-2 text-2xl rounded-full hover:bg-blue-100 transition hidden sm:block" title="Edit">
                         <i class="fas fa-pen"></i>
-                   </button>`;
+                   </button>`; 
 
             const itemDetailsClass = isCompleted ? 'text-gray-600' : 'text-gray-900';
             const itemDisplay = formatItemText(item);
@@ -491,20 +475,20 @@ const formatItemText = (item) => {
                     <i class="fas fa-award mr-1"></i> COMPLETED
                 </span>` : '';
 
-            // Footer for date (only shown in Upcoming list)
             const dateFooter = (!isToday && !isCompleted && !isCompletedList) ? 
                 `<p class="text-xs text-red-500 font-medium mt-1">
                     <i class="fas fa-calendar-day mr-1"></i> Scheduled: ${formatDate(dateKey)}
                 </p>` : '';
                 
-            // Removed completed time display
-
+            // 🛑 FIX 5: Adjusted flex and removed truncate for better mobile name display
             itemDiv.innerHTML = `
                 ${item.photoURL ? `<img src="${item.photoURL}" alt="${item.name}" class="w-16 h-16 object-cover rounded-lg mr-4 flex-shrink-0 cursor-pointer" onclick="window.open('${item.photoURL}')">` : ''}
                 
                 <div class="flex-grow min-w-0 flex flex-col justify-center sm:flex-row sm:items-center sm:justify-between">
-                    <div class="flex flex-col min-w-0 sm:flex-row sm:items-center">
-                        <p class="text-lg font-medium truncate ${itemDetailsClass}">${itemDisplay}</p>
+                    <div class="flex flex-col min-w-0"> 
+                        <p class="text-lg font-medium ${itemDetailsClass} break-words whitespace-normal min-w-0">
+                            ${itemDisplay}
+                        </p>
                         ${completedStatus}
                     </div>
                     ${dateFooter}
@@ -522,7 +506,6 @@ const formatItemText = (item) => {
         };
 
 
-        // --- Function to set up the Realtime Database listener ---
         const setupGroceryListListener = () => {
             const todayList = document.getElementById('today-list');
             const upcomingList = document.getElementById('upcoming-list');
@@ -535,7 +518,7 @@ const formatItemText = (item) => {
             
             if (!userRef) return;
 
-            // 1. Listener for Today's List (Date-specific path)
+            // 1. Today's List
             groceryListRef.child(todayDateString).on('value', (snapshot) => {
                 const items = snapshot.val();
                 todayList.innerHTML = '';
@@ -556,7 +539,7 @@ const formatItemText = (item) => {
             });
 
 
-            // 2. Listener for Upcoming & Past Completed (All dates)
+            // 2. Upcoming & Past Completed (All dates)
             groceryListRef.on('value', (snapshot) => {
                 const allItemsByDate = snapshot.val();
                 upcomingList.innerHTML = '';
@@ -581,7 +564,6 @@ const formatItemText = (item) => {
                                 completedItems.push(item);
                             } 
                             
-                            // Filter for upcoming (dates after today) AND uncompleted
                             if (dateKey > todayDateString && !item.completed) {
                                 if (!upcomingDays.some(day => day.type === 'header' && day.date === dateKey)) {
                                     upcomingDays.push({ type: 'header', date: dateKey });
@@ -617,12 +599,10 @@ const formatItemText = (item) => {
                          upcomingList.appendChild(upcomingEmpty);
                     }
 
-                    // 3. Populate Completed List (Grouped by Scheduled Date)
+                    // 3. Populate Completed List
                     completedItems.sort((a, b) => {
-                        // Primary sort: Scheduled date (dateKey) ascending
                         if (a.dateKey < b.dateKey) return -1;
                         if (a.dateKey > b.dateKey) return 1;
-                        // Secondary sort: completion time (completedAt) descending
                         return b.completedAt - a.completedAt; 
                     });
 
@@ -631,7 +611,6 @@ const formatItemText = (item) => {
                         let currentDateHeader = null;
 
                         completedItems.forEach(item => {
-                            // Only add header if the scheduled date has changed
                             if (item.dateKey !== currentDateHeader) {
                                  const headerDiv = document.createElement('h3');
                                  headerDiv.className = 'text-lg font-medium text-primary-indigo mt-4 mb-2 pt-2 border-t border-dashed border-gray-300';
@@ -653,7 +632,7 @@ const formatItemText = (item) => {
 
 
         // =========================================================
-        // --- FIREBASE AUTH LISTENER AND INITIALIZATION (FIXED) ---
+        // --- FIREBASE AUTH LISTENER ---
         // =========================================================
 
         auth.onAuthStateChanged((user) => {
@@ -667,7 +646,6 @@ const formatItemText = (item) => {
                 const email = user.email || 'No Email';
                 const photoURL = user.photoURL || defaultPhoto;
 
-                // Update navigation elements (Desktop and Mobile)
                 document.getElementById('userName').textContent = displayName;
                 document.getElementById('userEmail').textContent = email;
                 document.getElementById('userPhoto').src = photoURL;
@@ -677,7 +655,6 @@ const formatItemText = (item) => {
                 setupGroceryListListener();
 
             } else {
-                // Mock user for local testing if not using a real auth flow
                 currentUserId = "user_123"; 
                 userRef = db.ref('users/' + currentUserId);
                 
@@ -760,16 +737,13 @@ const formatItemText = (item) => {
         };
 
 
-        // 6. SHARE FUNCTION (Reduced font/text complexity for sharing)
+        // 6. SHARE FUNCTION
         window.shareList = (listId, filename) => {
             if (!navigator.share) {
                 alert("Web Share API is not supported in your browser. Use the Download PDF option instead.");
                 return;
             }
 
-            const listElement = document.getElementById(listId);
-            
-            // Collects items based on the data structure managed by Firebase for a cleaner list
             const dateRef = listId === 'today-list' ? userRef.child('groceryList').child(getTodayDateString()) : userRef.child('groceryList');
             
             dateRef.once('value', (snapshot) => {
@@ -777,7 +751,6 @@ const formatItemText = (item) => {
                 let itemsToShare = [];
 
                 if (listId === 'today-list') {
-                    // Process only today's items
                     Object.keys(allItemsByDate).forEach(itemId => {
                         const item = allItemsByDate[itemId];
                         let text = formatItemText(item);
@@ -785,7 +758,6 @@ const formatItemText = (item) => {
                         itemsToShare.push(`- ${text}`);
                     });
                 } else {
-                    // Process Upcoming/Completed by iterating over all dates
                     Object.keys(allItemsByDate).sort().forEach(dateKey => {
                         const itemsForDate = allItemsByDate[dateKey];
                         Object.keys(itemsForDate).forEach(itemId => {
@@ -822,7 +794,7 @@ const formatItemText = (item) => {
         };
 
 
-        // 7. PDF DOWNLOAD FUNCTION (Alert removed)
+        // 7. PDF DOWNLOAD FUNCTION
         window.downloadPDF = async (listId, filename) => {
             const listElement = document.getElementById(listId);
             
@@ -835,7 +807,7 @@ const formatItemText = (item) => {
                 return;
             }
             
-            // Temporary printable area to generate content as HTML/CSS
+            // Temporary printable area setup
             const printableArea = document.createElement('div');
             printableArea.style.width = '700px'; 
             printableArea.style.padding = '20px';
@@ -843,20 +815,17 @@ const formatItemText = (item) => {
             printableArea.style.position = 'absolute';
             printableArea.style.left = '-9999px'; 
             
-            // Header: Max font size 22px (20pt)
             let headerHtml = `<h1 style="font-size: 18pt; font-weight: bold; margin-bottom: 5px; color: #1f2937;">${listTitle}</h1>`;
             if (listId === 'today-list') {
                 headerHtml += `<p style="font-size: 10pt; margin-bottom: 20px; color: #4b5563;">Date: ${formatDate(getTodayDateString())}</p>`;
             }
             printableArea.innerHTML = headerHtml;
             
-            // Content Generation with reduced item font size (11pt)
             const printContent = document.createElement('div');
             printContent.style.fontFamily = 'Arial, sans-serif';
             
             Array.from(listElement.children).forEach(child => {
                 if (child.tagName === 'H3') {
-                    // Date Header for Completed/Upcoming
                     const header = document.createElement('h4');
                     header.textContent = child.textContent;
                     header.style.fontSize = '10pt';
@@ -866,7 +835,6 @@ const formatItemText = (item) => {
                     header.style.color = '#4f46e5';
                     printContent.appendChild(header);
                 } else if (child.classList.contains('flex')) {
-                    // Item Row
                     const item = {};
                     const itemTextEl = child.querySelector('.text-lg');
                     const completedEl = child.querySelector('.text-sm.font-medium.text-green-700');
@@ -886,7 +854,6 @@ const formatItemText = (item) => {
                         itemDiv.style.borderBottom = '1px dashed #eee';
                         itemDiv.style.padding = '5px 0';
 
-                        // Main Text (Reduced to 11pt)
                         const mainText = document.createElement('span');
                         mainText.textContent = item.text;
                         mainText.style.fontSize = '11pt'; 
@@ -894,7 +861,6 @@ const formatItemText = (item) => {
                         mainText.style.flexGrow = '1';
                         itemDiv.appendChild(mainText);
 
-                        // Status/Date
                         const statusDiv = document.createElement('div');
                         statusDiv.style.fontSize = '9pt';
                         statusDiv.style.textAlign = 'right';
@@ -916,7 +882,6 @@ const formatItemText = (item) => {
             document.body.appendChild(printableArea);
 
             try {
-                // Generate PDF from the structured HTML content
                 const canvas = await html2canvas(printableArea, {
                     scale: 2, 
                     logging: false,
@@ -943,7 +908,7 @@ const formatItemText = (item) => {
                 }
                 
                 pdf.save(`${filename}_${getTodayDateString()}.pdf`);
-                console.log("PDF downloaded successfully!"); // Log to console instead of alert
+                console.log("PDF downloaded successfully!"); 
 
             } catch (error) {
                 console.error("Error generating PDF:", error);
