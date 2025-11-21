@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Calendar</title>
+<title>My Personal Website</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -22,8 +22,9 @@
         transition: filter 0.3s ease; 
         background-color: #f8fafc; /* Very light blue-gray background */
     }
+    /* MODIFIED: Reduced desktop padding to 80px, adjusted mobile in media query */
     .main-content-padding {
-        padding-top: 100px; 
+        padding-top: 80px; 
     }
     
     /* Calendar Styles */
@@ -46,9 +47,78 @@
     
     /* MOBILE Calendar Grid: 2 Columns - (FIXED) */
     @media (max-width: 767px) {
+        /* MODIFIED: Reduced body padding-top to match the smaller nav height */
+        .main-content-padding {
+            padding-top: 56px; /* Reduced from 64px to 56px */
+        }
+        /* MODIFIED: Ensure calendar controls stretch full width on mobile */
+        #calendar-controls {
+            width: 100%;
+            padding: 0 1rem;
+        }
         #calendar {
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
+            padding: 0 1rem; /* Added padding for mobile content */
+        }
+        /* MODIFIED: Reduced cell height and tighter min-height for task area */
+        .calendar-cell {
+            height: 125px; /* Reduced from 150px */
+            padding: 6px; /* Reduced padding */
+        }
+        .calendar-cell > div:last-child { 
+            min-height: 50px; /* Reduced task content area minimum height */
+            line-height: 1.25; /* Tighter line spacing for tasks */
+        }
+        /* MODIFIED: Modal content box needs mobile scroll space */
+        #taskModal {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #existingTasks {
+            max-height: 300px !important;
+        }
+        
+        /* MODAL INPUT IMPROVEMENTS (SCOPED TO MOBILE) */
+        #taskTitle {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+            height: auto !important;
+        }
+        #taskDesc {
+            /* Force 3 lines (approx 60px height) then scroll */
+            min-height: 60px !important; 
+            max-height: 60px !important; 
+            overflow-y: auto !important;
+            resize: none;
+        }
+
+        /* SEARCH BAR LAYOUT IMPROVEMENTS (SCOPED TO MOBILE) */
+        .search-active .search-container {
+             /* Adjusting search container padding to match new mobile height if needed */
+             padding-top: 10px;
+             padding-bottom: 10px;
+        }
+        /* MODIFIED: Search results container position for full width and top margin */
+        .search-active #searchResults {
+            top: 100px; /* Increased to 100px (95px + 5px margin) */
+            left: 0; 
+            right: 0;
+            padding-left: 0; /* Removed horizontal padding */
+            padding-right: 0;
+            margin-top: 5px; /* Added 5px margin top */
+        }
+        /* NEW/MODIFIED: Make search results panel take up nearly full screen height and full width */
+        .search-results-panel {
+            max-height: calc(100vh - 105px); /* Adjusted max height to account for 100px top offset + 5px extra margin */
+            width: 100%; /* Full width */
+            margin: 0; /* Remove margins */
+            border-radius: 0; /* Remove border radius for seamless look */
+        }
+        
+        /* HIDE CONTROLS WHEN SEARCH IS ACTIVE ON MOBILE */
+        .search-active .search-controls-row {
+            display: none !important;
         }
     }
     
@@ -58,7 +128,7 @@
         padding: 8px;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); 
         transition: transform 0.2s, box-shadow 0.2s;
-        height: 150px; 
+        height: 150px; /* Default desktop height */
         overflow: hidden; /* CRITICAL: Hides content that exceeds cell height */
         background-color: white;
     }
@@ -78,18 +148,20 @@
         border-width: 2px;
     }
     
-    /* Scrollbar */
+    /* Scrollbar Styles (MODIFIED: Added background color) */
     .custom-scroll {
         scrollbar-width: thin;
         scrollbar-color: #94a3b8 transparent; 
     }
     .custom-scroll::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 8px; /* Increased width slightly for touchscreens */
+        height: 8px;
+        background-color: #f1f1f1; /* Added Scrollbar Track background */
+        border-radius: 4px;
     }
     .custom-scroll::-webkit-scrollbar-thumb {
         background-color: #94a3b8;
-        border-radius: 6px;
+        border-radius: 8px;
     }
 
     /* Search Overlays and Styles (FIXED FOR POSITIONING) */
@@ -158,10 +230,19 @@
         overflow-y: auto; /* Enable scrolling on the results panel */
         border: 1px solid #e5e7eb;
     }
-
-    .search-active .floating-chat-container {
-        display: none;
+    /* ENHANCEMENT: Result item styling */
+    .search-result-item {
+        border: 1px solid #e5e7eb;
+        background-color: #ffffff;
+        margin-bottom: 0.5rem; /* Tighter spacing */
+        padding: 0.75rem; /* Slightly reduced padding */
+        border-radius: 0.5rem;
+        transition: all 0.15s;
     }
+    .search-result-item:hover {
+        background-color: #f3f4f6; /* Light hover background */
+    }
+
 
     /* Modal Close button hover style */
     #closeModal {
@@ -174,184 +255,21 @@
         border-radius: 50%;
         transform: scale(1.1); 
     }
-
-    /* ======================================= */
-    /* CHATBOT STYLES */
-    /* ======================================= */
-
-    .floating-chat-container {
-        position: fixed;
-        bottom: 20px; 
-        right: 20px; 
-        z-index: 100; 
-        max-width: 90vw; 
-        max-height: 90vh;
-    }
-
-    /* Toggle Button (Teal-Green Accent) */
-    #chat-toggle-button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: #059669; /* Teal-Green */
-        color: white;
-        font-size: 24px;
-        border: none;
-        box-shadow: 0 6px 15px rgba(5, 150, 105, 0.5);
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    #chat-toggle-button:hover {
-        background-color: #047857;
-        transform: scale(1.1);
-    }
-
-    .chat-window {
-        /* Default state: hidden and off-screen */
-        display: flex; 
-        flex-direction: column;
-        position: fixed; 
-        bottom: 0; 
-        right: 0; 
-        width: 400px; 
-        height: 600px; 
-        background-color: white;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); 
-        overflow: hidden;
-        transition: transform 0.3s ease-out;
-        transform: translate(calc(100% + 20px), 0); 
-        border-radius: 15px; 
-        border: 1px solid #e5e7eb;
-    }
-
-    .chat-window.open {
-        /* Open state: slide into view */
-        transform: translate(0, 0); 
-    }
-    
-    /* Ensure toggle button is hidden when chat is open */
-    .chat-window.open + #chat-toggle-button {
-        display: none;
-    }
-
-    /* Chat Window Header (Charcoal Gray) */
-    .chat-window-header {
-        flex-shrink: 0; 
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #334155; /* Charcoal Gray */
-        color: white;
-        padding: 16px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-    }
-
-    /* Chat Box (Scrollable Content) */
-    #chat-box-widget {
-        flex-grow: 1; 
-        padding: 15px;
-        overflow-y: auto;
-        background-color: #fafafa; 
-        border-bottom: 1px solid #e5e7eb;
-        display: flex;
-        flex-direction: column; 
-    }
-
-    .message {
-        padding: 10px 15px; 
-        margin-bottom: 12px;
-        border-radius: 20px; 
-        max-width: 85%;
-        font-size: 15px; 
-        line-height: 1.4;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        transition: all 0.2s;
-    }
-
-    /* Gemini Message (Soft Gray) */
-    .gemini-message {
-        background-color: #f3f4f6; 
-        color: #334155; 
-        align-self: flex-start;
-        border-top-left-radius: 5px; 
-    }
-
-    /* User Message (Teal-Green Accent) */
-    .user-message {
-        background-color: #059669; /* Teal-Green */
-        color: white;
-        align-self: flex-end;
-        border-top-right-radius: 5px; 
-    }
-
-    /* Input Form */
-    #input-form-widget {
-        flex-shrink: 0; 
-        display: flex;
-        padding: 10px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    #user-input-widget {
-        flex-grow: 1;
-        padding: 12px 18px; 
-        border: 1px solid #ccc;
-        border-radius: 25px;
-        margin-right: 10px;
-        font-size: 15px;
-        outline: none;
-        transition: border-color 0.2s;
-    }
-    #user-input-widget:focus {
-        border-color: #059669;
-    }
-
-    /* Send Button (Teal-Green Accent) */
-    #send-button-widget {
-        background-color: #059669;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 25px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: background-color 0.2s, transform 0.1s;
-    }
-
-    #send-button-widget:hover {
-        background-color: #047857;
-    }
-    
-    /* Mobile adjustments for chat window */
-    @media (max-width: 640px) {
-        .chat-window {
-            width: 100vw;
-            height: 100vh;
-            border-radius: 0; 
-            transform: translate(100%, 0); 
-        }
-        .chat-window.open {
-            transform: translate(0, 0);
-        }
-    }
 </style>
 </head>
 <body class="bg-f8fafc">
 
 <nav class="bg-white shadow-xl fixed w-full z-50 top-0 border-b border-gray-100">
-    <div class="container mx-auto flex justify-between items-center p-4 md:px-6 nav-content-padding"> 
+    <div class="container mx-auto flex justify-between items-center py-2 md:py-3 px-4 md:px-6 nav-content-padding"> 
         <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
             <i class="fas fa-user-circle" style="font-size: 28px; color: #4f46e5;"></i>
-            <span style="font-size: 22px;">My Personal Website</span>
+            <span style="font-size: 22px; @media (min-width: 768px) { font-size: 18px; }">My Personal Website</span>
         </div>
         
         <div class="hidden md:flex space-x-6 font-medium">
             <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
           
-            <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+         
             <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
             <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
@@ -370,7 +288,7 @@
         <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
     </div>
 
-    <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 shadow-inner">
+    <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-3 pb-2 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 shadow-inner">
         <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-house"></i> Home</a>
         
         <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
@@ -396,50 +314,23 @@
     <div class="search-container flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 px-4 md:px-0 pt-4 md:pt-0">
         <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-3">
             <input type="text" id="searchInput" placeholder="Search tasks..."
-                class="p-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-full flex-1">
+                class="p-3 px-6 md:p-4 md:px-6 md:py-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base md:text-lg w-full flex-1">
             
-            <select id="searchTimeframe" class="p-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base">
-                <option value="1year">Last 1 Year (Default)</option>
-                <option value="alltime">All Time</option>
-            </select>
+            <div class="search-controls-row flex flex-row w-full gap-2 items-center justify-between md:w-auto">
+                <select id="searchTimeframe" class="p-3 md:p-4 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-1/2 text-sm px-2 md:w-auto md:text-base">
+                    <option value="1year">Last 1 Year (Default)</option>
+                    <option value="alltime">All Time</option>
+                </select>
+                
+                <button id="downloadMonthTasks"
+                    class="px-2 py-2 md:px-5 md:py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto">
+                    <i class="fas fa-download mr-1"></i> Download Month Tasks
+                </button>
+            </div>
         </div>
-        
-        <button id="downloadMonthTasks"
-            class="px-5 py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-full md:w-auto font-semibold text-base">
-            <i class="fas fa-download mr-2"></i> Download Month Tasks
-        </button>
         
     </div>
     <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div> 
-
-<div id="gemini-chat-widget-embed" class="floating-chat-container">
-    <div id="chatWindow" class="chat-window">
-        
-        <div class="chat-window-header">
-            <h3 class="text-xl font-bold flex items-center gap-2">
-                <i class="fas fa-brain"></i> 
-                Intelligent Assistant
-            </h3>
-            <button id="closeChatBtn" class="text-white opacity-80 hover:opacity-100 transition duration-200">
-                 <i class="fas fa-times fa-2x"></i>
-            </button>
-        </div>
-        
-        <div id="chat-box-widget" class="custom-scroll">
-            <div class="message gemini-message">Hello! I'm your Intelligent Assistant. Ask me anything about your tasks, calendar, or use me for general help!</div>
-        </div>
-
-        <form id="input-form-widget">
-            <input type="text" id="user-input-widget" placeholder="Type your message..." required>
-            <button type="submit" id="send-button-widget">Send</button>
-        </form>
-    </div>
-
-    <button id="chat-toggle-button" aria-label="Toggle Chatbot">
-        <i class="fas fa-comment-dots"></i>
-    </button>
-</div>
-
 
     <div id="calendar-controls" class="flex justify-between items-center mb-2 px-4 md:px-0">
         <button onclick="changeMonth(-1)" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold">← Prev</button>
@@ -479,14 +370,14 @@
             <input id="taskTitle" type="text" placeholder="Title" 
                 class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
             <textarea id="taskDesc" placeholder="Details (optional)" 
-                      class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
+                     class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
             <div class="flex gap-3 mt-2">
                 <button id="saveTaskBtn" 
-                        class="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Save Task
                 </button>
                 <button id="cancelTaskBtn" 
-                        class="flex-1 bg-gray-400 text-white px-4 py-3 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Cancel
                 </button>
             </div>
@@ -513,138 +404,6 @@ if (menuBtn && mobileMenu) {
     });
 }
     
-// ----------------------------------------------------------------------
-// ⚠️ CRITICAL STEP ⚠️: PASTE YOUR API KEY HERE
-// You MUST replace this with your actual, unexposed API key.
-// ----------------------------------------------------------------------
-const API_KEY_WIDGET = "AIzaSyAx9Jo2cGzFqPSuWr-zjoMh_5taBpwONOA"; // <--- REPLACE THIS KEY
-
-const API_URL_WIDGET = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + API_KEY_WIDGET;
-
-// DOM Element References for the Widget
-const chatWindow = document.getElementById('chatWindow');
-const chatToggle = document.getElementById('chat-toggle-button');
-const closeChatBtn = document.getElementById('closeChatBtn');
-const chatBox = document.getElementById('chat-box-widget');
-const inputForm = document.getElementById('input-form-widget');
-const userInput = document.getElementById('user-input-widget');
-const sendButton = document.getElementById('send-button-widget');
-
-// This array stores the entire conversation history (critical for maintaining context)
-let history = [];
-
-// --- Widget Toggling Logic ---
-function toggleChat(shouldOpen) {
-    if (shouldOpen === true) {
-        chatWindow.classList.add('open');
-        // Hide the toggle button by relying on the CSS rule for .chat-window.open + #chat-toggle-button
-        userInput.focus();
-    } else if (shouldOpen === false) {
-        chatWindow.classList.remove('open');
-        // Show the toggle button automatically
-    } else {
-        chatWindow.classList.toggle('open');
-        // If it was opened by toggle, try to focus
-        if (chatWindow.classList.contains('open')) {
-            userInput.focus();
-        }
-    }
-}
-
-if (chatToggle) {
-    chatToggle.addEventListener('click', () => toggleChat(true));
-}
-if (closeChatBtn) {
-    closeChatBtn.addEventListener('click', () => toggleChat(false));
-}
-
-
-/**
- * Appends a message to the chat box.
- */
-function appendMessage(text, sender) {
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message');
-    messageDiv.classList.add(sender === 'user' ? 'user-message' : 'gemini-message');
-    messageDiv.innerText = text;
-    chatBox.appendChild(messageDiv);
-    
-    // Scroll to the latest message
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-/**
- * Sends the user's message to the Gemini API and processes the response.
- */
-async function sendMessage() {
-    const userText = userInput.value.trim();
-    if (!userText) return;
-
-    // 1. Display user message and update history
-    appendMessage(userText, 'user');
-    
-    history.push({
-        role: "user",
-        parts: [{ text: userText }]
-    });
-
-    // Clear input and disable button while waiting for API response
-    userInput.value = '';
-    sendButton.disabled = true;
-
-    try {
-        const response = await fetch(API_URL_WIDGET, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: history,
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`API Request failed with status ${response.status}: ${errorText}`);
-        }
-
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
-            const geminiText = data.candidates[0].content.parts[0].text;
-            
-            // 2. Display Gemini's response and update history
-            appendMessage(geminiText, 'gemini');
-            
-            history.push({
-                role: "model",
-                parts: [{ text: geminiText }]
-            });
-        } else {
-            appendMessage("Error: Could not get a valid response from Gemini. Check the response structure.", 'gemini');
-        }
-
-    } catch (error) {
-        console.error('Error sending message to Gemini:', error);
-        appendMessage("Sorry, I ran into an error. Please check the browser console for details.", 'gemini');
-        history.pop();
-    } finally {
-        // Re-enable the send button
-        sendButton.disabled = false;
-        userInput.focus();
-    }
-}
-
-// Event listener for the form submission
-if (inputForm) {
-    inputForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendMessage();
-    });
-}
-// --- END of Gemini Widget Logic ---
-
-
 // --- Firebase Config (NOTE: Use your actual keys) ---
 const firebaseConfig = {
    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -679,8 +438,9 @@ const searchOverlayBackground = document.querySelector('.search-overlay-backgrou
 
 // --- Helpers ---
 const toISODate = d => {
-    const dt = new Date(d);
-    // Use UTC methods to generate the ISO date string to avoid timezone issues when keying in Firebase
+    // FIX: Ensures UTC Date object is used for consistent YYYY-MM-DD formatting for Firebase keys.
+    const dt = d;
+    // Use UTC methods to generate the ISO date string (YYYY-MM-DD)
     return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
 };
 
@@ -842,6 +602,7 @@ function closeModal(){
     if (downloadButton) downloadButton.style.display = 'block'; 
     if (searchTimeframe) searchTimeframe.style.display = 'block';
     searchOverlayBackground.style.display = 'none'; 
+    document.body.style.overflow = 'auto'; // Re-enable main body scrolling
 }
 
 // Attach event listeners for close buttons
@@ -910,8 +671,6 @@ function loadModalTasks(date){
     // SCROLLBAR MODIFICATION: Set max height and overflow for scrollbar
     cont.className = "max-h-96 overflow-y-auto custom-scroll border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner"; 
 
-    cont.innerHTML = `<div class="text-center text-indigo-500 font-semibold p-3">Loading tasks...</div>`;
-    
     db.ref(`users/${currentUser.uid}/tasks/${date}`).once("value").then(snap => {
         const data = snap.val(); 
         cont.innerHTML = "";
@@ -969,7 +728,7 @@ if (downloadButton) {
         if(!currentUser) return alert("User not logged in.");
         
         const {jsPDF}=window.jspdf || {}; 
-        if (!jsPDF) return alert("PDF generation failed: jsPDF library is not loaded.");
+        if (!jsPDF) return alert("PDF generation failed: jsPDF library is is not loaded.");
 
         const y=currentDate.getFullYear(), m=currentDate.getMonth();
         const snap = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
@@ -1015,7 +774,7 @@ function closeSearchView() {
     searchResults.innerHTML = "";
     if (downloadButton) downloadButton.style.display = 'block'; 
     if (searchTimeframe) searchTimeframe.style.display = 'block';
-    searchOverlayBackground.style.display = 'none';
+    searchOverlayBackground.style.display = 'none'; 
     
     // Reset body to allow page scrolling again
     document.body.style.overflow = 'auto'; 
@@ -1026,14 +785,13 @@ function searchTasks() {
     const timeframe = searchTimeframe.value;
     clearTimeout(debounceTimeout);
     
-    // --- 1. Control Search View Display ---
-    if (!query && !isSearchInputFocused) {
-        // Only collapse if empty AND not focused (e.g., cleared input and clicked away)
+    // --- 1. Immediate Close if Query is Empty (THE FIX) ---
+    if (!query) {
         closeSearchView();
         return; 
     }
     
-    // Activate search view
+    // --- 2. Activate Search View ---
     body.classList.add("search-active");
     searchOverlayBackground.style.display = 'block'; 
     if (downloadButton) downloadButton.style.display = 'none';
@@ -1042,27 +800,26 @@ function searchTasks() {
     // Prevent main body from scrolling
     document.body.style.overflow = 'hidden';
 
-    if (chatWindow.classList.contains('open')) {
-        toggleChat(false);
-    }
+    // --- 3. Display Loading/Guide Text immediately (UX Improvement) ---
+    searchResults.innerHTML = `
+        <div class="search-results-panel">
+             <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
+                <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
+            </div>
+            <p class='p-3 text-center text-indigo-500 font-semibold'>
+                <i class="fas fa-spinner fa-spin mr-2"></i> Searching for "${query}"...
+            </p>
+        </div>`;
 
-    if (!query) {
-        searchResults.innerHTML = `
-            <div class='search-results-panel'>
-                <p class='p-3 bg-white rounded-xl text-center text-gray-500'>
-                    Start typing to search your tasks...
-                </p>
-            </div>`;
-        return;
-    }
 
-    // --- 2. Perform Search with Debounce ---
+    // --- 4. Perform Search with Debounce ---
     debounceTimeout = setTimeout(() => {
-        searchResults.innerHTML = "";
-        
         const user = firebase.auth().currentUser;
         if (!user) {
-            searchResults.innerHTML = `<div class='search-results-panel'><p class='p-3 bg-white rounded-lg text-center'>User not logged in.</p></div>`;
+             searchResults.innerHTML = `<div class='search-results-panel'>
+                <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>User not logged in.</p>
+            </div>`;
             return;
         }
 
@@ -1073,7 +830,9 @@ function searchTasks() {
             if (!searchInput.value.toLowerCase().trim()) return; 
 
             if (!allTasks) {
-                searchResults.innerHTML = `<div class='search-results-panel'><p class='p-3 bg-white rounded-xl text-center'>No tasks found.</p></div>`;
+                searchResults.innerHTML = `<div class='search-results-panel'>
+                    <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No tasks found in your database.</p>
+                </div>`;
                 return;
             }
 
@@ -1087,9 +846,17 @@ function searchTasks() {
             let found = 0;
             const addedTasks = new Set();
             
-            // CRITICAL FIX: The results container must have the scrollbar classes
             const resultsDiv = document.createElement("div");
             resultsDiv.className = "search-results-panel custom-scroll"; 
+            
+            // ENHANCEMENT: Add Mobile Header to results panel
+            resultsDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                    <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
+                    <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
+                </div>
+            `;
+            const listContainer = document.createElement("div");
             
             const sortedDates = Object.keys(allTasks).sort((a, b) => new Date(b) - new Date(a));
 
@@ -1107,8 +874,9 @@ function searchTasks() {
                 Object.entries(tasks).forEach(([id, task]) => {
                     const title = (task.title || "").toLowerCase();
                     const desc = (task.desc || "").toLowerCase();
-                    const titleMatch = title.includes(query);
-                    const descMatch = desc.includes(query);
+                    const queryLower = query.toLowerCase();
+                    const titleMatch = title.includes(queryLower);
+                    const descMatch = desc.includes(queryLower);
 
                     const uniqueKey = `${date}-${id}`;
                     if ((titleMatch || descMatch) && !addedTasks.has(uniqueKey)) {
@@ -1123,45 +891,52 @@ function searchTasks() {
                             year: 'numeric',
                             timeZone: 'UTC' 
                         });
-
+                        
+                        // UX Enhancement: Use enhanced item styling
                         const taskDiv = document.createElement("div");
-                        // **MODIFIED:** Increased font size using 'text-lg' and 'text-base' for better visibility
-                        taskDiv.className = "border border-gray-100 hover:border-indigo-400 hover:bg-indigo-50 transition p-3 rounded-lg mb-2 cursor-pointer duration-150";
+                        taskDiv.className = "search-result-item cursor-pointer hover:bg-indigo-50"; 
                         taskDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="search-result-title text-lg">${task.title || 'Untitled Task'}</strong>
-                                <span class="search-result-date text-base">${formattedDate}</span>
+                                <strong class="search-result-title text-base font-bold text-gray-800 md:text-xl">${task.title || 'Untitled Task'}</strong>
+                                <span class="search-result-date text-sm text-indigo-600 md:text-base">${formattedDate}</span>
                             </div>
-                            <div class="search-result-desc mt-1 truncate text-base">${task.desc || 'No Description'}</div>
+                            <div class="search-result-desc mt-0.5 truncate text-sm text-gray-600 md:text-base">${task.desc || 'No Description'}</div>
                         `;
 
                         taskDiv.addEventListener("click", () => {
                             closeSearchView(); 
                             openModal(date);
                         });
-                        resultsDiv.appendChild(taskDiv);
+                        listContainer.appendChild(taskDiv);
                     }
                 });
             });
 
             if (found > 0) {
+                resultsDiv.appendChild(listContainer);
+                searchResults.innerHTML = '';
                 searchResults.appendChild(resultsDiv);
             } else {
                 searchResults.innerHTML = `
                     <div class='search-results-panel'>
-                        <p class='p-3 bg-white rounded-xl text-center'>
+                         <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                            <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
+                            <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
+                        </div>
+                        <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>
                             No matching tasks found for "${query}" in the selected timeframe (${timeframe === '1year' ? 'Last 1 Year' : 'All Time'}).
                         </p>
                     </div>`;
             }
         }).catch(err => {
             console.error(err);
-            searchResults.innerHTML = `
-                <div class='search-results-panel'>
-                    <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>
-                        Error retrieving tasks.
-                    </p>
-                </div>`;
+             searchResults.innerHTML = `<div class='search-results-panel'>
+                 <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                            <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
+                            <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
+                 </div>
+                 <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>Error retrieving tasks.</p>
+             </div>`;
         });
     }, 300);
 }
@@ -1177,19 +952,21 @@ if (searchInput) {
         searchTasks();
     }); 
     
-    // 2. On keyup, run search immediately
-    searchInput.addEventListener("keyup", searchTasks); 
+    // 2. On keyup/input change, run search immediately
+    searchInput.addEventListener("input", searchTasks); 
     
     // 3. On timeframe change, run search immediately
     searchTimeframe.addEventListener("change", searchTasks);
 
-    // 4. On blur (losing focus), if the input is empty, close the view (this handles mobile keyboard close)
+    // 4. On blur (losing focus), allow for closing if input is empty.
     searchInput.addEventListener("blur", () => {
         isSearchInputFocused = false;
-        if (searchInput.value.trim() === "") {
-            // Delay closing to give time for a result click to register
-            setTimeout(closeSearchView, 150); 
-        }
+        // Keep a short delay just in case a touch event needs to register on a result.
+        setTimeout(() => {
+            if (searchInput.value.trim() === "") {
+                closeSearchView();
+            }
+        }, 150);
     }); 
 }
 
@@ -1208,13 +985,6 @@ if (currentUser) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
