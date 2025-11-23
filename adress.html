@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Address Book</title>
+    <title>My Personal Website</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -14,34 +14,129 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8fafc; /* Tailwind gray-50 */
-            /* Crucial: Add padding to the top to prevent content hiding behind the fixed navbar */
             padding-top: 6rem; 
         }
-        /* Mobile/Tablet Landscape Adjustment: Force the two columns to stack on screens smaller than 768px (like phones in landscape) */
         @media (max-width: 767px) {
             .md\:grid-cols-2 {
-                grid-template-columns: 1fr; /* Stack columns on small screens */
+                grid-template-columns: 1fr;
+            }
+
+            /* === MOBILE SEARCH OVERLAY STYLES (FIXED SCROLL) === */
+            body.search-active {
+                padding-top: 0;
+            }
+
+            body.search-active nav {
+                display: none;
+            }
+            
+            body.search-active .left-container {
+                display: none;
+            }
+
+            body.search-active .right-container {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100vh;
+                max-height: 100vh; 
+                overflow-y: hidden; /* Prevent background scroll */
+                background-color: #fff;
+                padding-top: 0 !important;
+            }
+
+            /* PROFESSIONAL SEARCH BAR STYLES */
+            body.search-active #searchInput {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 100;
+                margin: 0 !important;
+                padding: 1rem !important; 
+                border-radius: 0;
+                border-bottom: 1px solid #e5e7eb;
+                box-shadow: 0 6px 10px -3px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+                background-color: #ffffff; 
+                font-size: 1.125rem;
+                outline: none; 
+                border-color: #4f46e5 !important;
+                transition: border-color 0.2s;
+            }
+
+            /* FIX: Dedicated scrollable area for results only, filling screen space below search input */
+            body.search-active #addressList {
+                height: calc(100vh - 4.5rem); /* Calculate remaining screen space */
+                overflow-y: auto; /* Enable scrolling for results area */
+                padding-top: 4.5rem; /* Push content down below the fixed search input */
+                padding-left: 1rem; 
+                padding-right: 1rem;
+            }
+            
+            body.search-active .right-container > h2 {
+                display: none;
+            }
+            /* === END MOBILE SEARCH OVERLAY STYLES === */
+        }
+        
+        .address-item {
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+        #addressList.editing .address-item {
+            opacity: 0.3;
+        }
+        #addressList.editing .address-item.is-editing {
+            opacity: 1;
+        }
+        
+        #addressList.editing .address-item.is-editing [id^='edit-form-'] {
+            font-size: 16px; 
+        }
+        #addressList.editing .address-item.is-editing [id^='edit-form-'] input,
+        #addressList.editing .address-item.is-editing [id^='edit-form-'] textarea {
+            font-size: 16px !important; 
+        }
+        
+        /* === DESKTOP SCROLL FIX (Applies fixed height only on larger screens) === */
+        @media (min-width: 768px) {
+            #addressList {
+                height: 370px;
+                overflow-y: auto;
+            }
+            /* Increase font size for landmark details by 4px on desktop */
+            .right-container .address-item .text-sm {
+                font-size: 18px; 
             }
         }
-        /* FIX: Ensure scrollbar is visible */
-        /* The custom CSS that hid the scrollbar has been removed, relying on browser defaults. */
+        /* === END DESKTOP SCROLL FIX === */
     </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center p-4 md:px-8">
-            <div class="flex items-center gap-2 text-lg md:text-xl font-bold text-gray-800">
-                <i class="fas fa-user-circle text-indigo-500 text-2xl md:text-3xl"></i>
-                <span class="text-lg md:text-xl">My Personal Website</span>
-            </div>
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-20">
+    <div class="container mx-auto flex justify-between items-center" style="padding: 12px; padding-left: 12px; padding-right: 12px;">
+    <div class="flex items-center" style="gap: 5px; font-weight: 700; color: #1f2937; margin-left: -4px;">
+        <i class="fas fa-user-circle" style="color: #6366f1; font-size: 28px; @media (min-width: 768px) { font-size: 20px !important; }"></i>
+        
+        <span style="font-size: 22px; @media (min-width: 768px) { font-size: 16px !important; }">My Personal Website</span>
+    </div>
+
 
             <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
                 <a href="home.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
-               
+                
                 <a href="password.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
                 <a href="income.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
                 <a href="links.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
@@ -76,34 +171,46 @@
         </div>
     </nav>
     
-    <div class="max-w-7xl mx-auto p-4 md:p-8 grid md:grid-cols-2 gap-8">
+    <div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8 -mt-[9px]">
         
-        <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-2">➕ Save New Address</h2>
+        <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-700 border-b pb-2">➕ Save New Address</h2>
             <div class="space-y-4">
                 <label for="placeInput" class="block text-sm font-medium text-gray-700">Place Name (e.g., Home, Office)</label>
                 <input type="text" id="placeInput" placeholder="Enter place name..." 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
 
                 <label for="landmarkInput" class="block text-sm font-medium text-gray-700">Landmark / Details</label>
-                <input type="text" id="landmarkInput" placeholder="Enter landmark or full address details..." 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
-                
+                <textarea id="landmarkInput" 
+                        placeholder="Enter building number, street, or full address details (e.g., Plot 101, Near City Mall)" 
+                        rows="2"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition resize-y"></textarea>
+
+                <label for="mapInput" class="block text-sm font-medium text-gray-700">Google Map Location (Optional)</label>
+                <input type="url" id="mapInput" placeholder="Paste Google Maps URL or coordinates..." 
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:focus:border-indigo-500 transition" />
+
                 <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center">
                     <i class="fas fa-save mr-2"></i> Save Address
                 </button>
             </div>
         </div>
 
-        <div>
+        <div class="right-container">
             <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
             
             <input type="text" id="searchInput" placeholder="Search place or landmark..." 
-                   class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition shadow-sm"
-                   oninput="filterAddresses()" />
+                    class="w-full p-3 mb-[17px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition shadow-sm text-lg"
+                    oninput="filterAddresses()"
+                    onfocus="toggleMobileSearchFocus(true)"
+                    onblur="toggleMobileSearchFocus(false)" />
 
-            <div id="addressList" class="space-y-4 h-[400px] overflow-y-auto">
+            <div id="addressList" class="space-y-4"> 
+                <div id="loadingIndicator" class="text-center p-10 text-gray-500">
+                    <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
+                    <p class="font-medium">Loading Your Addresses...</p>
                 </div>
+            </div>
         </div>
     </div>
 
@@ -131,11 +238,32 @@
         const addressListEl = document.getElementById("addressList");
         const menuBtn = document.getElementById("menu-btn");
         const mobileMenu = document.getElementById("mobileMenu");
+        const searchInputEl = document.getElementById("searchInput");
 
+        // --- HELPER FUNCTION: Capitalize first letter of each word ---
+        function capitalizeWords(str) {
+            if (!str) return '';
+            return str.toLowerCase().split(' ').map(word => {
+                if (word.length === 0) return '';
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            }).join(' ');
+        }
+
+        // === MOBILE FOCUS LOGIC ===
+        function toggleMobileSearchFocus(isFocused) {
+            if (window.innerWidth < 768) {
+                document.body.classList.toggle('search-active', isFocused);
+                
+                if (!isFocused && searchInputEl.value.trim() === '') {
+                    setTimeout(() => document.body.classList.remove('search-active'), 100); 
+                }
+            }
+        }
+        // ==============================
+        
         // --- UI EVENT LISTENERS ---
         document.getElementById("saveAddressBtn").addEventListener("click", saveAddress);
         
-        // Mobile menu toggle logic
         menuBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
@@ -143,11 +271,9 @@
         // --- AUTHENTICATION STATE & UI UPDATE ---
         firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
-                // Update Desktop UI
                 document.getElementById("userName").innerText = user.displayName || "My Account";
                 document.getElementById("userEmail").innerText = user.email;
                 document.getElementById("userPhoto").src = user.photoURL || "https://via.placeholder.com/40";
-                // Update Mobile UI
                 document.getElementById("mobileUserName").innerText = user.displayName || "My Account";
                 document.getElementById("mobileUserEmail").innerText = user.email;
                 
@@ -167,30 +293,35 @@
             const user = firebase.auth().currentUser;
             if (!user || !user.uid) {
                 console.error("User not logged in or UID missing. Cannot save data.");
-                alert("Error: Please log in again to save data.");
+                alert("Error: Please Log In Again To Save Data.");
                 return;
             }
             
             const place = document.getElementById("placeInput").value.trim();
             const landmark = document.getElementById("landmarkInput").value.trim();
+            const mapLink = document.getElementById("mapInput").value.trim();
             
             if (!place || !landmark) {
-                alert("Please fill both Place Name and Landmark/Details.");
+                alert("Please Fill Both Place Name And Landmark/Details.");
                 return;
             }
 
             const newRef = firebase.database().ref("addresses/" + user.uid).push();
             newRef.set({
                 id: newRef.key,
-                place: place,
-                landmark: landmark,
+                place: capitalizeWords(place), 
+                landmark: capitalizeWords(landmark),
+                mapLink: mapLink, 
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             }).then(() => {
+                // Clear all input fields
                 document.getElementById("placeInput").value = "";
                 document.getElementById("landmarkInput").value = "";
+                document.getElementById("mapInput").value = "";
+                
             }).catch(error => {
-                console.error("Error saving address: ", error);
-                alert("Failed to save address. Check console for details. (Ensure Firebase Rules are correct!)");
+                console.error("Error Saving Address: ", error);
+                alert("Failed To Save Address. Check Console For Details.");
             });
         }
 
@@ -204,87 +335,189 @@
             });
         }
         
-        function editAddress(uid, id, oldPlace, oldLandmark) {
-            const newPlace = prompt("EDIT PLACE NAME:", oldPlace);
-            if (newPlace === null) return;
-            const newLandmark = prompt("EDIT LANDMARK / DETAILS:", oldLandmark);
-            if (newLandmark === null) return;
+        // --- NEW FUNCTION: Toggle Edit Form ---
+        
+        function toggleEditForm(id) {
+            const form = document.getElementById(`edit-form-${id}`);
+            const itemContainer = form ? form.closest('.address-item') : null; 
+            const displayView = document.getElementById(`display-view-${id}`);
 
-            const finalPlace = newPlace.trim() || oldPlace;
-            const finalLandmark = newLandmark.trim() || oldLandmark;
+            if (form && itemContainer && displayView) {
+                form.classList.toggle('hidden'); 
+                
+                const isFormVisible = !form.classList.contains('hidden');
 
-            if (finalPlace && finalLandmark) {
-                firebase.database().ref("addresses/" + uid + "/" + id).update({
-                    place: finalPlace,
-                    landmark: finalLandmark
-                }).catch(error => console.error("Update failed:", error));
-            } else {
-                alert("Place Name and Landmark cannot be empty.");
+                displayView.classList.toggle('hidden', isFormVisible);
+                addressListEl.classList.toggle('editing', isFormVisible);
+                itemContainer.classList.toggle('is-editing', isFormVisible);
+                searchInputEl.classList.toggle('hidden', isFormVisible);
+
+                if (isFormVisible) {
+                    const data = allAddresses.find(item => item.id === id);
+                    if (data) {
+                         document.getElementById(`edit-place-${id}`).value = data.place;
+                         document.getElementById(`edit-landmark-${id}`).value = data.landmark;
+                         document.getElementById(`edit-map-${id}`).value = data.mapLink || '';
+                    }
+
+                    itemContainer.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
             }
         }
+
+        function saveEditedAddress(id) {
+            const user = firebase.auth().currentUser;
+            if (!user) return;
+
+            const newPlace = document.getElementById(`edit-place-${id}`).value.trim();
+            const newLandmark = document.getElementById(`edit-landmark-${id}`).value.trim();
+            const newMapLink = document.getElementById(`edit-map-${id}`).value.trim();
+
+            if (!newPlace || !newLandmark) {
+                alert("Place Name And Landmark Cannot Be Empty.");
+                return;
+            }
+
+            // --- FIX: Ensure the edit form is hidden before the Firebase call ---
+            const editForm = document.getElementById(`edit-form-${id}`);
+            const itemContainer = editForm.closest('.address-item'); 
+            const displayView = document.getElementById(`display-view-${id}`);
+            
+            // Hide the edit form and show the display view (it will be refreshed by Firebase)
+            editForm.classList.add('hidden');
+            displayView.classList.remove('hidden'); 
+
+            // Reset global editing state
+            addressListEl.classList.remove('editing');
+            itemContainer.classList.remove('is-editing');
+            searchInputEl.classList.remove('hidden');
+            // ---------------------------------------------------------------------
+
+
+            firebase.database().ref("addresses/" + user.uid + "/" + id).update({
+                place: capitalizeWords(newPlace),
+                landmark: capitalizeWords(newLandmark),
+                mapLink: newMapLink
+            }).then(() => {
+                // Success: The listener will now automatically re-render the list with updated data.
+                
+            }).catch(error => {
+                console.error("Update Failed:", error);
+                alert("Failed to save changes. Check console for details.");
+                
+                // If it fails, restore the edit form view manually
+                const editForm = document.getElementById(`edit-form-${id}`);
+                const displayView = document.getElementById(`display-view-${id}`);
+                
+                if (displayView && editForm) {
+                    editForm.classList.remove('hidden'); 
+                    displayView.classList.add('hidden'); 
+                }
+                
+                addressListEl.classList.add('editing');
+                itemContainer.classList.add('is-editing');
+                searchInputEl.classList.add('hidden'); 
+            });
+        }
+
 
         function deleteAddress(uid, id) {
-            if (confirm("Are you sure you want to permanently delete this address?")) {
+            if (confirm("Are You Sure You Want To Permanently Delete This Address?")) {
                 firebase.database().ref("addresses/" + uid + "/" + id).remove()
-                    .catch(error => console.error("Deletion failed:", error));
+                    .catch(error => console.error("Deletion Failed:", error));
             }
         }
 
-        function shareAddress(place, landmark) {
-            const text = `Check out this address:\nPlace: ${place}\nDetails: ${landmark}`;
-            
+        function shareAddress(place, landmark, mapLink) {
+            let text = `Check Out This Address:\nPlace: ${place}\nDetails: ${landmark}`;
+            if (mapLink) {
+                text += `\nMap Link: ${mapLink}`;
+            }
+
             if (navigator.share) {
                 navigator.share({
                     title: `Address: ${place}`,
                     text: text,
-                }).catch(error => console.error('Error sharing', error));
+                }).catch(error => console.error('Error Sharing', error));
             } else {
                 navigator.clipboard.writeText(text).then(() => {
-                    alert('Address copied to clipboard! 📋');
+                    alert('Address Copied To Clipboard! 📋');
                 }).catch(err => {
-                    alert('Could not copy address. Check console for error.');
-                    console.error('Could not copy text: ', err);
+                    alert('Could Not Copy Address. Check Console For Error.');
+                    console.error('Could Not Copy Text: ', err);
                 });
             }
         }
         
 
-        // --- FILTERING & RENDERING ---
+        // --- FILTERING & RENDERING (Renders full details always) ---
         
         function displayFilteredAddresses(dataList) {
-            addressListEl.innerHTML = "";
-            
+            addressListEl.innerHTML = ""; // Clear existing content
+
             if (dataList.length === 0) {
-                addressListEl.innerHTML = '<div class="text-center p-6 text-gray-500 bg-gray-100 rounded-lg">No addresses found matching your search.</div>';
+                addressListEl.innerHTML = '<div class="text-center p-6 text-gray-500 bg-gray-100 rounded-lg">No Addresses Found Matching Your Search.</div>';
                 return;
             }
 
             dataList.forEach((data) => {
                 const uid = firebase.auth().currentUser.uid;
                 const div = document.createElement("div");
+                div.id = `item-${data.id}`; // Add unique ID for manipulation
+                
                 div.className = "address-item bg-white p-4 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
                 
-                div.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="flex-grow">
-                            <p class="text-lg font-bold text-gray-800">${data.place}</p>
-                            <p class="text-sm text-gray-600">${data.landmark}</p>
+                // RENDER FULL DETAILS ALWAYS (Desktop/Mobile)
+                const mapButtonHTML = data.mapLink ? `
+                    <a href="${data.mapLink}" target="_blank" class="bg-indigo-500 text-white px-3 py-1 rounded-full hover:bg-indigo-600 transition text-sm flex items-center">
+                        <i class="fas fa-map-marker-alt mr-1"></i> View Map
+                    </a>` : '';
+                 
+                 div.removeAttribute('onclick'); 
+
+                 div.innerHTML = `
+                     <div id="display-view-${data.id}" class="">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-grow">
+                                <p class="text-lg font-bold text-gray-800">${data.place}</p>
+                                <p class="text-sm text-gray-600 whitespace-pre-wrap">${data.landmark}</p>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="flex flex-wrap justify-end gap-2 mt-3"> 
-                        <button class="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition text-sm flex items-center" 
-                                onclick="shareAddress('${data.place}', '${data.landmark}')">
-                            <i class="fas fa-share-alt mr-1"></i> Share
-                        </button>
-                        <button class="bg-yellow-500 text-white px-3 py-1 rounded-full hover:bg-yellow-600 transition text-sm flex items-center" 
-                                onclick="editAddress('${uid}', '${data.id}', '${data.place}', '${data.landmark}')">
-                            <i class="fas fa-edit mr-1"></i> Edit
-                        </button>
-                        <button class="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
-                                onclick="deleteAddress('${uid}', '${data.id}')">
-                            <i class="fas fa-trash-alt mr-1"></i> Delete
-                        </button>
+                        <div class="flex flex-wrap justify-end gap-2 mt-3"> 
+                            ${mapButtonHTML}
+                            <button class="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition text-sm flex items-center" 
+                                    onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}')">
+                                <i class="fas fa-share-alt mr-1"></i> Share
+                            </button>
+                            <button class="bg-yellow-500 text-white px-3 py-1 rounded-full hover:bg-yellow-600 transition text-sm flex items-center" 
+                                    onclick="toggleEditForm('${data.id}')">
+                                <i class="fas fa-edit mr-1"></i> Edit
+                            </button>
+                            <button class="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
+                                    onclick="deleteAddress('${uid}', '${data.id}')">
+                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                            </button>
+                        </div>
+                     </div>
+                     <div id="edit-form-${data.id}" class="hidden space-y-3 pt-3 border-t mt-3">
+                        <h4 class="font-bold text-gray-700">Editing: ${data.place}</h4>
+                        <label for="edit-place-${data.id}" class="block text-xs font-medium text-gray-500">Place Name</label>
+                        <input type="text" id="edit-place-${data.id}" value="${data.place}" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition" />
+                        <label for="edit-landmark-${data.id}" class="block text-xs font-medium text-gray-500">Details / Landmark</label>
+                        <textarea id="edit-landmark-${data.id}" rows="2" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition resize-y">${data.landmark}</textarea>
+                        <label for="edit-map-${data.id}" class="block text-xs font-medium text-gray-500">Google Map Location</label>
+                        <input type="url" id="edit-map-${data.id}" value="${data.mapLink || ''}" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition" />
+                        <div class="flex justify-end gap-2 mt-3">
+                            <button class="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition text-sm flex items-center" onclick="saveEditedAddress('${data.id}')">
+                                <i class="fas fa-check mr-1"></i> Save
+                            </button>
+                            <button class="bg-gray-500 text-white px-3 py-1 rounded-full hover:bg-gray-600 transition text-sm flex items-center" onclick="toggleEditForm('${data.id}')">
+                                <i class="fas fa-times mr-1"></i> Cancel
+                            </button>
+                        </div>
                     </div>
                 `;
                 addressListEl.appendChild(div);
@@ -292,15 +525,18 @@
         }
 
         function filterAddresses() {
-            const query = document.getElementById("searchInput").value.toLowerCase();
-            const filtered = allAddresses.filter(item =>
-                item.place.toLowerCase().includes(query) || item.landmark.toLowerCase().includes(query)
-            );
-            displayFilteredAddresses(filtered);
+            if (!addressListEl.classList.contains('editing')) {
+                const query = document.getElementById("searchInput").value.toLowerCase();
+                const filtered = allAddresses.filter(item =>
+                    item.place.toLowerCase().includes(query) || item.landmark.toLowerCase().includes(query)
+                );
+                displayFilteredAddresses(filtered);
+            }
         }
 
     </script>
 </body>
 </html>
+
 
 
