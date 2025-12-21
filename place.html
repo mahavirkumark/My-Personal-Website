@@ -21,15 +21,16 @@
 
         /* --- Right Container Typography & Scroll Logic --- */
         #dataList {
-            /* Mobile Font: 18px (20px - 2px) */
+            /* Mobile Font: 18px */
             font-size: 18px; 
         }
         #dataList h3 { font-size: 1.35rem; } 
         #dataList ul { font-size: 1.15rem; }
 
+        /* Laptop View Adjustments */
         @media (min-width: 768px) {
             #dataList {
-                max-height: 550px; 
+                max-height: 500px; /* Laptop scroll threshold */
                 overflow-y: auto;
                 padding-right: 10px;
                 /* Desktop Font: 20px */
@@ -39,22 +40,7 @@
             #dataList ul { font-size: 1.25rem; }
         }
 
-        /* --- Content Protection/Logged Out State --- */
-        .content-hidden {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 200px;
-            text-align: center;
-            color: #6b7280;
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            margin-top: 16px;
-            font-size: 1.125rem;
-            font-weight: 500;
-        }
-
-        /* --- Professional Action Button Hover --- */
+        /* --- Professional Action Button Styling --- */
         .action-btn {
             padding: 8px;
             border-radius: 50%;
@@ -70,7 +56,28 @@
         .editing .display-content { display: none; }
         .editing .edit-form-content { display: block; }
 
+        /* Auto-Capitalization Logic for input */
         #placeName { text-transform: capitalize; }
+
+        /* Full Screen Mobile Adjustment */
+        @media (max-width: 767px) {
+            .mobile-full-width {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+            .container-padding-fix {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .mobile-side-padding {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -114,10 +121,10 @@
         </div>
     </nav>
 
-    <main class="pt-24 pb-16 min-h-screen">
-        <div class="container mx-auto p-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <main class="pt-24 pb-16 min-h-screen container-padding-fix">
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit relative md:sticky md:top-24">
+            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit relative md:sticky md:top-24 mobile-side-padding">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">📌 Add Place</h2>
                 <form id="dataForm" class="space-y-5">
                     <div>
@@ -132,15 +139,18 @@
                 </form>
             </div>
 
-            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
-                <div class="mb-5">
-                    <div class="relative">
-                        <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
-                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit mobile-full-width">
+                <div class="px-4 md:px-0">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
+                    <div class="mb-5">
+                        <div class="relative">
+                            <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        </div>
                     </div>
                 </div>
-                <div id="dataList" class="custom-scrollbar space-y-5">
+
+                <div id="dataList" class="custom-scrollbar space-y-5 px-4 md:px-0">
                     <p class="text-center text-gray-500 py-12">Loading...</p>
                 </div>
             </div>
@@ -186,7 +196,7 @@
                 document.getElementById('authButton').textContent = 'Logout';
                 attachDatabaseListeners();
             } else {
-                document.getElementById('dataList').innerHTML = '<div class="content-hidden"><p>Please sign in.</p></div>';
+                document.getElementById('dataList').innerHTML = '<p class="text-center py-10">Please sign in.</p>';
             }
         });
 
@@ -240,6 +250,7 @@
             e.preventDefault();
             let name = document.getElementById('placeName').value;
             const desc = document.getElementById('description').value;
+            // Title case formatting
             name = name.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
             touristRef.push({ placeName: name, description: desc, createdAt: firebase.database.ServerValue.TIMESTAMP })
                 .then(() => document.getElementById('dataForm').reset());
@@ -272,4 +283,3 @@
     </script>
 </body>
 </html>
-
