@@ -20,10 +20,16 @@
         }
 
         /* --- Right Container Font Increase (+4px) and Scroll --- */
+        /* Fixed: Scroll only active on desktop. On mobile, it expands naturally */
+        @media (min-width: 768px) {
+            #dataList {
+                max-height: 550px; 
+                overflow-y: auto;
+                padding-right: 10px;
+            }
+        }
+        
         #dataList {
-            max-height: 550px; 
-            overflow-y: auto;
-            padding-right: 10px;
             font-size: 20px; /* Increased base font */
         }
         #dataList h3 { font-size: 1.5rem; } /* ~24px */
@@ -55,13 +61,11 @@
         .action-btn.delete:hover { background-color: #fee2e2; color: #dc2626; transform: scale(1.1); }
         .action-btn.share:hover { background-color: #d1fae5; color: #059669; transform: scale(1.1); }
 
-        /* Custom class to hide display content and show form content */
         .display-content { display: block; }
         .edit-form-content { display: none; }
         .editing .display-content { display: none; }
         .editing .edit-form-content { display: block; }
 
-        /* Auto-Capitalization Visual Feedback */
         #placeName { text-transform: capitalize; }
     </style>
 </head>
@@ -89,77 +93,56 @@
                     <p id="userEmail" class="text-sm text-gray-500">Sign In Required</p>
                 </div>
                 <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5; object-fit: cover;">
-
-                <button id="authButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition duration-300">
+                <button id="authButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition">
                     <i class="fab fa-google mr-2"></i> Sign In
                 </button>
             </div>
-
             <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
 
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
-            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
-            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
-            <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <div class="border-t border-gray-300 mt-2 pt-2">
-                <p id="mobileUserName" class="font-bold text-gray-900">Guest</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Sign In Required</p>
-                <button id="mobileAuthButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-3 py-2 rounded-full hover:bg-indigo-700 mt-2 w-full">
-                    <i class="fab fa-google mr-2"></i> Sign In
-                </button>
-            </div>
+            <a href="home.html" class="p-2 hover:bg-gray-200">Home</a>
+            <a href="birthday.html" class="p-2 hover:bg-gray-200">Birthday</a>
+            <a href="password.html" class="p-2 hover:bg-gray-200">Passwords</a>
+            <a href="income.html" class="p-2 hover:bg-gray-200">Income</a>
+            <a href="links.html" class="p-2 hover:bg-gray-200">Links</a>
+            <a href="calender.html" class="p-2 hover:bg-gray-200">Calendar</a>
+            <button onclick="handleAuth()" class="bg-indigo-600 text-white p-2 rounded mt-2">Sign In</button>
         </div>
     </nav>
 
-    <main class="pt-24 pb-16 min-h-screen flex flex-col">
-        <div class="container mx-auto flex-1 p-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <main class="pt-24 pb-16 min-h-screen">
+        <div class="container mx-auto p-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit sticky top-24">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">📌 Add New Tourist Place</h2>
+            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit relative md:sticky md:top-24">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">📌 Add Place</h2>
                 <form id="dataForm" class="space-y-5">
                     <div>
-                        <label for="placeName" class="block text-sm font-semibold text-gray-700">Place Name / Sight</label>
-                        <input type="text" id="placeName" name="placeName" required
-                                class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                        <label class="block text-sm font-semibold text-gray-700">Place Name</label>
+                        <input type="text" id="placeName" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label for="description" class="block text-sm font-semibold text-gray-700">Notes / Details</label>
-                        <textarea id="description" name="description" rows="5" required
-                                    class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"></textarea>
+                        <label class="block text-sm font-semibold text-gray-700">Notes / Details</label>
+                        <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg"></textarea>
                     </div>
-                    <button type="submit" id="saveButton"
-                            class="w-full py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out">
-                        <i class="fas fa-save mr-2"></i> Save Place
-                    </button>
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg">Save Place</button>
                 </form>
             </div>
 
-            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col">
+            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
                 <div class="mb-5">
                     <div class="relative">
-                        <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search places or notes..."
-                                class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
-                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
-
-                <div id="dataList" class="custom-scrollbar space-y-5 pr-3">
-                    <p id="loadingMessage" class="text-center text-gray-500 py-12 text-lg">
-                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading places...
-                    </p>
+                <div id="dataList" class="custom-scrollbar space-y-5">
+                    <p class="text-center text-gray-500 py-12">Loading...</p>
                 </div>
             </div>
         </div>
     </main>
-
-    <footer class="bg-white text-gray-900 text-center py-4 text-sm mt-10">
-        &copy; 2025 My Personal Website | All Rights Reserved.
-    </footer>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -186,45 +169,21 @@
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
         window.handleAuth = function() {
-            if (isUserSignedIn) {
-                firebase.auth().signOut().then(() => { window.location.href = 'index.html'; });
-            } else {
-                firebase.auth().signInWithPopup(googleProvider).catch((e) => alert(e.message));
-            }
+            if (isUserSignedIn) { firebase.auth().signOut().then(() => window.location.href = 'index.html'); }
+            else { firebase.auth().signInWithPopup(googleProvider); }
         };
 
         firebase.auth().onAuthStateChanged((user) => {
-            const userNameEl = document.getElementById('userName');
-            const userEmailEl = document.getElementById('userEmail');
-            const userPhotoEl = document.getElementById('userPhoto');
-            const authButton = document.getElementById('authButton');
-            const mobileAuthButton = document.getElementById('mobileAuthButton');
-            const dataList = document.getElementById('dataList');
-            const formContainer = document.getElementById('dataFormContainer');
-
-            isUserSignedIn = !!user;
-
             if (user) {
+                isUserSignedIn = true;
                 touristRef = database.ref(`users/${user.uid}/tourist`);
-                userNameEl.textContent = user.displayName;
-                userEmailEl.textContent = user.email;
-                userPhotoEl.src = user.photoURL;
-                document.getElementById('mobileUserName').textContent = user.displayName;
-                document.getElementById('mobileUserEmail').textContent = user.email;
-
-                authButton.innerHTML = 'Logout';
-                authButton.classList.replace('bg-indigo-600', 'bg-red-500');
-                mobileAuthButton.innerHTML = 'Logout';
-                mobileAuthButton.classList.replace('bg-indigo-600', 'bg-red-500');
-
-                formContainer.classList.remove('hidden');
+                document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userPhoto').src = user.photoURL;
+                document.getElementById('authButton').innerHTML = 'Logout';
                 attachDatabaseListeners();
             } else {
-                userNameEl.textContent = "Guest";
-                authButton.innerHTML = '<i class="fab fa-google mr-2"></i> Sign In';
-                authButton.classList.replace('bg-red-500', 'bg-indigo-600');
-                formContainer.classList.add('hidden');
-                dataList.innerHTML = '<div class="content-hidden"><p>Please sign in with Google.</p></div>';
+                document.getElementById('dataList').innerHTML = '<div class="content-hidden"><p>Please sign in.</p></div>';
             }
         });
 
@@ -239,20 +198,19 @@
 
         function renderDataList(items) {
             const dataList = document.getElementById('dataList');
-            dataList.innerHTML = items.length ? '' : '<p class="text-center py-12">No places found.</p>';
-
+            dataList.innerHTML = items.length ? '' : '<p class="text-center py-12">No data.</p>';
             items.forEach(({ key, data }) => {
                 const card = document.createElement('div');
                 card.id = `card-${key}`;
-                card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-md transition hover:shadow-lg';
+                card.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-md mb-4';
                 const descLines = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
-
+                
                 card.innerHTML = `
                     <div class="display-content">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-extrabold text-indigo-700">${data.placeName}</h3>
-                                <ul class="list-disc ml-6 mt-3 text-gray-700 space-y-2">${descLines}</ul>
+                                <h3 class="font-bold text-indigo-700">${data.placeName}</h3>
+                                <ul class="list-disc ml-6 mt-2 text-gray-700">${descLines}</ul>
                             </div>
                             <div class="flex space-x-1">
                                 <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500"><i class="fas fa-pencil-alt"></i></button>
@@ -261,12 +219,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="edit-form-content space-y-3">
-                        <input type="text" id="editName-${key}" class="w-full border-2 p-2 rounded-lg font-bold">
-                        <textarea id="editDesc-${key}" rows="4" class="w-full border-2 p-2 rounded-lg"></textarea>
-                        <div class="flex gap-3">
-                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold">Save</button>
-                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 px-6 py-2 rounded-lg font-bold">Cancel</button>
+                    <div class="edit-form-content space-y-2">
+                        <input type="text" id="editName-${key}" class="w-full border p-2 rounded">
+                        <textarea id="editDesc-${key}" rows="3" class="w-full border p-2 rounded"></textarea>
+                        <div class="flex gap-2">
+                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-4 py-1 rounded">Save</button>
+                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 px-4 py-1 rounded">Cancel</button>
                         </div>
                     </div>
                 `;
@@ -285,7 +243,7 @@
 
         window.deleteData = (key) => confirm("Delete this place?") && touristRef.child(key).remove();
         window.shareData = (name, desc) => {
-            const text = `Spot: ${name}\nNotes: ${desc}`;
+            const text = `Place: ${name}\nNotes: ${desc}`;
             if (navigator.share) { navigator.share({ title: name, text: text }); }
             else { navigator.clipboard.writeText(text); alert("Copied!"); }
         };
@@ -297,17 +255,17 @@
         };
         window.cancelEdit = (key) => document.getElementById(`card-${key}`).classList.remove('editing');
         window.saveEdit = (key) => {
-            let newName = document.getElementById(`editName-${key}`).value;
-            const newDesc = document.getElementById(`editDesc-${key}`).value;
-            newName = newName.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
-            touristRef.child(key).update({ placeName: newName, description: newDesc }).then(() => cancelEdit(key));
+            let n = document.getElementById(`editName-${key}`).value;
+            let d = document.getElementById(`editDesc-${key}`).value;
+            n = n.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
+            touristRef.child(key).update({ placeName: n, description: d }).then(() => cancelEdit(key));
         };
         window.searchData = () => {
             const q = document.getElementById('searchBar').value.toLowerCase();
             renderDataList(allTouristPlaces.filter(i => i.data.placeName.toLowerCase().includes(q) || i.data.description.toLowerCase().includes(q)));
         };
-
         document.getElementById('menu-btn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
     </script>
 </body>
 </html>
+
