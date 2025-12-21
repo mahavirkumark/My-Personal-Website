@@ -19,24 +19,34 @@
             background-color: #f3f4f6;
         }
 
-        /* --- Scroll logic: Internal list scrolls after 550px --- */
+        /* --- Right Container Font Increase (+4px) --- */
         #dataList {
             max-height: 550px; 
             overflow-y: auto;
             padding-right: 10px;
+            /* Base font increase for the entire list */
+            font-size: 20px; 
         }
 
-        /* --- Auto-Capitalization Visual Feedback --- */
+        /* Specific text elements inside the cards */
+        #dataList h3 {
+            font-size: 1.5rem; /* ~24px */
+        }
+        #dataList .description-list {
+            font-size: 1.25rem; /* ~20px */
+        }
+
+        /* --- Input Visual Feedback --- */
         #placeName {
             text-transform: capitalize;
         }
 
         /* --- Professional Action Button Hover --- */
         .action-btn {
-            padding: 8px;
+            padding: 10px;
             border-radius: 50%;
             transition: all 0.2s ease-in-out;
-            font-size: 1.1rem;
+            font-size: 1.3rem;
         }
         .action-btn.edit:hover { background-color: #dbeafe; color: #2563eb; transform: scale(1.1); }
         .action-btn.delete:hover { background-color: #fee2e2; color: #dc2626; transform: scale(1.1); }
@@ -48,7 +58,6 @@
         .editing .display-content { display: none; }
         .editing .edit-form-content { display: block; }
 
-        /* --- Empty State Placeholder --- */
         .content-hidden {
             display: flex;
             justify-content: center;
@@ -70,14 +79,6 @@
                 <i class="fas fa-user-circle" style="color: #4f46e5;"></i>
                 <span>My Personal Website</span>
             </div>
-            <div class="hidden md:flex space-x-6 font-medium">
-                <a href="home.html" class="text-gray-600 hover:text-blue-500 transition">Home</a>
-                <a href="birthday.html" class="text-gray-600 hover:text-blue-500 transition">Birthday</a>
-                <a href="password.html" class="text-gray-600 hover:text-blue-500 transition">Passwords</a>
-                <a href="income.html" class="text-gray-600 hover:text-blue-500 transition">Income</a>
-                <a href="links.html" class="text-gray-600 hover:text-blue-500 transition">Links</a>
-                <a href="calender.html" class="text-gray-600 hover:text-blue-500 transition">Calendar</a>
-            </div>
             <div class="hidden md:flex items-center gap-4">
                 <div class="text-right">
                     <p id="userName" class="font-bold text-gray-900">Guest</p>
@@ -97,30 +98,26 @@
                 <form id="dataForm" class="space-y-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Place Name</label>
-                        <input type="text" id="placeName" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <input type="text" id="placeName" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Notes / Details</label>
-                        <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+                        <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg"></textarea>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg">
-                        <i class="fas fa-save mr-2"></i> Save Place
-                    </button>
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg">Save Place</button>
                 </form>
             </div>
 
             <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
-                
                 <div class="mb-5">
                     <div class="relative">
-                        <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search places or notes..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
+                        <input type="text" id="searchBar" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
                         <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
-
                 <div id="dataList" class="custom-scrollbar space-y-5">
-                    <p class="text-center text-gray-500 py-12">Loading data...</p>
+                    <p class="text-center text-gray-500 py-12">Loading...</p>
                 </div>
             </div>
         </div>
@@ -136,7 +133,6 @@
         let isUserSignedIn = false;
         let allTouristPlaces = [];
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
             authDomain: "sk12-58e9e.firebaseapp.com",
@@ -151,14 +147,12 @@
         database = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // Auth Logic
         window.handleAuth = function() {
             if (isUserSignedIn) { firebase.auth().signOut().then(() => window.location.href = 'index.html'); }
             else { firebase.auth().signInWithPopup(googleProvider); }
         };
 
         firebase.auth().onAuthStateChanged((user) => {
-            const dataList = document.getElementById('dataList');
             if (user) {
                 isUserSignedIn = true;
                 touristRef = database.ref(`users/${user.uid}/tourist`);
@@ -166,58 +160,51 @@
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userPhoto').src = user.photoURL;
                 document.getElementById('authButton').textContent = 'Logout';
-                document.getElementById('authButton').classList.replace('bg-indigo-600', 'bg-red-500');
                 attachDatabaseListeners();
             } else {
-                dataList.innerHTML = '<div class="content-hidden"><p>Please sign in with Google to view places.</p></div>';
+                document.getElementById('dataList').innerHTML = '<div class="content-hidden"><p>Please sign in.</p></div>';
             }
         });
 
-        // Listen for data updates
         function attachDatabaseListeners() {
             touristRef.on('value', (snap) => {
                 const items = [];
                 snap.forEach((child) => { items.push({ key: child.key, data: child.val() }); });
-                allTouristPlaces = items.reverse(); // Newest first
+                allTouristPlaces = items.reverse();
                 renderDataList(allTouristPlaces);
             });
         }
 
-        // Render List
         function renderDataList(items) {
             const dataList = document.getElementById('dataList');
-            dataList.innerHTML = items.length ? '' : '<p class="text-center py-12">No tourist places found.</p>';
+            dataList.innerHTML = items.length ? '' : '<p class="text-center py-12">No places found.</p>';
             
             items.forEach(({ key, data }) => {
                 const card = document.createElement('div');
                 card.id = `card-${key}`;
-                card.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-md transition hover:shadow-lg';
-                
-                const descHTML = data.description.split('\n')
-                    .filter(l => l.trim() !== '')
-                    .map(l => `<li>${l.trim()}</li>`).join('');
+                card.className = 'bg-white p-6 rounded-xl border border-gray-200 shadow-md transition hover:shadow-lg';
+                const desc = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
                 
                 card.innerHTML = `
                     <div class="display-content">
                         <div class="flex justify-between items-start">
                             <div class="max-w-[75%]">
-                                <h3 class="text-xl font-extrabold text-indigo-700">${data.placeName}</h3>
-                                <ul class="list-disc ml-5 mt-2 text-sm text-gray-700 space-y-1">${descHTML}</ul>
+                                <h3 class="font-extrabold text-indigo-700">${data.placeName}</h3>
+                                <ul class="description-list list-disc ml-6 mt-3 text-gray-700 space-y-2">${desc}</ul>
                             </div>
                             <div class="flex space-x-1">
-                                <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                <button onclick="deleteData('${key}')" class="action-btn delete text-red-500" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500" title="Share"><i class="fas fa-share-alt"></i></button>
+                                <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="deleteData('${key}')" class="action-btn delete text-red-500"><i class="fas fa-trash-alt"></i></button>
+                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500"><i class="fas fa-share-alt"></i></button>
                             </div>
                         </div>
                     </div>
                     <div class="edit-form-content space-y-3">
-                        <h4 class="font-bold text-gray-600">Editing Place</h4>
-                        <input type="text" id="editName-${key}" class="w-full border-2 border-indigo-200 p-2 rounded-lg font-bold">
-                        <textarea id="editDesc-${key}" rows="4" class="w-full border-2 border-indigo-200 p-2 rounded-lg text-sm"></textarea>
+                        <input type="text" id="editName-${key}" class="w-full border-2 p-2 rounded-lg font-bold">
+                        <textarea id="editDesc-${key}" rows="4" class="w-full border-2 p-2 rounded-lg"></textarea>
                         <div class="flex gap-3">
-                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700">Save</button>
-                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg font-bold hover:bg-gray-300">Cancel</button>
+                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold">Save</button>
+                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 px-6 py-2 rounded-lg font-bold">Cancel</button>
                         </div>
                     </div>
                 `;
@@ -225,43 +212,23 @@
             });
         }
 
-        // Save New Place with Auto-Capitalization
         document.getElementById('dataForm').addEventListener('submit', (e) => {
             e.preventDefault();
             let name = document.getElementById('placeName').value;
             const desc = document.getElementById('description').value;
-            
-            // Auto-capitalize each word
             name = name.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
-            
-            touristRef.push({ 
-                placeName: name, 
-                description: desc, 
-                createdAt: firebase.database.ServerValue.TIMESTAMP 
-            }).then(() => {
-                document.getElementById('dataForm').reset();
-            });
+            touristRef.push({ placeName: name, description: desc, createdAt: firebase.database.ServerValue.TIMESTAMP })
+                .then(() => document.getElementById('dataForm').reset());
         });
 
-        // Delete Logic
-        window.deleteData = (key) => {
-            if (confirm("Permanently delete this place?")) {
-                touristRef.child(key).remove();
-            }
-        };
+        window.deleteData = (key) => confirm("Delete this place?") && touristRef.child(key).remove();
 
-        // Share Logic
         window.shareData = (name, desc) => {
-            const shareText = `Tourist Spot: ${name}\nNotes: ${desc}`;
-            if (navigator.share) {
-                navigator.share({ title: name, text: shareText });
-            } else {
-                navigator.clipboard.writeText(shareText);
-                alert("Copied details to clipboard!");
-            }
+            const text = `Tourist Spot: ${name}\nNotes: ${desc}`;
+            if (navigator.share) { navigator.share({ title: name, text: text }); }
+            else { navigator.clipboard.writeText(text); alert("Copied!"); }
         };
 
-        // Inline Edit UI Logic
         window.editData = (key, name, desc) => {
             const card = document.getElementById(`card-${key}`);
             card.classList.add('editing');
@@ -269,32 +236,18 @@
             document.getElementById(`editDesc-${key}`).value = desc;
         };
 
-        window.cancelEdit = (key) => {
-            document.getElementById(`card-${key}`).classList.remove('editing');
-        };
+        window.cancelEdit = (key) => document.getElementById(`card-${key}`).classList.remove('editing');
 
         window.saveEdit = (key) => {
             let newName = document.getElementById(`editName-${key}`).value;
             const newDesc = document.getElementById(`editDesc-${key}`).value;
-            
-            // Re-apply capitalization to edited name
             newName = newName.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
-            
-            touristRef.child(key).update({ 
-                placeName: newName, 
-                description: newDesc,
-                updatedAt: firebase.database.ServerValue.TIMESTAMP 
-            }).then(() => cancelEdit(key));
+            touristRef.child(key).update({ placeName: newName, description: newDesc }).then(() => cancelEdit(key));
         };
 
-        // Search Logic
         window.searchData = () => {
             const q = document.getElementById('searchBar').value.toLowerCase();
-            const filtered = allTouristPlaces.filter(i => 
-                i.data.placeName.toLowerCase().includes(q) || 
-                i.data.description.toLowerCase().includes(q)
-            );
-            renderDataList(filtered);
+            renderDataList(allTouristPlaces.filter(i => i.data.placeName.toLowerCase().includes(q) || i.data.description.toLowerCase().includes(q)));
         };
     </script>
 </body>
