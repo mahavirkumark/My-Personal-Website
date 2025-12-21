@@ -31,7 +31,7 @@
             #dataList ul { font-size: 1.25rem; }
         }
 
-        /* --- Mobile Specific Font and No-Padding Fix --- */
+        /* --- Mobile Specific Style and Search Focus Logic --- */
         @media (max-width: 767px) {
             #dataList {
                 font-size: 18px; 
@@ -48,10 +48,10 @@
                 padding-right: 1rem !important;
             }
 
-            /* Logic for Focus Mode (Only Search Bar visible) */
+            /* Search Focus Mode: Hide Nav and Form only on Mobile */
             body.search-focus nav, 
             body.search-focus #dataFormContainer,
-            body.search-focus h2.title-header {
+            body.search-focus .title-header {
                 display: none !important;
             }
             body.search-focus main {
@@ -81,19 +81,19 @@
 <body class="bg-gray-50 min-h-screen">
 
     <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
-        <div class="container mx-auto flex justify-between items-center p-4 md:py-3 md:px-4">
+        <div class="container mx-auto flex justify-between items-center py-[14px] px-4 md:px-4">
             <div class="flex items-center gap-2 text-xl font-bold text-gray-800 md:-ml-[5px]">
-                <i class="fas fa-user-circle" style="color: #4f46e5; font-size: 28px;" class="md:!text-[30px]"></i>
+                <i class="fas fa-user-circle" style="font-size: 30px; color: #4f46e5;"></i>
                 <span style="font-size: 22px;">My Personal Website</span>
             </div>
 
             <div class="hidden md:flex space-x-6 font-medium">
-                <a href="home.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-                <a href="birthday.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
-                <a href="password.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
-                <a href="income.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
-                <a href="calender.html" class="flex items-center gap-2 text-gray-600 hover:text-blue-500" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+                <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
+                <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+                <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+                <a href="calender.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
 
             <div class="hidden md:flex items-center gap-4">
@@ -111,13 +111,19 @@
         </div>
 
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-            <a href="home.html" class="p-2 border-b">Home</a>
-            <a href="birthday.html" class="p-2 border-b">Birthday</a>
-            <a href="password.html" class="p-2 border-b">Passwords</a>
-            <a href="income.html" class="p-2 border-b">Income</a>
-            <a href="links.html" class="p-2 border-b">Links</a>
-            <a href="calender.html" class="p-2 border-b">Calendar</a>
-            <button onclick="handleAuth()" id="mobileAuthButton" class="bg-indigo-600 text-white p-2 rounded mt-2">Sign In</button>
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
+            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
+            <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
+                <p id="mobileUserName" class="font-bold text-gray-900">Guest</p>
+                <p id="mobileUserEmail" class="text-xs text-gray-500">Sign In Required</p>
+                <button id="mobileAuthButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-3 py-2 rounded-full hover:bg-indigo-700 mt-2 w-full">
+                    <i class="fab fa-google mr-2"></i> Sign In
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -135,7 +141,7 @@
                         <label class="block text-sm font-semibold text-gray-700">Notes / Details</label>
                         <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg"></textarea>
                     </div>
-                    <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition">Save Place</button>
+                    <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg">Save Place</button>
                 </form>
             </div>
 
@@ -144,7 +150,7 @@
                     <h2 class="title-header text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
                     <div class="mb-5 flex items-center gap-2">
                         <div class="relative flex-1">
-                            <input type="text" id="searchBar" onfocus="enableSearchMode()" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500">
+                            <input type="text" id="searchBar" onfocus="enableSearchMode()" onkeyup="searchData()" placeholder="Search..." class="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                         </div>
                         <button id="closeSearchBtn" onclick="disableSearchMode()" class="hidden bg-gray-200 text-gray-700 px-3 py-2 rounded-lg font-bold md:!hidden">Close</button>
@@ -182,7 +188,7 @@
         database = firebase.database();
         const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-        // --- NEW SEARCH MODE LOGIC ---
+        // --- SEARCH MODE LOGIC ---
         function enableSearchMode() {
             if (window.innerWidth < 768) {
                 document.body.classList.add('search-focus');
@@ -212,7 +218,11 @@
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userPhoto').src = user.photoURL;
+                document.getElementById('mobileUserName').textContent = user.displayName;
+                document.getElementById('mobileUserEmail').textContent = user.email;
+
                 document.getElementById('authButton').textContent = 'Logout';
+                document.getElementById('mobileAuthButton').textContent = 'Logout';
                 attachDatabaseListeners();
             } else {
                 document.getElementById('dataList').innerHTML = '<p class="text-center py-10">Please sign in.</p>';
@@ -236,14 +246,14 @@
                 const card = document.createElement('div');
                 card.id = `card-${key}`;
                 card.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-md mb-4';
-                const descLines = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
+                const desc = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
                 
                 card.innerHTML = `
                     <div class="display-content">
                         <div class="flex flex-row justify-between items-start gap-2">
                             <div class="flex-1">
                                 <h3 class="font-bold text-indigo-700">${data.placeName}</h3>
-                                <ul class="list-disc ml-6 mt-2 text-gray-700">${descLines}</ul>
+                                <ul class="list-disc ml-6 mt-2 text-gray-700">${desc}</ul>
                             </div>
                             <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1">
                                 <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500"><i class="fas fa-pencil-alt"></i></button>
@@ -301,3 +311,4 @@
     </script>
 </body>
 </html>
+
