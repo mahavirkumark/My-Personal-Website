@@ -19,65 +19,54 @@
             background-color: #f3f4f6;
         }
 
-        /* --- Right Container Typography & Scroll Logic --- */
-        #dataList {
-            /* Mobile Font: 18px */
-            font-size: 18px; 
-        }
-        #dataList h3 { font-size: 1.35rem; } 
-        #dataList ul { font-size: 1.15rem; }
-
-        /* Laptop View Adjustments */
+        /* --- Desktop Scroll Logic (500px) --- */
         @media (min-width: 768px) {
             #dataList {
-                max-height: 500px; /* Laptop scroll threshold */
+                max-height: 500px; 
                 overflow-y: auto;
                 padding-right: 10px;
-                /* Desktop Font: 20px */
                 font-size: 20px; 
             }
             #dataList h3 { font-size: 1.5rem; } 
             #dataList ul { font-size: 1.25rem; }
         }
 
-        /* --- Professional Action Button Styling --- */
+        /* --- Mobile Specific Font and Padding Fix --- */
+        @media (max-width: 767px) {
+            #dataList {
+                font-size: 18px; 
+            }
+            /* Remove padding for mobile only */
+            .main-content-area {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+            .mobile-full-card {
+                border-radius: 0 !important;
+                border-left: none !important;
+                border-right: none !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+        }
+
+        /* --- Button and Form States --- */
         .action-btn {
             padding: 8px;
             border-radius: 50%;
             transition: all 0.2s ease-in-out;
             font-size: 1.2rem;
         }
-        .action-btn.edit:hover { background-color: #dbeafe; color: #2563eb; transform: scale(1.1); }
-        .action-btn.delete:hover { background-color: #fee2e2; color: #dc2626; transform: scale(1.1); }
-        .action-btn.share:hover { background-color: #d1fae5; color: #059669; transform: scale(1.1); }
+        .action-btn.edit:hover { background-color: #dbeafe; color: #2563eb; }
+        .action-btn.delete:hover { background-color: #fee2e2; color: #dc2626; }
+        .action-btn.share:hover { background-color: #d1fae5; color: #059669; }
 
         .display-content { display: block; }
         .edit-form-content { display: none; }
         .editing .display-content { display: none; }
         .editing .edit-form-content { display: block; }
 
-        /* Auto-Capitalization Logic for input */
         #placeName { text-transform: capitalize; }
-
-        /* Full Screen Mobile Adjustment */
-        @media (max-width: 767px) {
-            .mobile-full-width {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-                border-left: none !important;
-                border-right: none !important;
-            }
-            .container-padding-fix {
-                padding-left: 0 !important;
-                padding-right: 0 !important;
-            }
-            .mobile-side-padding {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -98,49 +87,54 @@
                 <a href="calender.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
 
-            <div class="hidden md:flex items-center gap-4">
-                <div class="text-right">
-                    <p id="userName" class="font-bold text-gray-900">Guest</p>
-                    <p id="userEmail" class="text-sm text-gray-500">Sign In Required</p>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:block text-right">
+                    <p id="userName" class="font-bold text-gray-900 leading-none">Guest</p>
+                    <p id="userEmail" class="text-xs text-gray-500">Sign In Required</p>
                 </div>
-                <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5; object-fit: cover;">
-                <button id="authButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition">
+                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500 object-cover">
+                
+                <button id="authButton" onclick="handleAuth()" class="hidden md:block bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition">
                     <i class="fab fa-google mr-2"></i> Sign In
                 </button>
+
+                <button id="menu-btn" class="md:hidden text-indigo-600 text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
-            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
 
-        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-            <a href="home.html" class="p-2 hover:bg-gray-200">Home</a>
-            <a href="birthday.html" class="p-2 hover:bg-gray-200">Birthday</a>
-            <a href="password.html" class="p-2 hover:bg-gray-200">Passwords</a>
-            <a href="income.html" class="p-2 hover:bg-gray-200">Income</a>
-            <a href="links.html" class="p-2 hover:bg-gray-200">Links</a>
-            <a href="calender.html" class="p-2 hover:bg-gray-200">Calendar</a>
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 border-t">
+            <a href="home.html" class="p-3 border-b hover:text-indigo-600">Home</a>
+            <a href="birthday.html" class="p-3 border-b hover:text-indigo-600">Birthday</a>
+            <a href="password.html" class="p-3 border-b hover:text-indigo-600">Passwords</a>
+            <a href="income.html" class="p-3 border-b hover:text-indigo-600">Income</a>
+            <a href="links.html" class="p-3 border-b hover:text-indigo-600">Links</a>
+            <a href="calender.html" class="p-3 border-b hover:text-indigo-600">Calendar</a>
+            <button onclick="handleAuth()" id="mobileAuthButton" class="bg-indigo-600 text-white p-3 rounded mt-2 font-bold">Sign In</button>
         </div>
     </nav>
 
-    <main class="pt-24 pb-16 min-h-screen container-padding-fix">
+    <main class="pt-24 pb-16 min-h-screen main-content-area">
         <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit relative md:sticky md:top-24 mobile-side-padding">
+            <div id="dataFormContainer" class="md:col-span-1 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 h-fit relative md:sticky md:top-24 mobile-full-card">
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">📌 Add Place</h2>
                 <form id="dataForm" class="space-y-5">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Place Name</label>
-                        <input type="text" id="placeName" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg">
+                        <input type="text" id="placeName" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-indigo-500">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-700">Notes / Details</label>
-                        <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg"></textarea>
+                        <textarea id="description" rows="5" required class="mt-1 block w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-indigo-500"></textarea>
                     </div>
                     <button type="submit" class="w-full py-3 rounded-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-lg">Save Place</button>
                 </form>
             </div>
 
-            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit mobile-full-width">
-                <div class="px-4 md:px-0">
+            <div class="md:col-span-2 bg-white p-8 rounded-xl shadow-2xl border border-gray-200 flex flex-col h-fit mobile-full-card">
+                <div class="px-2 md:px-0">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🌍 Saved Tourist Places</h2>
                     <div class="mb-5">
                         <div class="relative">
@@ -150,7 +144,7 @@
                     </div>
                 </div>
 
-                <div id="dataList" class="custom-scrollbar space-y-5 px-4 md:px-0">
+                <div id="dataList" class="custom-scrollbar space-y-5">
                     <p class="text-center text-gray-500 py-12">Loading...</p>
                 </div>
             </div>
@@ -194,6 +188,7 @@
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userPhoto').src = user.photoURL;
                 document.getElementById('authButton').textContent = 'Logout';
+                document.getElementById('mobileAuthButton').textContent = 'Logout';
                 attachDatabaseListeners();
             } else {
                 document.getElementById('dataList').innerHTML = '<p class="text-center py-10">Please sign in.</p>';
@@ -217,28 +212,28 @@
                 const card = document.createElement('div');
                 card.id = `card-${key}`;
                 card.className = 'bg-white p-5 rounded-xl border border-gray-200 shadow-md mb-4';
-                const descLines = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
+                const desc = data.description.split('\n').filter(l => l.trim() !== '').map(l => `<li>${l.trim()}</li>`).join('');
                 
                 card.innerHTML = `
                     <div class="display-content">
                         <div class="flex flex-row justify-between items-start gap-2">
                             <div class="flex-1">
-                                <h3 class="font-extrabold text-indigo-700 leading-tight">${data.placeName}</h3>
-                                <ul class="list-disc ml-6 mt-2 text-gray-700 space-y-1">${descLines}</ul>
+                                <h3 class="font-bold text-indigo-700">${data.placeName}</h3>
+                                <ul class="list-disc ml-6 mt-2 text-gray-700">${desc}</ul>
                             </div>
                             <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1">
-                                <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500" title="Edit"><i class="fas fa-pencil-alt"></i></button>
-                                <button onclick="deleteData('${key}')" class="action-btn delete text-red-500" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500" title="Share"><i class="fas fa-share-alt"></i></button>
+                                <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="deleteData('${key}')" class="action-btn delete text-red-500"><i class="fas fa-trash-alt"></i></button>
+                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500"><i class="fas fa-share-alt"></i></button>
                             </div>
                         </div>
                     </div>
-                    <div class="edit-form-content space-y-3">
-                        <input type="text" id="editName-${key}" class="w-full border-2 p-2 rounded-lg font-bold">
-                        <textarea id="editDesc-${key}" rows="4" class="w-full border-2 p-2 rounded-lg"></textarea>
+                    <div class="edit-form-content space-y-2">
+                        <input type="text" id="editName-${key}" class="w-full border p-2 rounded">
+                        <textarea id="editDesc-${key}" rows="3" class="w-full border p-2 rounded"></textarea>
                         <div class="flex gap-2">
-                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-6 py-1 rounded font-bold">Save</button>
-                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 px-6 py-1 rounded font-bold">Cancel</button>
+                            <button onclick="saveEdit('${key}')" class="bg-green-600 text-white px-4 py-1 rounded">Save</button>
+                            <button onclick="cancelEdit('${key}')" class="bg-gray-200 px-4 py-1 rounded">Cancel</button>
                         </div>
                     </div>
                 `;
@@ -248,23 +243,22 @@
 
         document.getElementById('dataForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            let name = document.getElementById('placeName').value;
-            const desc = document.getElementById('description').value;
-            // Title case formatting
-            name = name.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
-            touristRef.push({ placeName: name, description: desc, createdAt: firebase.database.ServerValue.TIMESTAMP })
+            let n = document.getElementById('placeName').value;
+            const d = document.getElementById('description').value;
+            n = n.toLowerCase().split(' ').map(s => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
+            touristRef.push({ placeName: n, description: d, createdAt: firebase.database.ServerValue.TIMESTAMP })
                 .then(() => document.getElementById('dataForm').reset());
         });
 
         window.deleteData = (key) => confirm("Delete this place?") && touristRef.child(key).remove();
         window.shareData = (name, desc) => {
-            const text = `Place: ${name}\nNotes: ${desc}`;
-            if (navigator.share) { navigator.share({ title: name, text: text }); }
-            else { navigator.clipboard.writeText(text); alert("Copied!"); }
+            const t = `Place: ${name}\nNotes: ${desc}`;
+            if (navigator.share) { navigator.share({ title: name, text: t }); }
+            else { navigator.clipboard.writeText(t); alert("Copied!"); }
         };
         window.editData = (key, name, desc) => {
-            const card = document.getElementById(`card-${key}`);
-            card.classList.add('editing');
+            const c = document.getElementById(`card-${key}`);
+            c.classList.add('editing');
             document.getElementById(`editName-${key}`).value = name;
             document.getElementById(`editDesc-${key}`).value = desc;
         };
