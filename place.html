@@ -19,7 +19,7 @@
             background-color: #f3f4f6;
         }
 
-        /* --- Desktop Scroll Logic (500px) --- */
+        /* --- Desktop/Laptop Scroll Logic (500px) --- */
         @media (min-width: 768px) {
             #dataList {
                 max-height: 500px; 
@@ -31,7 +31,7 @@
             #dataList ul { font-size: 1.25rem; }
         }
 
-        /* --- Mobile Specific Font and Padding Fix --- */
+        /* --- Mobile Specific Font and No-Padding Fix --- */
         @media (max-width: 767px) {
             #dataList {
                 font-size: 18px; 
@@ -87,31 +87,34 @@
                 <a href="calender.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
 
-            <div class="flex items-center gap-4">
-                <div class="hidden md:block text-right">
-                    <p id="userName" class="font-bold text-gray-900 leading-none">Guest</p>
-                    <p id="userEmail" class="text-xs text-gray-500">Sign In Required</p>
+            <div class="hidden md:flex items-center gap-4">
+                <div class="text-right">
+                    <p id="userName" class="font-bold text-gray-900">Guest</p>
+                    <p id="userEmail" class="text-sm text-gray-500">Sign In Required</p>
                 </div>
-                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500 object-cover">
-                
-                <button id="authButton" onclick="handleAuth()" class="hidden md:block bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition">
+                <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5; object-fit: cover;">
+                <button id="authButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-4 py-2 rounded-full font-semibold shadow-md hover:bg-indigo-700 transition duration-300">
                     <i class="fab fa-google mr-2"></i> Sign In
                 </button>
-
-                <button id="menu-btn" class="md:hidden text-indigo-600 text-2xl focus:outline-none">
-                    <i class="fas fa-bars"></i>
-                </button>
             </div>
+
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
 
-        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 border-t">
-            <a href="home.html" class="p-3 border-b hover:text-indigo-600">Home</a>
-            <a href="birthday.html" class="p-3 border-b hover:text-indigo-600">Birthday</a>
-            <a href="password.html" class="p-3 border-b hover:text-indigo-600">Passwords</a>
-            <a href="income.html" class="p-3 border-b hover:text-indigo-600">Income</a>
-            <a href="links.html" class="p-3 border-b hover:text-indigo-600">Links</a>
-            <a href="calender.html" class="p-3 border-b hover:text-indigo-600">Calendar</a>
-            <button onclick="handleAuth()" id="mobileAuthButton" class="bg-indigo-600 text-white p-3 rounded mt-2 font-bold">Sign In</button>
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
+            <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
+            <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
+                <p id="mobileUserName" class="font-bold text-gray-900">Guest</p>
+                <p id="mobileUserEmail" class="text-xs text-gray-500">Sign In Required</p>
+                <button id="mobileAuthButton" onclick="handleAuth()" class="bg-indigo-600 text-white px-3 py-2 rounded-full hover:bg-indigo-700 mt-2 w-full">
+                    <i class="fab fa-google mr-2"></i> Sign In
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -187,6 +190,9 @@
                 document.getElementById('userName').textContent = user.displayName;
                 document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('userPhoto').src = user.photoURL;
+                document.getElementById('mobileUserName').textContent = user.displayName;
+                document.getElementById('mobileUserEmail').textContent = user.email;
+
                 document.getElementById('authButton').textContent = 'Logout';
                 document.getElementById('mobileAuthButton').textContent = 'Logout';
                 attachDatabaseListeners();
@@ -224,7 +230,7 @@
                             <div class="flex flex-col md:flex-row space-y-1 md:space-y-0 md:space-x-1">
                                 <button onclick="editData('${key}', \`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn edit text-blue-500"><i class="fas fa-pencil-alt"></i></button>
                                 <button onclick="deleteData('${key}')" class="action-btn delete text-red-500"><i class="fas fa-trash-alt"></i></button>
-                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500"><i class="fas fa-share-alt"></i></button>
+                                <button onclick="shareData(\`${data.placeName}\`, \`${data.description.replace(/`/g, '\\`')}\`)" class="action-btn share text-green-500" title="Share"><i class="fas fa-share-alt"></i></button>
                             </div>
                         </div>
                     </div>
