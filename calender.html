@@ -13,7 +13,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-
 <style>
     /* Global Styles */
     body {
@@ -140,16 +139,20 @@
         box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         cursor: pointer;
     }
-    .today {
-        border: 2px solid #4f46e5; 
-        background-color: #eef2ff; 
-    }
+ 
     .sunday-cell {
-        background-color: #fff7ed; 
+        background-color:rosybrown ; 
         border-color: #f97316; 
-        border-width: 2px;
+        border-width: 3px;
     }
-    
+       .today {
+        border: 3px solid #4f46e5; 
+        background-color:lightblue ; 
+    }
+    .today:hover{
+
+        background-color: rgb(76, 188, 213);
+    }
     .custom-scroll {
         scrollbar-width: thin;
         scrollbar-color: #94a3b8 transparent; 
@@ -301,56 +304,55 @@
         color: #334155;
     }
 </style>
+
 </head>
 <body class="bg-f8fafc">
-
-<nav class="bg-white shadow-xl fixed w-full z-50 top-0 border-b border-gray-100">
-    <div class="container mx-auto flex justify-between items-center py-2 md:py-3 px-4 md:px-6 nav-content-padding"> 
-        <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
-            <i class="fas fa-user-circle" style="font-size: 28px; color: #4f46e5;"></i>
-            <span class="web-name-text">My Personal Website</span>
-        </div>
-        
-        <div class="hidden md:flex space-x-6 font-medium">
-            <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-            
-            <a href="birthday.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-birthday-cake"></i> Birthday</a>
-            <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
-            <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-900 hover:text-indigo-600 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        </div>
-
-        <div class="hidden md:flex items-center gap-4">
-            <div class="text-right">
-                <p id="userName" class="font-bold text-gray-900">Loading...</p>
-                <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+   <nav class="bg-white shadow-lg fixed w-full z-50 top-0 mb-[15px]">
+    <div class="container mx-auto flex justify-between items-center p-3 md:px-8 ">
+ 
+            <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
+         <i class="fas fa-user-circle ml-[-20px]" style="font-size: 35px; color: #4f46e5;"></i>
+                <span style="font-size: 25px;">My Personal Website</span>
             </div>
-            <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #4f46e5;">
-            <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition duration-300 shadow-md">Logout</button>
+            
+            <div class="hidden md:flex space-x-6 font-medium">
+                <a href="home.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
+                
+                
+                <a href="password.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
+                <a href="links.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
+                <a href="calendar.html" class="flex items-center gap-2 transition duration-300 text-gray-600 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4">
+                <div class="text-right">
+                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
+                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                </div>
+                <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #4f46e5;">
+                <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-700 transition duration-300">Logout</button>
+            </div>
+
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
 
-        <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-    </div>
-
-    <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-3 pb-2 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 shadow-inner">
-        <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-house"></i> Home</a>
-        
-        <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
-        <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
-        <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
-        <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-link"></i> Links</a>
-        <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        <div class="border-t border-gray-300 mt-2 pt-2 flex items-center gap-3">
-             <img id="mobileUserPhoto" src="https://via.placeholder.com/40" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #4f46e5;">
-            <div>
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
+            
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
                 <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
                 <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
             </div>
         </div>
-        <button onclick="logout()" class="bg-red-600 text-white px-3 py-2 rounded-full hover:bg-red-700 mt-2 w-full shadow-md">Logout</button>
-    </div>
-</nav>
+    </nav>
+
+
 
 <div class="search-overlay-background"></div>
 
@@ -417,7 +419,7 @@
 </div>
 
 <div id="taskModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
+    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-7xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
 
 
     <div class="flex justify-between items-center mb-4 border-b pb-3">
@@ -453,10 +455,13 @@
 </div>
 
 <div id="eventModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[80vh] md:h-auto border border-gray-100">
+ class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-[54%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[570px] border border-gray-100">
+    
+  
+
 
     <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 id="eventModalTitle" class="text-xl md:text-2xl font-extrabold text-emerald-700">Add New Event</h2> 
+        <h2 id="eventModalTitle" class="text-xl md:text-xl font-extrabold text-black-700">Add New Event</h2> 
         <button id="closeEventModal" 
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
@@ -485,7 +490,7 @@
             class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
             
         <textarea id="eventDesc" placeholder="Details (Optional)" 
-                 class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg flex-1 min-h-[100px] shadow-sm resize-none"></textarea>
+                 class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg flex-1 min-h-[10px] shadow-sm resize-none"></textarea>
                  
         <div class="flex gap-3 mt-2">
             <button id="saveEventBtn" 
@@ -607,13 +612,11 @@ const db = firebase.database();
 // --- Globals & Enums ---
 let currentUser = null;
 let currentDate = new Date();
-let selectedDate = null;
-let editTaskId = null;
-let editEventId = null;
-let eventsToPrompt = []; // Queue for status prompts
-let realTimeCheckInterval; // Reference for the recurring timer
-
-// Variables for storing the event currently being rescheduled/prompted
+let selectedDate = null;      // Declared once
+let editTaskId = null;        // Declared once
+let editEventId = null;       // Declared once
+let eventsToPrompt = [];      // Queue for status prompts
+let realTimeCheckInterval;    // Reference for the recurring timer
 let currentEventForAction = null; 
 
 const EVENT_STATUS = {
@@ -1023,274 +1026,230 @@ document.getElementById("saveEventBtn").addEventListener("click",()=>{
     });
 });
 
-// --- Load Tasks & Events (for calendar view - Optimized: Only refreshes affected cell) ---
-function loadTasks(date){
+function loadTasks(date) {
     if (!currentUser) return;
-    const c=document.getElementById(`tasks-${date}`); if(!c) return;
+    const c = document.getElementById(`tasks-${date}`);
+    if (!c) return;
     c.innerHTML = "";
 
-    const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
-    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
-    
-    let allItems = [];
-    const now = new Date().getTime(); // Get current timestamp
+    // Optimization: Single path fetch to increase loading speed
+    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
+        const data = snap.val() || {};
+        const tasks = data.tasks?.[date] || {};
+        const events = data.events?.[date] || {};
+        
+        let allItems = [];
+        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
+        Object.values(events)
+            .filter(e => e.status === EVENT_STATUS.PENDING)
+            .forEach(e => allItems.push({ type: 'event', ...e }));
 
-    // Load Tasks
-    taskRef.once("value").then(taskSnap => {
-        const tasks = taskSnap.val();
-        if (tasks) {
-            Object.values(tasks).forEach(t => allItems.push({ type: 'task', title: t.title }));
-        }
+        // Sort: Events first
+        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
 
-        // Load Events (Only show PENDING events that have NOT passed their timestamp)
-        return eventRef.once("value");
-    }).then(eventSnap => {
-        const events = eventSnap.val();
-        if (events) {
-            Object.values(events)
-                .filter(e => e.status === EVENT_STATUS.PENDING) 
-                .filter(e => e.timestamp >= now) // FIXED: Only display if event time has not passed
-                .forEach(e => allItems.push({ type: 'event', title: e.title, time: e.time }));
-        }
-
-        allItems.sort((a, b) => {
-            if (a.type === 'event' && b.type === 'task') return -1;
-            if (a.type === 'task' && b.type === 'event') return 1;
-            if (a.type === 'event' && b.type === 'event') return a.time.localeCompare(b.time);
-            return 0;
+        allItems.slice(0, 3).forEach(item => { 
+            const isEvent = item.type === 'event';
+            const line = document.createElement("div");
+            
+            // UI Requirement: 16px font, slightly darker but not black
+          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
+                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
+            }`;
+            line.style.fontSize = "16px"; 
+            
+            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
+            line.innerHTML = `${icon}${item.title}`;
+            c.appendChild(line);
         });
-
-        if(allItems.length > 0) {
-            allItems.slice(0, 3).forEach(item => { 
-                const icon = item.type === 'event' ? `<i class="fas fa-bell text-emerald-500 mr-1"></i>` : '•';
-                const colorClass = item.type === 'event' ? 'event-item' : 'text-gray-700';
-                const timeText = item.type === 'event' ? `<span class="text-xs text-gray-500 mr-1">${item.time}</span>` : '';
-
-                c.innerHTML+=`<div class="px-1 text-base ${colorClass}">${icon} ${timeText}${item.title}</div>`; 
-            });
-            if(allItems.length > 3) {
-                 c.innerHTML+=`<div class="text-sm text-gray-500 mt-1">...${allItems.length - 3} more</div>`;
-            }
-        }
     });
 }
+/**
+ * Loads all tasks and pending events for a specific date into the modal.
+ * Features: Professional UI, Sorting (Events first), Status Actions, and CRUD.
+ */
+// --- 1. GLOBAL VARIABLES (Ensure these are at the very top of your script) ---
 
-// --- Load Tasks & Events (for modal view - FIXED: Only shows PENDING events, Added Loader, Added Action Buttons) ---
-function loadModalTasks(date){
+
+// --- 2. MAIN MODAL LOAD FUNCTION ---
+/**
+ * Fetches and displays tasks and events for a specific date in a vertical list.
+ * Organized with a professional Action Column on the right.
+ */
+/**
+ * Main function to load and display the list of items for a selected date.
+ */
+function loadModalTasks(date) {
     if (!currentUser) return;
+    selectedDate = date; 
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
 
-    cont.className = "max-h-96 overflow-y-auto custom-scroll border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner"; 
-    // Show loader immediately for instant feedback
-    cont.innerHTML = `<p class="text-center text-indigo-500 italic p-3">
-                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading data...
-                      </p>`;
+    // UI Setup: Modern Container with your requested styling
+    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-full md:max-w-[94%] shadow-inner";
     
-    let allItems = [];
+    cont.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12 gap-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <p class="text-indigo-500 italic text-sm">Syncing schedule...</p>
+        </div>`;
+
     const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
     const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
 
-    // Load Tasks (All Tasks)
-    taskRef.once("value").then(taskSnap => {
-        const tasks = taskSnap.val();
-        if (tasks) {
-            Object.entries(tasks).forEach(([id, t]) => allItems.push({ type: 'task', id, ...t }));
-        }
+    Promise.all([taskRef.once("value"), eventRef.once("value")]).then(([taskSnap, eventSnap]) => {
+        let allItems = [];
+        const tasks = taskSnap.val() || {};
+        const events = eventSnap.val() || {};
 
-        // Load Events (ONLY PENDING events for the modal)
-        return eventRef.once("value");
-    }).then(eventSnap => {
-        const events = eventSnap.val();
-        if (events) {
-            Object.entries(events)
-                .filter(([id, e]) => e.status === EVENT_STATUS.PENDING) // FILTERED
-                .forEach(([id, e]) => allItems.push({ type: 'event', id, date: date, ...e })); // Include date for actions
-        }
+        // Merge Tasks into list
+        Object.entries(tasks).forEach(([id, t]) => {
+            allItems.push({ type: 'task', id, date, ...t });
+        });
+        
+        // Merge Pending Events into list
+        Object.entries(events)
+            .filter(([id, e]) => e.status === EVENT_STATUS.PENDING)
+            .forEach(([id, e]) => {
+                allItems.push({ type: 'event', id, date, ...e });
+            });
 
+        // Sort: Events first (by time), then Tasks
         allItems.sort((a, b) => {
             if (a.type === 'event' && b.type === 'task') return -1;
             if (a.type === 'task' && b.type === 'event') return 1;
-            if (a.type === 'event' && b.type === 'event') return a.time.localeCompare(b.time);
-            return 0; 
+            return (a.time || "").localeCompare(b.time || "");
         });
 
+        cont.innerHTML = '';
+        if (allItems.length === 0) {
+            cont.innerHTML = `<div class="text-center py-16 text-slate-400 text-lg italic uppercase tracking-widest">Clear Schedule</div>`;
+            return;
+        }
 
-        cont.innerHTML = ''; // Clear loader
-        if(allItems.length === 0) return cont.innerHTML = `<div class="text-center text-gray-500 italic p-3">No tasks or pending events yet.</div>`;
-        
         allItems.forEach(item => {
+            const isEvent = item.type === 'event';
+            const hasDesc = item.desc && item.desc.trim() !== "";
             const div = document.createElement("div");
             
-            const isEvent = item.type === 'event';
-            
-            let icon, bgColor, editBtnColor;
-            let buttonsHtml = '';
-            const itemId = item.id;
-            const itemDate = item.date;
+            div.className = `grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
+                isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'
+            }`;
 
-            if (isEvent) {
-                icon = `<i class="fas fa-bell text-emerald-600 mr-2"></i>`;
-                bgColor = 'bg-emerald-50 hover:bg-emerald-100';
-                editBtnColor = 'bg-yellow-500 hover:bg-yellow-600';
-                
-                // NEW: Action buttons for Pending Event (Professional Arrangement, Increased size)
-                buttonsHtml = `
-                    <div class="modal-action-buttons">
-                        <button onclick="updateEventStatus({ date: '${itemDate}', id: '${itemId}' }, '${EVENT_STATUS.COMPLETED}', true)" 
-                            class="bg-green-600 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-sm font-semibold w-full">
-                            <i class="fas fa-check"></i> Completed Event
-                        </button>
-                        <button onclick="updateEventStatus({ date: '${itemDate}', id: '${itemId}' }, '${EVENT_STATUS.INCOMPLETE}', true)" 
-                            class="bg-red-600 text-white text-sm px-3 py-1.5 rounded-lg hover:bg-red-700 transition shadow-sm font-semibold w-full">
-                            <i class="fas fa-times"></i> Incomplete Event
-                        </button>
+            // Left Content Section (Font sizes preserved)
+            const contentContainer = document.createElement("div");
+            contentContainer.className = "flex flex-col gap-2 min-w-0";
+            contentContainer.innerHTML = `
+                <div class="flex flex-col gap-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
+                        <strong class="text-xl md:text-2xl font-bold text-slate-800 break-words">${item.title}</strong>
                     </div>
-                `;
-            } else {
-                // Task
-                icon = `<i class="fas fa-list-check text-indigo-600 mr-2"></i>`;
-                bgColor = 'bg-white hover:bg-indigo-50';
-                editBtnColor = 'bg-yellow-500 hover:bg-yellow-600';
-            }
-
-            // Combine task info with action buttons container
-            div.className = `flex justify-between items-start shadow-md rounded-lg p-3 my-2 transition space-x-2 ${bgColor} flex-wrap md:flex-nowrap`; 
-            
-            let details = isEvent 
-                ? `<span class="block text-sm text-gray-500">${item.time || ''}${item.location ? ` | ${item.location}` : ''} | Status: ${capitalizeFirstLetter(item.status)}</span>`
-                : '';
-                
-            const contentDiv = document.createElement("div");
-            contentDiv.className = "flex-1 min-w-0 mr-4";
-            contentDiv.innerHTML = `
-                <strong class="block text-xl md:text-xl" style="font-size: 21px;">${icon}${item.title}</strong> 
-                ${details}
-                <p class="whitespace-pre-wrap break-words task-desc mt-1 text-lg text-gray-600 md:text-lg" style="font-size: 19px;">${item.desc || ""}</p> 
+                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
+                </div>
+                ${hasDesc ? `<div class="border-t border-slate-100 pt-2 mt-1 ml-8 text-lg text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
             `;
 
-            // Edit and Delete buttons (always present)
-            const btnsContainer = document.createElement("div");
-            btnsContainer.className = "flex flex-col gap-2 flex-shrink-0"; 
-            
-            const e = document.createElement("button");
-            e.innerHTML = `<i class="fas fa-edit"></i>`;
-            e.className = `${editBtnColor} text-white p-2 rounded-lg shadow-md text-base transition`;
-            e.onclick = () => {
-                if (isEvent) {
-                    editEventId = itemId;
-                    document.getElementById("eventDate").value = itemDate;
-                    document.getElementById("eventTime").value = item.time;
-                    document.getElementById("eventTitle").value = item.title;
-                    document.getElementById("eventLocation").value = item.location || "";
-                    document.getElementById("eventDesc").value = item.desc || "";
-                    document.getElementById("eventModalTitle").textContent = "Edit Event";
-                    closeModal();
-                    overlayElement.classList.remove("hidden");
-                    eventModalElement.classList.remove("hidden");
-                } else {
-                    editTaskId = itemId;
-                    document.getElementById("taskTitle").value = item.title; 
-                    document.getElementById("taskDesc").value = item.desc || "";
-                }
-            };
-            
-            const dBtn = document.createElement("button");
-            dBtn.innerHTML = `<i class="fas fa-trash text-white"></i>`; 
-            dBtn.className = "bg-red-500 hover:bg-red-700 text-white p-2 rounded-lg shadow-md hover:shadow-lg text-base transition duration-150 ease-in-out";
-            
-            dBtn.onclick = () => {
-                const itemType = isEvent ? 'event' : 'task';
-                const refPath = isEvent ? `users/${currentUser.uid}/events/${itemDate}/${itemId}` : `users/${currentUser.uid}/tasks/${itemDate}/${itemId}`;
-                
-                if(confirm(`Are you sure you want to delete this ${itemType}?`)) {
-                    db.ref(refPath).remove().then(() => {
-                        loadModalTasks(itemDate); 
-                        loadTasks(itemDate); // Optimized update
-                        checkAndShowNotifications();
-                        checkAndPromptForEventStatus(); 
-                    });
-                }
-            };
-            
-            btnsContainer.appendChild(e);
-            btnsContainer.appendChild(dBtn);
-            
-            
-            div.appendChild(contentDiv);
-            
-            if (buttonsHtml) {
-                // If it's a pending event, wrap the edit/delete buttons and status buttons together
-                const eventActionsGroup = document.createElement("div");
-                eventActionsGroup.className = "flex flex-col gap-2";
-                
-                const controlRow = document.createElement("div");
-                controlRow.className = "flex justify-end gap-2";
-                controlRow.appendChild(e);
-                controlRow.appendChild(dBtn);
-                
-                eventActionsGroup.appendChild(controlRow);
-                eventActionsGroup.innerHTML += buttonsHtml;
+            // Right Action Column Section
+            const actionsSection = document.createElement("div");
+            actionsSection.className = "flex flex-col gap-3 shrink-0 md:border-l border-slate-100 md:pl-4";
 
-                div.appendChild(eventActionsGroup);
-            } else {
-                 // For tasks, just append the edit/delete container
-                 div.appendChild(btnsContainer);
+            // Edit Button - Sky Blue
+           // Edit Button - Indigo
+const editBtn = document.createElement("button");
+// Using fa-solid fa-pen-to-square for a clean, modern look
+editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square text-[15px]"></i> <span>EDIT</span>`;
+editBtn.className = "w-full md:w-[90px] h-8 flex items-center justify-center gap-2 bg-indigo-500 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
+
+// Delete Button - Red
+const delBtn = document.createElement("button");
+// Updated to fa-solid fa-trash-can to match the Edit icon's weight
+delBtn.innerHTML = `<i class="fa-solid fa-trash-can text-[15px]"></i> <span>DELETE</span>`;
+delBtn.className = "w-full md:w-[90px] h-8 flex items-center justify-center gap-2 bg-red-500 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-red-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
+
+actionsSection.appendChild(editBtn);
+actionsSection.appendChild(delBtn);
+
+            // Additional Buttons for Events
+            if (isEvent) {
+                const statusGroup = document.createElement("div");
+                statusGroup.className = "flex flex-col gap-2 w-full pt-2 border-t border-slate-100";
+                statusGroup.innerHTML = `
+                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.COMPLETED}', true)" 
+                        class="bg-emerald-600 text-white text-[10px] py-2 rounded-lg hover:bg-emerald-700 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.INCOMPLETE}', true)" 
+                        class="bg-rose-600 text-white text-[10px] py-2 rounded-lg hover:bg-rose-700 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-times"></i> Missed
+                    </button>
+                `;
+                actionsSection.appendChild(statusGroup);
             }
-            
+
+            div.appendChild(contentContainer);
+            div.appendChild(actionsSection);
             cont.appendChild(div);
         });
     }).catch(err => {
-        console.error("Error loading tasks and events:", err);
-        cont.innerHTML = `<div class="text-center text-red-500 italic p-3">Error loading data.</div>`;
+        console.error("Data Load Error:", err);
+        cont.innerHTML = `<div class="text-center text-rose-500 font-bold py-10">Failed to load data. Check console.</div>`;
     });
 }
 
-// --- NEW: Reschedule Logic ---
+// --- GLOBAL HELPERS (Fixed for both types) ---
 
-/**
- * Executes the reschedule action by moving the event in Firebase.
- */
-function rescheduleEvent(event, newDateISO, newTime) {
-    if (!currentUser) return;
+function handleEdit(type, id, date) {
+    const isEvent = type === 'event';
+    const folder = isEvent ? 'events' : 'tasks';
     
-    // NOTE: This logic handles the rescheduling from the status prompt modal
-    
-    const oldRef = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-    const newRef = db.ref(`users/${currentUser.uid}/events/${newDateISO}`);
-    
-    const newTimestamp = new Date(`${newDateISO}T${newTime}:00`).getTime();
-    
-    // Fetch the old event data
-    db.ref(oldRef).once('value').then(snap => {
-        const oldData = snap.val();
-        if (!oldData) return alert("Original event not found.");
+    db.ref(`users/${currentUser.uid}/${folder}/${date}/${id}`).once('value').then(snap => {
+        const item = snap.val();
+        if (!item) return;
 
-        const newData = {
-            ...oldData,
-            date: newDateISO, // Not strictly needed in the object body but good for clarity
-            time: newTime,
-            timestamp: newTimestamp,
-            savedTimestamp: new Date().getTime(), // Reset saved time to ensure prompt delay restarts
-            status: EVENT_STATUS.PENDING // Ensure status is reset to pending
-        };
+        if (isEvent) {
+            // Set global variables so the "Save" function knows what to target
+            window.editEventId = id; 
+            window.selectedDate = date;
 
-        // 1. Push new data to the new date node
-        return newRef.push(newData).then(() => {
-            // 2. Remove old data from the old date node
-            return db.ref(oldRef).remove();
-        });
-    }).then(() => {
-        alert(`Event '${event.title}' successfully rescheduled to ${newDateISO} at ${newTime}.`);
-        renderCalendar();
-        checkAndShowNotifications();
-        checkAndPromptForEventStatus();
-    }).catch(error => {
-        console.error("Rescheduling error:", error);
-        alert("Failed to reschedule event.");
+            // Map data to the Event Modal
+            document.getElementById("eventTitle").value = item.title || "";
+            document.getElementById("eventDate").value = date;
+            document.getElementById("eventTime").value = item.time || "";
+            document.getElementById("eventDesc").value = item.desc || "";
+            if(document.getElementById("eventLocation")) {
+                document.getElementById("eventLocation").value = item.location || "";
+            }
+            
+            // Switch Modals
+            if (typeof closeModal === 'function') closeModal(); 
+            const evModal = document.getElementById("eventModal");
+            const overlay = document.getElementById("modalOverlay");
+            if(evModal) evModal.classList.remove("hidden");
+            if(overlay) overlay.classList.remove("hidden");
+        } else {
+            // Map data to the Task Input
+            window.editTaskId = id;
+            window.selectedDate = date;
+            document.getElementById("taskTitle").value = item.title || "";
+            document.getElementById("taskDesc").value = item.desc || "";
+            document.getElementById("taskTitle").focus();
+        }
     });
 }
 
+function handleDelete(type, id, date) {
+    if (!confirm(`Permanently delete this ${type}?`)) return;
+    
+    const folder = type === 'event' ? 'events' : 'tasks';
+    const path = `users/${currentUser.uid}/${folder}/${date}/${id}`;
+    
+    db.ref(path).remove().then(() => {
+        loadModalTasks(date); // Refresh list
+        if (typeof renderCalendar === 'function') renderCalendar(); // Refresh UI
+    }).catch(err => alert("Delete Error: " + err.message));
+}
 /**
  * Permanently deletes an event, typically used from the 24hr prompt modal.
  */
@@ -1550,53 +1509,91 @@ function requestNotificationPermission() {
     }
 }
 
-function checkAndShowNotifications() {
+/**
+ * Checks for pending events and triggers system notifications.
+ * Uses a more robust checking logic and cleaner formatting.
+ */
+async function checkAndShowNotifications() {
+    // 1. Early exits for permissions and auth
     if (!currentUser || Notification.permission !== "granted") return;
 
-    db.ref(`users/${currentUser.uid}/events`).once("value").then(snapshot => {
+    try {
+        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
         const allEvents = snapshot.val();
         if (!allEvents) return;
 
-        const now = new Date().getTime();
+        const now = Date.now();
         
+        // Use flatMap or nested forEach to process events
         Object.entries(allEvents).forEach(([date, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
                 
-                // Only show notification for PENDING events
+                // Logic Guard: Only process PENDING events
                 if (event.status !== EVENT_STATUS.PENDING) return;
 
                 const eventTimestamp = event.timestamp; 
                 
-                // FIXED: Use the NOTIFICATION_TOLERANCE_MS (12 hours)
-                if (eventTimestamp && eventTimestamp > now - NOTIFICATION_TOLERANCE_MS && eventTimestamp <= now) {
-                    
-                    const eventTimeStr = event.time; 
+                // Timing Window: Event is within the past 12 hours (tolerance) up until 'now'
+                const isWithinWindow = eventTimestamp > (now - NOTIFICATION_TOLERANCE_MS) && eventTimestamp <= now;
 
-                    // FIXED: Handle empty location (do not show location line if empty)
-                    const locationText = event.location && event.location.trim() !== '' ? `\nLocation: ${event.location}` : '';
-                    
-                    const options = {
-                        body: `Time: ${eventTimeStr}${locationText}\nDetails: ${event.desc || 'No details'}`,
-                        icon: 'https://via.placeholder.com/64/10b981/ffffff?text=E', 
-                        tag: `event-${date}-${id}`, 
-                        vibrate: [200, 100, 200]
-                    };
-                    
-                    try {
-                        new Notification(event.title, options);
-                    } catch (e) {
-                        console.error("Failed to show notification:", e);
-                    }
+                if (eventTimestamp && isWithinWindow) {
+                    sendProfessionalNotification(date, id, event);
                 }
             });
         });
-    }).catch(err => {
-        console.error("Error checking notifications:", err);
-    });
+    } catch (err) {
+        console.error("Critical: Notification sync failed", err);
+    }
 }
 
+/**
+ * Helper to handle the UI/UX of the notification itself
+ */
+/**
+ * Triggers a professionally formatted system notification
+ */
+function sendProfessionalNotification(date, id, event) {
+    // Header for the body content
+    const header = "EVENT DETAILS";
+    const divider = "───────────────────";
+    
+    // Formatting the content with clean labels and spacing
+    const timeEntry = `⏰ Time:     ${event.time || 'Not specified'}`;
+    const locEntry  = event.location?.trim() ? `📍 Location: ${event.location}` : '';
+    const descEntry = `📝 Note:     ${event.desc || 'No details provided'}`;
 
-// --- Search Functions (FIXED: Ensures search bar functionality is robust) ---
+    // Construct the body: Only include location if it exists
+    const bodyContent = [
+        header,
+        divider,
+        timeEntry,
+        locEntry,
+        descEntry
+    ].filter(line => line !== '').join('\n');
+
+    const options = {
+        body: bodyContent,
+        // Using a high-quality local asset for a native app feel
+        icon: '/assets/img/calendar-notification-icon.png', 
+        badge: '/assets/img/badge-icon.png', 
+        tag: `event-${date}-${id}`,
+        vibrate: [200, 100, 200],
+        requireInteraction: false // Automatically hides after a few seconds
+    };
+
+    const title = event.title?.toUpperCase() || "EVENT REMINDER";
+
+    try {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+        } else {
+            new Notification(title, options);
+        }
+    } catch (e) {
+        console.error("Notification UI Error:", e);
+    }
+}
+// --- Search Functions (OPTIMIZED: Instant response) ---
 let debounceTimeout;
 let isSearchInputFocused = false; 
 
@@ -1607,59 +1604,54 @@ function closeSearchView() {
     if (downloadButton) downloadButton.style.display = 'block'; 
     if (searchTimeframe) searchTimeframe.style.display = 'block';
     searchOverlayBackground.style.display = 'none'; 
-    
     document.body.style.overflow = 'auto'; 
 }
 
-function searchTasks() {
+function searchTasks(isFocusEvent = false) {
     const query = searchInput.value.toLowerCase().trim();
     const timeframe = searchTimeframe.value;
-    clearTimeout(debounceTimeout);
     
+    // 1. Instant UI Preparation
     if (!query) {
         closeSearchView();
         return; 
     }
     
-    // UI Feedback for search start
     body.classList.add("search-active");
     searchOverlayBackground.style.display = 'block'; 
     if (downloadButton) downloadButton.style.display = 'none';
-    if (searchTimeframe) searchTimeframe.style.display = 'block'; 
     document.body.style.overflow = 'hidden';
 
-    searchResults.innerHTML = `
-        <div class="search-results-panel">
-               <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
-                 <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                 <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-             </div>
-             <p class='p-3 text-center text-indigo-500 font-semibold'>
-                 <i class="fas fa-spinner fa-spin mr-2"></i> Searching for "${query}"...
-             </p>
-        </div>`;
+    // 2. Clear previous timer
+    clearTimeout(debounceTimeout);
+    
+    // 3. Instant feedback if results panel is not already there
+    if (!searchResults.querySelector('.search-results-panel')) {
+        searchResults.innerHTML = `
+            <div class="search-results-panel">
+                 <p class='p-3 text-center text-indigo-500 font-semibold'>
+                     <i class="fas fa-spinner fa-spin mr-2"></i> Searching...
+                 </p>
+            </div>`;
+    }
 
+    // 4. Set the actual search logic (Shortened delay for snappier feel)
+    // If it's a focus event, we run it even faster
+    const delay = isFocusEvent ? 0 : 200; 
 
     debounceTimeout = setTimeout(() => {
         const user = firebase.auth().currentUser;
-        if (!user) {
-             searchResults.innerHTML = `<div class='search-results-panel'>
-                 <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>User not logged in.</p>
-             </div>`;
-             return;
-        }
+        if (!user) return;
 
+        // Fetching data
         const taskPromise = db.ref(`users/${user.uid}/tasks`).once("value");
         const eventPromise = db.ref(`users/${user.uid}/events`).once("value");
 
         Promise.all([taskPromise, eventPromise]).then(([taskSnapshot, eventSnapshot]) => {
-            
+            if (!searchInput.value.trim()) return; // User cleared search while loading
+
             const allTasks = taskSnapshot.val() || {};
             const allEvents = eventSnapshot.val() || {};
-            
-            if (!searchInput.value.toLowerCase().trim()) return; 
-
-            // Combine and unify data structure
             const combinedData = {};
             
             const processData = (sourceData, typePrefix) => {
@@ -1674,161 +1666,182 @@ function searchTasks() {
             processData(allTasks, 'task');
             processData(allEvents, 'event');
 
-            if (Object.keys(combinedData).length === 0) {
-                 searchResults.innerHTML = `<div class='search-results-panel'>
-                     <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No tasks or events found in your database.</p>
-                 </div>`;
-                 return;
-            }
-
             let cutoffDate = null;
             if (timeframe === '1year') {
                 cutoffDate = new Date();
                 cutoffDate.setUTCFullYear(cutoffDate.getUTCFullYear() - 1);
-                cutoffDate.setUTCHours(0, 0, 0, 0); 
             }
 
             let found = 0;
             const addedItems = new Set();
-            
-            const resultsDiv = document.createElement("div");
-            resultsDiv.className = "search-results-panel custom-scroll"; 
-            
-            resultsDiv.innerHTML = `
-                 <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
-                     <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                     <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-                 </div>
-            `;
             const listContainer = document.createElement("div");
+            listContainer.className = "search-results-panel custom-scroll";
             
+            // Header for Mobile
+            listContainer.innerHTML = `
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                    <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
+                    <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
+                </div>`;
+
             const sortedDates = Object.keys(combinedData).sort((a, b) => new Date(b) - new Date(a));
 
             sortedDates.forEach(date => {
-                if (cutoffDate) {
-                    const itemDate = new Date(date);
-                    if (itemDate < cutoffDate) {
-                        return; 
-                    }
-                }
+                if (cutoffDate && new Date(date) < cutoffDate) return;
 
-                const items = combinedData[date];
-                if (!items) return;
-
-                Object.entries(items).forEach(([prefixedId, item]) => {
+                Object.entries(combinedData[date]).forEach(([prefixedId, item]) => {
                     const title = (item.title || "").toLowerCase();
                     const desc = (item.desc || "").toLowerCase();
                     const queryLower = query.toLowerCase();
-                    const titleMatch = title.includes(queryLower);
-                    const descMatch = desc.includes(queryLower);
 
-                    const uniqueKey = `${date}-${prefixedId}`;
-                    if ((titleMatch || descMatch) && !addedItems.has(uniqueKey)) {
-                        addedItems.add(uniqueKey);
+                    if ((title.includes(queryLower) || desc.includes(queryLower)) && !addedItems.has(`${date}-${prefixedId}`)) {
+                        addedItems.add(`${date}-${prefixedId}`);
                         found++;
                         
                         const isEvent = prefixedId.startsWith('event-'); 
-                        const itemType = isEvent ? 'Event' : 'Task';
-                        
-                        let iconClass;
-                        if (isEvent) {
-                            switch(item.status) {
-                                case EVENT_STATUS.COMPLETED: iconClass = 'fa-check-circle text-green-600'; break;
-                                case EVENT_STATUS.INCOMPLETE: iconClass = 'fa-times-circle text-red-600'; break;
-                                default: iconClass = 'fa-bell text-emerald-600';
-                            }
-                        } else {
-                            iconClass = 'fa-list-check text-indigo-600';
-                        }
+                        let iconClass = isEvent ? 'fa-bell text-emerald-600' : 'fa-list-check text-indigo-600';
+                        if (isEvent && item.status === EVENT_STATUS.COMPLETED) iconClass = 'fa-check-circle text-green-600';
+                        if (isEvent && item.status === EVENT_STATUS.INCOMPLETE) iconClass = 'fa-times-circle text-red-600';
                         
                         const formattedDate = formatDate(date).split('(')[0].trim();
-                        
                         const itemDiv = document.createElement("div");
                         itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50`; 
                         itemDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="search-result-title text-base font-bold text-gray-800 md:text-xl">
-                                    <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled Item'}
+                                <strong class="text-base font-bold text-gray-800 md:text-xl">
+                                    <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'}
                                 </strong>
-                                <span class="search-result-date text-sm text-gray-600 md:text-base">${formattedDate} | ${itemType}</span>
+                                <span class="text-sm text-gray-600">${formattedDate}</span>
                             </div>
-                            <div class="search-result-desc mt-0.5 truncate text-sm text-gray-600 md:text-base">${item.desc || 'No Description'}</div>
+                            <div class="mt-0.5 truncate text-sm text-gray-500 md:text-base">${item.desc || 'No Description'}</div>
                         `;
 
-                        itemDiv.addEventListener("click", () => {
+                        itemDiv.onclick = () => {
                             closeSearchView(); 
                             openModal(date); 
-                        });
+                        };
                         listContainer.appendChild(itemDiv);
                     }
                 });
             });
 
+            // INSTANT SWAP: Remove loader and show results immediately
+            searchResults.innerHTML = '';
             if (found > 0) {
-                resultsDiv.appendChild(listContainer);
-                searchResults.innerHTML = '';
-                searchResults.appendChild(resultsDiv);
+                searchResults.appendChild(listContainer);
             } else {
-                 searchResults.innerHTML = `
-                     <div class='search-results-panel'>
-                          <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
-                             <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                             <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-                         </div>
-                         <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>
-                             No matching data found for "${query}" in the selected timeframe (${timeframe === '1year' ? 'Last 1 Year' : 'All Time'}).
-                         </p>
-                     </div>`;
+                searchResults.innerHTML = `
+                    <div class='search-results-panel'>
+                        <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No matching data found.</p>
+                    </div>`;
             }
-        }).catch(err => {
-            console.error(err);
-             searchResults.innerHTML = `<div class='search-results-panel'>
-                  <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
-                         <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                         <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 transition duration-150 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-                  </div>
-                 <p class='p-3 bg-red-100 rounded-lg text-red-700 text-center'>Error retrieving data.</p>
-             </div>`;
         });
-    }, 300);
+    }, delay);
 }
 
+// Event Listeners for Instant Trigger
 if (searchInput) {
-    // FIXED: Ensure search is triggered on input and when losing focus if text exists
     searchInput.addEventListener("focus", () => {
         isSearchInputFocused = true;
-        searchTasks();
+        searchTasks(true); // Pass true for instant 0ms delay
     }); 
     
-    searchInput.addEventListener("input", searchTasks); 
-    
-    searchTimeframe.addEventListener("change", searchTasks);
+    searchInput.addEventListener("input", () => searchTasks(false)); 
+    searchTimeframe.addEventListener("change", () => searchTasks(true));
 
     searchInput.addEventListener("blur", () => {
         isSearchInputFocused = false;
-        // Keep search view open if input has text, otherwise close it after a brief delay
         setTimeout(() => {
-            if (searchInput.value.trim() === "") {
-                closeSearchView();
-            } else {
-                searchTasks();
-            }
-        }, 150);
+            if (searchInput.value.trim() === "") closeSearchView();
+        }, 200);
     }); 
 }
+// --- 1. CORRECTED DELETE LOGIC (Place this inside loadModalTasks loop) ---
+dBtn.onclick = () => {
+    const isEvent = (item.type === 'event');
+    const path = isEvent ? 'events' : 'tasks';
+    // itemId and itemDate must be correctly captured from the current loop iteration
+    const targetRef = db.ref(`users/${currentUser.uid}/${path}/${itemDate}/${itemId}`);
 
-window.addEventListener('resize', () => {
-    clearTimeout(window.resizeTimer);
-    window.resizeTimer = setTimeout(renderCalendar, 200);
+    if (confirm(`Are you sure you want to delete this ${item.type}?`)) {
+        targetRef.remove()
+            .then(() => {
+                // Success: Refresh the specific calendar cell and the current modal
+                loadTasks(itemDate);
+                loadModalTasks(itemDate);
+                console.log(`${item.type} deleted successfully`);
+            })
+            .catch(err => {
+                console.error("Delete failed:", err);
+                alert("Could not delete item. Check Firebase permissions.");
+            });
+    }
+};
+
+// --- 2. CORRECTED EDIT LOGIC (Place this inside loadModalTasks loop) ---
+e.onclick = () => {
+    if (isEvent) {
+        editEventId = itemId; // Critical: Store the ID for the save function
+        selectedDate = itemDate;
+
+        // Populate the Event Modal fields
+        document.getElementById("eventTitle").value = item.title;
+        document.getElementById("eventDate").value = itemDate;
+        document.getElementById("eventTime").value = item.time;
+        document.getElementById("eventLocation").value = item.location || "";
+        document.getElementById("eventDesc").value = item.desc || "";
+        document.getElementById("eventModalTitle").textContent = "Edit Event";
+
+        // Switch Modals
+        taskModalElement.classList.add("hidden");
+        eventModalElement.classList.remove("hidden");
+        overlayElement.classList.remove("hidden");
+    } else {
+        // Standard Task Edit Logic
+        editTaskId = itemId;
+        document.getElementById("taskTitle").value = item.title;
+        document.getElementById("taskDesc").value = item.desc || "";
+    }
+};
+
+// --- 3. CORRECTED SAVE EVENT LOGIC (Update your saveEventBtn listener) ---
+document.getElementById("saveEventBtn").addEventListener("click", () => {
+    if (!currentUser) return;
+
+    let title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    const time = document.getElementById("eventTime").value;
+
+    if (!title || !date || !time) return alert("Please fill in Title, Date, and Time.");
+
+    // Determine if we are updating an existing entry or pushing a new one
+    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
+    const finalRef = editEventId ? eventRef.child(editEventId) : eventRef.push();
+
+    const eventData = {
+        title: capitalizeFirstLetter(title),
+        time: time,
+        location: capitalizeFirstLetter(document.getElementById("eventLocation").value),
+        desc: capitalizeFirstLetter(document.getElementById("eventDesc").value),
+        timestamp: new Date(`${date}T${time}:00`).getTime(),
+        savedTimestamp: new Date().getTime(),
+        status: EVENT_STATUS.PENDING
+    };
+
+    // .set() will overwrite the existing data if editEventId is present
+    finalRef.set(eventData)
+        .then(() => {
+            editEventId = null; // Reset edit state
+            closeEventModal();
+            loadTasks(date);
+            // Re-open task modal if the user was originally looking at that date
+            if (selectedDate === date) openModal(date); 
+        })
+        .catch(err => alert("Save failed: " + err.message));
 });
 
-if (currentUser) {
-    renderCalendar();
-}
-</script>
-</body>
-    </html>
 
+</script>
 
 
 
