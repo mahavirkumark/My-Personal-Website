@@ -658,7 +658,6 @@ const reschedulePromptBtn = document.getElementById("reschedulePromptBtn");
 const cancelPromptBtn = document.getElementById("cancelPromptBtn"); 
 const searchOverlayBackground = document.querySelector('.search-overlay-background');
 
-
 // --- Helpers ---
 const toISODate = d => {
     // Uses UTC methods to ensure date key is YYYY-MM-DD regardless of local timezone
@@ -970,7 +969,46 @@ document.getElementById("saveTaskBtn").addEventListener("click",()=>{
     document.getElementById("taskDesc").value="";
 });
 
-// --- NEW: Save Event (Applied Capitalization, Optimized Reload - FIXES ISSUE) ---
+
+
+
+function loadTasks(date) {
+    if (!currentUser) return;
+    const c = document.getElementById(`tasks-${date}`);
+    if (!c) return;
+    c.innerHTML = "";
+
+    // Optimization: Single path fetch to increase loading speed
+    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
+        const data = snap.val() || {};
+        const tasks = data.tasks?.[date] || {};
+        const events = data.events?.[date] || {};
+        
+        let allItems = [];
+        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
+        Object.values(events)
+            .filter(e => e.status === EVENT_STATUS.PENDING)
+            .forEach(e => allItems.push({ type: 'event', ...e }));
+
+        // Sort: Events first
+        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
+
+        allItems.slice(0, 3).forEach(item => { 
+            const isEvent = item.type === 'event';
+            const line = document.createElement("div");
+            
+            // UI Requirement: 16px font, slightly darker but not black
+          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
+                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
+            }`;
+            line.style.fontSize = "16px"; 
+            
+            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
+            line.innerHTML = `${icon}${item.title}`;
+            c.appendChild(line);
+        });
+    });
+}
 document.getElementById("saveEventBtn").addEventListener("click",()=>{
     if (!currentUser) return alert("User not logged in.");
 
@@ -1063,32 +1101,20 @@ function loadTasks(date) {
         });
     });
 }
-/**
- * Loads all tasks and pending events for a specific date into the modal.
- * Features: Professional UI, Sorting (Events first), Status Actions, and CRUD.
- */
-// --- 1. GLOBAL VARIABLES (Ensure these are at the very top of your script) ---
 
 
-// --- 2. MAIN MODAL LOAD FUNCTION ---
-/**
- * Fetches and displays tasks and events for a specific date in a vertical list.
- * Organized with a professional Action Column on the right.
- */
-/**
- * Main function to load and display the list of items for a selected date.
- */
+// --- 2. Modal Task List (Vertical Actions, Description Below Title, No Overlap) ---
 function loadModalTasks(date) {
     if (!currentUser) return;
     selectedDate = date; 
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
 
-    // UI Setup: Modern Container with your requested styling
-    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-full md:max-w-[94%] shadow-inner";
+    // UI Setup: Reverted to standard modern container weights
+    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-half md:max-w-[99%] shadow-inner";
     
     cont.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12 gap-3">
+        <div class="flex flex-col items-center justify-center py-12 gap-1">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             <p class="text-indigo-500 italic text-sm">Syncing schedule...</p>
         </div>`;
@@ -1101,19 +1127,16 @@ function loadModalTasks(date) {
         const tasks = taskSnap.val() || {};
         const events = eventSnap.val() || {};
 
-        // Merge Tasks into list
         Object.entries(tasks).forEach(([id, t]) => {
             allItems.push({ type: 'task', id, date, ...t });
         });
         
-        // Merge Pending Events into list
         Object.entries(events)
             .filter(([id, e]) => e.status === EVENT_STATUS.PENDING)
             .forEach(([id, e]) => {
                 allItems.push({ type: 'event', id, date, ...e });
             });
 
-        // Sort: Events first (by time), then Tasks
         allItems.sort((a, b) => {
             if (a.type === 'event' && b.type === 'task') return -1;
             if (a.type === 'task' && b.type === 'event') return 1;
@@ -1131,58 +1154,56 @@ function loadModalTasks(date) {
             const hasDesc = item.desc && item.desc.trim() !== "";
             const div = document.createElement("div");
             
-            div.className = `grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
+            div.className = `grid grid-cols-1 md:grid-cols-[1fr_100px] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
                 isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'
             }`;
 
-            // Left Content Section (Font sizes preserved)
             const contentContainer = document.createElement("div");
             contentContainer.className = "flex flex-col gap-2 min-w-0";
             contentContainer.innerHTML = `
                 <div class="flex flex-col gap-1">
                     <div class="flex items-center gap-2">
                         <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
-                        <strong class="text-xl md:text-2xl font-bold text-slate-800 break-words">${item.title}</strong>
+                        <strong class="text-xl md:text-2xl font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
                     </div>
                     ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
                 </div>
                 ${hasDesc ? `<div class="border-t border-slate-100 pt-2 mt-1 ml-8 text-lg text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
             `;
 
-            // Right Action Column Section
             const actionsSection = document.createElement("div");
-            actionsSection.className = "flex flex-col gap-3 shrink-0 md:border-l border-slate-100 md:pl-4";
+            actionsSection.className = "flex flex-col gap-3 shrink-0 md:border-l border-slate-100 md:pl-4 w-full md:w-auto";
 
-            // Edit Button - Sky Blue
-           // Edit Button - Indigo
-const editBtn = document.createElement("button");
-// Using fa-solid fa-pen-to-square for a clean, modern look
-editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square text-[15px]"></i> <span>EDIT</span>`;
-editBtn.className = "w-full md:w-[90px] h-8 flex items-center justify-center gap-2 bg-indigo-500 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
-editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
+            const crudRow = document.createElement("div");
+            crudRow.className = "flex flex-row md:flex-col gap-2";
 
-// Delete Button - Red
-const delBtn = document.createElement("button");
-// Updated to fa-solid fa-trash-can to match the Edit icon's weight
-delBtn.innerHTML = `<i class="fa-solid fa-trash-can text-[15px]"></i> <span>DELETE</span>`;
-delBtn.className = "w-full md:w-[90px] h-8 flex items-center justify-center gap-2 bg-red-500 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-red-600 active:scale-90 transition-all cursor-pointer shadow-sm";
-delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
+            // --- INCREASED SIZE EDIT BUTTON ---
+            const editBtn = document.createElement("button");
+            editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>EDIT</span>`;
+           editBtn.className = "flex-1 md:w-[100px] h-24 flex items-center justify-center gap-2 bg-indigo-500 text-white font-bold tracking-widest text-[16px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+            editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
 
-actionsSection.appendChild(editBtn);
-actionsSection.appendChild(delBtn);
+            // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
+            const delBtn = document.createElement("button");
+            delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
+            delBtn.className = "flex-1 md:w-[100px] h-24 flex items-center justify-center gap-2 bg-red-600 text-white font-bold tracking-widest text-[14px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
+            delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
 
-            // Additional Buttons for Events
+            crudRow.appendChild(editBtn);
+            crudRow.appendChild(delBtn);
+            actionsSection.appendChild(crudRow);
+
             if (isEvent) {
                 const statusGroup = document.createElement("div");
                 statusGroup.className = "flex flex-col gap-2 w-full pt-2 border-t border-slate-100";
                 statusGroup.innerHTML = `
                     <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.COMPLETED}', true)" 
-                        class="bg-emerald-600 text-white text-[10px] py-2 rounded-lg hover:bg-emerald-700 transition shadow-sm font-bold uppercase tracking-widest w-full">
-                        <i class="fas fa-check"></i> Done
+                        class="bg-emerald-600 text-white text-[10px] h-10 rounded-lg hover:bg-emerald-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-check"></i> COMPLETED
                     </button>
                     <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.INCOMPLETE}', true)" 
-                        class="bg-rose-600 text-white text-[10px] py-2 rounded-lg hover:bg-rose-700 transition shadow-sm font-bold uppercase tracking-widest w-full">
-                        <i class="fas fa-times"></i> Missed
+                        class="bg-rose-600 text-white text-[10px] h-10 rounded-lg hover:bg-rose-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-times"></i> INCOMPLETE
                     </button>
                 `;
                 actionsSection.appendChild(statusGroup);
@@ -1194,61 +1215,52 @@ actionsSection.appendChild(delBtn);
         });
     }).catch(err => {
         console.error("Data Load Error:", err);
-        cont.innerHTML = `<div class="text-center text-rose-500 font-bold py-10">Failed to load data. Check console.</div>`;
+        cont.innerHTML = `<div class="text-center text-rose-500 font-bold py-10">Sync Failed.</div>`;
     });
 }
 
-// --- GLOBAL HELPERS (Fixed for both types) ---
 
+// --- 3. CRUD Action Helpers ---
 function handleEdit(type, id, date) {
     const isEvent = type === 'event';
-    const folder = isEvent ? 'events' : 'tasks';
-    
-    db.ref(`users/${currentUser.uid}/${folder}/${date}/${id}`).once('value').then(snap => {
+    db.ref(`users/${currentUser.uid}/${isEvent ? 'events' : 'tasks'}/${date}/${id}`).once('value').then(snap => {
         const item = snap.val();
-        if (!item) return;
-
         if (isEvent) {
-            // Set global variables so the "Save" function knows what to target
-            window.editEventId = id; 
-            window.selectedDate = date;
-
-            // Map data to the Event Modal
-            document.getElementById("eventTitle").value = item.title || "";
+            editEventId = id;
+            document.getElementById("eventTitle").value = item.title;
             document.getElementById("eventDate").value = date;
-            document.getElementById("eventTime").value = item.time || "";
+            document.getElementById("eventTime").value = item.time;
             document.getElementById("eventDesc").value = item.desc || "";
-            if(document.getElementById("eventLocation")) {
-                document.getElementById("eventLocation").value = item.location || "";
-            }
-            
-            // Switch Modals
-            if (typeof closeModal === 'function') closeModal(); 
-            const evModal = document.getElementById("eventModal");
-            const overlay = document.getElementById("modalOverlay");
-            if(evModal) evModal.classList.remove("hidden");
-            if(overlay) overlay.classList.remove("hidden");
+            closeModal();
+            eventModalElement.classList.remove("hidden");
+            overlayElement.classList.remove("hidden");
         } else {
-            // Map data to the Task Input
-            window.editTaskId = id;
-            window.selectedDate = date;
-            document.getElementById("taskTitle").value = item.title || "";
+            editTaskId = id;
+            selectedDate = date;
+            document.getElementById("taskTitle").value = item.title;
             document.getElementById("taskDesc").value = item.desc || "";
-            document.getElementById("taskTitle").focus();
         }
     });
 }
 
 function handleDelete(type, id, date) {
-    if (!confirm(`Permanently delete this ${type}?`)) return;
-    
-    const folder = type === 'event' ? 'events' : 'tasks';
-    const path = `users/${currentUser.uid}/${folder}/${date}/${id}`;
-    
-    db.ref(path).remove().then(() => {
-        loadModalTasks(date); // Refresh list
-        if (typeof renderCalendar === 'function') renderCalendar(); // Refresh UI
-    }).catch(err => alert("Delete Error: " + err.message));
+    if (confirm(`Remove this ${type} permanently?`)) {
+        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
+            .then(() => {
+                loadModalTasks(date);
+                loadTasks(date);
+            });
+    }
+}
+
+function handleDelete(type, id, date) {
+    if (confirm(`Remove this ${type} permanently?`)) {
+        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
+            .then(() => {
+                loadModalTasks(date);
+                loadTasks(date);
+            });
+    }
 }
 /**
  * Permanently deletes an event, typically used from the 24hr prompt modal.
@@ -1842,6 +1854,7 @@ document.getElementById("saveEventBtn").addEventListener("click", () => {
 
 
 </script>
+
 
 
 
