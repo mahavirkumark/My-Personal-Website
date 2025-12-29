@@ -1154,7 +1154,7 @@ function loadModalTasks(date) {
             const hasDesc = item.desc && item.desc.trim() !== "";
             const div = document.createElement("div");
             
-            div.className = `grid grid-cols-1 md:grid-cols-[1fr_100px] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
+            div.className = `grid grid-cols-1 md:grid-cols-[1fr_120px] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
                 isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'
             }`;
 
@@ -1854,6 +1854,7 @@ document.getElementById("saveEventBtn").addEventListener("click", () => {
 
 
 </script>
+
 
 
 
