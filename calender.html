@@ -1282,33 +1282,36 @@ function cancelEventPermanent(event) {
 }
 
 
-// --- NEW: Status Prompt Logic (FIXED: Uses savedTimestamp for 24hr check) ---
 
+
+// --- 1. CHECK AND PROMPT LOGIC ---
 async function checkAndPromptForEventStatus() {
     if (!currentUser) return;
     
-    const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
-    const allEvents = snapshot.val() || {};
-    
-    eventsToPrompt = []; 
-
-    const now = new Date().getTime();
-    
-    Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
-        Object.entries(dayEvents).forEach(([id, event]) => {
-            // Check if status is pending AND (saved timestamp + 24 hours) has passed
-            const savedTime = event.savedTimestamp || event.timestamp; 
-            const promptTime = savedTime + PROMPT_DELAY_MS;
-            
-            if (event.status === EVENT_STATUS.PENDING && promptTime < now) {
-                eventsToPrompt.push({ date: dateISO, id, ...event });
-            }
+    try {
+        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
+        const allEvents = snapshot.val() || {};
+        
+        eventsToPrompt = []; 
+        const now = new Date().getTime();
+        
+        Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
+            Object.entries(dayEvents).forEach(([id, event]) => {
+                // Logic: Pending AND 24 hours (PROMPT_DELAY_MS) have passed
+                const savedTime = event.savedTimestamp || event.timestamp; 
+                const promptTime = savedTime + PROMPT_DELAY_MS;
+                
+                if (event.status === EVENT_STATUS.PENDING && promptTime < now) {
+                    eventsToPrompt.push({ date: dateISO, id, ...event });
+                }
+            });
         });
-    });
 
-    // Check instantly if there are pending prompts
-    if (eventsToPrompt.length > 0) {
-        processNextPendingEvent();
+        if (eventsToPrompt.length > 0) {
+            processNextPendingEvent();
+        }
+    } catch (error) {
+        console.error("Error checking pending events:", error);
     }
 }
 
@@ -1319,7 +1322,7 @@ function processNextPendingEvent() {
     }
     
     const event = eventsToPrompt[0]; 
-    currentEventForAction = event; // Store current event for action buttons
+    currentEventForAction = event; 
 
     document.getElementById("eventToPromptTitle").textContent = event.title;
     document.getElementById("eventToPromptDate").textContent = formatDate(event.date);
@@ -1328,55 +1331,59 @@ function processNextPendingEvent() {
     // Set listeners for prompt actions
     completeEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.COMPLETED);
     incompleteEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.INCOMPLETE);
-    reschedulePromptBtn.onclick = () => openRescheduleModal(event); // Open reschedule modal
-    cancelPromptBtn.onclick = () => cancelEventPermanent(event); // Permanently cancel event
+    reschedulePromptBtn.onclick = () => openRescheduleModal(event);
+    cancelPromptBtn.onclick = () => cancelEventPermanent(event);
 
     overlayElement.classList.remove("hidden");
     statusPromptModal.classList.remove("hidden");
 }
 
+// --- 2. THE CENTRAL UPDATE FUNCTION (Fixed Date/Path Issues) ---
 function updateEventStatus(event, status, calledFromModal = false) {
-    if (!currentUser) return;
+    if (!currentUser || !event.date || !event.id) {
+        console.error("Missing Event Data:", event);
+        return;
+    }
 
-    db.ref(`users/${currentUser.uid}/events/${event.date}/${event.id}`)
+    const eventPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
+
+    db.ref(eventPath)
       .update({ status: status })
       .then(() => {
-          console.log(`Event ${event.id} status updated to ${status}.`);
+          console.log(`Successfully updated ${event.id} to ${status}`);
           
+          // ALWAYS refresh the main calendar cell
+          if (typeof loadTasks === "function") loadTasks(event.date);
+
           if (calledFromModal) {
-              // If clicked from the date modal, just refresh that modal view
-              loadModalTasks(event.date);
+              // Refresh the specific day/modal view
+              if (typeof loadModalTasks === "function") loadModalTasks(event.date);
           } else {
-              // If clicked from the 24hr prompt or tracking modal
-              eventsToPrompt.shift(); // Remove from queue
-              
-              // FIXED: If we are currently viewing the tracking modal, refresh it
-              if (eventTrackingSection.classList.contains('hidden') === false) {
-                  // Only refresh tracking list if the item moved out of the current status
-                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") ? EVENT_STATUS.INCOMPLETE : EVENT_STATUS.COMPLETED;
-                  loadTrackingEvents(currentStatusInView); 
+              // Logic for 24hr Prompt Queue
+              // Only remove from queue if this event is the one being prompted
+              if (eventsToPrompt.length > 0 && eventsToPrompt[0].id === event.id) {
+                  eventsToPrompt.shift();
+                  closeStatusPromptModal();
+                  processNextPendingEvent();
               }
               
-              closeStatusPromptModal(); // Close if open
-              processNextPendingEvent(); // Process next in queue
+              // Refresh Tracking Modal if it is currently visible
+              const isTrackingOpen = !eventTrackingSection.classList.contains('hidden');
+              if (isTrackingOpen) {
+                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") 
+                      ? EVENT_STATUS.INCOMPLETE 
+                      : EVENT_STATUS.COMPLETED;
+                  loadTrackingEvents(currentStatusInView); 
+              }
           }
-          
-          loadTasks(event.date); // Optimized update for calendar cell
       })
       .catch(err => {
-          console.error(`Failed to update status for event ${event.id}:`, err);
-          alert(`Failed to update status for ${event.title}. Please try again.`);
-          if (!calledFromModal) {
-            processNextPendingEvent();
-          }
+          console.error("Update failed:", err);
+          alert("Could not update status. Please try again.");
       });
 }
 
-// --- NEW: Tracking Events Logic (Completed/Incomplete) - FIXED: Sorting by timestamp DESC ---
-
-/**
- * Fetches and displays events based on the final status (Last 30 Days).
- */
+// --- 3. TRACKING EVENTS LOGIC ---
 function loadTrackingEvents(status) {
     if (!currentUser) return;
 
@@ -1386,24 +1393,20 @@ function loadTrackingEvents(status) {
         const allEvents = snapshot.val() || {};
         let filteredEvents = [];
 
-        // FIXED: Calculate 30 days ago date (in UTC format for consistent comparison)
         const cutoffDate = new Date();
         cutoffDate.setUTCDate(cutoffDate.getUTCDate() - 30);
         cutoffDate.setUTCHours(0, 0, 0, 0); 
 
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
+                const eventDate = new Date(dateISO); 
                 
-                const eventDate = new Date(dateISO); // Check only the date part
-                
-                // FIXED: Filter for status and date range
                 if (event.status === status && eventDate >= cutoffDate) {
-                    filteredEvents.push({ date: dateISO, id: id, ...event }); // Include ID
+                    filteredEvents.push({ date: dateISO, id: id, ...event });
                 }
             });
         });
 
-        // FIXED: Sort by full timestamp in descending order (Newest first)
         filteredEvents.sort((a, b) => b.timestamp - a.timestamp);
 
         if (filteredEvents.length === 0) {
@@ -1411,22 +1414,23 @@ function loadTrackingEvents(status) {
             return;
         }
 
-        trackingEventsList.innerHTML = ''; // Clear loading message
+        trackingEventsList.innerHTML = ''; 
 
         filteredEvents.forEach(event => {
             const isCompleted = event.status === EVENT_STATUS.COMPLETED;
             const bgColor = isCompleted ? 'bg-green-50' : 'bg-red-50';
             const icon = isCompleted ? 'fa-check-circle text-green-700' : 'fa-times-circle text-red-700';
-            const locationText = event.location && event.location.trim() !== '' ? `Location: ${event.location}` : 'Location: N/A';
+            const locationText = (event.location && event.location.trim() !== '') ? `Location: ${event.location}` : 'Location: N/A';
 
             const eventDiv = document.createElement("div");
             eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200`;
             
             let completeButton = '';
-            // Only show 'Complete Event' button if it's currently INCOMPLETE (Increased size)
             if (status === EVENT_STATUS.INCOMPLETE) {
+                 // Escape title for the onclick string
+                 const safeTitle = event.title.replace(/'/g, "\\'");
                  completeButton = `
-                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}' }, '${EVENT_STATUS.COMPLETED}', false)"
+                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
                              class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
                          <i class="fas fa-check"></i> Complete Event
                      </button>
@@ -1854,6 +1858,14 @@ document.getElementById("saveEventBtn").addEventListener("click", () => {
 
 
 </script>
+
+
+
+
+
+
+
+
 
 
 
