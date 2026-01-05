@@ -431,27 +431,33 @@
             }
         }
 
-        function shareAddress(place, landmark, mapLink) {
-            let text = `Check Out This Address:\nPlace: ${place}\nDetails: ${landmark}`;
-            if (mapLink) {
-                text += `\nMap Link: ${mapLink}`;
-            }
+      function shareAddress(place, landmark, mapLink) {
+    let text = `Check Out This Address:\n*Place:* ${place}\n*Details:* ${landmark}`;
+    if (mapLink) {
+        text += `\n*Map Link:* ${mapLink}`;
+    }
 
-            if (navigator.share) {
-                navigator.share({
-                    title: `Address: ${place}`,
-                    text: text,
-                }).catch(error => console.error('Error Sharing', error));
-            } else {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('Address Copied To Clipboard! 📋');
-                }).catch(err => {
-                    alert('Could Not Copy Address. Check Console For Error.');
-                    console.error('Could Not Copy Text: ', err);
-                });
+    // Encode text for URL use
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/?text=${encodedText}`;
+
+    if (navigator.share) {
+        // Try system share first
+        navigator.share({
+            title: `Address: ${place}`,
+            text: text,
+        }).catch(error => {
+            // If user cancels system share, or it fails, we can redirect to WhatsApp
+            if (error.name !== 'AbortError') {
+                window.open(whatsappUrl, '_blank');
             }
-        }
-        
+        });
+    } else {
+        // Fallback for browsers that don't support navigator.share
+        // Direct open WhatsApp
+        window.open(whatsappUrl, '_blank');
+    }
+}
 
         // --- FILTERING & RENDERING (Renders full details always) ---
         
@@ -537,6 +543,7 @@
     </script>
 </body>
 </html>
+
 
 
 
