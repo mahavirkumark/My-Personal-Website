@@ -430,105 +430,97 @@
                     .catch(error => console.error("Deletion Failed:", error));
             }
         }
-function shareAddress(place, landmark, mapLink, type = 'system') {
+function shareAddress(place, landmark, mapLink, method = 'system') {
     let text = `Check Out This Address:\n*Place:* ${place}\n*Details:* ${landmark}`;
     if (mapLink) {
         text += `\n*Map Link:* ${mapLink}`;
     }
 
-    const encodedText = encodeURIComponent(text);
-
-    if (type === 'whatsapp') {
-        // This forces the OS to look for the App immediately
-        window.location.href = `whatsapp://send?text=${encodedText}`;
+    if (method === 'whatsapp') {
+        // Direct protocol 'whatsapp://' opens the app immediately bypassing the browser landing page
+        const whatsappAppUrl = `whatsapp://send?text=${encodeURIComponent(text)}`;
+        window.location.href = whatsappAppUrl;
     } else {
-        // This opens the Windows/Mobile share menu with all options
+        // Standard System Share for all other options (Email, Teams, etc.)
         if (navigator.share) {
             navigator.share({
                 title: `Address: ${place}`,
                 text: text,
-            }).catch(error => console.log('Share failed', error));
+            }).catch(error => console.log('Error sharing', error));
         } else {
-            navigator.clipboard.writeText(text);
-            alert('Copied to clipboard!');
+            navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!'));
         }
     }
 }
-
         // --- FILTERING & RENDERING (Renders full details always) ---
         
-        function displayFilteredAddresses(dataList) {
-            addressListEl.innerHTML = ""; // Clear existing content
+    function displayFilteredAddresses(dataList) {
+    addressListEl.innerHTML = "";
 
-            if (dataList.length === 0) {
-                addressListEl.innerHTML = '<div class="text-center p-6 text-gray-500 bg-gray-100 rounded-lg">No Addresses Found Matching Your Search.</div>';
-                return;
-            }
+    if (dataList.length === 0) {
+        addressListEl.innerHTML = '<div class="text-center p-6 text-gray-500 bg-gray-100 rounded-lg">No Addresses Found Matching Your Search.</div>';
+        return;
+    }
 
-            dataList.forEach((data) => {
-                const uid = firebase.auth().currentUser.uid;
-                const div = document.createElement("div");
-                div.id = `item-${data.id}`; // Add unique ID for manipulation
-                
-                div.className = "address-item bg-white p-4 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
-                
-                // RENDER FULL DETAILS ALWAYS (Desktop/Mobile)
-                const mapButtonHTML = data.mapLink ? `
-                    <a href="${data.mapLink}" target="_blank" class="bg-indigo-500 text-white px-3 py-1 rounded-full hover:bg-indigo-600 transition text-sm flex items-center">
-                        <i class="fas fa-map-marker-alt mr-1"></i> View Map
-                    </a>` : '';
-                 
-                 div.removeAttribute('onclick'); 
+    dataList.forEach((data) => {
+        const uid = firebase.auth().currentUser.uid;
+        const div = document.createElement("div");
+        div.id = `item-${data.id}`;
+        div.className = "address-item bg-white p-4 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
 
-                 div.innerHTML = `
-                     <div id="display-view-${data.id}" class="">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-grow">
-                                <p class="text-lg font-bold text-gray-800">${data.place}</p>
-                                <p class="text-sm text-gray-600 whitespace-pre-wrap">${data.landmark}</p>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap justify-end gap-2 mt-3"> 
-                            ${mapButtonHTML}
-                            <button class="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition text-sm flex items-center" 
-                                    onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}')">
-                                <i class="fas fa-share-alt mr-1"></i> Share
-                            </button>
-                            <button class="bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
-        onclick="window.open('https://wa.me/?text=' + encodeURIComponent('Place: ${data.place}\\nDetails: ${data.landmark}'), '_blank')">
-    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
-</button>
-                            <button class="bg-yellow-500 text-white px-3 py-1 rounded-full hover:bg-yellow-600 transition text-sm flex items-center" 
-                                    onclick="toggleEditForm('${data.id}')">
-                                <i class="fas fa-edit mr-1"></i> Edit
-                            </button>
-                            <button class="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
-                                    onclick="deleteAddress('${uid}', '${data.id}')">
-                                <i class="fas fa-trash-alt mr-1"></i> Delete
-                            </button>
-                        </div>
-                     </div>
-                     <div id="edit-form-${data.id}" class="hidden space-y-3 pt-3 border-t mt-3">
-                        <h4 class="font-bold text-gray-700">Editing: ${data.place}</h4>
-                        <label for="edit-place-${data.id}" class="block text-xs font-medium text-gray-500">Place Name</label>
-                        <input type="text" id="edit-place-${data.id}" value="${data.place}" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition" />
-                        <label for="edit-landmark-${data.id}" class="block text-xs font-medium text-gray-500">Details / Landmark</label>
-                        <textarea id="edit-landmark-${data.id}" rows="2" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition resize-y">${data.landmark}</textarea>
-                        <label for="edit-map-${data.id}" class="block text-xs font-medium text-gray-500">Google Map Location</label>
-                        <input type="url" id="edit-map-${data.id}" value="${data.mapLink || ''}" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-yellow-500 transition" />
-                        <div class="flex justify-end gap-2 mt-3">
-                            <button class="bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition text-sm flex items-center" onclick="saveEditedAddress('${data.id}')">
-                                <i class="fas fa-check mr-1"></i> Save
-                            </button>
-                            <button class="bg-gray-500 text-white px-3 py-1 rounded-full hover:bg-gray-600 transition text-sm flex items-center" onclick="toggleEditForm('${data.id}')">
-                                <i class="fas fa-times mr-1"></i> Cancel
-                            </button>
-                        </div>
+        const mapButtonHTML = data.mapLink ? `
+            <a href="${data.mapLink}" target="_blank" class="bg-indigo-500 text-white px-3 py-1 rounded-full hover:bg-indigo-600 transition text-sm flex items-center">
+                <i class="fas fa-map-marker-alt mr-1"></i> View Map
+            </a>` : '';
+
+        div.innerHTML = `
+            <div id="display-view-${data.id}" class="">
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow">
+                        <p class="text-lg font-bold text-gray-800">${data.place}</p>
+                        <p class="text-sm text-gray-600 whitespace-pre-wrap">${data.landmark}</p>
                     </div>
-                `;
-                addressListEl.appendChild(div);
-            });
-        }
+                </div>
+                <div class="flex flex-wrap justify-end gap-2 mt-3"> 
+                    ${mapButtonHTML}
+                    
+                    <button class="bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
+                            onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}', 'whatsapp')">
+                        <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                    </button>
+
+                    <button class="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition text-sm flex items-center" 
+                            onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}', 'system')">
+                        <i class="fas fa-share-alt mr-1"></i> Share
+                    </button>
+
+                    <button class="bg-yellow-500 text-white px-3 py-1 rounded-full hover:bg-yellow-600 transition text-sm flex items-center" 
+                            onclick="toggleEditForm('${data.id}')">
+                        <i class="fas fa-edit mr-1"></i> Edit
+                    </button>
+                    <button class="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
+                            onclick="deleteAddress('${uid}', '${data.id}')">
+                        <i class="fas fa-trash-alt mr-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div id="edit-form-${data.id}" class="hidden space-y-3 pt-3 border-t mt-3">
+                <h4 class="font-bold text-gray-700">Editing: ${data.place}</h4>
+                <label class="block text-xs font-medium text-gray-500">Place Name</label>
+                <input type="text" id="edit-place-${data.id}" value="${data.place}" class="w-full p-2 border border-gray-300 rounded-lg text-sm" />
+                <label class="block text-xs font-medium text-gray-500">Details</label>
+                <textarea id="edit-landmark-${data.id}" rows="2" class="w-full p-2 border border-gray-300 rounded-lg text-sm">${data.landmark}</textarea>
+                <label class="block text-xs font-medium text-gray-500">Map Link</label>
+                <input type="url" id="edit-map-${data.id}" value="${data.mapLink || ''}" class="w-full p-2 border border-gray-300 rounded-lg text-sm" />
+                <div class="flex justify-end gap-2 mt-3">
+                    <button class="bg-green-500 text-white px-3 py-1 rounded-full text-sm" onclick="saveEditedAddress('${data.id}')">Save</button>
+                    <button class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm" onclick="toggleEditForm('${data.id}')">Cancel</button>
+                </div>
+            </div>
+        `;
+        addressListEl.appendChild(div);
+    });
+}
 
         function filterAddresses() {
             if (!addressListEl.classList.contains('editing')) {
@@ -543,6 +535,7 @@ function shareAddress(place, landmark, mapLink, type = 'system') {
     </script>
 </body>
 </html>
+
 
 
 
