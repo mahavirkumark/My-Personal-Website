@@ -430,20 +430,29 @@
                     .catch(error => console.error("Deletion Failed:", error));
             }
         }
-function shareAddress(place, landmark, mapLink) {
+function shareAddress(place, landmark, mapLink, type = 'system') {
     let text = `Check Out This Address:\n*Place:* ${place}\n*Details:* ${landmark}`;
     if (mapLink) {
         text += `\n*Map Link:* ${mapLink}`;
     }
 
     const encodedText = encodeURIComponent(text);
-    
-    // This 'whatsapp://' protocol tells the OS to open the app directly 
-    // instead of going through a browser URL first.
-    const directAppUrl = `whatsapp://send?text=${encodedText}`;
 
-    // Try to launch the app directly
-    window.location.href = directAppUrl;
+    if (type === 'whatsapp') {
+        // This forces the OS to look for the App immediately
+        window.location.href = `whatsapp://send?text=${encodedText}`;
+    } else {
+        // This opens the Windows/Mobile share menu with all options
+        if (navigator.share) {
+            navigator.share({
+                title: `Address: ${place}`,
+                text: text,
+            }).catch(error => console.log('Share failed', error));
+        } else {
+            navigator.clipboard.writeText(text);
+            alert('Copied to clipboard!');
+        }
+    }
 }
 
         // --- FILTERING & RENDERING (Renders full details always) ---
@@ -534,6 +543,7 @@ function shareAddress(place, landmark, mapLink) {
     </script>
 </body>
 </html>
+
 
 
 
