@@ -430,8 +430,7 @@
                     .catch(error => console.error("Deletion Failed:", error));
             }
         }
-
-    function shareAddress(place, landmark, mapLink) {
+function shareAddress(place, landmark, mapLink) {
     let text = `Check Out This Address:\n*Place:* ${place}\n*Details:* ${landmark}`;
     if (mapLink) {
         text += `\n*Map Link:* ${mapLink}`;
@@ -439,22 +438,12 @@
 
     const encodedText = encodeURIComponent(text);
     
-    // 1. Direct App Protocol (Triggers the actual app)
-    const whatsappAppUrl = `whatsapp://send?text=${encodedText}`;
-    
-    // 2. Web Fallback (If app isn't installed)
-    const whatsappWebUrl = `https://wa.me/?text=${encodedText}`;
+    // This 'whatsapp://' protocol tells the OS to open the app directly 
+    // instead of going through a browser URL first.
+    const directAppUrl = `whatsapp://send?text=${encodedText}`;
 
-    // Try opening the app directly
-    window.location.href = whatsappAppUrl;
-
-    // Safety Fallback: If the page is still active after 500ms, 
-    // it means the app likely didn't open, so open the web version.
-    setTimeout(() => {
-        if (!document.hidden) {
-            window.open(whatsappWebUrl, '_blank');
-        }
-    }, 500);
+    // Try to launch the app directly
+    window.location.href = directAppUrl;
 }
 
         // --- FILTERING & RENDERING (Renders full details always) ---
@@ -545,6 +534,7 @@
     </script>
 </body>
 </html>
+
 
 
 
