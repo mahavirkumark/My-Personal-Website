@@ -498,6 +498,10 @@
                                     onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}')">
                                 <i class="fas fa-share-alt mr-1"></i> Share
                             </button>
+                            <button class="bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
+        onclick="window.open('https://wa.me/?text=' + encodeURIComponent('Place: ${data.place}\\nDetails: ${data.landmark}'), '_blank')">
+    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+</button>
                             <button class="bg-yellow-500 text-white px-3 py-1 rounded-full hover:bg-yellow-600 transition text-sm flex items-center" 
                                     onclick="toggleEditForm('${data.id}')">
                                 <i class="fas fa-edit mr-1"></i> Edit
@@ -543,6 +547,7 @@
     </script>
 </body>
 </html>
+
 
 
 
