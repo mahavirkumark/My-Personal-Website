@@ -13,115 +13,170 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-    <style>
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc; /* Tailwind gray-50 */
-            padding-top: 6rem; 
-        }
-        @media (max-width: 767px) {
-            .md\:grid-cols-2 {
-                grid-template-columns: 1fr;
-            }
+   <style>
+    /* --- 1. BASE STYLES & ANIMATIONS --- */
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
 
-            /* === MOBILE SEARCH OVERLAY STYLES (FIXED SCROLL) === */
-            body.search-active {
-                padding-top: 0;
-            }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8fafc; /* Tailwind gray-50 */
+        padding-top: 5rem; /* Standard space for fixed nav */
+        transition: padding 0.3s ease;
+    }
 
-            body.search-active nav {
-                display: none;
-            }
-            
-            body.search-active .left-container {
-                display: none;
-            }
+    /* --- 2. ADDRESS LIST & EDITING STATES --- */
+    .address-item {
+        transition: all 0.3s ease;
+    }
 
-            body.search-active .right-container {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                max-height: 100vh; 
-                overflow-y: hidden; /* Prevent background scroll */
-                background-color: #fff;
-                padding-top: 0 !important;
-            }
+    /* Dim other items when editing one */
+    #addressList.editing .address-item {
+        opacity: 0.3;
+        pointer-events: none;
+    }
 
-            /* PROFESSIONAL SEARCH BAR STYLES */
-            body.search-active #searchInput {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                z-index: 100;
-                margin: 0 !important;
-                padding: 1rem !important; 
-                border-radius: 0;
-                border-bottom: 1px solid #e5e7eb;
-                box-shadow: 0 6px 10px -3px rgba(0, 0, 0, 0.15); /* Stronger shadow */
-                background-color: #ffffff; 
-                font-size: 1.125rem;
-                outline: none; 
-                border-color: #4f46e5 !important;
-                transition: border-color 0.2s;
-            }
+    #addressList.editing .address-item.is-editing {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1.02);
+        border-color: greenyellow;
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+    }
 
-            /* FIX: Dedicated scrollable area for results only, filling screen space below search input */
-            body.search-active #addressList {
-                height: calc(100vh - 4.5rem); /* Calculate remaining screen space */
-                overflow-y: auto; /* Enable scrolling for results area */
-                padding-top: 4.5rem; /* Push content down below the fixed search input */
-                padding-left: 1rem; 
-                padding-right: 1rem;
-            }
-            
-            body.search-active .right-container > h2 {
-                display: none;
-            }
-            /* === END MOBILE SEARCH OVERLAY STYLES === */
+    /* Prevent iOS zoom on input focus */
+    input, textarea {
+        font-size: 16px !important;
+    }
+
+
+    /* --- 3. MOBILE STYLES (Below 768px) --- */
+    @media (max-width: 767px) {
+        /* Mobile Search Overlay Logic */
+        body.search-active {
+            overflow: hidden; /* Prevent background from scrolling */
+            padding-top: 0;
         }
-        
-        .address-item {
-            opacity: 1;
-            transition: opacity 0.3s ease;
-            cursor: pointer;
+
+        /* HIDE UI ELEMENTS IN SEARCH MODE */
+        body.search-active .left-container,
+        body.search-active .right-container h2,
+        body.search-active footer {
+            display: none !important;
         }
-        #addressList.editing .address-item {
-            opacity: 0.3;
+
+        /* PIN SEARCH BAR EXACTLY BELOW NAV (56px is standard height) */
+        body.search-active #searchWrapper {
+            position: fixed;
+            top: 56px; 
+            left: 0;
+            width: 100%;
+            z-index: 100;
+            background: white;
+            padding: 10px 16px;
+            margin: 0 !important;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-        #addressList.editing .address-item.is-editing {
-            opacity: 1;
+
+        /* SCROLLABLE RESULTS AREA */
+        body.search-active .right-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #f8fafc;
+            z-index: 40;
+            /* Pushes list down: Nav (56px) + Search (approx 60px) + Buffer */
+            padding-top: 125px !important; 
+            overflow-y: auto;
         }
-        
-        #addressList.editing .address-item.is-editing [id^='edit-form-'] {
-            font-size: 16px; 
+
+        /* Improved readability for mobile address details */
+        .address-item p.text-sm {
+            font-size: 15px;
+            line-height: 1.5;
         }
-        #addressList.editing .address-item.is-editing [id^='edit-form-'] input,
-        #addressList.editing .address-item.is-editing [id^='edit-form-'] textarea {
-            font-size: 16px !important; 
+    }
+
+    /* --- 4. DESKTOP STYLES (768px and up) --- */
+    @media (min-width: 768px) {
+        /* Desktop Search remains in flow, no fixed positioning */
+        #searchWrapper {
+            position: relative;
+            top: auto;
         }
-        
-        /* === DESKTOP SCROLL FIX (Applies fixed height only on larger screens) === */
-        @media (min-width: 768px) {
-            #addressList {
-                height: 370px;
-                overflow-y: auto;
-            }
-            /* Increase font size for landmark details by 4px on desktop */
-            .right-container .address-item .text-sm {
-                font-size: 18px; 
-            }
+
+        #addressList {
+            height: 450px; /* Fixed height for scrollable container */
+            overflow-y: auto;
+            padding-right: 8px;
         }
-        /* === END DESKTOP SCROLL FIX === */
-    </style>
+
+        /* Custom Scrollbar */
+        #addressList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #addressList::-webkit-scrollbar-thumb {
+            background-color: #e2e8f0;
+            border-radius: 10px;
+        }
+
+        /* Increased detail font size for desktop */
+        .right-container .address-item .text-sm {
+            font-size: 18px; 
+            color: #036f09; /* gray-600 */
+        }
+
+        /* Sidebar Form Sticky Position */
+        .left-container {
+            position: sticky;
+            top: 6rem;
+        }
+    }
+/* --- LAPTOP OPTIMIZATIONS --- */
+@media (min-width: 768px) {
+    /* Set the best professional background */
+    body {
+        background-color: #f8fafc; /* bg-slate-50 */
+    }
+
+    /* Professional Desktop detail size */
+    .right-container .address-item .text-sm {
+        font-size: 18px !important;
+        color: #334155; /* Slate 700 */
+    }
+
+    /* Button Hover Depth */
+    .address-item button:hover, .address-item a:hover {
+        transform: translateY(-1px);
+        filter: brightness(90%);
+    }
+    a[href*="google.com/maps"] {
+        border-color: #e2e8f0;
+        color: #475569; /* slate-600 */
+    }
+    
+    a[href*="google.com/maps"]:hover {
+        background-color: #f1f5f9; /* slate-100 */
+        border-color: #cbd5e1;
+    }
+}
+@media (max-width: 767px) {
+    /* ... your existing search-active styles ... */
+
+    /* Hide the footer entirely when mobile search is focused */
+    body.search-active footer {
+        display: none !important;
+    }
+}
+</style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
@@ -171,54 +226,75 @@
         </div>
     </nav>
     
-    <div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8 -mt-[9px]">
+<div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8 -mt-[9px]">
+
+    <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
+        <h2 class="text-2xl font-bold mb-4 text-indigo-700 border-b pb-2">➕ Save New Address</h2>
         
-        <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
-            <h2 class="text-2xl font-bold mb-4 text-indigo-700 border-b pb-2">➕ Save New Address</h2>
-            <div class="space-y-4">
-                <label for="placeInput" class="block text-sm font-medium text-gray-700">Place Name (e.g., Home, Office)</label>
+        <div class="space-y-4">
+            <div>
+                <label for="placeInput" class="block text-sm font-medium text-gray-700 mb-1">Place Name (e.g., Home, Office)</label>
                 <input type="text" id="placeInput" placeholder="Enter place name..." 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" />
-
-                <label for="landmarkInput" class="block text-sm font-medium text-gray-700">Landmark / Details</label>
-                <textarea id="landmarkInput" 
-                        placeholder="Enter building number, street, or full address details (e.g., Plot 101, Near City Mall)" 
-                        rows="2"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition resize-y"></textarea>
-
-                <label for="mapInput" class="block text-sm font-medium text-gray-700">Google Map Location (Optional)</label>
-                <input type="url" id="mapInput" placeholder="Paste Google Maps URL or coordinates..." 
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:focus:border-indigo-500 transition" />
-
-                <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center">
-                    <i class="fas fa-save mr-2"></i> Save Address
-                </button>
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
             </div>
-        </div>
 
-        <div class="right-container">
-            <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
+            <div>
+                <label for="landmarkInput" class="block text-sm font-medium text-gray-700 mb-1">Landmark / Details</label>
+                <textarea id="landmarkInput" 
+                          placeholder="Enter building number, street, or full address details..." 
+                          rows="2"
+                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"></textarea>
+            </div>
+
+            <div>
+                <label for="mapInput" class="block text-sm font-medium text-gray-700 mb-1">Google Map Location (Optional)</label>
+                <input type="url" id="mapInput" placeholder="Paste Google Maps URL or coordinates here..." 
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition mb-2" />
+                
+                <a href="https://www.google.com/maps" target="_blank" 
+                   class="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 py-2.5 rounded-lg hover:bg-gray-50 transition duration-300 font-medium text-sm shadow-sm">
+                    <img src="https://www.gstatic.com/images/branding/product/1x/maps_96dp.png" alt="Google Maps" class="w-5 h-5">
+                    Find Location on Google Maps
+                </a>
+            </div>
+
+            <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center shadow-md">
+                <i class="fas fa-save mr-2"></i> Save Address
+            </button>
+        </div>
+    </div>
+
+    <div class="right-container">
+        <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
+        
+        <div id="searchWrapper" class="flex items-center gap-2 mb-[17px]">
+            <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
+                <i class="fas fa-arrow-left"></i>
+            </button>
             
             <input type="text" id="searchInput" placeholder="Search place or landmark..." 
-                    class="w-full p-3 mb-[17px] border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition shadow-sm text-lg"
+                    class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition shadow-sm text-lg"
                     oninput="filterAddresses()"
-                    onfocus="toggleMobileSearchFocus(true)"
-                    onblur="toggleMobileSearchFocus(false)" />
+                    onfocus="toggleMobileSearchFocus(true)" />
+        </div>
 
-            <div id="addressList" class="space-y-4"> 
-                <div id="loadingIndicator" class="text-center p-10 text-gray-500">
-                    <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
-                    <p class="font-medium">Loading Your Addresses...</p>
+        <div id="addressList" class="space-y-4">
+             <div id="loadingIndicator" class="text-center p-10 text-gray-500">
+                <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
+                <div class="text-center p-10 text-gray-400">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                    <p>Your saved locations will appear here.</p>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <footer class="mt-12 pt-3 pb-3 bg-white text-gray-600 text-center text-sm border-t">
-        &copy; 2025 Personal Website | All rights reserved
-    </footer>
+<footer class="mt-12 pt-6 pb-6 bg-white text-gray-600 text-center text-sm border-t">
+    &copy; 2025 Personal Website | All rights reserved
+</footer>
 
-    <script>
+  <script>
         // --- FIREBASE CONFIGURATION (Keep as is) ---
         var firebaseConfig = {
             apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -337,7 +413,8 @@
         
         // --- NEW FUNCTION: Toggle Edit Form ---
         
-        function toggleEditForm(id) {
+    
+ function toggleEditForm(id) {
             const form = document.getElementById(`edit-form-${id}`);
             const itemContainer = form ? form.closest('.address-item') : null; 
             const displayView = document.getElementById(`display-view-${id}`);
@@ -423,7 +500,6 @@
             });
         }
 
-
         function deleteAddress(uid, id) {
             if (confirm("Are You Sure You Want To Permanently Delete This Address?")) {
                 firebase.database().ref("addresses/" + uid + "/" + id).remove()
@@ -453,8 +529,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
     }
 }
         // --- FILTERING & RENDERING (Renders full details always) ---
-        
-    function displayFilteredAddresses(dataList) {
+          function displayFilteredAddresses(dataList) {
     addressListEl.innerHTML = "";
 
     if (dataList.length === 0) {
@@ -484,7 +559,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
                 <div class="flex flex-wrap justify-end gap-2 mt-3"> 
                     ${mapButtonHTML}
                     
-                    <button class="bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
+                    <button class="bg-orange-500 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
                             onclick="shareAddress('${data.place}', '${data.landmark}', '${data.mapLink || ''}', 'whatsapp')">
                         <i class="fab fa-whatsapp mr-1"></i> WhatsApp
                     </button>
@@ -498,7 +573,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
                             onclick="toggleEditForm('${data.id}')">
                         <i class="fas fa-edit mr-1"></i> Edit
                     </button>
-                    <button class="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
+                    <button class="bg-purple-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition text-sm flex items-center" 
                             onclick="deleteAddress('${uid}', '${data.id}')">
                         <i class="fas fa-trash-alt mr-1"></i> Delete
                     </button>
@@ -522,7 +597,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
     });
 }
 
-        function filterAddresses() {
+  function filterAddresses() {
             if (!addressListEl.classList.contains('editing')) {
                 const query = document.getElementById("searchInput").value.toLowerCase();
                 const filtered = allAddresses.filter(item =>
@@ -531,11 +606,44 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
                 displayFilteredAddresses(filtered);
             }
         }
+function toggleMobileSearchFocus(isFocused) {
+    const searchWrapper = document.getElementById("searchWrapper");
+    const backBtn = document.getElementById("backBtn");
+    const leftContainer = document.querySelector(".left-container");
+    const rightHeader = document.querySelector(".right-container h2");
+    const navBar = document.querySelector("nav");
 
+    if (window.innerWidth < 768) {
+        if (isFocused) {
+            // 1. Hide everything else
+            leftContainer.classList.add("hidden");
+            rightHeader.classList.add("hidden");
+            navBar.classList.add("hidden");
+            
+            // 2. Move Search to the very top
+            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
+            backBtn.classList.remove("hidden");
+            
+            // 3. Add padding to list so it's not hidden under fixed search
+            addressListEl.style.marginTop = "80px";
+        } else {
+            // Restore everything
+            leftContainer.classList.remove("hidden");
+            rightHeader.classList.remove("hidden");
+            navBar.classList.remove("hidden");
+            
+            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
+            backBtn.classList.add("hidden");
+            
+            addressListEl.style.marginTop = "0px";
+            searchInputEl.value = ""; // Clear search on back
+            filterAddresses();
+        }
+    }
+}
     </script>
 </body>
 </html>
-
 
 
 
