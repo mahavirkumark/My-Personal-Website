@@ -447,8 +447,20 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #818cf8 !important;
 }
 </style>
+    <div id="login-msg" style="display:none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; margin: 10px 0; border-radius: 4px; text-align: center; font-family: sans-serif;">
+    <strong>Security Timeout:</strong> Your session has expired. Please try to login again.
+</div>
+
+<script>
+    // Check if the user was redirected because of a timeout
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reason') === 'timeout') {
+        document.getElementById('login-msg').style.display = 'block';
+    }
+</script>
 </body>
 </html>
+
 
 
 
