@@ -469,34 +469,37 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 <script>
   (function() {
-    // 1. Create a fake history state so there is something to "go back" from
-    window.history.pushState({ exit: true }, "", window.location.href);
+    // 1. Clear any existing parameters to ensure a clean 'exit' state
+    const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    
+    // 2. Push the trap
+    window.history.pushState({ exit: true }, "", cleanURL);
 
     window.onpopstate = function(event) {
-      // 2. This triggers when the user presses the mobile back button
-      if (confirm("Do you want to exit the app?")) {
+      // 3. The prompt
+      if (confirm("Close the Personal App?")) {
         
-        // 3. Try to close the app window (Works best in Standalone mode)
+        // Try multiple ways to 'kill' the view
         window.close(); 
         
-        // 4. Fallback: If close is blocked, navigate "back" past the start point
-        // This usually triggers the OS to minimize the web app
+        // This is the most effective way to 'exit' a PWA on Android
         window.history.back(); 
         
-        // 5. Emergency Fallback: Blank the screen if the app refuses to close
+        // Blank the screen so the user knows they are 'logged out/exited'
         setTimeout(() => {
           window.location.href = "about:blank";
-        }, 300);
+        }, 100);
 
       } else {
-        // User said 'Cancel', stay on the page and reset the trap
-        window.history.pushState({ exit: true }, "", window.location.href);
+        // Stay in app, re-arm the trap
+        window.history.pushState({ exit: true }, "", cleanURL);
       }
     };
   })();
 </script>
 </body>
 </html>
+
 
 
 
