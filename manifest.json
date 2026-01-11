@@ -1,23 +1,15 @@
 {
   "name": "My Personal Website",
   "short_name": "Personal",
-  "description": "Save password address, links, assets data, contacts, income expenditure saving, principle grocery list",
-  "start_url": "/index.html",
+  "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f0f4f8",
   "theme_color": "#2196F3",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.jpg",
       "sizes": "192x192",
-      "type": "image/jpg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.jpg",
-      "sizes": "512x512",
-      "type": "image/jpg"
+      "type": "image/jpeg"
     }
   ]
 }
