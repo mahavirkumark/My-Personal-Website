@@ -467,28 +467,31 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login-msg').style.display = 'block';
     }
 </script>
-    <script>
-  // 1. Push a dummy state to the history so there is something to "go back" from
-  window.history.pushState(null, null, window.location.href);
+  <script>
+  // 1. Create a fake history entry so the back button is "trapped"
+  window.history.pushState({page: 1}, "", "");
 
-  window.onpopstate = function (event) {
-    // 2. When back is pressed, ask the question
-    const exit = confirm("Do you want to exit the app?");
-    
-    if (exit) {
-      // 3. Try to close the app
-      window.close();
+  window.onpopstate = function(event) {
+    // 2. Ask the user
+    if (confirm("Close the app?")) {
+      // 3. Try multiple methods to force close
+      window.close(); // Works in standalone mode
       
-      // Some mobile browsers require this as a fallback to exit the app view
+      // If window.close() is blocked, this triggers the OS to exit 
+      // by moving back past the initial entry point
       window.history.back(); 
+      
+      // For some Android versions, self.close() also helps
+      setTimeout(() => { self.close(); }, 200);
     } else {
-      // 4. If they say No, push the state back so the button works again next time
-      window.history.pushState(null, null, window.location.href);
+      // 4. If No, put the fake state back so it works again
+      window.history.pushState({page: 1}, "", "");
     }
   };
 </script>
 </body>
 </html>
+
 
 
 
