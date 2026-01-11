@@ -467,29 +467,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login-msg').style.display = 'block';
     }
 </script>
-  <script>
-  // This must run immediately to "trap" the back button effectively
+<script>
   (function() {
-    // 1. Create a fake history state
+    // 1. Create a fake history state so there is something to "go back" from
     window.history.pushState({ exit: true }, "", window.location.href);
 
     window.onpopstate = function(event) {
-      // 2. Check if the user is actually trying to exit
-      if (confirm("Do you want to exit the Personal App?")) {
+      // 2. This triggers when the user presses the mobile back button
+      if (confirm("Do you want to exit the app?")) {
         
-        // 3. The "Triple Threat" Close Method
-        window.close(); // Works in standalone PWA mode
+        // 3. Try to close the app window (Works best in Standalone mode)
+        window.close(); 
         
-        // If that fails, try to navigate away to force the app to minimize
-        window.location.href = "about:blank"; 
+        // 4. Fallback: If close is blocked, navigate "back" past the start point
+        // This usually triggers the OS to minimize the web app
+        window.history.back(); 
         
-        // Final fallback for older Android/Chrome versions
+        // 5. Emergency Fallback: Blank the screen if the app refuses to close
         setTimeout(() => {
-          window.history.back();
-        }, 100);
+          window.location.href = "about:blank";
+        }, 300);
 
       } else {
-        // 4. If they stay, push the fake state back again
+        // User said 'Cancel', stay on the page and reset the trap
         window.history.pushState({ exit: true }, "", window.location.href);
       }
     };
@@ -497,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
