@@ -276,13 +276,12 @@
 </footer>
 
 <div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-    // 2. Configuration (Using your IDs)
+    // --- Firebase Configuration Using Your Provided ID ---
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
         authDomain: "sk12-58e9e.firebaseapp.com",
@@ -292,74 +291,71 @@
         appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
     };
 
-    // 3. Initialize with a Safety Check (Fixes the Warning)
-    let app;
-    if (!firebase.apps.length) {
-        app = firebase.initializeApp(firebaseConfig);
-    } else {
-        app = firebase.app();
+    if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
     }
 
     const auth = firebase.auth();
-    const rdb = firebase.database();
+    const db = firebase.firestore();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    // 4. Handle Login
-    const loginBtn = document.getElementById("googleLoginBtn");
-    if (loginBtn) {
-        loginBtn.onclick = async () => {
-            try {
-                // Step A: Google Sign-in Popup
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-                
-                // Step B: Mobile Check (Only if HTTPS)
-                if (window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
-                    const verified = await triggerMobileLock();
-                    if (verified) {
-                        // Success: Save to Realtime Database
-                        await rdb.ref(`verified_sessions/${user.uid}`).set({
-                            last_check: firebase.database.ServerValue.TIMESTAMP
-                        });
-                        window.location.href = "home.html";
-                    } else {
-                        alert("Mobile Lock Failed. Access Denied.");
-                        await auth.signOut();
-                    }
-                } else {
-                    // Not HTTPS? Skip biometric (it won't work anyway)
-                    window.location.href = "home.html";
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-                alert("Login Error: " + error.message);
-            }
-        };
+    let currentUID = null;
+    let currentEmail = null;
+
+    const msgBoxEl = document.getElementById("msgBox");
+    const loginCardEl = document.getElementById("loginCard");
+    
+    // --- Helper Function for Toast Messages ---
+    function showMsg(msg, success = true, duration = 6000) {
+        // 1. Clear previous state and determine style class
+        msgBoxEl.className = ''; 
+        msgBoxEl.classList.add(success ? 'success' : 'error');
+        
+        // 2. Set Content
+        const iconClass = success ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+        msgBoxEl.innerHTML = `<i class="${iconClass}"></i><span class="flex-grow">${msg}</span>`;
+        
+        // 3. Trigger Fade-in and Slide-in
+        requestAnimationFrame(() => {
+            msgBoxEl.classList.add('show');
+        });
+
+        // 4. Set Timeout to Hide
+        setTimeout(() => {
+            msgBoxEl.classList.remove('show');
+            setTimeout(() => {
+                msgBoxEl.className = '';
+            }, 300); 
+        }, duration); 
     }
 
-    // 5. Native Mobile Lock Prompt
-    async function triggerMobileLock() {
+    // --- Event Handler for Google Login ---
+    document.getElementById("googleLoginBtn").onclick = async () => {
         try {
-            if (!window.PublicKeyCredential) return true; // Fallback if no biometric support
+            const result = await auth.signInWithPopup(provider);
+            currentUID = result.user.uid;
+            currentEmail = result.user.email;
 
-            const options = {
-                publicKey: {
-                    challenge: Uint8Array.from("random_string", c => c.charCodeAt(0)),
-                    rp: { name: "My App" },
-                    user: { id: Uint8Array.from("1", c => c.charCodeAt(0)), name: "user", displayName: "User" },
-                    pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                    authenticatorSelection: { userVerification: "required" },
-                    timeout: 60000
-                }
-            };
-            const cred = await navigator.credentials.create(options);
-            return !!cred;
+            // Check if user document exists (for new user setup)
+            const doc = await db.collection("users").doc(currentUID).get();
+
+            if (!doc.exists) {
+                // First time login: Create the user document (no PIN needed)
+                await db.collection("users").doc(currentUID).set({ 
+                    email: currentEmail,
+                });
+            }
+            
+            // --- IMMEDIATE REDIRECTION FOR FAST SIGN-IN ---
+            
+            setTimeout(() => { window.location.href = "home.html"; }, 1000); 
+
         } catch (e) {
-            console.error("Biometric UI Error:", e);
-            return false;
+            showMsg("Login failed: " + e.message, false);
         }
-    }
+    };
 </script>
+    
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('theme-toggle-btn');
@@ -453,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
 </html>
+
 
 
 
