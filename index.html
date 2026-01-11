@@ -468,37 +468,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 </script>
 <script>
-  (function() {
-    // 1. Clear any existing parameters to ensure a clean 'exit' state
-    const cleanURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
-    
-    // 2. Push the trap
-    window.history.pushState({ exit: true }, "", cleanURL);
+  // 1. We push TWO states to ensure the 'Back' button is fully trapped
+  window.history.pushState({exit: true}, null, "");
+  window.history.pushState({exit: true}, null, "");
 
-    window.onpopstate = function(event) {
-      // 3. The prompt
-      if (confirm("Close the Personal App?")) {
-        
-        // Try multiple ways to 'kill' the view
-        window.close(); 
-        
-        // This is the most effective way to 'exit' a PWA on Android
-        window.history.back(); 
-        
-        // Blank the screen so the user knows they are 'logged out/exited'
-        setTimeout(() => {
-          window.location.href = "about:blank";
-        }, 100);
-
-      } else {
-        // Stay in app, re-arm the trap
-        window.history.pushState({ exit: true }, "", cleanURL);
-      }
-    };
-  })();
+  window.onpopstate = function (event) {
+    // 2. This triggers when 'Back' is pressed
+    if (confirm("Do you want to exit the Personal App?")) {
+      // 3. Try to close
+      window.close();
+      
+      // 4. If close is blocked, force a 'Deep Back' to the phone home screen
+      window.history.go(-2); 
+      
+      // 5. Ultimate fallback: Blank the app
+      setTimeout(() => { window.location.href = "about:blank"; }, 300);
+    } else {
+      // 6. If they stay, reset the double trap
+      window.history.pushState({exit: true}, null, "");
+    }
+  };
 </script>
 </body>
 </html>
+
 
 
 
