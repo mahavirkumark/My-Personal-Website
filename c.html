@@ -1721,6 +1721,98 @@ document.getElementById("saveEventBtn").addEventListener("click", () => {
 
 </script>
 </script>
+   
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+    const icon = document.getElementById('theme-icon');
+    
+    // 1. Load saved theme immediately on page load
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    // 2. Click Event
+    btn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        // Apply new theme
+        document.documentElement.setAttribute('data-theme', newTheme);
+        
+        // Save to LocalStorage (works across all pages on your site)
+        localStorage.setItem('theme', newTheme);
+        
+        // Update Icon
+        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+});
+</script>
+     <button id="theme-toggle-btn">
+    <span id="theme-icon">🌙</span>
+</button>
+
+<style>
+    /* --- THEME TOGGLE BUTTON STYLING --- */
+#theme-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50; /* Above nav */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background: #4f46e5; /* Indigo-600 */
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+#theme-toggle-btn:active { transform: scale(0.9); }
+
+/* --- DARK MODE OVERRIDES --- */
+/* Target the Body */
+[data-theme="dark"] body {
+    background-color: #121212 !important;
+    color: #e5e7eb !important;
+}
+
+/* Target your Nav, Containers, and Footer */
+[data-theme="dark"] nav, 
+[data-theme="dark"] .bg-white, 
+[data-theme="dark"] #mobileMenu,
+[data-theme="dark"] footer {
+    background-color: #1f2937 !important; /* Dark Gray */
+    color: #f3f4f6 !important;
+}
+
+/* Target Inputs and Textareas */
+[data-theme="dark"] input, 
+[data-theme="dark"] textarea {
+    background-color: #374151 !important;
+    color: white !important;
+    border-color: #4b5563 !important;
+}
+
+/* Target Text Colors */
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] label {
+    color: #f3f4f6 !important;
+}
+
+/* Fix for specific Indigo headings to make them readable */
+[data-theme="dark"] .text-indigo-700 {
+    color: #818cf8 !important;
+}
+</style>
 </body>
     </html>
 
