@@ -468,29 +468,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 </script>
   <script>
-  // 1. Create a fake history entry so the back button is "trapped"
-  window.history.pushState({page: 1}, "", "");
+  // This must run immediately to "trap" the back button effectively
+  (function() {
+    // 1. Create a fake history state
+    window.history.pushState({ exit: true }, "", window.location.href);
 
-  window.onpopstate = function(event) {
-    // 2. Ask the user
-    if (confirm("Close the app?")) {
-      // 3. Try multiple methods to force close
-      window.close(); // Works in standalone mode
-      
-      // If window.close() is blocked, this triggers the OS to exit 
-      // by moving back past the initial entry point
-      window.history.back(); 
-      
-      // For some Android versions, self.close() also helps
-      setTimeout(() => { self.close(); }, 200);
-    } else {
-      // 4. If No, put the fake state back so it works again
-      window.history.pushState({page: 1}, "", "");
-    }
-  };
+    window.onpopstate = function(event) {
+      // 2. Check if the user is actually trying to exit
+      if (confirm("Do you want to exit the Personal App?")) {
+        
+        // 3. The "Triple Threat" Close Method
+        window.close(); // Works in standalone PWA mode
+        
+        // If that fails, try to navigate away to force the app to minimize
+        window.location.href = "about:blank"; 
+        
+        // Final fallback for older Android/Chrome versions
+        setTimeout(() => {
+          window.history.back();
+        }, 100);
+
+      } else {
+        // 4. If they stay, push the fake state back again
+        window.history.pushState({ exit: true }, "", window.location.href);
+      }
+    };
+  })();
 </script>
 </body>
 </html>
+
 
 
 
