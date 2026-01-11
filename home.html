@@ -381,7 +381,8 @@ window.logout = function() {
         clearInterval(appSchedulerIntervalId);
     }
     auth.signOut().then(() => { 
-        window.location.href = 'index.html'; 
+        // CHANGE THIS LINE:
+        window.location.replace('index.html'); 
     }).catch(error => { 
         console.error('Sign out failed:', error);
         alert('Sign out failed: ' + error.message); 
@@ -531,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
 </html>
+
 
 
 
