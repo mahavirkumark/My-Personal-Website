@@ -467,8 +467,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login-msg').style.display = 'block';
     }
 </script>
+    <script>
+  // 1. Push a dummy state to the history so there is something to "go back" from
+  window.history.pushState(null, null, window.location.href);
+
+  window.onpopstate = function (event) {
+    // 2. When back is pressed, ask the question
+    const exit = confirm("Do you want to exit the app?");
+    
+    if (exit) {
+      // 3. Try to close the app
+      window.close();
+      
+      // Some mobile browsers require this as a fallback to exit the app view
+      window.history.back(); 
+    } else {
+      // 4. If they say No, push the state back so the button works again next time
+      window.history.pushState(null, null, window.location.href);
+    }
+  };
+</script>
 </body>
 </html>
+
 
 
 
