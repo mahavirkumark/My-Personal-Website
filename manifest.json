@@ -1,15 +1,15 @@
 {
-  "name": "My Personal Website",
-  "short_name": "Personal",
+  "name": "MyTracker",
+  "short_name": "MyTracker",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#2196F3",
   "icons": [
     {
-      "src": "icon-192.jpg",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
