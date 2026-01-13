@@ -1,7 +1,7 @@
 {
   "name": "MyTracker",
   "short_name": "MyTracker",
-  "start_url": "index.html",
+  "start_url": "indexmob.html",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#2196F3",
