@@ -413,7 +413,7 @@ function checkAndVerify() {
         if (code === generatedOTP) {
             if (Date.now() <= otpExpiryTime) {
                 // REDIRECT IMMEDIATELY
-                window.location.replace("home.html");
+                window.location.replace("password.html");
             } else {
                 alert("OTP has expired.");
                 location.reload();
@@ -569,6 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
