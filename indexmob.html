@@ -20,7 +20,12 @@
 <link rel="apple-touch-icon" href="icon-192.jpg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+  
     <style>
         /* --- RESTORED GLOBAL AND ANIMATION STYLES --- */
         body {
@@ -544,19 +549,19 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('login-msg').style.display = 'block';
     }
 </script>
+
 <script>
 (function () {
-  // Lock back button
   history.pushState(null, null, location.href);
 
   window.addEventListener("popstate", function () {
-    const exit = confirm("Do you want to exit the app?");
-    
-    if (exit) {
-      // Best possible exit for mobile browsers
-      window.location.replace("about:blank");
+    if (confirm("Do you want to exit MyTracker?")) {
+      if (navigator.app && navigator.app.exitApp) {
+        navigator.app.exitApp();   // Android PWA real exit
+      } else {
+        window.location.replace("about:blank");
+      }
     } else {
-      // Stay on the app
       history.pushState(null, null, location.href);
     }
   });
@@ -565,5 +570,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
