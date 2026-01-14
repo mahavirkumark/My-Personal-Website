@@ -552,24 +552,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 (function () {
+  let exiting = false;
+
   history.pushState(null, null, location.href);
 
   window.addEventListener("popstate", function () {
+    if (exiting) return;
+
+    exiting = true;
+
     if (confirm("Do you want to exit MyTracker?")) {
-      if (navigator.app && navigator.app.exitApp) {
-        navigator.app.exitApp();   // Android PWA real exit
-      } else {
-        window.location.replace("about:blank");
-      }
+      // Allow back navigation → OS will minimize / exit app
+      history.back();
     } else {
       history.pushState(null, null, location.href);
+      exiting = false;
     }
   });
 })();
 </script>
 
+
 </body>
 </html>
+
 
 
 
