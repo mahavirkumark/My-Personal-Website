@@ -545,27 +545,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 </script>
 <script>
-  // 1. We push TWO states to ensure the 'Back' button is fully trapped
-  window.history.pushState({exit: true}, null, "");
-  window.history.pushState({exit: true}, null, "");
+(function () {
+  // Lock back button
+  history.pushState(null, null, location.href);
 
-  window.onpopstate = function (event) {
-    // 2. This triggers when 'Back' is pressed
-    if (confirm("Do you want to exit the Personal App?")) {
-      // 3. Try to close
-      window.close();
-      
-      // 4. If close is blocked, force a 'Deep Back' to the phone home screen
-      window.history.go(-2); 
-      
-      // 5. Ultimate fallback: Blank the app
-      setTimeout(() => { window.location.href = "about:blank"; }, 300);
+  window.addEventListener("popstate", function () {
+    const exit = confirm("Do you want to exit the app?");
+    
+    if (exit) {
+      // Best possible exit for mobile browsers
+      window.location.replace("about:blank");
     } else {
-      // 6. If they stay, reset the double trap
-      window.history.pushState({exit: true}, null, "");
+      // Stay on the app
+      history.pushState(null, null, location.href);
     }
-  };
+  });
+})();
 </script>
+
 </body>
 </html>
+
 
