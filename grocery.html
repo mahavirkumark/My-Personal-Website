@@ -1009,73 +1009,130 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-     <button id="theme-toggle-btn">
+      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
 </button>
-
 <style>
-    /* --- THEME TOGGLE BUTTON STYLING --- */
-#theme-toggle-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 50; /* Above nav */
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: #4f46e5; /* Indigo-600 */
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-}
+    /* --- 1. THEME VARIABLE DEFINITIONS --- */
+    :root {
+        --bg-body: #f9fafb;
+        --bg-card: #ffffff;
+        --text-main: #1f2937;   /* Deep Gray 800 */
+        --text-bold: #000000;   /* Pure Black */
+        --border: #e5e7eb;
+        
+        /* BOTTOM NAV COLORS (LIGHT) */
+        --nav-bg: #ffffff;
+        --nav-text: #000000;    /* Pure Black for text and icons */
+        --nav-height: 65px;
+    }
 
-#theme-toggle-btn:active { transform: scale(0.9); }
+    [data-theme="dark"] {
+        --bg-body: #0f172a;     /* Deep Navy/Black */
+        --bg-card: #1e293b;     /* Slate 800 */
+        --text-main: #cbd5e1;   /* Slate 300 */
+        --text-bold: #f8fafc;   /* Slate 50 */
+        --border: #334155;      /* Slate 700 */
+        
+        /* BOTTOM NAV COLORS (DARK) */
+        --nav-bg: #0f172a;
+        --nav-text: #ffffff;    /* Pure White */
+    }
 
-/* --- DARK MODE OVERRIDES --- */
-/* Target the Body */
-[data-theme="dark"] body {
-    background-color: #121212 !important;
-    color: #e5e7eb !important;
-}
+    /* --- 2. GLOBAL OVERRIDES --- */
+    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
+    
+    /* Ensure all text classes inside containers adapt */
+    h1, h2, h3, h4, .font-bold, .font-semibold, 
+    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
+        color: var(--text-bold) !important; 
+    }
 
-/* Target your Nav, Containers, and Footer */
-[data-theme="dark"] nav, 
-[data-theme="dark"] .bg-white, 
-[data-theme="dark"] #mobileMenu,
-[data-theme="dark"] footer {
-    background-color: #1f2937 !important; /* Dark Gray */
-    color: #f3f4f6 !important;
-}
+    p, li, span, .text-gray-700, .text-gray-600 { 
+        color: var(--text-main) !important; 
+    }
 
-/* Target Inputs and Textareas */
-[data-theme="dark"] input, 
-[data-theme="dark"] textarea {
-    background-color: #374151 !important;
-    color: white !important;
-    border-color: #4b5563 !important;
-}
+    /* Component Surfaces */
+    .bg-white, header, aside, main, #mobile-menu, footer {
+        background-color: var(--bg-card) !important;
+        border-color: var(--border) !important;
+    }
 
-/* Target Text Colors */
-[data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-700,
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] label {
-    color: #f3f4f6 !important;
-}
+    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
+    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
+        background-color: var(--bg-card) !important;
+    }
+    
+    /* Muted Sidebar links in dark mode */
+    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
+    [data-theme="dark"] .sidebar-nav-internal a:hover,
+    [data-theme="dark"] .sidebar-nav-internal a.active {
+        background-color: #334155 !important;
+        color: #60a5fa !important;
+    }
 
-/* Fix for specific Indigo headings to make them readable */
-[data-theme="dark"] .text-indigo-700 {
-    color: #818cf8 !important;
-}
+    /* Core Features Overview Boxes */
+    [data-theme="dark"] .bg-gray-100, 
+    [data-theme="dark"] .bg-yellow-50,
+    [data-theme="dark"] .bg-blue-50,
+    [data-theme="dark"] .bg-green-50 {
+        background-color: #334155 !important;
+        border-color: var(--border) !important;
+    }
+
+    /* Brighter borders for boxes in dark mode */
+    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
+        border-color: #4f46e5 !important; 
+    }
+
+    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
+    #universal-bottom-nav {
+        background-color: var(--nav-bg) !important;
+        border-top: 1px solid var(--border) !important;
+        height: var(--nav-height);
+    }
+
+    /* This targets the icon specifically */
+    .nav-link i { 
+        color: var(--nav-text) !important; 
+        font-weight: 900 !important; /* Makes icons look thicker/bolder */
+        font-size: 20px !important;  /* Slightly larger for visibility */
+        transition: transform 0.2s;
+    }
+
+    /* This targets the text label specifically */
+    .nav-link div { 
+        color: var(--nav-text) !important; 
+        font-weight: 900 !important; /* Thickest weight for labels */
+        font-size: 11px !important;
+        margin-top: 2px;
+    }
+
+    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
+    #theme-toggle-btn {
+        position: fixed;
+        bottom: 115px; /* 65px height + 50px gap */
+        right: 20px;
+        z-index: 10000;
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        border: none;
+        background: #4f46e5;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
 </body>
 
 </html>
+
 
 
