@@ -188,29 +188,42 @@
 
     :root {
         --nav-bg: #ffffff;
-        --nav-text: #666666;
-        --nav-hover: #007AFF; /* Modern Blue */
+        --nav-text: #000000; /* Made pure black for higher contrast */
+        --nav-hover: #007AFF; 
         --nav-height: 65px;
     }
 
-    /* THE HOVER EFFECT (For Laptop/Mouse) */
-    .nav-link:hover {
-        color: var(--nav-hover) !important;
-    }
-
-    .nav-link:hover i {
-        transform: translateY(-3px); /* Icon pops up slightly */
-        transition: 0.3s;
-    }
-
-    /* THE ACTIVE/TAP EFFECT (For Mobile/Touch) */
-    .nav-link:active {
-        transform: scale(0.9); /* Button shrinks slightly when pressed */
-        color: var(--nav-hover) !important;
-    }
-
+    /* --- INSTANT REDIRECT FIX --- */
     .nav-link {
-        transition: all 0.2s ease;
+        /* Set transition to 0s to remove all delay when clicking */
+        transition: none !important; 
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+    }
+
+    /* Remove the movement (translateY/scale) that makes it feel slow */
+    .nav-link:hover i, .nav-link:active {
+        transform: none !important; 
+        color: var(--nav-hover) !important;
+    }
+
+    /* Keep icons and text bold and dark */
+    .nav-link i { 
+        font-size: 18px; 
+        display: block; 
+        margin-bottom: 3px; 
+        font-weight: 900 !important; /* Bolder icons */
+    }
+    
+    .nav-link div { 
+        font-size: 10px; 
+        font-weight: 800 !important; /* Bolder text */
+    }
+
+    /* Optimization for Dark Mode */
+    [data-theme="dark"] {
+        --nav-bg: #1f2937;
+        --nav-text: #ffffff;
     }
 </style>
 
@@ -777,6 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
 
 
 
