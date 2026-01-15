@@ -219,6 +219,72 @@
             </form>
         </div>
     </div>
+
+<style>
+    /* Desktop Check */
+    @media only screen and (min-width: 768px) {
+        #universal-bottom-nav, .nav-spacer { display: none !important; }
+    }
+
+    :root {
+        --nav-bg: #ffffff;
+        --nav-text: #666666;
+        --nav-hover: #007AFF; /* Modern Blue */
+        --nav-height: 65px;
+    }
+
+    /* THE HOVER EFFECT (For Laptop/Mouse) */
+    .nav-link:hover {
+        color: var(--nav-hover) !important;
+    }
+
+    .nav-link:hover i {
+        transform: translateY(-3px); /* Icon pops up slightly */
+        transition: 0.3s;
+    }
+
+    /* THE ACTIVE/TAP EFFECT (For Mobile/Touch) */
+    .nav-link:active {
+        transform: scale(0.9); /* Button shrinks slightly when pressed */
+        color: var(--nav-hover) !important;
+    }
+
+    .nav-link {
+        transition: all 0.2s ease;
+    }
+</style>
+
+<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
+
+    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Home</div>
+    </a>
+
+    <a href="adress.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Address</div>
+    </a>
+
+    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
+    </a>
+
+    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
+    </a>
+
+    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Contact</div>
+    </a>
+
+</nav>
+
+<div class="nav-spacer" style="height: 75px; width: 100%;"></div>
+    
 <script>
     // --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
     const firebaseConfig = {
@@ -1141,6 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
 </html>
+
 
 
 
