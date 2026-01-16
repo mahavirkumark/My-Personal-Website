@@ -1186,7 +1186,7 @@ function loadModalTasks(date) {
             // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
             const delBtn = document.createElement("button");
             delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
-            delBtn.className = "flex-1 md:w-[100px] h-24 flex items-center justify-center gap-2 bg-red-600 text-white font-bold tracking-widest text-[14px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
+            delBtn.className = "flex-1 md:w-[100px] h-24 flex items-center justify-center gap-2 bg-pink-600 text-white font-bold tracking-widest text-[14px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
             delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
 
             crudRow.appendChild(editBtn);
@@ -2011,6 +2011,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
+
 
 
 
