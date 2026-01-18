@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>My Personal Website</title>
-<meta name="google-site-verification" content="343b07ffe47a9eab" />
+    <title>MyTracker</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -83,9 +83,9 @@
 
     <nav class="bg-white shadow-sm py-4">
         <div class="container mx-auto px-4">
-            <div class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <i class="fas fa-user-circle text-2xl text-blue-600"></i>
-                <span class="font-bold text-gray-800">My Personal Website</span>
+            <div class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="fas fa-user-circle text-3xl text-blue-600"></i>
+                <span class="font-bold text-gray-800">MyTracker</span>
             </div>
         </div>
     </nav>
@@ -366,98 +366,146 @@
     };
 </script>
     
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
-</script>
-     <button id="theme-toggle-btn">
+<button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
     <span id="theme-icon">🌙</span>
 </button>
 
 <style>
-    /* --- THEME TOGGLE BUTTON STYLING --- */
-#theme-toggle-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 50; /* Above nav */
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: #4f46e5; /* Indigo-600 */
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-}
+    /* --- BUTTON STYLING --- */
+    #theme-toggle-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        z-index: 1000;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background: #2563eb; /* Blue in Light Mode */
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-#theme-toggle-btn:active { transform: scale(0.9); }
+    #theme-toggle-btn:hover {
+        transform: scale(1.1) rotate(15deg);
+    }
 
-/* --- DARK MODE OVERRIDES --- */
-/* Target the Body */
-[data-theme="dark"] body {
-    background-color: #121212 !important;
-    color: #e5e7eb !important;
-}
+    #theme-toggle-btn:active {
+        transform: scale(0.95);
+    }
 
-/* Target your Nav, Containers, and Footer */
-[data-theme="dark"] nav, 
-[data-theme="dark"] .bg-white, 
-[data-theme="dark"] #mobileMenu,
-[data-theme="dark"] footer {
-    background-color: #1f2937 !important; /* Dark Gray */
-    color: #f3f4f6 !important;
-}
+    /* --- DARK MODE DEFINITIONS --- */
+    /* Using [data-theme="dark"] on the root (html) element */
+    [data-theme="dark"] {
+        background-color: #0f172a !important; /* Deep Navy */
+        color: #f1f5f9 !important;
+    }
 
-/* Target Inputs and Textareas */
-[data-theme="dark"] input, 
-[data-theme="dark"] textarea {
-    background-color: #374151 !important;
-    color: white !important;
-    border-color: #4b5563 !important;
-}
+    /* Background Overrides */
+    [data-theme="dark"] body {
+        background-color: #0f172a !important;
+    }
 
-/* Target Text Colors */
-[data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-700,
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] label {
-    color: #f3f4f6 !important;
-}
+    [data-theme="dark"] nav, 
+    [data-theme="dark"] footer,
+    [data-theme="dark"] .bg-white, 
+    [data-theme="dark"] #loginCard, 
+    [data-theme="dark"] #pinCard,
+    [data-theme="dark"] .lg\:block > div { 
+        background-color: #1e293b !important; /* Lighter navy for cards */
+        color: #f1f5f9 !important;
+        border: 1px solid #334155 !important;
+    }
 
-/* Fix for specific Indigo headings to make them readable */
-[data-theme="dark"] .text-indigo-700 {
-    color: #818cf8 !important;
-}
+    [data-theme="dark"] .bg-gray-50 {
+        background-color: #111827 !important; /* Darker section background */
+    }
+
+    /* Text Color Overrides */
+    [data-theme="dark"] .text-gray-800,
+    [data-theme="dark"] .text-gray-900,
+    [data-theme="dark"] h2, 
+    [data-theme="dark"] h3 {
+        color: #ffffff !important;
+    }
+
+    [data-theme="dark"] .text-gray-600 {
+        color: #94a3b8 !important; /* Muted slate for descriptions */
+    }
+
+    /* Input Fields */
+    [data-theme="dark"] input {
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+        color: #ffffff !important;
+    }
+
+    [data-theme="dark"] input::placeholder {
+        color: #64748b !important;
+    }
+
+    /* Icon Colors */
+    [data-theme="dark"] .text-blue-600,
+    [data-theme="dark"] .text-blue-500,
+    [data-theme="dark"] .fas {
+        color: #60a5fa !important; /* Brighter blue for visibility */
+    }
+
+    /* Google Button Adjustments */
+    [data-theme="dark"] #googleLoginBtn {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 1px solid #475569 !important;
+    }
+
+    [data-theme="dark"] #googleLoginBtn:hover {
+        background-color: #334155 !important;
+    }
 </style>
-  
+
+<script>
+    (function() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        // 1. Check for saved preference or system preference
+        const savedTheme = localStorage.getItem('theme') || 
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // 2. Apply theme on load
+        applyTheme(savedTheme);
+
+        // 3. Toggle event
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+
+        function applyTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeBtn.style.background = '#fbbf24'; // Amber for Sun
+                themeBtn.style.boxShadow = '0 4px 15px rgba(251, 191, 36, 0.4)';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeBtn.style.background = '#2563eb'; // Blue for Moon
+                themeBtn.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
+            }
+        }
+    })();
+</script>
+    
 
 <script>
     // Check if the user was redirected because of a timeout
@@ -490,6 +538,35 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
