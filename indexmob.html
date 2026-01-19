@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>MyTracker</title>
+    <title>Savig</title>
 <meta name="google-site-verification" content="343b07ffe47a9eab" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -88,14 +88,18 @@ if ("serviceWorker" in navigator) {
 </head>
 
 <body class="min-h-screen flex flex-col justify-between">
-<nav class="bg-white shadow-sm py-4" style="margin-bottom: 30px;">
+<nav class="bg-white shadow-sm py-2" style="margin-bottom: 30px;">
     <div class="container mx-auto px-2">
-<div class="font-bold text-gray-800 flex items-center gap-1" style="font-size: 20px;">
-            <i class="fas fa-user-circle text-2xl text-blue-600"></i>
-            <span class="font-bold text-gray-800">MyTracker</span>
+        <div class="flex items-center gap-1">
+            <div class="relative flex items-center justify-center">
+                <i class="fas fa-shield  text-blue-600" style="font-size:27px;"></i>
+                <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; transform: translateY(-50%);"></i>
+            </div>
+            <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">SAVIG</span>
         </div>
     </div>
 </nav>
+
 
 <div id="login-msg" style="display:none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; margin: 0 auto 20px auto; border-radius: 4px; text-align: center; font-family: sans-serif; max-width: 90%;">
     <strong>Security Timeout:</strong> Your session has expired. Please try to login again.
@@ -453,25 +457,22 @@ function startTimer(seconds) {
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('theme-toggle-btn');
     const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    const html = document.documentElement;
 
-    // 2. Click Event
+    const applyTheme = (theme) => {
+        html.setAttribute('data-theme', theme);
+        html.classList.toggle('dark', theme === 'dark'); // For Tailwind dark: classes
+        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', theme);
+    };
+
+    // Initialize
+    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    applyTheme(savedTheme);
+
     btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(newTheme);
     });
 });
 </script>
@@ -480,14 +481,63 @@ document.addEventListener('DOMContentLoaded', () => {
 </button>
 
 <style>
-    /* --- THEME TOGGLE BUTTON STYLING --- */
+  /* --- DARK MODE CORE --- */
+[data-theme="dark"] {
+    background-color: #0f172a; /* Deep Slate Navy */
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] body {
+    background-color: #0f172a !important;
+}
+
+/* --- NAV & FOOTER FIX --- */
+[data-theme="dark"] nav, 
+[data-theme="dark"] footer,
+[data-theme="dark"] section.bg-gray-50 {
+    background-color: #1e293b !important; /* Lighter slate for depth */
+    border-color: #334155 !important;
+}
+
+/* --- BRAND & CARDS FIX --- */
+[data-theme="dark"] .text-gray-900, 
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .font-black.text-gray-900 {
+    color: #ffffff !important; /* Forces SAVIG and Headings to White */
+}
+
+[data-theme="dark"] .bg-white {
+    background-color: #1e293b !important; /* Cards and Login Box */
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .text-gray-600 {
+    color: #94a3b8 !important; /* Lighter gray for descriptions */
+}
+
+/* --- BUTTON & UI FIX --- */
+[data-theme="dark"] #googleLoginBtn {
+    background-color: #ffffff;
+    color: #1e293b;
+}
+
+[data-theme="dark"] input {
+    background-color: #0f172a !important;
+    color: white !important;
+    border-color: #334155 !important;
+}
+
+/* Glow effect for SAVIG icon in dark mode */
+[data-theme="dark"] .fa-shield {
+    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4));
+}
 #theme-toggle-btn {
     position: fixed;
-    bottom: 20px;
+    bottom: 4%;
     right: 20px;
     z-index: 50; /* Above nav */
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: none;
     background: #4f46e5; /* Indigo-600 */
@@ -499,45 +549,6 @@ document.addEventListener('DOMContentLoaded', () => {
     align-items: center;
     justify-content: center;
     transition: transform 0.2s;
-}
-
-#theme-toggle-btn:active { transform: scale(0.9); }
-
-/* --- DARK MODE OVERRIDES --- */
-/* Target the Body */
-[data-theme="dark"] body {
-    background-color: #121212 !important;
-    color: #e5e7eb !important;
-}
-
-/* Target your Nav, Containers, and Footer */
-[data-theme="dark"] nav, 
-[data-theme="dark"] .bg-white, 
-[data-theme="dark"] #mobileMenu,
-[data-theme="dark"] footer {
-    background-color: #1f2937 !important; /* Dark Gray */
-    color: #f3f4f6 !important;
-}
-
-/* Target Inputs and Textareas */
-[data-theme="dark"] input, 
-[data-theme="dark"] textarea {
-    background-color: #374151 !important;
-    color: white !important;
-    border-color: #4b5563 !important;
-}
-
-/* Target Text Colors */
-[data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-700,
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] label {
-    color: #f3f4f6 !important;
-}
-
-/* Fix for specific Indigo headings to make them readable */
-[data-theme="dark"] .text-indigo-700 {
-    color: #818cf8 !important;
 }
 </style>
   
@@ -575,6 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
