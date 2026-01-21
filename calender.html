@@ -1284,7 +1284,7 @@ function cancelEventPermanent(event) {
 
 
 
-// --- 1. CHECK AND PROMPT LOGIC ---
+// --- FIXED: Prompt for status the day AFTER the event date ---
 async function checkAndPromptForEventStatus() {
     if (!currentUser) return;
     
@@ -1293,15 +1293,23 @@ async function checkAndPromptForEventStatus() {
         const allEvents = snapshot.val() || {};
         
         eventsToPrompt = []; 
-        const now = new Date().getTime();
+        const now = new Date();
+        // Set 'now' to the start of the current day to compare dates easily
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
         
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
-                // Logic: Pending AND 24 hours (PROMPT_DELAY_MS) have passed
-                const savedTime = event.savedTimestamp || event.timestamp; 
-                const promptTime = savedTime + PROMPT_DELAY_MS;
                 
-                if (event.status === EVENT_STATUS.PENDING && promptTime < now) {
+                // 1. Create a Date object for the event day
+                const eventDateParts = dateISO.split('-').map(Number);
+                // Create date at 00:00:00 of that day
+                const eventDayObj = new Date(eventDateParts[0], eventDateParts[1] - 1, eventDateParts[2]);
+                const eventDayTime = eventDayObj.getTime();
+
+                // 2. LOGIC: 
+                // We prompt if status is PENDING 
+                // AND Today is strictly GREATER than the Event Date
+                if (event.status === EVENT_STATUS.PENDING && todayStart > eventDayTime) {
                     eventsToPrompt.push({ date: dateISO, id, ...event });
                 }
             });
@@ -2011,6 +2019,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
+
 
 
 
