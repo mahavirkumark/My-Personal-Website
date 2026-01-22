@@ -479,11 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
 </button>
-
 <style>
-  /* --- DARK MODE CORE --- */
+/* --- DARK MODE CORE --- */
 [data-theme="dark"] {
-    background-color: #0f172a; /* Deep Slate Navy */
+    background-color: #0f172a;
     color: #f1f5f9;
 }
 
@@ -491,57 +490,111 @@ document.addEventListener('DOMContentLoaded', () => {
     background-color: #0f172a !important;
 }
 
-/* --- NAV & FOOTER FIX --- */
-    [data-theme="dark"] h2, 
-[data-theme="dark"] nav, 
-[data-theme="dark"] footer,
-[data-theme="dark"] section.bg-gray-50 {
-    background-color: #1e293b !important; /* Lighter slate for depth */
+/* --- SECTION & BACKGROUND FIXES --- */
+[data-theme="dark"] section,
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-white {
+    background-color: #1e293b !important;
     border-color: #334155 !important;
 }
 
-/* --- BRAND & CARDS FIX --- */
+[data-theme="dark"] section.bg-white {
+    background-color: #0f172a !important; 
+}
+
+/* --- BORDER & DIVIDER CONTROLS --- */
+[data-theme="dark"] *, 
+[data-theme="dark"] .border, 
+[data-theme="dark"] .border-l-4 {
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .border-blue-500,
+[data-theme="dark"] .border-blue-600 {
+    border-color: #4f46e5 !important; 
+}
+
+/* --- NAV & FOOTER --- */
+[data-theme="dark"] nav {
+    background-color: #0f172a !important;
+    border-bottom: 1px solid #1e293b !important;
+}
+
+/* Specific fix to remove darkness above footer */
+[data-theme="dark"] section:last-of-type,
+[data-theme="dark"] footer {
+    background-color: #0f172a !important;
+    margin-top: 0 !important;
+    border-top: 1px solid #1e293b !important;
+}
+
+/* --- H2 & TITLES --- */
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3,
 [data-theme="dark"] .text-gray-900, 
-[data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .font-black.text-gray-900 {
-    color: #ffffff !important; /* Forces SAVIG and Headings to White */
+[data-theme="dark"] .text-gray-800 {
+    color: #ffffff !important;
 }
 
-[data-theme="dark"] .bg-white {
-    background-color: #1e293b !important; /* Cards and Login Box */
-    color: #f1f5f9 !important;
+[data-theme="dark"] .section-title {
+    position: relative;
+    padding-bottom: 15px;
 }
 
-[data-theme="dark"] .text-gray-600 {
-    color: #94a3b8 !important; /* Lighter gray for descriptions */
+/* --- CARD & INTERACTIVE ELEMENTS --- */
+[data-theme="dark"] .rounded-xl {
+    background-color: #1e293b !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid #334155 !important; /* Changed from blue to slate for professional look */
 }
 
-/* --- BUTTON & UI FIX --- */
-[data-theme="dark"] #googleLoginBtn {
-    background-color: #ffffff;
-    color: #1e293b;
+[data-theme="dark"] .rounded-xl:hover {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.2) !important;
 }
 
+/* --- INPUTS & OTP BOX --- */
 [data-theme="dark"] input {
     background-color: #0f172a !important;
-    color: white !important;
-    border-color: #334155 !important;
+    color: #ffffff !important;
+    border: 1px solid #334155 !important;
 }
 
-/* Glow effect for SAVIG icon in dark mode */
-[data-theme="dark"] .fa-shield {
-    filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.4));
+[data-theme="dark"] input:focus {
+    border-color: #4f46e5 !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
 }
+
+/* --- TEXT COLORS --- */
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500 {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .text-blue-600,
+[data-theme="dark"] .text-blue-500 {
+    color: #818cf8 !important;
+}
+
+/* --- SPECIAL FIXES --- */
+[data-theme="dark"] #login-msg {
+    background-color: #450a0a !important;
+    border-color: #7f1d1d !important;
+    color: #fecaca !important;
+}
+
+/* --- THEME TOGGLE BUTTON --- */
 #theme-toggle-btn {
     position: fixed;
     bottom: 4%;
     right: 20px;
-    z-index: 50; /* Above nav */
+    z-index: 50;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     border: none;
-    background: #4f46e5; /* Indigo-600 */
+    background: #4f46e5;
     color: white;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -551,31 +604,11 @@ document.addEventListener('DOMContentLoaded', () => {
     justify-content: center;
     transition: transform 0.2s;
 }
-    /* --- H2 DARK MODE ENHANCEMENTS --- */
-[data-theme="dark"] h2 {
-    color: #ffffff !important;
-    letter-spacing: -0.02em; /* Tighter tracking looks more modern */
-   
-}
 
-/* Optional: Add a subtle underline accent for section titles */
-[data-theme="dark"] h2.section-title::after {
-    content: "";
-    display: block;
-    width: 50px;
-    height: 3px;
-    background: #4f46e5; /* Indigo accent */
-    margin: 10px auto 0;
-    border-radius: 2px;
-}
-
-/* If your h2 is inside a dark card, give it a slight blue tint for harmony */
-[data-theme="dark"] .bg-white h2 {
-    color: #f1f5f9 !important;
+#theme-toggle-btn:active {
+    transform: scale(0.9);
 }
 </style>
-  
-
 <script>
     // Check if the user was redirected because of a timeout
     const urlParams = new URLSearchParams(window.location.search);
@@ -609,6 +642,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
+
 
 
 
