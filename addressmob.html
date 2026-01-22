@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal Website</title>
+    <title>Savig</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -169,62 +169,90 @@
     }
 }
 @media (max-width: 767px) {
-    /* ... your existing search-active styles ... */
-
-    /* Hide the footer entirely when mobile search is focused */
-    body.search-active footer {
+    /* Force hide the universal bottom nav when search is active */
+    body.search-active #universal-bottom-nav {
         display: none !important;
     }
 }
+/* Apply this to your global stylesheet */
+
+/* Apply this to your global stylesheet */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* This ensures the main content grows to fill available space */
+main, .content-wrapper {
+  flex: 1;
+}
+
+/* This ensures the main content grows to fill available space */
+
 </style>
 </head>
 <body class="bg-gray-100 font-sans antialiased">
+<nav class="bg-white shadow-sm py-2 fixed w-full top-0 z-20">
 
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-20">
-<div class="container mx-auto flex justify-between items-center p-2 md:px-4">
-            <div class="flex items-center gap-2 text-lg md:text-xl font-bold text-gray-800 -ml-[4px]">
-                <i class="fas fa-user-circle text-indigo-500 text-3xl md:text-3xl"></i>
-                <span class="text-xl md:text-2xl">My Personal Website</span>
-            </div>
-
-
-
-            <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
-                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
-                
-                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
-                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
-                <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-4">
-                <div class="text-right">
-                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
-                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
-                    <p id="userId" class="hidden"></p>
-                </div>
-                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500">
-                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm">Logout</button>
-            </div>
-            
-            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-        </div>
+    <div class="container mx-auto flex justify-between items-center px-2 md:px-4">
         
-        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-          
-            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-link"></i> Links</a>
-            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <div class="border-t border-gray-300 mt-2 pt-2">
-                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
+        <div class="flex items-center gap-1">
+            <div class="relative flex items-center justify-center">
+                <i class="fas fa-shield text-blue-600" style="font-size:27px; -webkit-font-smoothing: antialiased; text-shadow: none;"></i>
+                <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-font-smoothing: antialiased; text-shadow: none;"></i>
             </div>
+            <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</span>
         </div>
-    </nav>
+        <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
+            <a href="home.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
+            <a href="password.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        </div>
+
+        <div class="hidden md:flex items-center gap-4">
+            <div class="text-right">
+                <p id="userName" class="font-bold text-gray-900 leading-none">Loading...</p>
+                <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                <p id="userId" class="hidden"></p>
+            </div>
+            <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-blue-500 shadow-sm">
+            <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm font-bold">Logout</button>
+        </div>
+
+        <button id="menu-btn" class="md:hidden text-gray-700 text-2xl focus:outline-none">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-gray-700 font-medium bg-gray-50 border-t border-gray-100">
+        <a href="home.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-house"></i> Home</a>
+        <a href="password.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-key"></i> Passwords</a>
+        <a href="income.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-wallet"></i> Income</a>
+        <a href="links.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-link"></i> Links</a>
+        <a href="calendar.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-calendar-alt"></i> Calendar</a>
+        
+        <div class="border-t border-gray-300 mt-2 pt-4">
+            <div class="flex items-center gap-3 mb-3">
+                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border border-gray-300">
+                <div>
+                    <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+                    <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                </div>
+            </div>
+            <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 w-full font-bold transition">Logout</button>
+        </div>
+    </div>
+</nav>
     <div>
-<div id="searchWrapper" class="flex items-center gap-2 mb-1 ml-[4px] w-[290px] h-[60px] transition-all duration-300 overflow-hidden">
+<div id="searchWrapper" class="flex items-center gap-1 mb-1 ml-[2px] w-[290px] h-[60px] transition-all duration-300 overflow-hidden">
     <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
         <i class="fas fa-arrow-left"></i>
     </button>
@@ -235,10 +263,19 @@
             oninput="filterAddresses()"
             onfocus="toggleMobileSearchFocus(true)" />
 </div></div>
-<div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8 -mt-[9px]">
+<div class="max-w-8xl mx-auto px-4 mt-6">
+    <button id="toggleFormBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
+        + Add New Address
+    </button>
+</div>
 
-    <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
-        <h2 class="text-2xl font-bold mb-4 text-indigo-700 border-b pb-2">➕ Save New Address</h2>
+<div class="max-w-8xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-5 -mt-[9px]">
+
+    <div id="addressForm" class="hidden bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
+        <div class="flex justify-between items-center mb-2 border-b pb-2">
+            <h2 class="text-2xl font-bold text-indigo-700">➕ Save New Address</h2>
+            
+        </div>
         
         <div class="space-y-4">
             <div>
@@ -249,15 +286,13 @@
 
             <div>
                 <label for="landmarkInput" class="block text-sm font-medium text-gray-700 mb-1">Landmark / Details</label>
-                <textarea id="landmarkInput" 
-                          placeholder="Enter building number, street, or full address details..." 
-                          rows="2"
+                <textarea id="landmarkInput" placeholder="Enter building number, street..." rows="2"
                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"></textarea>
             </div>
 
             <div>
                 <label for="mapInput" class="block text-sm font-medium text-gray-700 mb-1">Google Map Location (Optional)</label>
-                <input type="url" id="mapInput" placeholder="Paste Google Maps URL or coordinates here..." 
+                <input type="url" id="mapInput" placeholder="Paste Google Maps URL..." 
                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition mb-2" />
                 
                 <a href="https://www.google.com/maps" target="_blank" 
@@ -273,6 +308,9 @@
         </div>
     </div>
 
+   
+
+   
     <div class="right-container">
         <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
    
@@ -292,82 +330,61 @@
 <footer class="mt-12 pt-6 pb-6 bg-white text-gray-600 text-center text-sm border-t">
     &copy; 2025 Personal Website | All rights reserved
 </footer>
-
 <style>
-    /* Desktop Check */
-    @media only screen and (min-width: 768px) {
-        #universal-bottom-nav, .nav-spacer { display: none !important; }
-    }
+    /* ... Your existing CSS ... */
 
     :root {
         --nav-bg: #ffffff;
-        --nav-text: #000000; /* Made pure black for higher contrast */
-        --nav-hover: #007AFF; 
-        --nav-height: 65px;
+        --nav-text: #000000;
+        --nav-hover: #007AFF;
+        --input-bg: #ffffff;
+        --input-text: #1f2937;
+        --placeholder-color: #9ca3af;
+        --border-color: #e5e7eb;
     }
 
-    /* --- INSTANT REDIRECT FIX --- */
-    .nav-link {
-        /* Set transition to 0s to remove all delay when clicking */
-        transition: none !important; 
-        -webkit-tap-highlight-color: transparent;
-        cursor: pointer;
+    /* --- DARK MODE OVERRIDES --- */
+    [data-theme="dark"] {
+        --nav-bg: #111827; /* Match your screenshot's dark sidebar */
+        --nav-text: #f3f4f6;
+        --nav-hover: #3b82f6;
+        --input-bg: #1f2937; /* Lighter than body for contrast */
+        --input-text: #ffffff;
+        --placeholder-color: #9ca3af;
+        --border-color: #374151;
     }
 
-    /* Remove the movement (translateY/scale) that makes it feel slow */
-    .nav-link:hover i, .nav-link:active {
-        transform: none !important; 
-        color: var(--nav-hover) !important;
+    /* Apply to Mobile Nav */
+    #universal-bottom-nav {
+        background-color: var(--nav-bg) !important;
+        color: var(--nav-text) !important;
+        border-top: 1px solid var(--border-color);
     }
 
-    /* Keep icons and text bold and dark */
-    .nav-link i { 
-        font-size: 18px; 
-        display: block; 
-        margin-bottom: 3px; 
-        font-weight: 900 !important; /* Bolder icons */
+    /* Apply to Search Bars & Inputs */
+    input, textarea {
+        background-color: var(--input-bg) !important;
+        color: var(--input-text) !important;
+        border: 1px solid var(--border-color) !important;
+    }
+
+    /* Target Search Placeholders specifically */
+    input::placeholder, textarea::placeholder {
+        color: var(--placeholder-color) !important;
+        opacity: 1; /* Firefox fix */
+    }
+
+    /* Desktop Nav Adjustments for Dark Mode */
+    [data-theme="dark"] nav.bg-white {
+        background-color: var(--nav-bg) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     }
     
-    .nav-link div { 
-        font-size: 10px; 
-        font-weight: 800 !important; /* Bolder text */
-    }
-
-    /* Optimization for Dark Mode */
-    [data-theme="dark"] {
-        --nav-bg: #1f2937;
-        --nav-text: #ffffff;
+    [data-theme="dark"] #mobileMenu {
+        background-color: var(--nav-bg) !important;
     }
 </style>
 
-<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
-
-    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Home</div>
-    </a>
-
-    <a href="adress.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Address</div>
-    </a>
-
-    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
-    </a>
-
-    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
-    </a>
-
-    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Contact</div>
-    </a>
-
-</nav>
 
 <div class="nav-spacer" style="height: 75px; width: 100%;"></div>
   <script>
@@ -421,19 +438,36 @@
         });
 
         // --- AUTHENTICATION STATE & UI UPDATE ---
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                document.getElementById("userName").innerText = user.displayName || "My Account";
-                document.getElementById("userEmail").innerText = user.email;
-                document.getElementById("userPhoto").src = user.photoURL || "https://via.placeholder.com/40";
-                document.getElementById("mobileUserName").innerText = user.displayName || "My Account";
-                document.getElementById("mobileUserEmail").innerText = user.email;
-                
-                loadAddresses(user.uid);
-            } else {
-                window.location.href = "index.html";
-            }
+     firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        const name = user.displayName || "User";
+        const email = user.email;
+        const photo = user.photoURL || "https://via.placeholder.com/40";
+
+        const elements = {
+            "userName": name,
+            "mobileUserName": name,
+            "userEmail": email,
+            "mobileUserEmail": email
+        };
+
+        // Update Text Elements
+        for (let id in elements) {
+            let el = document.getElementById(id);
+            if (el) el.innerText = elements[id];
+        }
+
+        // Update All Photo Elements (Desktop & Mobile)
+        // This finds every image with the id "userPhoto" or similar classes
+        document.querySelectorAll('img[id*="userPhoto"]').forEach(img => {
+            img.src = photo;
         });
+
+        loadAddresses(user.uid);
+    } else {
+        window.location.href = "index.html";
+    }
+});
         
         function logout() {
             firebase.auth().signOut().then(() => window.location.href = "index.html");
@@ -690,29 +724,27 @@ function toggleMobileSearchFocus(isFocused) {
     const navBar = document.querySelector("nav");
 
     if (window.innerWidth < 768) {
+        document.body.classList.toggle('search-active', isFocused);
+
         if (isFocused) {
-            // 1. Hide everything else
-            leftContainer.classList.add("hidden");
-            rightHeader.classList.add("hidden");
-            navBar.classList.add("hidden");
-            
-            // 2. Move Search to the very top
-            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
+            // Hide everything else
+            if (leftContainer) leftContainer.classList.add("hidden");
+            if (rightHeader) rightHeader.classList.add("hidden");
+            if (navBar) navBar.classList.add("hidden");
+
+            // Pin search bar to top
+            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "z-50", "p-3", "shadow-md");
             backBtn.classList.remove("hidden");
-            
-            // 3. Add padding to list so it's not hidden under fixed search
-            addressListEl.style.marginTop = "0px";
         } else {
-            // Restore everything
-            leftContainer.classList.remove("hidden");
-            rightHeader.classList.remove("hidden");
-            navBar.classList.remove("hidden");
-            
-            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
+            // Restore UI
+            if (leftContainer) leftContainer.classList.remove("hidden");
+            if (rightHeader) rightHeader.classList.remove("hidden");
+            if (navBar) navBar.classList.remove("hidden");
+
+            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "z-50", "p-3", "shadow-md");
             backBtn.classList.add("hidden");
             
-            addressListEl.style.marginTop = "0px";
-            searchInputEl.value = ""; // Clear search on back
+            searchInputEl.value = ""; 
             filterAddresses();
         }
     }
@@ -846,11 +878,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
-        right: 20px;
+        bottom: 75px; /* 65px height + 50px gap */
+        right: 5px;
         z-index: 10000;
-        width: 52px;
-        height: 52px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         border: none;
         background: #4f46e5;
@@ -864,9 +896,143 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     #theme-toggle-btn:active { transform: scale(0.9); }
+    /* Ensure fixed search wrapper respects dark mode */
+[data-theme="dark"] #searchWrapper.fixed {
+    background-color: #111827 !important; /* Deep Navy to match your UI */
+    border-bottom: 1px solid #374151;
+}
+
+/* Ensure the input inside the fixed wrapper stays dark */
+[data-theme="dark"] #searchWrapper input {
+    background-color: #1f2937 !important;
+    color: white !important;
+}
+
+/* Style the placeholder specifically for better visibility */
+[data-theme="dark"] input::placeholder {
+    color: #9ca3af !important;
+}
 </style>
+<style>
+@media (max-width: 767px) {
+    /* 1. Remove the body's top padding so search bar touches the top edge */
+    body.search-active {
+        padding-top: 0 !important;
+        overflow: hidden;
+        background-color: var(--bg-body) !important;
+    }
+
+    /* 2. Hide all Nav and Footer elements */
+    body.search-active nav, 
+    body.search-active #universal-bottom-nav, 
+    body.search-active .nav-spacer {
+        display: none !important;
+    }
+
+    /* 3. Pin Search Bar to top 0 */
+    body.search-active #searchWrapper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10px 16px !important;
+        z-index: 100 !important;
+        background-color: var(--bg-card) !important;
+        display: flex !important;
+    }
+
+    /* 4. Results container covers full screen with theme background */
+    body.search-active .right-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        background-color: var(--bg-body) !important;
+        z-index: 40 !important;
+        padding-top: 80px !important; /* Space to see results below bar */
+        overflow-y: auto;
+    }
+}
+body.search-active {
+        padding-top: 0 !important;
+        overflow: hidden;
+    }
+
+    body.search-active nav, 
+    body.search-active #universal-bottom-nav, 
+    body.search-active .nav-spacer {
+        display: none !important;
+    }
+
+    body.search-active #searchWrapper {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10px 16px !important;
+        z-index: 100 !important;
+        display: flex !important;
+    }
+
+    /* Full dark background for search results */
+    [data-theme="dark"] body.search-active,
+    [data-theme="dark"] body.search-active .right-container {
+        background-color: #0f172a !important; /* Your deep dark color */
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        padding-top: 80px !important;
+        overflow-y: auto;
+    }
+
+</style>
+<script>
+    const toggleBtn = document.getElementById('toggleFormBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const addressForm = document.getElementById('addressForm');
+
+    // Show form when "Add New Address" is clicked
+    toggleBtn.addEventListener('click', () => {
+        addressForm.classList.toggle('hidden');
+        
+        // Change button text based on state
+        if (addressForm.classList.contains('hidden')) {
+            toggleBtn.innerText = '+ Add New Address';
+        } else {
+            toggleBtn.innerText = 'Close Form';
+        }
+    });
+
+    // Hide form when "Cancel" is clicked
+    cancelBtn.addEventListener('click', () => {
+        addressForm.classList.add('hidden');
+        toggleBtn.innerText = '+ Add New Address';
+    });
+</script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
