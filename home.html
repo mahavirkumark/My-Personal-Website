@@ -86,222 +86,327 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-700 font-sans">
-<link rel="manifest" href="/manifest.json">
-<div class="content-wrapper">
+    <link rel="manifest" href="/manifest.json">
+    <div class="content-wrapper">
 
-    <div class="hidden md:block fade-in">
-        <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
-            <div class="flex items-center gap-2 slide-left">
-                <i class="fas fa-user-circle text-3xl text-blue-800"></i>
-                <h1 class="text-2xl font-bold text-gray-900">My Personal Website</h1>
-            </div>
-
-            <nav class="flex items-center gap-8 text-lg font-normal text-gray-600 slide-right">
-                <a href="home.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-house"></i> Home</a>
-            
-                <a href="income.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-link"></i> Links</a>
-                <a href="calender.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-calendar-days"></i> Calendar</a>
-                <a href="birthday.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-cake-candles"></i> Birthday</a>
-                <a href="password.html" class="flex items-center gap-2 hover:text-blue-700"><i class="fas fa-lock"></i> Passwords</a>
-            </nav>
-
-            <div class="flex items-center gap-4 slide-left">
-                <div class="text-right">
-                    <p id="desktopUserName" class="font-semibold text-gray-800 text-base">Dashboard User</p>
-                    <p id="desktopUserEmail" class="text-sm text-gray-500">user@example.com</p>
+        <div class="hidden md:block fade-in">
+            <header class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+                <div class="flex items-center gap-1 slide-left">
+                    <div class="relative flex items-center justify-center">
+                        <i class="fas fa-shield text-blue-600" style="font-size:32px;"></i>
+                        <i class="fas fa-database text-white absolute" style="font-size: 16px; top: 50%; transform: translateY(-50%);"></i>
+                    </div>
+                    <span class="font-black text-gray-900 tracking-tighter mr-[200px]" style="font-size: 25px;">Savig</span>
                 </div>
-                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border border-gray-300"/>
-                <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 text-sm transition duration-150">Logout</button>
-            </div>
-        </header>
 
-        <div class="dashboard-wrapper mt-6 flex gap-6">
-            
-            <aside class="sidebar-desktop fade-in">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Core Data</h3>
-                <nav class="sidebar-nav-internal flex flex-col">
-           
-                    <a href="profile.html"><i class="fas fa-user-gear"></i> Profile Settings</a>
-                    <a href="essential.html""><i class="fas fa-shopping-basket"></i> Daily Essentials</a>
-  <a href="asset.html" ><i class="fas fa-dollar-sign mr-3 text-gray-500"></i> Manage Assets</a>
-<a href="place.html" ><i class="fas fa-map-marker-alt mr-3 text-gray-500"></i> Tourist Places</a>
-                    
-                    <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">Productivity</h4>
-                    <a href="daily.html"><i class="fas fa-list-check"></i> Daily Tasks</a>
-                    <a href="principle.html"><i class="fas fa-lightbulb"></i> Principle</a>
-                    <a href="contact.html"><i class="fas fa-address-book"></i> Contact</a>
-                  
-                      <a href="grocery.html"><i class="fas fa-shopping-cart"></i> Grocery List</a>
-              <a href="adress.html"><i class="fas fa-map-location-dot"></i> Address </a>
-
-                    <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">System</h4>
-                   <a href="shop.html"><i class="fas fa-store"></i> Stores</a>
-                    <a href="added.html"><i class="fas fa-gear"></i> App Settings</a>
-                    <a href="help.html"><i class="fas fa-circle-question"></i> Help & Support</a>
+                <nav class="flex items-center gap-6 text-xl font-semibold text-gray-700">
+                    <a href="home.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-house text-xl"></i> Home
+                    </a>
+                    <a href="income.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-wallet text-xl"></i> Income
+                    </a>
+                    <a href="links.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-link text-xl"></i> Links
+                    </a>
+                    <a href="calender.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-calendar-days text-xl"></i> Calendar
+                    </a>
+                    <a href="birthday.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-cake-candles text-xl"></i> Birthday
+                    </a>
+                    <a href="password.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-lock text-xl"></i> Passwords
+                    </a>
                 </nav>
-            </aside>
-            
-            <main class="dashboard-main-content p-8 bg-white rounded shadow fade-in">
-                <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Welcome to Your Personal Web Hub 💼</h2>
-                
-                <p class="text-lg text-gray-600 mb-8 border-b pb-4">
-                    This personalized dashboard is designed to be your central command center, helping you organize, manage, and secure all aspects of your digital life and web usage in one private, convenient space.
+
+                <div class="flex items-center gap-4 slide-left">
+                    <div class="text-right">
+                        <p id="desktopUserName" class="font-semibold text-gray-800 text-base">Dashboard User</p>
+                        <p id="desktopUserEmail" class="text-sm text-gray-500">user@example.com</p>
+                    </div>
+                    <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border border-gray-300"/>
+                    <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 text-sm transition duration-150">Logout</button>
+                </div>
+            </header>
+
+            <div class="dashboard-wrapper mt-7 flex gap-6 px-4">
+                <aside class="sidebar-desktop fade-in w-64">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Core Data</h3>
+                    <nav class="sidebar-nav-internal flex flex-col gap-2">
+                        <a href="profile.html"><i class="fas fa-user-gear"></i> Profile Settings</a>
+                        <a href="essential.html"><i class="fas fa-shopping-basket"></i> Daily Essentials</a>
+                        <a href="asset.html"><i class="fas fa-dollar-sign mr-3 text-gray-500"></i> Manage Assets</a>
+                        <a href="place.html"><i class="fas fa-map-marker-alt mr-3 text-gray-500"></i> Tourist Places</a>
+
+                        <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">Productivity</h4>
+                        <a href="daily.html"><i class="fas fa-list-check"></i> Daily Tasks</a>
+                        <a href="principle.html"><i class="fas fa-lightbulb"></i> Principle</a>
+                        <a href="contact.html"><i class="fas fa-address-book"></i> Contact</a>
+                        <a href="grocery.html"><i class="fas fa-shopping-cart"></i> Grocery List</a>
+                        <a href="adress.html"><i class="fas fa-map-location-dot"></i> Address </a>
+
+                        <h4 class="text-xs font-semibold text-gray-400 mt-6 mb-2">System</h4>
+                        <a href="shop.html"><i class="fas fa-store"></i> Stores</a>
+                        <a href="added.html"><i class="fas fa-gear"></i> App Settings</a>
+                        <a href="help.html"><i class="fas fa-circle-question"></i> Help & Support</a>
+                    </nav>
+                </aside>
+
+                <main class="dashboard-main-content p-8 bg-white rounded shadow fade-in flex-1">
+                    <h2 class="text-4xl font-extrabold text-gray-900 mb-4">Welcome to Your Personal Web Hub 💼</h2>
+                    <p class="text-lg text-gray-600 mb-8 border-b pb-4">
+                        Savig is your private, unified hub for everything that matters. We’ve brought your finances, security, and daily planning into a single, high-performance interface. 
+                    </p>
+
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 mt-6 border-b pb-2">Maximize Your Life and Career 🚀</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="animate-card p-6 bg-blue-50 border-t-4 border-blue-700 rounded-lg shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-calendar-check text-3xl text-blue-600 mr-3"></i>
+                                <h4 class="text-xl font-semibold text-blue-800">Enhance Daily Life</h4>
+                            </div>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> <b>Effortless Organization:</b> Track birthdays, appointments, and personal links in one place.</li>
+                                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> <b>Digital Safety:</b> Securely store all your passwords and sensitive information using Firebase.</li>
+                                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> <b>Personal Finances:</b> Log your Income details privately to keep track of your financial goals.</li>
+                            </ul>
+                        </div>
+
+                        <div class="animate-card p-6 bg-green-50 border-t-4 border-green-700 rounded-lg shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-chart-line text-3xl text-green-600 mr-3"></i>
+                                <h4 class="text-xl font-semibold text-green-800">Boost Professional Work</h4>
+                            </div>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> <b>Focused Productivity:</b> Use Daily Tasks and Notes to capture ideas and capturing projects instantly.</li>
+                                <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> <b>Data Oversight:</b> Access Security Logs to monitor account activity and maintain privacy.</li>
+                                <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> <b>Information Retrieval:</b> Centralize business links and essential professional resources.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Core Features Overview</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-4 bg-gray-100 border-l-4 border-gray-600 rounded-lg">
+                            <p class="font-bold text-gray-800 flex items-center mb-2"><i class="fas fa-key mr-2"></i> Confidential Vault</p>
+                            <p class="text-sm text-gray-700">Secure storage for Passwords, Financial Income, and Private Contact Details.</p>
+                        </div>
+                        <div class="p-4 bg-yellow-50 border-l-4 border-yellow-700 rounded-lg">
+                            <p class="font-bold text-yellow-800 flex items-center mb-2"><i class="fas fa-cogs mr-2"></i> Workflow Management</p>
+                            <p class="text-sm text-gray-700">Tools for managing Daily Tasks and personalized system behavior settings.</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+<div class="block md:hidden fade-in">
+    <header class="bg-white shadow-md sticky top-0 z-30 border-b border-gray-100">
+        <div class="flex justify-between items-center py-2 px-1">
+            <div class="flex items-center gap-1">
+                <div class="relative flex items-center justify-center">
+                    <i class="fas fa-shield text-blue-600" style="font-size:26px;"></i>
+                    <i class="fas fa-database text-white absolute" style="font-size: 11px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
+                </div>
+                <h1 class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</h1>
+            </div>
+
+            <button id="menu-btn" class="text-gray-700 hover:text-blue-700 focus:outline-none p-2 rounded-lg">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        
+        </header>
+</div>
+
+                <nav id="mobile-menu" class="hidden bg-white px-6 pb-6 space-y-1 text-base font-normal text-gray-800">
+                    <h3 class="font-bold text-sm text-gray-700 mb-2 pt-2">MAIN NAVIGATION</h3>
+                    <a href="home.html" class="block py-2"><i class="fas fa-house mr-3"></i> Home</a>
+                    <a href="income.html" class="block py-2"><i class="fas fa-wallet mr-3"></i> Income</a>
+                    <a href="links.html" class="block py-2"><i class="fas fa-link mr-3"></i> Links</a>
+                    <a href="c.html" class="block py-2"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
+                    <a href="password.html" class="block py-2"><i class="fas fa-lock mr-3"></i> Passwords</a>
+            <button id="profile-toggle-btn" class="flex items-center gap-2 mt-4 w-full text-left font-medium text-gray-800 dark:text-gray-200 border-t border-gray-200 dark:border-gray-700 pt-4 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all rounded-lg px-2">
+    <i class="fas fa-user-circle text-2xl text-blue-600 dark:text-blue-400"></i>
+    <span class="font-bold tracking-tight">Profile Settings</span>
+    <i class="fas fa-chevron-down ml-auto transition-transform duration-300 text-gray-400" id="profileChevron"></i>
+</button>
+
+<div id="mobileProfilePanel" class="hidden mt-3 p-4 border border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-slate-800/50 shadow-sm space-y-4">
+    <div class="flex items-center gap-4">
+        <div class="relative">
+            <img id="mobileUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border-2 border-white dark:border-slate-700 shadow-sm"/>
+            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+        </div>
+        
+        <div class="overflow-hidden">
+            <p id="mobileUserName" class="font-extrabold text-gray-900 dark:text-white truncate text-base">Loading...</p>
+            <p id="mobileUserEmail" class="text-xs text-gray-500 dark:text-gray-400 truncate">Loading...</p>
+        </div>
+    </div>
+    
+    <button onclick="logout()" class="flex items-center justify-center gap-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-3 py-2.5 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 text-sm font-bold mt-2 w-full transition-colors border border-red-100 dark:border-red-900/30">
+        <i class="fas fa-sign-out-alt"></i>
+        Logout Session
+    </button>
+</div>
+
+                    <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">CORE DATA</p>
+                    <a href="profile.html" class="block py-2"><i class="fas fa-user-gear mr-3"></i> Profile Settings</a>
+                    <a href="essential.html" class="block py-2"><i class="fas fa-shopping-basket mr-3"></i> Daily Essential</a>
+                    <a href="contact.html" class="block py-2"><i class="fas fa-address-book mr-3"></i> Contact Details</a>
+                    <a href="grocery.html" class="block py-2"><i class="fas fa-shopping-cart mr-3"></i> Grocery List</a>
+                    <a href="addressmob.html" class="block py-2"><i class="fas fa-map-location-dot mr-3"></i> Address </a>
+                    
+                    <a href="asset.html" class="flex items-center p-3 text-base font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition duration-150">
+                        <i class="fas fa-dollar-sign mr-3 text-indigo-500"></i> Manage Assets
+                    </a>
+
+                    <a href="place.html" class="flex items-center p-3 text-base font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition duration-150">
+                        <i class="fas fa-map-marker-alt mr-3 text-indigo-500"></i> Tourist Places
+                    </a>
+                    
+                    <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">PRODUCTIVITY</p>
+                    <a href="daily.html" class="block py-2"><i class="fas fa-list-check mr-3"></i> Daily Tasks</a>
+                    <a href="principle.html" class="block py-2"><i class="fas fa-lightbulb mr-3"></i> Principle</a>
+
+                    <a href="shop.html" class="block py-2"><i class="fas fa-store mr-3"></i> Stores</a>
+                    <a href="added.html" class="block py-2"><i class="fas fa-gear mr-3"></i> App Settings</a>
+                    <a href="help.html" class="block py-2"><i class="fas fa-circle-question mr-3"></i> Help & Support</a>
+                </nav>
+            </header>
+
+            <main class="w-full p-4 bg-white rounded shadow fade-in">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Your Personal Web Hub 💼</h2>
+                <p class="text-md text-gray-600 mb-6 border-b pb-3">
+                    This dashboard is your command center for managing and securing your digital life. Tap the menu (<i class="fas fa-bars mx-1"></i>) for all navigation and features.
                 </p>
 
-                <h3 class="text-2xl font-bold text-gray-800 mb-6 mt-6 border-b pb-2">Maximize Your Life and Career 🚀</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <div class="animate-card p-6 bg-blue-50 border-t-4 border-blue-700 rounded-lg shadow-lg" style="animation-delay: 0.1s;">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-calendar-check text-3xl text-blue-600 mr-3"></i>
-                            <h4 class="text-xl font-semibold text-blue-800">Enhance Daily Life</h4>
-                        </div>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Effortless Organization:** Track birthdays, appointments, and personal links in one place, ensuring you never miss an important date or resource.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Digital Safety:** Securely store all your passwords and sensitive contact information using Firebase authentication, giving you peace of mind.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i> **Personal Finances:** Log your Income details privately to keep track of your financial goals and status.</li>
-                        </ul>
-                    </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Maximize Your Life and Career 🚀</h3>
+                <ul class="space-y-3 mb-6 text-gray-700 list-disc list-inside ml-2 text-sm">
+                    <li>Centralize birthdays, calendars, and personal links for <b>effortless organization</b>.</li>
+                    <li>Securely store all your <b>Passwords</b> and sensitive data privately.</li>
+                    <li>Manage <b>Daily Tasks</b> and captured professional resources to boost productivity.</li>
+                </ul>
 
-                    <div class="animate-card p-6 bg-green-50 border-t-4 border-green-700 rounded-lg shadow-lg" style="animation-delay: 0.2s;">
-                        <div class="flex items-center mb-4">
-                            <i class="fas fa-chart-line text-3xl text-green-600 mr-3"></i>
-                            <h4 class="text-xl font-semibold text-green-800">Boost Professional Work</h4>
-                        </div>
-                        <ul class="space-y-3 text-gray-700">
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Focused Productivity:** Use Daily Tasks and Notes tools to manage projects and capture ideas instantly, improving workflow efficiency.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Data Oversight:** Access Analytics and Security Logs to monitor your account activity, crucial for compliance and security in any professional role.</li>
-                            <li class="flex items-start"><i class="fas fa-check-circle text-blue-500 mr-2 mt-1"></i> **Information Retrieval:** Centralize business links and contact details, making it faster to access essential professional resources.</li>
-                        </ul>
+                <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Core Features</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="p-3 bg-blue-50 border-l-4 border-blue-700 rounded-lg">
+                        <p class="font-bold text-blue-800 flex items-center mb-1 text-sm"><i class="fas fa-key mr-2"></i> Confidential Vault</p>
+                        <p class="text-xs text-gray-700">Secure vaults for Passwords and financial Income.</p>
                     </div>
-                </div>
-
-                <h3 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Core Features Overview</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-4 bg-gray-100 border-l-4 border-gray-600 rounded-lg">
-                        <p class="font-bold text-gray-800 flex items-center mb-2"><i class="fas fa-key mr-2"></i> Confidential Data Storage</p>
-                        <p class="text-sm text-gray-700">Secure vaults for storing Passwords, financial Income, and Contact Details privately.</p>
-                    </div>
-                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-700 rounded-lg">
-                        <p class="font-bold text-yellow-800 flex items-center mb-2"><i class="fas fa-cogs mr-2"></i> Custom Configuration</p>
-                        <p class="text-sm text-gray-700">Personalize your experience and system behavior using the dedicated Profile Settings and App Settings.</p>
+                    <div class="p-3 bg-green-50 border-l-4 border-green-700 rounded-lg">
+                        <p class="font-bold text-green-800 flex items-center mb-1 text-sm"><i class="fas fa-tasks mr-2"></i> Workflow Management</p>
+                        <p class="text-xs text-gray-700">Tools for managing Daily Tasks and professional productivity.</p>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <div class="block md:hidden fade-in">
-        <header class="bg-white shadow-md sticky top-0 z-30">
-            <div class="flex justify-between items-center py-2 px-4">
-                <div class="flex items-center gap-2">
-                    <i class="fas fa-user-circle text-2xl text-blue-800"></i>
-                    <h1 class="text-xl font-bold text-gray-900">My Personal Website</h1>
-                </div>
-                <button id="menu-btn" class="text-gray-700 hover:text-blue-700 focus:outline-none p-2 rounded-lg">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-            </div>
+    <footer class="mt-auto bg-white text-gray-400 text-center p-6 border-t text-xs mt-10">
+        &copy; 2025 Savig.com | All rights reserved
+    </footer>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. SELECT ELEMENTS
+    const profileToggle = document.getElementById('profile-toggle-btn');
+    const profilePanel = document.getElementById('mobileProfilePanel');
+    const profileChevron = document.getElementById('profileChevron');
 
-            <nav id="mobile-menu" class="hidden bg-white px-6 pb-6 space-y-1 text-base font-normal text-gray-800">
-                
-                <h3 class="font-bold text-sm text-gray-700 mb-2 pt-2">MAIN NAVIGATION</h3>
-                <a href="home.html"><i class="fas fa-house mr-3"></i> Home</a>
-               
-                <a href="income.html"><i class="fas fa-wallet mr-3"></i> Income</a>
-                <a href="links.html"><i class="fas fa-link mr-3"></i> Links</a>
-                <a href="c.html"><i class="fas fa-calendar-days mr-3"></i> Calender</a>
-               
-                <a href="password.html"><i class="fas fa-lock mr-3"></i> Passwords</a>
-                 <button id="profile-toggle-btn" class="flex items-center gap-2 mt-4 w-full text-left font-medium text-gray-800 border-t pt-3 hover:bg-gray-100">
-                    <i class="fas fa-user-circle text-2xl"></i>
-                    <span class="font-medium">Profile</span>
-                    <i class="fas fa-chevron-down ml-auto transition-transform duration-300" id="profileChevron"></i>
-                </button>
+    // 2. TOGGLE ACTION
+    if (profileToggle && profilePanel) {
+        profileToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Show/Hide the panel
+            profilePanel.classList.toggle('hidden');
+            // Rotate the arrow icon
+            if (profileChevron) {
+                profileChevron.classList.toggle('rotate-180');
+            }
+        });
+    }
 
-                <div id="mobileProfilePanel" class="mt-2 p-3 border rounded bg-gray-50 space-y-2">
-                    <div class="flex items-center gap-3">
-                        <img id="mobileUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-10 h-10 rounded-full border border-gray-300"/>
-                        <div>
-                            <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                            <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                        </div>
-                    </div>
-                    
-                    <button onclick="logout()" class="bg-red-700 text-white px-3 py-2 rounded-full hover:bg-red-800 text-sm mt-2 w-full">Logout</button>
-                </div>
+    // 3. FILL DATA FROM FIREBASE
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // Update Mobile IDs
+            const mName = document.getElementById('mobileUserName');
+            const mEmail = document.getElementById('mobileUserEmail');
+            const mPhoto = document.getElementById('mobileUserPhoto');
 
-                <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">CORE DATA</p>
-               
-                <a href="profile.html"><i class="fas fa-user-gear mr-3"></i> Profile Settings</a>
-                     <a href="essential.html"><i class="fas fa-shopping-basket mr-3"></i> Daily Essential</a>
-                <a href="contact.html"><i class="fas fa-address-book mr-3"></i> Contact Details</a>
-               <a href="grocery.html"><i class="fas fa-shopping-cart mr-3"></i> Grocery List</a>
-                
-             <a href="addressmob.html"><i class="fas fa-map-location-dot mr-3"></i> Address </a>
-                <a href="asset.html" 
-   class="flex items-center p-3 text-base font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition duration-150">
-    <i class="fas fa-dollar-sign mr-3 text-indigo-500"></i> 
-    Manage Assets
-</a>
-
-<a href="place.html" 
-   class="flex items-center p-3 text-base font-medium rounded-lg text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition duration-150">
-    <i class="fas fa-map-marker-alt mr-3 text-indigo-500"></i> 
-    Tourist Places
-</a>
-                
-                <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">PRODUCTIVITY</p>
-                <a href="daily.html"><i class="fas fa-list-check mr-3"></i> Daily Tasks</a>
-                <a href="principle.html"><i class="fas fa-lightbulb mr-3"></i> Principle</a>
-                
-
-           
-<a href="shop.html"><i class="fas fa-store mr-3"></i> Stores</a>
-                <a href="added.html"><i class="fas fa-gear mr-3"></i> App Settings</a>
-                <a href="help.html"><i class="fas fa-circle-question mr-3"></i> Help & Support</a>
-
-               
-                
-            </nav>
-        </header>
-
-        <main class="w-full p-4 bg-white rounded shadow fade-in">
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-4">Your Personal Web Hub 💼</h2>
+            if (mName) mName.innerText = user.displayName || "User";
+            if (mEmail) mEmail.innerText = user.email;
+            if (mPhoto) mPhoto.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
             
-            <p class="text-md text-gray-600 mb-6 border-b pb-3">
-                This dashboard is your command center for managing and securing your digital life. Tap the menu ($\equiv$) for all navigation and features.
-            </p>
+            // Also update Desktop IDs (since they are on the same page)
+            const dName = document.getElementById('desktopUserName');
+            const dEmail = document.getElementById('desktopUserEmail');
+            const dPhoto = document.getElementById('desktopUserPhoto');
 
-            <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Maximize Your Life and Career 🚀</h3>
-            <ul class="space-y-3 mb-6 text-gray-700 list-disc list-inside ml-2 text-sm">
-                <li>Centralize birthdays, calendars, and personal links for **effortless organization**.</li>
-                <li>Securely store all your **Passwords** and sensitive data with robust **Security Logs**.</li>
-                <li>Manage **Daily Tasks** and review **Analytics** to boost your professional productivity and oversight.</li>
-            </ul>
+            if (dName) dName.innerText = user.displayName || "User";
+            if (dEmail) dEmail.innerText = user.email;
+            if (dPhoto) dPhoto.src = user.photoURL || mPhoto.src;
+        }
+    });
+});
 
-            <h3 class="text-xl font-bold text-gray-800 mb-3 mt-4">Core Features</h3>
-            <div class="grid grid-cols-1 gap-4">
-                <div class="p-3 bg-blue-50 border-l-4 border-blue-700 rounded-lg">
-                    <p class="font-bold text-blue-800 flex items-center mb-1 text-sm"><i class="fas fa-key mr-2"></i> Confidential Data Storage</p>
-                    <p class="text-xs text-gray-700">Secure vaults for Passwords and financial Income.</p>
-                </div>
-                <div class="p-3 bg-green-50 border-l-4 border-green-700 rounded-lg">
-                    <p class="font-bold text-green-800 flex items-center mb-1 text-sm"><i class="fas fa-tasks mr-2"></i> Workflow Management</p>
-                    <p class="text-xs text-gray-700">Tools for managing Daily Tasks and Notes.</p>
-                </div>
-            </div>
-            
-        </main>
-    </div>
+// 4. LOGOUT FUNCTION
+async function logout() {
+    try {
+        await firebase.auth().signOut();
+        window.location.replace("index.html");
+    } catch (err) {
+        console.error("Logout failed", err);
+    }
+}
+</script>
+    <script>
+        document.getElementById('menu-btn').onclick = function() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        };
+        document.getElementById('profile-toggle-btn').onclick = function() {
+            var panel = document.getElementById('mobileProfilePanel');
+            panel.classList.toggle('hidden');
+            document.getElementById('profileChevron').classList.toggle('rotate-180');
+        };
+    </script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const profileToggle = document.getElementById('profile-toggle-btn');
+    const profilePanel = document.getElementById('mobileProfilePanel');
+    const profileChevron = document.getElementById('profileChevron');
 
-</div> 
+    // 1. Toggle Main Hamburger Menu
+    if (menuBtn && mobileMenu) {
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevents immediate closing
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
 
-<footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
-    &copy; 2025 Personal Website | All rights reserved
-</footer>
+    // 2. Toggle Profile Panel inside Menu
+    if (profileToggle && profilePanel) {
+        profileToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            profilePanel.classList.toggle('hidden');
+            if (profileChevron) {
+                profileChevron.classList.toggle('rotate-180');
+            }
+        });
+    }
 
+    // 3. Close menu if user clicks anywhere else on the screen
+    document.addEventListener('click', (e) => {
+        if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuBtn) {
+            mobileMenu.classList.add('hidden');
+        }
+    });
+});
+</script>
+</body>
 <style>
     /* Desktop Check */
     @media only screen and (min-width: 768px) {
@@ -347,6 +452,68 @@
         --nav-bg: #1f2937;
         --nav-text: #ffffff;
     }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --transition-speed: 0.3s;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+/* --- Glassmorphism Effect for Header/Cards --- */
+header, .dashboard-main-content, .animate-card {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* --- Dark Mode Overrides --- */
+.dark body {
+    background-color: #0f172a; /* Deep Navy Background */
+    color: #f1f5f9;
+}
+
+.dark header {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border-color: #1e293b !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .dashboard-main-content, 
+.dark aside,
+.dark #mobile-menu {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9;
+}
+
+/* --- Interactive Elements --- */
+.sidebar-nav-internal a {
+    transition: all 0.2s ease;
+    border-radius: 12px;
+}
+
+.dark .sidebar-nav-internal a:hover {
+    background-color: #334155;
+    color: #38bdf8; /* Sky Blue accent */
+}
+
+/* --- Custom Card Styling --- */
+.animate-card {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+}
+
+.animate-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .animate-card {
+    background: linear-gradient(145deg, #1e293b, #0f172a);
+    border: 1px solid #334155;
+}
 </style>
 
 <nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
@@ -665,10 +832,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
 </html>
-
-
-
-
 
 
 
