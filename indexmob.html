@@ -305,7 +305,7 @@ if ("serviceWorker" in navigator) {
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-   // --- Firebase Configuration (Using your provided IDs) ---
+    // --- 1. Configuration & Initialization ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -315,57 +315,52 @@ const firebaseConfig = {
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 };
 
-// Initialize Firebase
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
-
-// Initialize EmailJS
 emailjs.init("NbamX634Y_o570cNw");
 
 let generatedOTP = null;
 let otpExpiryTime = null;
 let timerInterval = null;
 
-// Selectors
+// DOM Elements
 const step1 = document.getElementById('step1');
 const step2 = document.getElementById('step2');
 const otpInputs = document.querySelectorAll('#otpBox input');
 const timerDisplay = document.getElementById('timer');
 
-// --- 1. Step 1: Google Login Trigger ---
+// --- 2. Ultra-Fast Login Logic ---
 document.getElementById("googleLoginBtn").onclick = async () => {
     try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Fast Database Update
-        await db.collection("users").doc(user.uid).set({
+        // INSTANT TRANSITION (Don't wait for DB or Email)
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+        document.getElementById('otp-info').innerText = `Code sent to ${user.email}`;
+        
+        // Focus first input immediately
+        setTimeout(() => otpInputs[0].focus(), 50);
+
+        // Run background tasks (Fire and Forget)
+        db.collection("users").doc(user.uid).set({
             email: user.email,
             lastLogin: new Date()
         }, { merge: true });
 
-        // Instant UI Transition
-        step1.classList.add('hidden');
-        step2.classList.remove('hidden');
-        document.getElementById('otp-info').innerText = `Code sent to ${user.email}`;
-
-        // Send Email & Start Timer
         sendFastOTP(user);
-        startTimer(180); // 3 Minutes
-        
-        // Mobile UX: Immediate keyboard focus
-        setTimeout(() => otpInputs[0].focus(), 150);
+        startTimer(180);
+
     } catch (e) {
+        console.error(e);
         alert("Login failed: " + e.message);
     }
 };
 
-// --- 2. Step 2: Send OTP via EmailJS ---
 async function sendFastOTP(user) {
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     otpExpiryTime = Date.now() + (3 * 60000);
@@ -378,15 +373,13 @@ async function sendFastOTP(user) {
 
     try {
         await emailjs.send('service_2ucolxw', 'template_iknmqfs', templateParams);
-        console.log("OTP delivery successful");
     } catch (err) {
-        alert("Email service error. Please refresh.");
+        console.error("Email failed", err);
     }
 }
 
-// --- 3. Step 3: Fast OTP Input Logic (Mobile Auto-Fetch) ---
+// --- 3. OTP Input & Verification ---
 otpInputs.forEach((input, index) => {
-    // Jump to next box on type
     input.addEventListener('input', (e) => {
         if (e.target.value && index < otpInputs.length - 1) {
             otpInputs[index + 1].focus();
@@ -394,87 +387,92 @@ otpInputs.forEach((input, index) => {
         checkAndVerify();
     });
 
-    // Support backspace navigation
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace' && !e.target.value && index > 0) {
             otpInputs[index - 1].focus();
         }
     });
 
-    // Mobile Auto-fill/Paste Support
     input.addEventListener('paste', (e) => {
         const data = e.clipboardData.getData('text').trim();
         if (data.length === 6 && /^\d+$/.test(data)) {
-            data.split('').forEach((char, i) => {
-                otpInputs[i].value = char;
-            });
+            data.split('').forEach((char, i) => { otpInputs[i].value = char; });
             checkAndVerify();
         }
     });
 });
 
-// --- 4. Step 4: Instant Verification ---
 function checkAndVerify() {
     const code = Array.from(otpInputs).map(i => i.value).join('');
-    
     if (code.length === 6) {
-        if (code === generatedOTP) {
-            if (Date.now() <= otpExpiryTime) {
-                // REDIRECT IMMEDIATELY
-                window.location.replace("home.html");
-            } else {
-                alert("OTP has expired.");
-                location.reload();
-            }
+        if (code === generatedOTP && Date.now() <= otpExpiryTime) {
+            window.location.replace("home.html");
+        } else if (code === generatedOTP) {
+            alert("OTP Expired");
+            location.reload();
         } else {
-            alert("Incorrect code. Please check your email.");
-            otpInputs.forEach(i => i.value = '');
+            // Error visual feedback instead of annoying alert for better speed feel
+            otpInputs.forEach(i => { i.value = ''; i.style.borderColor = 'red'; });
             otpInputs[0].focus();
         }
     }
 }
 
-// --- 5. Countdown Timer ---
 function startTimer(seconds) {
     clearInterval(timerInterval);
     let timeRemaining = seconds;
-
     timerInterval = setInterval(() => {
         const mins = Math.floor(timeRemaining / 60);
         const secs = timeRemaining % 60;
         timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
         if (--timeRemaining < 0) {
             clearInterval(timerInterval);
             timerDisplay.innerText = "EXPIRED";
-            document.getElementById('verify-btn').disabled = true;
         }
     }, 1000);
 }
-</script>
-    
-<script>
+
+// --- 4. Theme Toggle & URL Check ---
 document.addEventListener('DOMContentLoaded', () => {
+    const html = document.documentElement;
     const btn = document.getElementById('theme-toggle-btn');
     const icon = document.getElementById('theme-icon');
-    const html = document.documentElement;
 
     const applyTheme = (theme) => {
         html.setAttribute('data-theme', theme);
-        html.classList.toggle('dark', theme === 'dark'); // For Tailwind dark: classes
-        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        html.classList.toggle('dark', theme === 'dark');
+        if(icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
         localStorage.setItem('theme', theme);
     };
 
-    // Initialize
-    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    applyTheme(savedTheme);
+    applyTheme(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
 
-    btn.addEventListener('click', () => {
-        const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        applyTheme(newTheme);
+    if(btn) btn.addEventListener('click', () => {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
+
+    // Timeout Message
+    if (new URLSearchParams(window.location.search).get('reason') === 'timeout') {
+        const msg = document.getElementById('login-msg');
+        if(msg) msg.style.display = 'block';
+    }
 });
+
+// --- 5. Back Button Exit Intercept ---
+(function () {
+    let exiting = false;
+    history.pushState(null, null, location.href);
+    window.addEventListener("popstate", function () {
+        if (exiting) return;
+        exiting = true;
+        if (confirm("Do you want to exit MyTracker?")) {
+            history.back();
+        } else {
+            history.pushState(null, null, location.href);
+            exiting = false;
+        }
+    });
+})();
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -609,39 +607,22 @@ document.addEventListener('DOMContentLoaded', () => {
     transform: scale(0.9);
 }
 </style>
-<script>
-    // Check if the user was redirected because of a timeout
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('reason') === 'timeout') {
-        document.getElementById('login-msg').style.display = 'block';
-    }
-</script>
 
-<script>
-(function () {
-  let exiting = false;
-
-  history.pushState(null, null, location.href);
-
-  window.addEventListener("popstate", function () {
-    if (exiting) return;
-
-    exiting = true;
-
-    if (confirm("Do you want to exit MyTracker?")) {
-      // Allow back navigation → OS will minimize / exit app
-      history.back();
-    } else {
-      history.pushState(null, null, location.href);
-      exiting = false;
-    }
-  });
-})();
-</script>
 
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
