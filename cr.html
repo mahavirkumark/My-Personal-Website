@@ -796,14 +796,14 @@ auth.onAuthStateChanged(user => {
             clearInterval(realTimeCheckInterval);
         }
         if (window.location.pathname !== '/index.html' && !window.location.pathname.endsWith('/')) {
-            window.location.href = "index.html"; 
+            window.location.href = "indexmob.html"; 
         }
     }
 });
 
 function logout(){
     auth.signOut().then(() => {
-        location.href="index.html";
+        location.href="indexmob.html";
     }); 
 }
 
@@ -2093,6 +2093,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 </body>
     </html>
+
 
 
 
