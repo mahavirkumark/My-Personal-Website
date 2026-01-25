@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function logout() {
     try {
         await firebase.auth().signOut();
-        window.location.replace("index.html");
+        window.location.replace("indexmob.html");
     } catch (err) {
         console.error("Logout failed", err);
     }
