@@ -232,7 +232,8 @@ main, .content-wrapper {
         </button>
     </div>
 
-    <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-gray-700 font-medium bg-gray-50 border-t border-gray-100">
+    <div id="mobileMenu" class="mr-[10px] hidden md:hidden flex flex-col px-4 pb-4 space-y-1 text-gray-700 font-medium bg-gray-50 border-t border-gray-100">
+  
         <a href="home.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-house"></i> Home</a>
         <a href="password.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-key"></i> Passwords</a>
         <a href="income.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-wallet"></i> Income</a>
@@ -252,7 +253,7 @@ main, .content-wrapper {
     </div>
 </nav>
     <div>
-<div id="searchWrapper" class="flex items-center gap-1 mb-1 ml-[2px] w-[290px] h-[60px] transition-all duration-300 overflow-hidden">
+<div id="searchWrapper" class="flex items-center gap-1 mb-1 ml-[5px] w-[340px] h-[60px] transition-all duration-300 overflow-hidden">
     <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
         <i class="fas fa-arrow-left"></i>
     </button>
@@ -326,10 +327,35 @@ main, .content-wrapper {
         </div>
     </div>
 </div>
+<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
 
-<footer class="mt-12 pt-6 pb-6 bg-white text-gray-600 text-center text-sm border-t">
-    &copy; 2025 Personal Website | All rights reserved
-</footer>
+    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Home</div>
+    </a>
+
+    <a href="addressmob.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Address</div>
+    </a>
+
+    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
+    </a>
+
+    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
+    </a>
+
+    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
+        <div style="font-size: 10px; font-weight: 600;">Contact</div>
+    </a>
+
+</nav>
+
 <style>
     /* ... Your existing CSS ... */
 
@@ -1012,8 +1038,11 @@ body.search-active {
         toggleBtn.innerText = '+ Add New Address';
     });
 </script>
+
 </body>
 </html>
+
+
 
 
 
