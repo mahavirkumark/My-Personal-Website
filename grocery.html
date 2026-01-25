@@ -1026,126 +1026,150 @@ document.addEventListener('DOMContentLoaded', () => {
     <span id="theme-icon">🌙</span>
 </button>
 <style>
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
+    /* ============================================= */
+    /* === 1. GLOBAL VARIABLES & THEME DEFINITIONS === */
+    /* ============================================= */
     :root {
         --bg-body: #f9fafb;
         --bg-card: #ffffff;
-        --text-main: #1f2937;   /* Deep Gray 800 */
-        --text-bold: #000000;   /* Pure Black */
-        --border: #e5e7eb;
-        
-        /* BOTTOM NAV COLORS (LIGHT) */
+        --bg-input: #ffffff;
+        --text-main: #111827;
+        --text-muted: #4b5563;
+        --border-color: #e5e7eb;
         --nav-bg: #ffffff;
-        --nav-text: #000000;    /* Pure Black for text and icons */
-        --nav-height: 65px;
+        --nav-text: #374151;
+        --primary-indigo: #4f46e5;
+        --accent-hover: #f3f4f6;
     }
 
+    /* Dark Mode Overrides */
     [data-theme="dark"] {
-        --bg-body: #0f172a;     /* Deep Navy/Black */
-        --bg-card: #1e293b;     /* Slate 800 */
-        --text-main: #cbd5e1;   /* Slate 300 */
-        --text-bold: #f8fafc;   /* Slate 50 */
-        --border: #334155;      /* Slate 700 */
-        
-        /* BOTTOM NAV COLORS (DARK) */
-        --nav-bg: #0f172a;
-        --nav-text: #ffffff;    /* Pure White */
+        --bg-body: #0f172a;    /* Deep Slate */
+        --bg-card: #1e293b;    /* Lighter Slate for Cards */
+        --bg-input: #0f172a;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --nav-bg: #1e293b;
+        --nav-text: #cbd5e1;
+        --primary-indigo: #818cf8; /* Softer indigo for dark eyes */
+        --accent-hover: #334155;
     }
 
-    /* --- 2. GLOBAL OVERRIDES --- */
-    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
-    
-    /* Ensure all text classes inside containers adapt */
-    h1, h2, h3, h4, .font-bold, .font-semibold, 
-    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
-        color: var(--text-bold) !important; 
+    /* ============================================= */
+    /* === 2. CORE LAYOUT & TRANSITIONS === */
+    /* ============================================= */
+    body { 
+        background-color: var(--bg-body) !important; 
+        color: var(--text-main) !important;
+        padding-top: 56px; 
+        transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    p, li, span, .text-gray-700, .text-gray-600 { 
-        color: var(--text-main) !important; 
+    @media (min-width: 1024px) { body { padding-top: 80px; } }
+
+    /* Override Tailwind's white/gray utility classes to use variables */
+    .bg-white { background-color: var(--bg-card) !important; }
+    .bg-gray-50 { background-color: var(--bg-body) !important; }
+    .text-gray-900, .text-gray-800 { color: var(--text-main) !important; }
+    .text-gray-700, .text-gray-600, .text-gray-500 { color: var(--text-muted) !important; }
+    .border-gray-100, .border-gray-200, .border-gray-300 { border-color: var(--border-color) !important; }
+
+    /* ============================================= */
+    /* === 3. NAVIGATION (TOP & BOTTOM) === */
+    /* ============================================= */
+    nav { 
+        background-color: var(--nav-bg) !important; 
+        border-color: var(--border-color) !important;
     }
 
-    /* Component Surfaces */
-    .bg-white, header, aside, main, #mobile-menu, footer {
-        background-color: var(--bg-card) !important;
-        border-color: var(--border) !important;
+    #mobileMenu { 
+        background-color: var(--nav-bg) !important; 
     }
 
-    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
-    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
-        background-color: var(--bg-card) !important;
-    }
-    
-    /* Muted Sidebar links in dark mode */
-    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
-    [data-theme="dark"] .sidebar-nav-internal a:hover,
-    [data-theme="dark"] .sidebar-nav-internal a.active {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
+    .nav-link, #mobileMenu a {
+        color: var(--nav-text) !important;
+        transition: none !important; /* Instant click feel per your requirement */
     }
 
-    /* Core Features Overview Boxes */
-    [data-theme="dark"] .bg-gray-100, 
-    [data-theme="dark"] .bg-yellow-50,
-    [data-theme="dark"] .bg-blue-50,
-    [data-theme="dark"] .bg-green-50 {
-        background-color: #334155 !important;
-        border-color: var(--border) !important;
+    .nav-link:hover, #mobileMenu a:hover {
+        background-color: var(--accent-hover) !important;
+        color: var(--primary-indigo) !important;
     }
 
-    /* Brighter borders for boxes in dark mode */
-    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
-        border-color: #4f46e5 !important; 
-    }
-
-    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
     #universal-bottom-nav {
         background-color: var(--nav-bg) !important;
-        border-top: 1px solid var(--border) !important;
-        height: var(--nav-height);
+        border-top: 1px solid var(--border-color) !important;
     }
 
-    /* This targets the icon specifically */
-    .nav-link i { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Makes icons look thicker/bolder */
-        font-size: 20px !important;  /* Slightly larger for visibility */
-        transition: transform 0.2s;
+    /* ============================================= */
+    /* === 4. FORM ELEMENTS & INPUTS === */
+    /* ============================================= */
+    input, select, textarea {
+        background-color: var(--bg-input) !important;
+        color: var(--text-main) !important;
+        border: 1px solid var(--border-color) !important;
     }
 
-    /* This targets the text label specifically */
-    .nav-link div { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Thickest weight for labels */
-        font-size: 11px !important;
-        margin-top: 2px;
+    input:focus, select:focus {
+        ring: 2px solid var(--primary-indigo) !important;
+        border-color: var(--primary-indigo) !important;
     }
 
-    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
+    /* Custom File Input for Dark Mode */
+    input[type="file"]::file-selector-button {
+        background-color: var(--accent-hover);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+    }
+
+    /* ============================================= */
+    /* === 5. GROCERY LIST ITEMS === */
+    /* ============================================= */
+    .primary-indigo { color: var(--primary-indigo) !important; }
+
+    /* Completed Item Styling */
+    [data-theme="dark"] .bg-green-50 {
+        background-color: rgba(16, 185, 129, 0.1) !important; /* Transparent green */
+        border-color: #10b981 !important;
+    }
+
+    /* Hover effect for list cards */
+    .shadow-md:hover {
+        background-color: var(--accent-hover) !important;
+    }
+
+    /* ============================================= */
+    /* === 6. FLOATING THEME TOGGLE BUTTON === */
+    /* ============================================= */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
+        bottom: 80px; /* Sits above mobile bottom nav */
         right: 20px;
-        z-index: 10000;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        border: none;
-        background: #4f46e5;
+        z-index: 9999;
+        background-color: var(--primary-indigo);
         color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        cursor: pointer;
+        border: 2px solid white;
+        font-size: 20px;
     }
 
-    #theme-toggle-btn:active { transform: scale(0.9); }
+    /* Mobile specific adjustment for the toggle btn */
+    @media (max-width: 768px) {
+        #theme-toggle-btn { bottom: 90px; }
+    }
 </style>
 </body>
 
 </html>
+
 
 
 
