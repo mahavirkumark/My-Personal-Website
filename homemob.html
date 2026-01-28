@@ -248,26 +248,7 @@
             Logout Session
         </button>
     </div>
-  <nav class="flex items-center gap-6 text-xl font-semibold text-gray-700">
-                    <a href="homemob.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-house text-xl"></i> Home
-                    </a>
-                    <a href="income.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-wallet text-xl"></i> Income
-                    </a>
-                    <a href="links.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-link text-xl"></i> Links
-                    </a>
-                    <a href="c.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-calendar-days text-xl"></i> Calendar
-                    </a>
-                    <a href="birthday.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-cake-candles text-xl"></i> Birthday
-                    </a>
-                    <a href="passwordmob.html" class="flex items-center gap-1 hover:text-blue-600 transition-colors">
-                        <i class="fas fa-lock text-xl"></i> Passwords
-                    </a>
-                </nav>
+
     <p class="font-bold text-sm text-gray-500 mb-0 pt-4 border-t border-gray-200 px-1">CORE DATA</p>
     <a href="profile.html" class="block py-2 hover:text-blue-600"><i class="fas fa-user-gear mr-3"></i> Profile Settings</a>
     <a href="essential.html" class="block py-2 hover:text-blue-600"><i class="fas fa-shopping-basket mr-3"></i> Daily Essential</a>
@@ -558,7 +539,7 @@ header, .dashboard-main-content, .animate-card {
 
 <nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
 
-    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+    <a href="homemob.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
         <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
         <div style="font-size: 10px; font-weight: 600;">Home</div>
     </a>
@@ -568,12 +549,12 @@ header, .dashboard-main-content, .animate-card {
         <div style="font-size: 10px; font-weight: 600;">Address</div>
     </a>
 
-    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+    <a href="passwordmob.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
         <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
         <div style="font-size: 10px; font-weight: 600;">Passwords</div>
     </a>
 
-    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
+    <a href="grocerymob.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
         <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
         <div style="font-size: 10px; font-weight: 600;">Grocery</div>
     </a>
@@ -666,7 +647,7 @@ window.logout = function() {
     }
     auth.signOut().then(() => { 
         // CHANGE THIS LINE:
-        window.location.replace('index.html'); 
+        window.location.replace('indexmob.html'); 
     }).catch(error => { 
         console.error('Sign out failed:', error);
         alert('Sign out failed: ' + error.message); 
@@ -717,7 +698,7 @@ auth.onAuthStateChanged(user => {
         // The scheduler function is removed here. The server handles it.
     } else {
         // Redirect to login page if no user is signed in
-     window.location.replace('index.html');
+     window.location.replace('indexmob.html');
         console.log("No user signed in. Displaying placeholder UI.");
     }
 });
