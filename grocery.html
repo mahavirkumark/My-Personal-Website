@@ -1142,23 +1142,20 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ============================================= */
     /* === 6. FLOATING THEME TOGGLE BUTTON === */
     /* ============================================= */
-    #theme-toggle-btn {
+  #theme-toggle-btn {
         position: fixed;
-        bottom: 80px; /* Sits above mobile bottom nav */
-        right: 20px;
+        bottom: 85px; 
+        right: 15px;
         z-index: 9999;
-        background-color: var(--primary-indigo);
-        color: white;
-        width: 50px;
-        height: 50px;
+        width: 42px; height: 42px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        background: #4f46e5;
+        color: white;
+        border: none;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        border: 2px solid white;
-        font-size: 20px;
+        transition: transform 0.2s;
     }
 
     /* Mobile specific adjustment for the toggle btn */
@@ -1169,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
 
 
 
