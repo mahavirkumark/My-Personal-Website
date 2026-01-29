@@ -169,7 +169,7 @@
                     </div>
 
                     <button type="submit" id="submit-btn"
-                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white btn-add hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition duration-150 ease-in-out">
+                            class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-xm font-medium text-white btn-add hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition duration-150 ease-in-out">
                         <i class="fas fa-plus mr-2 text-lg"></i> Add Item
                     </button>
                     <p id="upload-status" class="text-center text-sm text-green-600 hidden"></p>
@@ -179,7 +179,7 @@
                 
                 <div class="bg-white p-6 lg:list-p-5 rounded-xl shadow-lg border border-gray-200" id="todayListContainer">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
+                        <h2 class="text-sm font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
                             <i class="fas fa-calendar-check text-green-500 mr-2"></i> Today's Grocery List
                         </h2>
                         <div class="flex flex-wrap gap-2 sm:space-x-2"> 
@@ -191,7 +191,7 @@
                             </button>
                         </div>
                     </div>
-                    <p id="todayDateHeader" class="text-lg font-medium text-gray-600 mb-4 border-b pb-2"></p>
+                    <p id="todayDateHeader" class="text-sm font-medium text-gray-600 mb-4 border-b pb-2"></p>
                     
                     <div id="today-list" class="space-y-4">
                         <p class="text-gray-500 italic text-center" id="today-list-empty">No items scheduled for today. Time to add some!</p>
@@ -200,14 +200,14 @@
 
                 <div class="bg-white p-6 lg:list-p-5 rounded-xl shadow-lg border border-gray-200" id="upcomingListContainer">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
+                        <h2 class="text-sm font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
                             <i class="fas fa-calendar-alt text-yellow-500 mr-2"></i> Upcoming Grocery List (By Date)
                         </h2>
-                        <div class="flex flex-wrap gap-2 sm:space-x-2">
-                             <button onclick="shareList('upcoming-list', 'Upcoming_Grocery_List')" class="bg-blue-500 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-600 transition duration-300">
+                        <div class="flex flex-wrap gap-1 sm:space-x-2">
+                             <button onclick="shareList('upcoming-list', 'Upcoming_Grocery_List')" class="bg-blue-500 text-white text-sm px-3 py-1 rounded-full hover:bg-blue-600 transition duration-300">
                                  <i class="fas fa-share-alt mr-1"></i> Share
                             </button>
-                             <button onclick="downloadPDF('upcoming-list', 'Upcoming_Grocery_List')" class="bg-red-500 text-white text-xs px-3 py-1 rounded-full hover:bg-red-600 transition duration-300">
+                             <button onclick="downloadPDF('upcoming-list', 'Upcoming_Grocery_List')" class="bg-red-500 text-white text-sm px-3 py-1 rounded-full hover:bg-red-600 transition duration-300">
                                  <i class="fas fa-file-pdf mr-1"></i> Download PDF
                             </button>
                         </div>
@@ -219,7 +219,7 @@
 
                 <div class="bg-white p-6 lg:list-p-5 rounded-xl shadow-lg border border-gray-200">
                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
+                        <h2 class="text-sm font-semibold text-gray-800 flex items-center mb-2 sm:mb-0">
                             <i class="fas fa-history text-primary-indigo mr-2"></i> Past Completed Grocery List
                         </h2>
                         <div class="flex flex-wrap gap-2 sm:space-x-2">
@@ -241,11 +241,9 @@
        
 
     </main>
-
-    <footer class="mt-auto bg-white text-gray-600 text-center p-4 border-t text-sm fade-in border-t border-gray-200 mt-8">
-        &copy; 2025 Savig.com | All rights reserved
-    </footer>
-    
+<footer class="bg-white text-gray-900 text-center py-4 text-sm mt-10">
+    &copy; 2026 Savig.com  | All Rights Reserved.
+</footer>
 <style>
     /* Desktop Check */
     @media only screen and (min-width: 768px) {
@@ -534,19 +532,19 @@
                 itemDiv.className = `${baseClasses} bg-white border-l-4 border-primary-indigo hover:shadow-lg hover:bg-gray-50`;
             }
 
-            // Action Buttons Logic
-            const checkButton = isCompleted 
-                ? `<button onclick="uncompleteItem('${dateKey}', '${item.id}')" class="text-green-600 hover:text-green-800 p-2 text-xl rounded-full hover:bg-green-100 transition" title="Mark as Not Taken">
-                        <i class="fas fa-undo"></i>
-                   </button>`
-                : `<button onclick="completeItem('${dateKey}', '${item.id}')" class="text-primary-indigo hover:text-indigo-700 p-2 text-xl rounded-full hover:bg-indigo-100 transition" title="Mark as Taken">
-                        <i class="fas fa-check-circle"></i>
-                   </button>`;
+           // Action Buttons Logic
+const checkButton = isCompleted 
+    ? `<button onclick="uncompleteItem('${dateKey}', '${item.id}')" class="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition" title="Mark as Not Taken">
+            <i class="fas fa-undo" style="font-size: 20px;"></i>
+       </button>`
+    : `<button onclick="completeItem('${dateKey}', '${item.id}')" class="text-primary-indigo hover:text-indigo-700 p-2 rounded-full hover:bg-indigo-100 transition" title="Mark as Taken">
+            <i class="fas fa-check-circle" style="font-size: 24px;"></i>
+       </button>`;
                     
             // 🛑 FIX 4: Added hidden sm:block to hide edit button on mobile
             const editButton = isCompleted
                 ? '' 
-                : `<button onclick="editItem('${dateKey}', '${item.id}')" class="text-blue-500 hover:text-blue-700 p-2 text-xl rounded-full hover:bg-blue-100 transition hidden sm:block" title="Edit">
+                : `<button onclick="editItem('${dateKey}', '${item.id}')" class="text-blue-500 hover:text-blue-700 p-2 text-xm rounded-full hover:bg-blue-100 transition hidden sm:block" title="Edit">
                         <i class="fas fa-pen"></i>
                    </button>`; 
 
@@ -554,12 +552,12 @@
             const itemDisplay = formatItemText(item);
             
             const completedStatus = isCompleted ?
-                `<span class="text-sm font-medium text-green-700 ml-4 flex-shrink-0">
+                `<span class="text-xm font-medium text-green-700 ml-4 flex-shrink-0">
                     <i class="fas fa-award mr-1"></i> COMPLETED
                 </span>` : '';
 
             const dateFooter = (!isToday && !isCompleted && !isCompletedList) ? 
-                `<p class="text-xs text-red-500 font-medium mt-1">
+                `<p class="text-xm text-red-500 font-medium mt-1">
                     <i class="fas fa-calendar-day mr-1"></i> Scheduled: ${formatDate(dateKey)}
                 </p>` : '';
                 
@@ -1065,24 +1063,53 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ============================================= */
     /* === 3. NAVIGATION (TOP & BOTTOM) === */
     /* ============================================= */
-    nav { 
-        background-color: var(--nav-bg) !important; 
-        border-color: var(--border-color) !important;
-    }
+  
 
     #mobileMenu { 
         background-color: var(--nav-bg) !important; 
     }
 
-    .nav-link, #mobileMenu a {
-        color: var(--nav-text) !important;
-        transition: none !important; /* Instant click feel per your requirement */
-    }
+    :root {:root {
+    /* Define these if not already in your variables */
+    --nav-bg: #121212; 
+    --nav-text: #b0b0b0;
+    --active-blue: #3b82f6; /* A clean, modern blue */
+}
 
-    .nav-link:hover, #mobileMenu a:hover {
-        background-color: var(--accent-hover) !important;
-        color: var(--primary-indigo) !important;
-    }
+/* Hover effect for desktop/touch */
+.nav-link:hover {
+    color: var(--active-blue) !important;
+}
+
+/* Active class applied by JavaScript */
+.nav-link.active {
+    color: var(--active-blue) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-2px); /* Slight lift for visual feedback */
+    transition: transform 0.2s ease;
+}
+    /* Define these if not already in your variables */
+    --nav-bg: #121212; 
+    --nav-text: white;
+    --active-blue: #3b82f6; /* A clean, modern blue */
+}
+
+/* Hover effect for desktop/touch */
+.nav-link:hover {
+    color: var(--active-blue) !important;
+}
+
+/* Active class applied by JavaScript */
+.nav-link.active {
+    color: var(--active-blue) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-2px); /* Slight lift for visual feedback */
+    transition: transform 0.2s ease;
+}
 
     #universal-bottom-nav {
         background-color: var(--nav-bg) !important;
@@ -1131,31 +1158,68 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ============================================= */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 80px; /* Sits above mobile bottom nav */
-        right: 20px;
-        z-index: 9999;
-        background-color: var(--primary-indigo);
-        color: white;
-        width: 50px;
-        height: 50px;
+        bottom: 95px; /* 65px height + 50px gap */
+        right: 10px;
+        z-index: 10000;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
+        border: none;
+        background: #4f46e5;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        cursor: pointer;
-        border: 2px solid white;
-        font-size: 20px;
+        font-size: 1.5rem;
     }
+/* Footer Container */
+.savig-footer {
+    /* Force Dark Mode Colors */
+background-color: #f9fafb;
+    color: white !important;
+    
+    /* Layout */
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    display: block;
+    
+    /* Border */
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    
+    /* Font */
+    font-size: 12px;
+    font-family: sans-serif;
+
+    /* 🛑 THE FIX: Pushes footer up so Nav doesn't hide it */
+    margin-bottom: 70px !important; 
+}
+
+/* Ensure the fade-in works */
+.fade-in {
+    animation: fadeIn 0.6s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 
     /* Mobile specific adjustment for the toggle btn */
     @media (max-width: 768px) {
         #theme-toggle-btn { bottom: 90px; }
     }
+
 </style>
 </body>
 
 </html>
+
+
+
 
 
 
