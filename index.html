@@ -377,22 +377,18 @@
     /* --- BUTTON STYLING --- */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 25px;
-        right: 25px;
-        z-index: 1000;
-        width: 50px;
-        height: 50px;
+        bottom: 85px; 
+        right: 15px;
+        z-index: 9999;
+        width: 42px; height: 42px;
         border-radius: 50%;
-        border: none;
-        background: #2563eb; /* Blue in Light Mode */
+        background: #4f46e5;
         color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.2s;
     }
 
     #theme-toggle-btn:hover {
@@ -567,6 +563,7 @@
 </script>
 </body>
 </html>
+
 
 
 
