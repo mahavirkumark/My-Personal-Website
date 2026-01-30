@@ -1,6 +1,6 @@
 {
-  "name": "MyTracker",
-  "short_name": "MyTracker",
+  "name": "Savig",
+  "short_name": "Savig",
   "start_url": "indexmob.html",
   "scope": "./",
   "display": "standalone",
