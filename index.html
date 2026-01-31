@@ -125,9 +125,7 @@
                     <button id="googleLoginBtn" class="flex items-center justify-center gap-2 text-base font-semibold px-5 py-3 rounded-full bg-white text-gray-800 border-2 border-blue-600 shadow-md mx-auto hover:bg-blue-600 hover:text-white" style="transition: all 0.2s ease; transform: scale(1.0); " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1.0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
                         <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 20px; height: 20px;"> Sign in with Google
                     </button>
-                    <button id="fingerprintBtn" style="background: #333; color: white; padding: 10px; border-radius: 8px;">
-        <i class="fas fa-fingerprint"></i> Use Fingerprint
-    </button>
+          
                 </div>
                 
                 <div id="pinCard" class="hidden bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center">
@@ -371,40 +369,7 @@
     };
     // --- WebAuthn / Fingerprint Logic ---
 
-async function handleFingerprintAuth() {
-    // 1. Check if the device supports biometrics
-    if (!window.PublicKeyCredential) {
-        showMsg("Biometrics not supported on this browser.", false);
-        return;
-    }
 
-    try {
-        // In a production app, you would fetch a 'challenge' from your backend.
-        // For a simple Firebase implementation, we check the local device or Firestore.
-        
-        // This is a simplified "Re-authentication" flow
-        // For a full 'passwordless' login, you'd use the navigator.credentials.get()
-        
-        const credential = await navigator.credentials.get({
-            publicKey: {
-                challenge: new Uint8Array([1, 2, 3, 4]), // Should be random from server
-                allowCredentials: [], // If empty, it looks for any valid credential on device
-                userVerification: "required"
-            }
-        });
-
-        if (credential) {
-            showMsg("Fingerprint matched! Redirecting...", true);
-            setTimeout(() => { window.location.href = "homemob.html"; }, 1000);
-        }
-    } catch (err) {
-        console.error(err);
-        showMsg("Fingerprint failed: " + err.message, false);
-    }
-}
-
-// Attach to your UI Button
-document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 </script>
     
 <button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
@@ -609,6 +574,7 @@ document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 </script>
 </body>
 </html>
+
 
 
 
