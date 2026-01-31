@@ -479,124 +479,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
-    // --- WebAuthn / Fingerprint Logic ---
-// --- COMPLETE FINGERPRINT & WEBAUTHN LOGIC ---
 
-/**
- * 1. AUTHENTICATION (The Login Button)
- * This runs when the user clicks "Use Fingerprint" on the login page.
- */
-async function handleFingerprintAuth() {
-    if (!window.PublicKeyCredential) {
-        showMsg("Biometrics not supported on this browser/device.", false);
-        return;
-    }
 
-    try {
-        // The 'challenge' should ideally come from a server, but for 
-        // client-side validation, a static buffer works for the prompt.
-        const abortController = new AbortController();
-        const credential = await navigator.credentials.get({
-            publicKey: {
-                challenge: new Uint8Array([11, 22, 33, 44]), 
-                userVerification: "required",
-                timeout: 60000
-            },
-            signal: abortController.signal
-        });
 
-        if (credential) {
-            showMsg("Fingerprint matched! Accessing your hub...", true);
-            // Instant redirect to your mobile home page
-            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
-        }
-    } catch (err) {
-        console.error("Fingerprint Error:", err);
-        
-        // Handle specific error where no passkey exists yet
-        if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
-            showMsg("No passkey found. Login with Google first to register your fingerprint.", false);
-        } else {
-            showMsg("Authentication failed: " + err.message, false);
-        }
-    }
-}
-
-async function registerFingerprint() {
-    const user = auth.currentUser;
-    if (!user) return showMsg("Login with Google first!", false);
-
-    const options = {
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
-        rp: { name: "Savig", id: window.location.hostname },
-        user: {
-            id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
-            name: user.email,
-            displayName: user.email
-        },
-        pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-        authenticatorSelection: { 
-            authenticatorAttachment: "platform", 
-            userVerification: "required",
-            residentKey: "required" 
-        }
-    };
-
-    try {
-        const credential = await navigator.credentials.create({ publicKey: options });
-        if (credential) {
-            // Save flag to Firebase to hide the button later
-            await db.collection("users").doc(user.uid).set({ 
-                hasFingerprint: true 
-            }, { merge: true });
-
-            showMsg("Fingerprint enabled! Button will hide on next load.");
-            // Optional: Hide button immediately
-            event.target.closest('button').style.display = 'none';
-        }
-    } catch (err) {
-        showMsg("Setup failed: " + err.message, false);
-    }
-}
-// --- COMPLETE FINGERPRINT JS (WebAuthn) ---
-// --- COMPLETE FINGERPRINT JS (WebAuthn) ---
-
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-/**
- * 1. INSTANT LOGIN (Authentication)
- * Triggers the scanner immediately and redirects on success.
- */
-async function handleFingerprintAuth() {
-    if (!window.PublicKeyCredential) {
-        showMsg("Biometrics not supported.", false);
-        return;
-    }
-
-    try {
-        // Triggering the scanner IMMEDIATELY
-        const credential = await navigator.credentials.get({
-            publicKey: {
-                challenge: crypto.getRandomValues(new Uint8Array(32)),
-                userVerification: "required"
-            }
-        });
-
-        if (credential) {
-            showMsg("Identity verified! Redirecting...", true);
-            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
-        }
-    } catch (err) {
-        console.error("Auth Error:", err);
-        showMsg("No fingerprint found. Use Google Login first.", false);
-    }
-}
-
-/**
- * 2. REGISTRATION (Setup)
- * Saves the finger to the browser and updates Firestore to hide the button.
- */
 async function registerFingerprint() {
     const user = auth.currentUser;
     if (!user) return showMsg("Please login with Google first!", false);
@@ -797,6 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
