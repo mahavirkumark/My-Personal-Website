@@ -311,7 +311,7 @@ if ("serviceWorker" in navigator) {
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-// --- 1. Configuration & Initialization ---
+    // --- 1. Configuration & Initialization ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -337,133 +337,93 @@ const step1 = document.getElementById('step1');
 const step2 = document.getElementById('step2');
 const otpInputs = document.querySelectorAll('#otpBox input');
 const timerDisplay = document.getElementById('timer');
-const msgBoxEl = document.getElementById("msgBox");
 
-// --- 2. Helper: Message Toasts ---
-function showMsg(msg, success = true) {
-    msgBoxEl.className = ''; 
-    msgBoxEl.classList.add(success ? 'success' : 'error');
-    msgBoxEl.innerHTML = `<i class="fas ${success ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i><span>${msg}</span>`;
-    msgBoxEl.classList.add('show');
-    setTimeout(() => msgBoxEl.classList.remove('show'), 4000);
-}
-
-// --- 3. Google Login & OTP ---
+// --- 2. Ultra-Fast Login Logic ---
 document.getElementById("googleLoginBtn").onclick = async () => {
     try {
         const result = await auth.signInWithPopup(provider);
         const user = result.user;
 
-        // Visual Transition
+        // INSTANT TRANSITION (Don't wait for DB or Email)
         step1.classList.add('hidden');
         step2.classList.remove('hidden');
         document.getElementById('otp-info').innerText = `Code sent to ${user.email}`;
+        
+        // Focus first input immediately
         setTimeout(() => otpInputs[0].focus(), 50);
 
-        // Update User Profile
+        // Run background tasks (Fire and Forget)
         db.collection("users").doc(user.uid).set({
             email: user.email,
             lastLogin: new Date()
         }, { merge: true });
 
-        // Generate 6-Digit OTP
-        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-        otpExpiryTime = Date.now() + (3 * 60000); // 3 Minutes
-        
-        await emailjs.send('service_2ucolxw', 'template_iknmqfs', {
-            user_email: user.email,
-            passcode: generatedOTP,
-            time: new Date(otpExpiryTime).toLocaleTimeString()
-        });
-
+        sendFastOTP(user);
         startTimer(180);
+
     } catch (e) {
-        showMsg("Login failed: " + e.message, false);
+        console.error(e);
+        alert("Login failed: " + e.message);
     }
 };
 
-// --- 4. OTP Verification & Session Lock ---
+async function sendFastOTP(user) {
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    otpExpiryTime = Date.now() + (3 * 60000);
+
+    const templateParams = {
+        user_email: user.email,
+        passcode: generatedOTP,
+        time: new Date(otpExpiryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    try {
+        await emailjs.send('service_2ucolxw', 'template_iknmqfs', templateParams);
+    } catch (err) {
+        console.error("Email failed", err);
+    }
+}
+
+// --- 3. OTP Input & Verification ---
+otpInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+        if (e.target.value && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+        }
+        checkAndVerify();
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+
+    input.addEventListener('paste', (e) => {
+        const data = e.clipboardData.getData('text').trim();
+        if (data.length === 6 && /^\d+$/.test(data)) {
+            data.split('').forEach((char, i) => { otpInputs[i].value = char; });
+            checkAndVerify();
+        }
+    });
+});
+
 function checkAndVerify() {
     const code = Array.from(otpInputs).map(i => i.value).join('');
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-            // SET SESSION FLAG: This stops homemob.html from kicking you out
-            localStorage.setItem("savig_verified", "true");
-            window.location.replace("homemob.html");
+            window.location.replace("home.html");
+        } else if (code === generatedOTP) {
+            alert("OTP Expired");
+            location.reload();
         } else {
-            otpInputs.forEach(i => i.value = '');
+            // Error visual feedback instead of annoying alert for better speed feel
+            otpInputs.forEach(i => { i.value = ''; i.style.borderColor = 'red'; });
             otpInputs[0].focus();
-            showMsg("Invalid or expired OTP", false);
         }
     }
 }
 
-// --- 5. THE INSTANT FINGERPRINT LOGIN ---
-async function handleFingerprintAuth() {
-    if (!window.PublicKeyCredential) {
-        showMsg("Biometrics not supported.", false);
-        return;
-    }
-    try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-
-        const credential = await navigator.credentials.get({
-            publicKey: { challenge: challenge, userVerification: "required" }
-        });
-
-        if (credential) {
-            // SET SESSION FLAG immediately on success
-            localStorage.setItem("savig_verified", "true");
-            showMsg("Verified! Entering Hub...", true);
-            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
-        }
-    } catch (err) {
-        showMsg("No fingerprint found. Login with Google first.", false);
-    }
-}
-
-// --- 6. FINGERPRINT REGISTRATION (The "Save" Step) ---
-async function registerFingerprint() {
-    const user = auth.currentUser;
-    if (!user) return showMsg("Login with Google first!", false);
-
-    try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-
-        const options = {
-            publicKey: {
-                challenge: challenge,
-                rp: { name: "Savig", id: window.location.hostname },
-                user: {
-                    id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
-                    name: user.email,
-                    displayName: user.email
-                },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                authenticatorSelection: { 
-                    authenticatorAttachment: "platform", 
-                    userVerification: "required",
-                    residentKey: "required" 
-                }
-            }
-        };
-
-        const credential = await navigator.credentials.create(options);
-        if (credential) {
-            await db.collection("users").doc(user.uid).set({ hasFingerprint: true }, { merge: true });
-            showMsg("Fingerprint Enabled!", true);
-            // Hide the registration button instantly
-            const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
-            if (regBtn) regBtn.style.display = 'none';
-        }
-    } catch (err) {
-        showMsg("Registration failed: " + err.message, false);
-    }
-}
-
-// --- 7. Initialization & Timers ---
 function startTimer(seconds) {
     clearInterval(timerInterval);
     let timeRemaining = seconds;
@@ -471,39 +431,54 @@ function startTimer(seconds) {
         const mins = Math.floor(timeRemaining / 60);
         const secs = timeRemaining % 60;
         timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        if (--timeRemaining < 0) { clearInterval(timerInterval); timerDisplay.innerText = "EXPIRED"; }
+        if (--timeRemaining < 0) {
+            clearInterval(timerInterval);
+            timerDisplay.innerText = "EXPIRED";
+        }
     }, 1000);
 }
 
+// --- 4. Theme Toggle & URL Check ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Attach Instant Login
-    const fingerBtn = document.getElementById("fingerprintBtn");
-    if (fingerBtn) fingerBtn.onclick = handleFingerprintAuth;
+    const html = document.documentElement;
+    const btn = document.getElementById('theme-toggle-btn');
+    const icon = document.getElementById('theme-icon');
 
-    // 2. OTP Input Flow
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            if (e.target.value && index < otpInputs.length - 1) otpInputs[index + 1].focus();
-            checkAndVerify();
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) otpInputs[index - 1].focus();
-        });
+    const applyTheme = (theme) => {
+        html.setAttribute('data-theme', theme);
+        html.classList.toggle('dark', theme === 'dark');
+        if(icon) icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        localStorage.setItem('theme', theme);
+    };
+
+    applyTheme(localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+
+    if(btn) btn.addEventListener('click', () => {
+        applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });
 
-    // 3. Sync: Hide 'Enable' button if already registered
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            if (userDoc.exists && userDoc.data().hasFingerprint) {
-                const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
-                if (regBtn) regBtn.style.display = "none";
-            }
-        }
-    });
+    // Timeout Message
+    if (new URLSearchParams(window.location.search).get('reason') === 'timeout') {
+        const msg = document.getElementById('login-msg');
+        if(msg) msg.style.display = 'block';
+    }
 });
 
-
+// --- 5. Back Button Exit Intercept ---
+(function () {
+    let exiting = false;
+    history.pushState(null, null, location.href);
+    window.addEventListener("popstate", function () {
+        if (exiting) return;
+        exiting = true;
+        if (confirm("Do you want to exit MyTracker?")) {
+            history.back();
+        } else {
+            history.pushState(null, null, location.href);
+            exiting = false;
+        }
+    });
+})();
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -642,6 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
