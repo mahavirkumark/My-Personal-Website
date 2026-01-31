@@ -477,85 +477,102 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
     // --- WebAuthn / Fingerprint Logic ---
-async function registerFingerprint() {
-    const user = firebase.auth().currentUser;
-    if (!user) return showMsg("Log in with Google first!", false);
+// --- COMPLETE FINGERPRINT & WEBAUTHN LOGIC ---
 
-    const publicKeyCredentialCreationOptions = {
-        challenge: Uint8Array.from("random_string_from_server", c => c.charCodeAt(0)),
-        rp: { name: "Your App Name", id: window.location.hostname },
-        user: {
-            id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
-            name: user.email,
-            displayName: user.email
-        },
-        pubKeyCredParams: [{ alg: -7, type: "public-key" }], // -7 is ES256 (standard)
-        authenticatorSelection: { authenticatorAttachment: "platform" }, // Forces mobile fingerprint/face
-        timeout: 60000
-    };
-async function loginWithFingerprint() {
-    // You'd normally fetch the passkeyId from Firestore first based on the email
-    // For a 'instant' login, the browser checks all passkeys for your domain
-    const credential = await navigator.credentials.get({
-        publicKey: {
-            challenge: new Uint8Array([1, 2, 3, 4]),
-            userVerification: "required"
-        }
-    });
-    
-    if (credential) {
-        window.location.href = "homemob.html";
-    }
-}
-    try {
-        const credential = await navigator.credentials.create({
-            publicKey: publicKeyCredentialCreationOptions
-        });
-        
-        // Save the Credential ID to Firestore so we can recognize this finger later
-        await db.collection("users").doc(user.uid).update({
-            passkeyId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId)))
-        });
-
-        showMsg("Fingerprint registered successfully!");
-    } catch (err) {
-        showMsg("Registration failed: " + err.message, false);
-    }
-}
+/**
+ * 1. AUTHENTICATION (The Login Button)
+ * This runs when the user clicks "Use Fingerprint" on the login page.
+ */
 async function handleFingerprintAuth() {
-    // 1. Check if the device supports biometrics
     if (!window.PublicKeyCredential) {
-        showMsg("Biometrics not supported on this browser.", false);
+        showMsg("Biometrics not supported on this browser/device.", false);
         return;
     }
 
     try {
-        // In a production app, you would fetch a 'challenge' from your backend.
-        // For a simple Firebase implementation, we check the local device or Firestore.
-        
-        // This is a simplified "Re-authentication" flow
-        // For a full 'passwordless' login, you'd use the navigator.credentials.get()
-        
+        // The 'challenge' should ideally come from a server, but for 
+        // client-side validation, a static buffer works for the prompt.
+        const abortController = new AbortController();
         const credential = await navigator.credentials.get({
             publicKey: {
-                challenge: new Uint8Array([1, 2, 3, 4]), // Should be random from server
-                allowCredentials: [], // If empty, it looks for any valid credential on device
-                userVerification: "required"
-            }
+                challenge: new Uint8Array([11, 22, 33, 44]), 
+                userVerification: "required",
+                timeout: 60000
+            },
+            signal: abortController.signal
         });
 
         if (credential) {
-            showMsg("Fingerprint matched! Redirecting...", true);
-            setTimeout(() => { window.location.href = "homemob.html"; }, 1000);
+            showMsg("Fingerprint matched! Accessing your hub...", true);
+            // Instant redirect to your mobile home page
+            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
         }
     } catch (err) {
-        console.error(err);
-        showMsg("Fingerprint failed: " + err.message, false);
+        console.error("Fingerprint Error:", err);
+        
+        // Handle specific error where no passkey exists yet
+        if (err.name === 'NotAllowedError' || err.name === 'NotFoundError') {
+            showMsg("No passkey found. Login with Google first to register your fingerprint.", false);
+        } else {
+            showMsg("Authentication failed: " + err.message, false);
+        }
     }
 }
 
-// Attach to your UI Button
-document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
+/**
+ * 2. REGISTRATION (The Setup)
+ * Run this function AFTER the user is logged in (e.g., via a button in homemob.html)
+ * This "introduces" the finger to your website.
+ */
+async function registerFingerprint() {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+        showMsg("Please sign in with Google first.", false);
+        return;
+    }
+
+    try {
+        const publicKeyOptions = {
+            challenge: Uint8Array.from("savig_secure_random_string", c => c.charCodeAt(0)),
+            rp: { name: "Savig App", id: window.location.hostname },
+            user: {
+                id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
+                name: user.email,
+                displayName: user.displayName || user.email
+            },
+            pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
+            authenticatorSelection: { 
+                authenticatorAttachment: "platform", // Forces phone's built-in sensor
+                userVerification: "required" 
+            },
+            timeout: 60000
+        };
+
+        const credential = await navigator.credentials.create({
+            publicKey: publicKeyOptions
+        });
+
+        if (credential) {
+            // Store a flag in Firestore so you know this user has a registered device
+            await db.collection("users").doc(user.uid).set({
+                hasFingerprint: true,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            showMsg("Fingerprint linked successfully!", true);
+        }
+    } catch (err) {
+        showMsg("Setup failed: " + err.message, false);
+    }
+}
+
+// --- Event Listeners ---
+document.addEventListener('DOMContentLoaded', () => {
+    const fingerBtn = document.getElementById("fingerprintBtn");
+    if (fingerBtn) {
+        fingerBtn.onclick = handleFingerprintAuth;
+    }
+});
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -694,6 +711,7 @@ document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 
 </body>
 </html>
+
 
 
 
