@@ -479,13 +479,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
-  // --- Optimized Instant Fingerprint Logic ---
+// --- Optimized Instant Fingerprint Logic (Fixed) ---
 
 // 1. THE AUTHENTICATION (Login)
 async function handleFingerprintAuth() {
     if (!window.PublicKeyCredential) return;
 
     try {
+        // Fix: Use a standard 32-byte random challenge
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
 
@@ -501,15 +502,18 @@ async function handleFingerprintAuth() {
             // SET SESSION FLAG instantly to stop the "comeback loop"
             localStorage.setItem("savig_verified", "true");
             showMsg("Identity Verified!", true);
-            window.location.href = "homemob.html";
+            // Fix: Use replace instead of href for smoother redirect
+            window.location.replace("homemob.html");
         }
     } catch (err) {
-        console.log("Waiting for user to register or interaction.");
+        console.log("Waiting for user interaction or no passkey found.");
     }
 }
 
 // 2. THE REGISTRATION (Linking)
-async function registerFingerprint() {
+async function registerFingerprint(e) {
+    if (e) e.stopPropagation(); // Stop event bubbling to body
+
     const user = auth.currentUser;
     if (!user) return showMsg("Login with Google first!", false);
 
@@ -539,8 +543,9 @@ async function registerFingerprint() {
         if (credential) {
             await db.collection("users").doc(user.uid).set({ hasFingerprint: true }, { merge: true });
             showMsg("Fingerprint Linked!", true);
-            // Auto-hide the enable button
-            const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
+            
+            // Fix: More reliable button hiding
+            const regBtn = document.querySelector("button[onclick^='registerFingerprint']");
             if (regBtn) regBtn.style.display = "none";
         }
     } catch (err) {
@@ -548,28 +553,35 @@ async function registerFingerprint() {
     }
 }
 
-// 3. AUTO-TRIGGER ON PAGE LOAD
+// 3. AUTO-TRIGGER & INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
-    // Attach to your existing button
     const fingerBtn = document.getElementById("fingerprintBtn");
-    if (fingerBtn) fingerBtn.onclick = handleFingerprintAuth;
+    
+    // Fix: Stop propagation so body touchstart doesn't fire twice
+    if (fingerBtn) {
+        fingerBtn.onclick = (e) => {
+            e.stopPropagation();
+            handleFingerprintAuth();
+        };
+    }
 
     // --- INSTANT SCAN TRIGGER ---
-    // Browsers require one "touch" to start biometrics. 
-    // This makes the scanner pop up the MOMENT you touch the screen.
-    document.body.addEventListener('touchstart', () => {
+    // Fix: Ignore touch if it happens on a button
+    document.body.addEventListener('touchstart', (e) => {
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
         const isVerified = localStorage.getItem("savig_verified") === "true";
         if (!isVerified) {
             handleFingerprintAuth();
         }
-    }, { once: true }); // Only triggers once per page load
+    }, { once: true });
 
-    // Hiding Logic for 'Enable' button
+    // Firebase Sync for Button Hiding
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             const userDoc = await db.collection("users").doc(user.uid).get();
             if (userDoc.exists && userDoc.data().hasFingerprint) {
-                const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
+                const regBtn = document.querySelector("button[onclick^='registerFingerprint']");
                 if (regBtn) regBtn.style.display = "none";
             }
         }
@@ -713,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
