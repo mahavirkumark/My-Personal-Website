@@ -479,6 +479,108 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
+    async function handleFingerprintAuth() {
+    if (!window.PublicKeyCredential) {
+        showMsg("Biometrics not supported.", false);
+        return;
+    }
+    try {
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const credential = await navigator.credentials.get({
+            publicKey: { challenge: challenge, userVerification: "required" }
+        });
+
+        if (credential) {
+            // SET SESSION FLAG before redirecting
+            localStorage.setItem("savig_verified", "true");
+            showMsg("Verified! Redirecting...", true);
+            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
+        }
+    } catch (err) {
+        showMsg("No fingerprint found. Login with Google first.", false);
+    }
+}
+
+// --- 6. FINGERPRINT REGISTRATION (The "Save" Step) ---
+async function registerFingerprint() {
+    const user = auth.currentUser;
+    if (!user) return showMsg("Login with Google first!", false);
+
+    try {
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const options = {
+            publicKey: {
+                challenge: challenge,
+                rp: { name: "Savig", id: window.location.hostname },
+                user: {
+                    id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
+                    name: user.email,
+                    displayName: user.email
+                },
+                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+                authenticatorSelection: { 
+                    authenticatorAttachment: "platform", 
+                    userVerification: "required",
+                    residentKey: "required" 
+                }
+            }
+        };
+
+        const credential = await navigator.credentials.create(options);
+        if (credential) {
+            await db.collection("users").doc(user.uid).set({ hasFingerprint: true }, { merge: true });
+            showMsg("Fingerprint Enabled!", true);
+            // Hide the registration button immediately
+            document.querySelector("button[onclick='registerFingerprint()']").style.display = 'none';
+        }
+    } catch (err) {
+        showMsg("Registration failed: " + err.message, false);
+    }
+}
+
+// --- 7. Initialization & Event Listeners ---
+function startTimer(seconds) {
+    clearInterval(timerInterval);
+    let timeRemaining = seconds;
+    timerInterval = setInterval(() => {
+        const mins = Math.floor(timeRemaining / 60);
+        const secs = timeRemaining % 60;
+        timerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (--timeRemaining < 0) { clearInterval(timerInterval); timerDisplay.innerText = "EXPIRED"; }
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Fingerprint Login Button
+    const fingerBtn = document.getElementById("fingerprintBtn");
+    if (fingerBtn) fingerBtn.onclick = handleFingerprintAuth;
+
+    // OTP Input Navigation
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value && index < otpInputs.length - 1) otpInputs[index + 1].focus();
+            checkAndVerify();
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) otpInputs[index - 1].focus();
+        });
+    });
+
+    // Check Firebase to auto-hide the 'Enable' button
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            if (userDoc.exists && userDoc.data().hasFingerprint) {
+                const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
+                if (regBtn) regBtn.style.display = "none";
+            }
+        }
+    });
+});
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -617,6 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
