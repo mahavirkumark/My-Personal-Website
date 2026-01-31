@@ -139,6 +139,9 @@ if ("serviceWorker" in navigator) {
                     <button id="fingerprintBtn" style="background: #333; color: white;margin:10px; padding: 10px; border-radius: 8px;">
         <i class="fas fa-fingerprint"></i> Use Fingerprint
     </button>
+                    <button onclick="registerFingerprint()" class="bg-black text-white p-4 rounded-lg">
+    <i class="fas fa-fingerprint"></i> Enable Fingerprint Login
+</button>
                 </div>
 
                 <div id="step2" class="hidden">
@@ -525,54 +528,60 @@ async function handleFingerprintAuth() {
  * This "introduces" the finger to your website.
  */
 async function registerFingerprint() {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-        showMsg("Please sign in with Google first.", false);
-        return;
-    }
+    const user = auth.currentUser;
+    if (!user) return alert("Please login first!");
+
+    const options = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: "Savig App", id: window.location.hostname },
+        user: {
+            id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
+            name: user.email,
+            displayName: user.email
+        },
+        pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+        authenticatorSelection: { 
+            authenticatorAttachment: "platform", 
+            userVerification: "required",
+            residentKey: "required" 
+        }
+    };
 
     try {
-        const publicKeyOptions = {
-            challenge: Uint8Array.from("savig_secure_random_string", c => c.charCodeAt(0)),
-            rp: { name: "Savig App", id: window.location.hostname },
-            user: {
-                id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
-                name: user.email,
-                displayName: user.displayName || user.email
-            },
-            pubKeyCredParams: [{ alg: -7, type: "public-key" }, { alg: -257, type: "public-key" }],
-            authenticatorSelection: { 
-                authenticatorAttachment: "platform", // Forces phone's built-in sensor
-                userVerification: "required" 
-            },
-            timeout: 60000
-        };
-
-        const credential = await navigator.credentials.create({
-            publicKey: publicKeyOptions
-        });
-
+        // This triggers the phone's "Create Passkey" popup
+        const credential = await navigator.credentials.create({ publicKey: options });
         if (credential) {
-            // Store a flag in Firestore so you know this user has a registered device
-            await db.collection("users").doc(user.uid).set({
-                hasFingerprint: true,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-
-            showMsg("Fingerprint linked successfully!", true);
+            // Tell Firestore this user now has a registered finger
+            await db.collection("users").doc(user.uid).update({ hasPasskey: true });
+            alert("Fingerprint saved to browser successfully!");
         }
     } catch (err) {
-        showMsg("Setup failed: " + err.message, false);
+        alert("Registration failed: " + err.message);
     }
 }
 
-// --- Event Listeners ---
-document.addEventListener('DOMContentLoaded', () => {
-    const fingerBtn = document.getElementById("fingerprintBtn");
-    if (fingerBtn) {
-        fingerBtn.onclick = handleFingerprintAuth;
+// --- 3. THE LOGIN PROCESS (In index.html) ---
+// This runs when you click "Use Fingerprint" on the login page
+async function handleFingerprintAuth() {
+    try {
+        const credential = await navigator.credentials.get({
+            publicKey: {
+                challenge: crypto.getRandomValues(new Uint8Array(32)),
+                userVerification: "required"
+            }
+        });
+
+        if (credential) {
+            // Browser verified your finger against the saved passkey!
+            window.location.href = "homemob.html";
+        }
+    } catch (err) {
+        alert("No passkey found. Please login with Google and 'Enable Fingerprint' first.");
     }
-});
+}
+
+// Attach listener to your button on the login page
+document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -711,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
