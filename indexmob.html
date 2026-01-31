@@ -480,8 +480,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
+// --- COMPLETE FINGERPRINT JS (WebAuthn) ---
 
+const db = firebase.firestore();
+const auth = firebase.auth();
 
+/**
+ * 1. INSTANT LOGIN (Authentication)
+ * Triggers the scanner immediately and redirects on success.
+ */
+async function handleFingerprintAuth() {
+    if (!window.PublicKeyCredential) {
+        showMsg("Biometrics not supported.", false);
+        return;
+    }
+
+    try {
+        // Triggering the scanner IMMEDIATELY
+        const credential = await navigator.credentials.get({
+            publicKey: {
+                challenge: crypto.getRandomValues(new Uint8Array(32)),
+                userVerification: "required"
+            }
+        });
+
+        if (credential) {
+            showMsg("Identity verified! Redirecting...", true);
+            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
+        }
+    } catch (err) {
+        console.error("Auth Error:", err);
+        showMsg("No fingerprint found. Use Google Login first.", false);
+    }
+}
+
+/**
+ * 2. REGISTRATION (Setup)
+ * Saves the finger to the browser and updates Firestore to hide the button.
+ */
 async function registerFingerprint() {
     const user = auth.currentUser;
     if (!user) return showMsg("Please login with Google first!", false);
@@ -542,6 +578,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
 
 
 </script>
@@ -682,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
