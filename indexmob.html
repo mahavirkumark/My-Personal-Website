@@ -477,7 +477,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
     // --- WebAuthn / Fingerprint Logic ---
+async function registerFingerprint() {
+    const user = firebase.auth().currentUser;
+    if (!user) return showMsg("Log in with Google first!", false);
 
+    const publicKeyCredentialCreationOptions = {
+        challenge: Uint8Array.from("random_string_from_server", c => c.charCodeAt(0)),
+        rp: { name: "Your App Name", id: window.location.hostname },
+        user: {
+            id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
+            name: user.email,
+            displayName: user.email
+        },
+        pubKeyCredParams: [{ alg: -7, type: "public-key" }], // -7 is ES256 (standard)
+        authenticatorSelection: { authenticatorAttachment: "platform" }, // Forces mobile fingerprint/face
+        timeout: 60000
+    };
+async function loginWithFingerprint() {
+    // You'd normally fetch the passkeyId from Firestore first based on the email
+    // For a 'instant' login, the browser checks all passkeys for your domain
+    const credential = await navigator.credentials.get({
+        publicKey: {
+            challenge: new Uint8Array([1, 2, 3, 4]),
+            userVerification: "required"
+        }
+    });
+    
+    if (credential) {
+        window.location.href = "homemob.html";
+    }
+}
+    try {
+        const credential = await navigator.credentials.create({
+            publicKey: publicKeyCredentialCreationOptions
+        });
+        
+        // Save the Credential ID to Firestore so we can recognize this finger later
+        await db.collection("users").doc(user.uid).update({
+            passkeyId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId)))
+        });
+
+        showMsg("Fingerprint registered successfully!");
+    } catch (err) {
+        showMsg("Registration failed: " + err.message, false);
+    }
+}
 async function handleFingerprintAuth() {
     // 1. Check if the device supports biometrics
     if (!window.PublicKeyCredential) {
@@ -650,6 +694,7 @@ document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 
 </body>
 </html>
+
 
 
 
