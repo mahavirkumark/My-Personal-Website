@@ -522,18 +522,13 @@ async function handleFingerprintAuth() {
     }
 }
 
-/**
- * 2. REGISTRATION (The Setup)
- * Run this function AFTER the user is logged in (e.g., via a button in homemob.html)
- * This "introduces" the finger to your website.
- */
 async function registerFingerprint() {
     const user = auth.currentUser;
-    if (!user) return alert("Please login first!");
+    if (!user) return showMsg("Login with Google first!", false);
 
     const options = {
         challenge: crypto.getRandomValues(new Uint8Array(32)),
-        rp: { name: "Savig App", id: window.location.hostname },
+        rp: { name: "Savig", id: window.location.hostname },
         user: {
             id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
             name: user.email,
@@ -548,22 +543,26 @@ async function registerFingerprint() {
     };
 
     try {
-        // This triggers the phone's "Create Passkey" popup
         const credential = await navigator.credentials.create({ publicKey: options });
         if (credential) {
-            // Tell Firestore this user now has a registered finger
-            await db.collection("users").doc(user.uid).update({ hasPasskey: true });
-            alert("Fingerprint saved to browser successfully!");
+            // Save flag to Firebase to hide the button later
+            await db.collection("users").doc(user.uid).set({ 
+                hasFingerprint: true 
+            }, { merge: true });
+
+            showMsg("Fingerprint enabled! Button will hide on next load.");
+            // Optional: Hide button immediately
+            event.target.closest('button').style.display = 'none';
         }
     } catch (err) {
-        alert("Registration failed: " + err.message);
+        showMsg("Setup failed: " + err.message, false);
     }
 }
 
-// --- 3. THE LOGIN PROCESS (In index.html) ---
-// This runs when you click "Use Fingerprint" on the login page
+// --- 3. LOGIN (The Instant Scanner) ---
 async function handleFingerprintAuth() {
     try {
+        // This triggers the native scanner IMMEDIATELY
         const credential = await navigator.credentials.get({
             publicKey: {
                 challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -572,16 +571,32 @@ async function handleFingerprintAuth() {
         });
 
         if (credential) {
-            // Browser verified your finger against the saved passkey!
-            window.location.href = "homemob.html";
+            showMsg("Identity verified! Redirecting...");
+            setTimeout(() => { window.location.href = "homemob.html"; }, 1000);
         }
     } catch (err) {
-        alert("No passkey found. Please login with Google and 'Enable Fingerprint' first.");
+        console.error(err);
+        showMsg("No passkey found. Use Google Login first.", false);
     }
 }
 
-// Attach listener to your button on the login page
-document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
+// --- 4. INITIALIZATION & BUTTON HIDING ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Attach login listener
+    const loginBtn = document.getElementById("fingerprintBtn");
+    if (loginBtn) loginBtn.onclick = handleFingerprintAuth;
+
+    // Check Firebase to hide the 'Enable' button if already registered
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            const userDoc = await db.collection("users").doc(user.uid).get();
+            if (userDoc.exists && userDoc.data().hasFingerprint) {
+                const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
+                if (regBtn) regBtn.style.display = "none";
+            }
+        }
+    });
+});
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -720,6 +735,7 @@ document.getElementById("fingerprintBtn").onclick = handleFingerprintAuth;
 
 </body>
 </html>
+
 
 
 
