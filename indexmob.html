@@ -86,7 +86,15 @@ if ("serviceWorker" in navigator) {
         }
     </style>
 </head>
-
+<script>
+    auth.onAuthStateChanged((user) => {
+    const isVerified = localStorage.getItem("savig_verified") === "true";
+    // If not verified by fingerprint OR firebase, kick them out
+    if (!user && !isVerified) {
+        window.location.replace("index.html");
+    }
+});
+</script>
 <body class="min-h-screen flex flex-col justify-between">
 <nav class="bg-white shadow-sm py-2" style="margin-bottom: 30px;">
     <div class="container mx-auto px-2">
@@ -479,14 +487,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
-// --- Optimized Instant Fingerprint Logic (Fixed) ---
+// --- 1. Helper: Show Messages ---
+function showMsg(msg, success = true) {
+    const msgBox = document.getElementById("msgBox");
+    msgBox.className = success ? 'success show' : 'error show';
+    msgBox.innerHTML = `<span>${msg}</span>`;
+    setTimeout(() => msgBox.classList.remove('show'), 4000);
+}
 
-// 1. THE AUTHENTICATION (Login)
-async function handleFingerprintAuth() {
+// --- 2. Authentication (The Instant Login) ---
+async function handleFingerprintAuth(e) {
+    if (e) e.stopPropagation(); // Stop double-triggering
     if (!window.PublicKeyCredential) return;
 
     try {
-        // Fix: Use a standard 32-byte random challenge
         const challenge = new Uint8Array(32);
         window.crypto.getRandomValues(challenge);
 
@@ -499,21 +513,20 @@ async function handleFingerprintAuth() {
         });
 
         if (credential) {
-            // SET SESSION FLAG instantly to stop the "comeback loop"
+            // CRITICAL: Set flag BEFORE redirecting to break the comeback loop
             localStorage.setItem("savig_verified", "true");
             showMsg("Identity Verified!", true);
-            // Fix: Use replace instead of href for smoother redirect
+            // replace is faster and cleaner for PWAs than .href
             window.location.replace("homemob.html");
         }
     } catch (err) {
-        console.log("Waiting for user interaction or no passkey found.");
+        console.log("No passkey found or scan cancelled.");
     }
 }
 
-// 2. THE REGISTRATION (Linking)
+// --- 3. Registration (The Linking Step) ---
 async function registerFingerprint(e) {
-    if (e) e.stopPropagation(); // Stop event bubbling to body
-
+    if (e) e.stopPropagation();
     const user = auth.currentUser;
     if (!user) return showMsg("Login with Google first!", false);
 
@@ -543,8 +556,7 @@ async function registerFingerprint(e) {
         if (credential) {
             await db.collection("users").doc(user.uid).set({ hasFingerprint: true }, { merge: true });
             showMsg("Fingerprint Linked!", true);
-            
-            // Fix: More reliable button hiding
+            // Hide registration button immediately
             const regBtn = document.querySelector("button[onclick^='registerFingerprint']");
             if (regBtn) regBtn.style.display = "none";
         }
@@ -553,30 +565,23 @@ async function registerFingerprint(e) {
     }
 }
 
-// 3. AUTO-TRIGGER & INITIALIZATION
+// --- 4. Event Listeners & Auto-Trigger ---
 document.addEventListener('DOMContentLoaded', () => {
     const fingerBtn = document.getElementById("fingerprintBtn");
-    
-    // Fix: Stop propagation so body touchstart doesn't fire twice
-    if (fingerBtn) {
-        fingerBtn.onclick = (e) => {
-            e.stopPropagation();
-            handleFingerprintAuth();
-        };
-    }
+    if (fingerBtn) fingerBtn.onclick = handleFingerprintAuth;
 
-    // --- INSTANT SCAN TRIGGER ---
-    // Fix: Ignore touch if it happens on a button
+    // --- INSTANT SCAN TRIGGER (Touch Anywhere) ---
     document.body.addEventListener('touchstart', (e) => {
+        // Don't trigger if we tapped a button (buttons handle themselves)
         if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
 
         const isVerified = localStorage.getItem("savig_verified") === "true";
         if (!isVerified) {
             handleFingerprintAuth();
         }
-    }, { once: true });
+    }, { once: true }); // Only runs once per page load
 
-    // Firebase Sync for Button Hiding
+    // Sync Button Hiding logic
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             const userDoc = await db.collection("users").doc(user.uid).get();
@@ -587,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -725,6 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
