@@ -558,11 +558,23 @@ async function registerFingerprint() {
         showMsg("Setup failed: " + err.message, false);
     }
 }
+// --- COMPLETE FINGERPRINT JS (WebAuthn) ---
 
-// --- 3. LOGIN (The Instant Scanner) ---
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+/**
+ * 1. INSTANT LOGIN (Authentication)
+ * Triggers the scanner immediately and redirects on success.
+ */
 async function handleFingerprintAuth() {
+    if (!window.PublicKeyCredential) {
+        showMsg("Biometrics not supported.", false);
+        return;
+    }
+
     try {
-        // This triggers the native scanner IMMEDIATELY
+        // Triggering the scanner IMMEDIATELY
         const credential = await navigator.credentials.get({
             publicKey: {
                 challenge: crypto.getRandomValues(new Uint8Array(32)),
@@ -571,18 +583,65 @@ async function handleFingerprintAuth() {
         });
 
         if (credential) {
-            showMsg("Identity verified! Redirecting...");
-            setTimeout(() => { window.location.href = "homemob.html"; }, 1000);
+            showMsg("Identity verified! Redirecting...", true);
+            setTimeout(() => { window.location.href = "homemob.html"; }, 800);
         }
     } catch (err) {
-        console.error(err);
-        showMsg("No passkey found. Use Google Login first.", false);
+        console.error("Auth Error:", err);
+        showMsg("No fingerprint found. Use Google Login first.", false);
     }
 }
 
-// --- 4. INITIALIZATION & BUTTON HIDING ---
+/**
+ * 2. REGISTRATION (Setup)
+ * Saves the finger to the browser and updates Firestore to hide the button.
+ */
+async function registerFingerprint() {
+    const user = auth.currentUser;
+    if (!user) return showMsg("Please login with Google first!", false);
+
+    const options = {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        rp: { name: "Savig", id: window.location.hostname },
+        user: {
+            id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
+            name: user.email,
+            displayName: user.email
+        },
+        pubKeyCredParams: [{ alg: -7, type: "public-key" }],
+        authenticatorSelection: { 
+            authenticatorAttachment: "platform", 
+            userVerification: "required",
+            residentKey: "required" 
+        }
+    };
+
+    try {
+        const credential = await navigator.credentials.create({ publicKey: options });
+        if (credential) {
+            // Save flag to Firebase to hide the 'Enable' button later
+            await db.collection("users").doc(user.uid).set({ 
+                hasFingerprint: true 
+            }, { merge: true });
+
+            showMsg("Fingerprint Enabled Successfully!", true);
+            
+            // Hide the register button immediately
+            const regBtn = document.querySelector("button[onclick='registerFingerprint()']");
+            if (regBtn) regBtn.style.display = 'none';
+        }
+    } catch (err) {
+        console.error("Reg Error:", err);
+        showMsg("Setup failed: " + err.message, false);
+    }
+}
+
+/**
+ * 3. INITIALIZATION & UI CONTROL
+ * Hides the 'Enable' button if already registered.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    // Attach login listener
+    // Attach listener to Use Fingerprint button
     const loginBtn = document.getElementById("fingerprintBtn");
     if (loginBtn) loginBtn.onclick = handleFingerprintAuth;
 
@@ -597,6 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -735,6 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
