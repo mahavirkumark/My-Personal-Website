@@ -480,15 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 })();
 
-// --- COMPLETE FINGERPRINT JS (WebAuthn) ---
 
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-/**
- * 1. INSTANT LOGIN (Authentication)
- * Triggers the scanner immediately and redirects on success.
- */
 async function handleFingerprintAuth() {
     if (!window.PublicKeyCredential) {
         showMsg("Biometrics not supported.", false);
@@ -720,6 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
