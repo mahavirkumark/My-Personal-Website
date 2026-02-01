@@ -1214,6 +1214,171 @@ background-color: #f9fafb;
     }
 
 </style>
+    <div id="fabOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200 z-[998]"></div>
+
+<div id="fabContainer" class="fixed bottom-20 left-2 z-[999] flex flex-col-reverse items-start">
+    
+    <button id="fabTrigger" class="pulse w-11 h-11 bg-blue-600 text-white rounded-xl shadow-lg flex items-center justify-center transition-all duration-200 active:scale-90 z-50">
+        <i id="fabIcon" class="fas fa-th-large text-base"></i>
+    </button>
+
+    <div id="fabMenu" class="flex flex-col-reverse gap-3 mb-4 pointer-events-none">
+               <a href="index.html" onclick="instantNav(event, 'index.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
+                <i class="fa-solid fa-right-from-bracket" text-xs"></i>
+            </div>
+            <span class="menu-label">Logout</span>
+        </a>
+        <a href="added.html" onclick="instantNav(event, 'added.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-slate-500 group-hover:bg-slate-800 group-hover:text-white">
+                <i class="fas fa-cog text-xs"></i>
+            </div>
+            <span class="menu-label">Settings</span>
+        </a>
+
+        <a href="principle.html" onclick="instantNav(event, 'principle.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-orange-500 group-hover:bg-orange-500 group-hover:text-white">
+                <i class="fas fa-lightbulb text-xs"></i>
+            </div>
+            <span class="menu-label">Principles</span>
+        </a>
+
+        <a href="daily.html" onclick="instantNav(event, 'daily.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white">
+                <i class="fas fa-tasks text-xs"></i>
+            </div>
+            <span class="menu-label">Daily Tasks</span>
+        </a>
+
+        <a href="cr.html" onclick="instantNav(event, 'cr.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-red-500 group-hover:bg-red-500 group-hover:text-white">
+                <i class="fa-solid fa-calendar-alt text-xs"></i>
+            </div>
+            <span class="menu-label">Calender</span>
+        </a>
+
+        <a href="asset.html" onclick="instantNav(event, 'asset.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white">
+                <i class="fas fa-wallet text-xs"></i>
+            </div>
+            <span class="menu-label">Assets</span>
+        </a>
+
+        <a href="Links.html" onclick="instantNav(event, 'link.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-blue-500 group-hover:bg-blue-500 group-hover:text-white">
+                <i class="fa-solid fa-link text-xs"></i>
+            </div>
+            <span class="menu-label">Links</span>
+        </a>
+
+        <a href="essential.html" onclick="instantNav(event, 'essential.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-pink-500 group-hover:bg-pink-500 group-hover:text-white">
+                <i class="fas fa-shopping-basket text-xs"></i>
+            </div>
+            <span class="menu-label">Essentials</span>
+        </a>
+
+        <a href="profile.html" onclick="instantNav(event, 'profile.html')" class="menu-item group flex items-center gap-3">
+            <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
+                <i class="fas fa-user text-xs"></i>
+            </div>
+            <span class="menu-label">Profile</span>
+        </a>
+       
+        
+    </div>
+</div>
+
+<style>
+    /* BASE ITEM STYLES */
+    .menu-item {
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .icon-box {
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: white;
+        box-shadow: 0 10px 15px -3px rgba(60, 35, 112, 0.1);
+        border: 1px solid #e5e7eb;
+        flex-shrink: 0;
+    }
+
+    /* FIX: Names visibility in Light Mode */
+    .menu-label {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 5px 5px;
+        border-radius: 8px;
+        background: #f8fafc; /* Very light background for contrast */
+        color: #1e293b;      /* Deep dark text for light mode */
+        white-space: nowrap;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    /* FIX: Names visibility in Dark Mode */
+    [data-theme="dark"] .icon-box { background: #1e293b; border-color: #334155; }
+    [data-theme="dark"] .menu-label { 
+        background: #334155; 
+        color: #f8fafc; /* Bright text for dark mode */
+        border: 1px solid rgba(255,255,255,0.1); 
+    }
+
+    .menu-active .menu-item { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .overlay-active { opacity: 1 !important; pointer-events: auto !important; }
+
+    @keyframes pulse-blue {
+        0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+    }
+    .pulse { animation: pulse-blue 2s infinite; }
+</style>
+
+<script>
+    const trigger = document.getElementById('fabTrigger');
+    const container = document.getElementById('fabContainer');
+    const icon = document.getElementById('fabIcon');
+    const overlay = document.getElementById('fabOverlay');
+
+    function toggleMenu() {
+        const isActive = container.classList.toggle('menu-active');
+        overlay.classList.toggle('overlay-active');
+        
+        if(isActive) {
+            icon.className = 'fas fa-times text-base transition-all duration-200';
+            trigger.classList.replace('bg-blue-600', 'bg-slate-800');
+            trigger.classList.remove('pulse');
+        } else {
+            icon.className = 'fas fa-th-large text-base transition-all duration-200';
+            trigger.classList.replace('bg-slate-800', 'bg-blue-600');
+            trigger.classList.add('pulse');
+        }
+    }
+
+    function instantNav(event, url) {
+        event.preventDefault();
+        window.location.replace(url); // Instant jump
+    }
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (container.classList.contains('menu-active') && !container.contains(e.target)) {
+            toggleMenu();
+        }
+    });
+</script>
 </body>
 
 </html>
