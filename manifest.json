@@ -1,7 +1,7 @@
 {
   "name": "Savig",
   "short_name": "Savig",
-  "start_url": "homemob.html",
+  "start_url": "indexmob.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#0d1117",
