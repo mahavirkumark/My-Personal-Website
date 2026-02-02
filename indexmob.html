@@ -96,7 +96,7 @@ if ("serviceWorker" in navigator) {
 });
 </script>
 <body class="min-h-screen flex flex-col justify-between">
-<nav class="bg-white shadow-sm py-2" style="margin-bottom: 30px;">
+<nav class="bg-white shadow-sm py-2" style="margin-bottom: 10px;">
     <div class="container mx-auto px-2">
         <div class="flex items-center gap-1">
             <div class="relative flex items-center justify-center">
@@ -167,7 +167,7 @@ if ("serviceWorker" in navigator) {
 
         <div class="hidden lg:block space-y-6 order-3" style="animation: slideInRight 1s ease-out forwards; opacity: 1;">
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="flex items-center gap-1 mb-2">
                     <i class="fas fa-lock text-2xl text-blue-600"></i>
                     <h3 class="text-lg font-bold text-gray-800">Advanced Password Vault</h3>
                 </div>
@@ -176,7 +176,7 @@ if ("serviceWorker" in navigator) {
                 </p>
             </div>
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
-                <div class="flex items-center gap-3 mb-2">
+                <div class="flex items-center gap-1 mb-1">
                     <i class="fas fa-link text-2xl text-blue-600"></i>
                     <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
                 </div>
@@ -192,24 +192,24 @@ if ("serviceWorker" in navigator) {
         <section class="py-12 md:py-16 bg-gray-50">
         <div class="container mx-auto px-6">
             <h4 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This App</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
                     <i class="fas fa-database text-2xl text-blue-600 mb-3"></i>
-                    <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
+                    <h3 class="text-lg font-semibold mb-1">Your Digital Vault</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.
                     </p>
                 </div>
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-                    <i class="fas fa-users text-2xl text-blue-600 mb-3"></i>
+                    <i class="fas fa-users text-2xl text-blue-600 mb-1"></i>
                     <h3 class="text-base font-semibold mb-2">Personal & Professional</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.
                     </p>
                 </div>
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
-                    <i class="fas fa-shield-alt text-2xl text-blue-600 mb-3"></i>
-                    <h3 class="text-base font-semibold mb-2">Privacy First</h3>
+                    <i class="fas fa-shield-alt text-2xl text-blue-600 mb-1"></i>
+                    <h3 class="text-base font-semibold mb-1">Privacy First</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         Designed with security at its core. Your personal information stays private and under your control, always.
                     </p>
@@ -241,23 +241,23 @@ if ("serviceWorker" in navigator) {
     <section class="py-12 md:py-16 bg-white">
         <div class="container mx-auto px-6">
             <h2 class="section-title mb-10" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">How It Works</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-center">
                 <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
-                    <i class="fas fa-user-plus text-4xl text-blue-500 mb-3"></i>
+                    <i class="fas fa-user-plus text-2xl text-blue-500 mb-1"></i>
                     <h3 class="text-base font-semibold mb-1">Step 1: Get Started</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         Sign up instantly using your **Google account**. This provides a secure, familiar, and quick way to get access to your personal hub.
                     </p>
                 </div>
                 <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-                    <i class="fas fa-key text-2xl text-blue-500 mb-3"></i>
+                    <i class="fas fa-key text-2xl text-blue-500 mb-1"></i>
                     <h3 class="text-base font-semibold mb-1">Step 2: Set Your PIN</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         For an added layer of security, you'll be prompted to create a personal **4-6 digit PIN**. This ensures that only you can access your data.
                     </p>
                 </div>
                 <div class="flex flex-col items-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
-                    <i class="fas fa-cubes text-4xl text-blue-500 mb-3"></i>
+                    <i class="fas fa-cubes text-2xl text-blue-500 mb-3"></i>
                     <h3 class="text-lg font-semibold mb-1">Step 3: Start Organizing</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
                         Once inside, you're free to use our suite of tools: manage your finances, store passwords securely, and organize your digital contacts.
@@ -279,21 +279,21 @@ if ("serviceWorker" in navigator) {
                     <p class="text-gray-600 text-sm">Your data is protected by a two-factor authentication system, combining a secure Google login with a personal PIN.</p>
                 </div>
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <i class="fas fa-lightbulb text-2xl text-blue-500"></i>
                     </div>
                     <h3 class="text- base-semibold mb-1">All-in-One Convenience</h3>
                     <p class="text-gray-600 text-sm">Say goodbye to scattered apps. Manage your finances, contacts, passwords, and links from a single, seamless dashboard.</p>
                 </div>
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <i class="fas fa-cogs text-2xl text-blue-500"></i>
                     </div>
                     <h3 class="text-base font-semibold mb-1">Seamless User Experience</h3>
                     <p class="text-gray-600 text-sm">Our modern, intuitive interface is designed for simplicity, making it easy for anyone to get organized without a steep learning curve.</p>
                 </div>
                 <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.7s;">
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <i class="fas fa-mobile-alt text-2xl text-blue-500"></i>
                     </div>
                     <h3 class="text-base font-semibold mb-1">Mobile-Friendly Design</h3>
@@ -624,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
