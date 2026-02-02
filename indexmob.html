@@ -416,12 +416,13 @@ function checkAndVerify() {
     const code = Array.from(otpInputs).map(i => i.value).join('');
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
+            // SAVE VERIFICATION STATUS
+            localStorage.setItem("savig_verified", "true"); 
             window.location.replace("homemob.html");
         } else if (code === generatedOTP) {
             alert("OTP Expired");
             location.reload();
         } else {
-            // Error visual feedback instead of annoying alert for better speed feel
             otpInputs.forEach(i => { i.value = ''; i.style.borderColor = 'red'; });
             otpInputs[0].focus();
         }
@@ -626,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
