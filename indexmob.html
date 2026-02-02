@@ -487,111 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 })();
-// --- 1. Helper: Show Messages ---
-function showMsg(msg, success = true) {
-    const msgBox = document.getElementById("msgBox");
-    msgBox.className = success ? 'success show' : 'error show';
-    msgBox.innerHTML = `<span>${msg}</span>`;
-    setTimeout(() => msgBox.classList.remove('show'), 4000);
-}
 
-// --- 2. Authentication (The Instant Login) ---
-async function handleFingerprintAuth(e) {
-    if (e) e.stopPropagation(); // Stop double-triggering
-    if (!window.PublicKeyCredential) return;
 
-    try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-
-        const credential = await navigator.credentials.get({
-            publicKey: {
-                challenge: challenge,
-                userVerification: "required",
-                timeout: 60000
-            }
-        });
-
-        if (credential) {
-            // CRITICAL: Set flag BEFORE redirecting to break the comeback loop
-            localStorage.setItem("savig_verified", "true");
-            showMsg("Identity Verified!", true);
-            // replace is faster and cleaner for PWAs than .href
-            window.location.replace("homemob.html");
-        }
-    } catch (err) {
-        console.log("No passkey found or scan cancelled.");
-    }
-}
-
-// --- 3. Registration (The Linking Step) ---
-async function registerFingerprint(e) {
-    if (e) e.stopPropagation();
-    const user = auth.currentUser;
-    if (!user) return showMsg("Login with Google first!", false);
-
-    try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-
-        const options = {
-            publicKey: {
-                challenge: challenge,
-                rp: { name: "Savig", id: window.location.hostname },
-                user: {
-                    id: Uint8Array.from(user.uid, c => c.charCodeAt(0)),
-                    name: user.email,
-                    displayName: user.email
-                },
-                pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                authenticatorSelection: { 
-                    authenticatorAttachment: "platform", 
-                    userVerification: "required",
-                    residentKey: "required" 
-                }
-            }
-        };
-
-        const credential = await navigator.credentials.create(options);
-        if (credential) {
-            await db.collection("users").doc(user.uid).set({ hasFingerprint: true }, { merge: true });
-            showMsg("Fingerprint Linked!", true);
-            // Hide registration button immediately
-            const regBtn = document.querySelector("button[onclick^='registerFingerprint']");
-            if (regBtn) regBtn.style.display = "none";
-        }
-    } catch (err) {
-        showMsg("Setup failed: " + err.message, false);
-    }
-}
-
-// --- 4. Event Listeners & Auto-Trigger ---
-document.addEventListener('DOMContentLoaded', () => {
-    const fingerBtn = document.getElementById("fingerprintBtn");
-    if (fingerBtn) fingerBtn.onclick = handleFingerprintAuth;
-
-    // --- INSTANT SCAN TRIGGER (Touch Anywhere) ---
-    document.body.addEventListener('touchstart', (e) => {
-        // Don't trigger if we tapped a button (buttons handle themselves)
-        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-
-        const isVerified = localStorage.getItem("savig_verified") === "true";
-        if (!isVerified) {
-            handleFingerprintAuth();
-        }
-    }, { once: true }); // Only runs once per page load
-
-    // Sync Button Hiding logic
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            const userDoc = await db.collection("users").doc(user.uid).get();
-            if (userDoc.exists && userDoc.data().hasFingerprint) {
-                const regBtn = document.querySelector("button[onclick^='registerFingerprint']");
-                if (regBtn) regBtn.style.display = "none";
-            }
-        }
-    });
-});
 
 </script>
      <button id="theme-toggle-btn">
@@ -731,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
