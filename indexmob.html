@@ -416,7 +416,7 @@ function checkAndVerify() {
     const code = Array.from(otpInputs).map(i => i.value).join('');
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-            window.location.replace("home.html");
+            window.location.replace("homemob.html");
         } else if (code === generatedOTP) {
             alert("OTP Expired");
             location.reload();
@@ -626,6 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
