@@ -416,7 +416,7 @@ function checkAndVerify() {
     const code = Array.from(otpInputs).map(i => i.value).join('');
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-            // SAVE VERIFICATION STATUS
+            // STEP 1: Set the flag so the app knows OTP is done
             localStorage.setItem("savig_verified", "true"); 
             window.location.replace("homemob.html");
         } else if (code === generatedOTP) {
@@ -627,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
