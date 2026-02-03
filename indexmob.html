@@ -21,12 +21,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+<script>
+    // --- STEP 1: THE LOOP-PROOF REDIRECT ---
+(function() {
+    const isVerified = localStorage.getItem("savig_verified") === "true";
+    const isLoginPage = window.location.pathname.includes("indexmob.html") || window.location.pathname.endsWith("/");
 
-    <script>
-    // 0ms Check: If already verified, jump to home immediately
-    if (localStorage.getItem("savig_verified") === "true") {
+    // Only redirect if we are verified AND currently on the login page
+    if (isVerified && isLoginPage) {
         window.location.replace("homemob.html");
+    } else if (!isVerified && !isLoginPage) {
+        // If someone tries to access home without being verified
+        window.location.replace("indexmob.html");
     }
+})();
 </script>
   <script>
 if ("serviceWorker" in navigator) {
@@ -596,6 +604,7 @@ document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
 
 </body>
 </html>
+
 
 
 
