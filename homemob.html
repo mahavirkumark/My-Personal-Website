@@ -685,22 +685,21 @@ if (desktopLogoutBtn) {
 // 4. AUTH STATE MANAGEMENT (The App Entry Point)
 // =================================================================
 
-auth.onAuthStateChanged(user => {
-    if (user) {
-        console.log("User logged in. Initializing app.");
+async function logout() {
+    try {
+        // 1. Clear the speed flag so indexmob.html doesn't redirect you back here
+        localStorage.removeItem("savig_verified");
         
-        updateUI(user);
+        // 2. Sign out from Firebase
+        await firebase.auth().signOut();
         
-        // Load birthday data for UI only.
-        loadBirthdayData();
-
-        // The scheduler function is removed here. The server handles it.
-    } else {
-        // Redirect to login page if no user is signed in
-     window.location.replace('indexmob.html');
-        console.log("No user signed in. Displaying placeholder UI.");
+        // 3. Instant redirect to the login page
+        window.location.replace("indexmob.html");
+    } catch (err) {
+        console.error("Logout failed", err);
     }
-});
+}
+
 </script>
     
 <script>
