@@ -323,13 +323,7 @@ if ("serviceWorker" in navigator) {
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-// --- STEP 1: THE INSTANT REDIRECT (RUNS BEFORE EVERYTHING) ---
-// This check is so fast the user won't even see a white screen
-if (localStorage.getItem("savig_verified") === "true") {
-    window.location.replace("homemob.html");
-}
-
-// --- STEP 2: FAST INITIALIZATION ---
+// --- 1. FIREBASE CONFIGURATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -339,6 +333,7 @@ const firebaseConfig = {
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 };
 
+// Initialize Firebase Immediately
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -348,35 +343,61 @@ emailjs.init("NbamX634Y_o570cNw");
 let generatedOTP = null;
 let otpExpiryTime = null;
 
-// --- STEP 3: THE SMART GATEKEEPER ---
+// --- 2. THE SPEED-OF-LIGHT GATEKEEPER ---
+// This runs BEFORE any UI renders.
+(function() {
+    const isVerified = localStorage.getItem("savig_verified") === "true";
+    if (isVerified) {
+        // Instant jump if already logged in
+        window.location.replace("homemob.html");
+    } else {
+        // If not verified, show the UI after a tiny delay to prevent flicker
+        window.addEventListener('DOMContentLoaded', () => {
+            document.body.style.opacity = "1";
+        });
+    }
+})();
+
+// --- 3. THE LOGOUT FUNCTION ---
+// Add this function to your Logout button: onclick="logoutUser()"
+function logoutUser() {
+    // FIRST: Remove the speed flag so the redirect stops working
+    localStorage.removeItem("savig_verified");
+    
+    // SECOND: Sign out from Firebase
+    auth.signOut().then(() => {
+        console.log("Logged out successfully");
+        window.location.replace("indexmob.html");
+    }).catch((e) => alert("Logout failed: " + e.message));
+}
+
+// --- 4. AUTH STATE LOGIC ---
 auth.onAuthStateChanged((user) => {
     const isVerified = localStorage.getItem("savig_verified") === "true";
 
     if (user && isVerified) {
         window.location.replace("homemob.html");
+    } else if (user && !isVerified) {
+        // Google login successful, now show OTP
+        handleFirstTimeOTP(user);
     } else {
-        // Only show the UI if we absolutely have to (prevents flicker)
-        const ui = document.getElementById('main-content');
-        if (ui) {
-            ui.style.display = 'block';
-            setTimeout(() => ui.style.opacity = "1", 10);
-        }
-        
-        if (user && !isVerified) {
-            handleFirstTimeOTP(user);
-        }
+        // No user, show login step 1
+        document.getElementById('step1').classList.remove('hidden');
+        document.getElementById('step2').classList.add('hidden');
     }
 });
 
-// --- STEP 4: ULTRA-FAST LOGIN & OTP ---
+// --- 5. LOGIN & OTP FLOW ---
 
-document.getElementById("googleLoginBtn").onclick = () => {
-    // Popup is generally faster on high-end mobile browsers than redirect
-    auth.signInWithPopup(provider).catch(e => console.error(e));
+document.getElementById("googleLoginBtn").onclick = async () => {
+    try {
+        await auth.signInWithPopup(provider);
+    } catch (e) {
+        console.error(e);
+    }
 };
 
-function handleFirstTimeOTP(user) {
-    // Instant UI Swap
+async function handleFirstTimeOTP(user) {
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
     document.getElementById('otp-info').innerText = `OTP sent to ${user.email}`;
@@ -385,20 +406,18 @@ function handleFirstTimeOTP(user) {
         generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         otpExpiryTime = Date.now() + 180000;
 
-        // PARALLEL EXECUTION: Don't 'await'. Send both at the same time.
+        // Background tasks (Parallel)
         emailjs.send('service_2ucolxw', 'template_iknmqfs', {
             user_email: user.email,
             passcode: generatedOTP
         });
 
         db.collection("users").doc(user.uid).set({ lastLogin: new Date() }, { merge: true });
-        
         startTimer(180);
     }
     
-    // Focus first input with zero delay
     const firstInput = document.querySelector('#otpBox input');
-    if(firstInput) firstInput.focus();
+    if(firstInput) setTimeout(() => firstInput.focus(), 10);
 }
 
 function checkAndVerify() {
@@ -407,7 +426,7 @@ function checkAndVerify() {
 
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-            // LOCK SESSION
+            // SET THE VERIFIED FLAG (This is your speed key)
             localStorage.setItem("savig_verified", "true"); 
             window.location.replace("homemob.html");
         } else {
@@ -417,16 +436,7 @@ function checkAndVerify() {
     }
 }
 
-// Optimized OTP Input handling
-document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
-    input.addEventListener('input', (e) => {
-        if (e.target.value && idx < all.length - 1) all[idx + 1].focus();
-        checkAndVerify();
-    });
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !e.target.value && idx > 0) all[idx - 1].focus();
-    });
-});
+// --- 6. HELPERS ---
 
 function startTimer(s) {
     let t = s;
@@ -436,6 +446,16 @@ function startTimer(s) {
         if (--t < 0) { clearInterval(inv); d.innerText = "EXPIRED"; }
     }, 1000);
 }
+
+document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
+    input.addEventListener('input', (e) => {
+        if (e.target.value && idx < all.length - 1) all[idx + 1].focus();
+        checkAndVerify();
+    });
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 0) all[idx - 1].focus();
+    });
+});
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -576,6 +596,7 @@ function startTimer(s) {
 
 </body>
 </html>
+
 
 
 
