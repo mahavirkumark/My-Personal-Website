@@ -315,8 +315,13 @@ if ("serviceWorker" in navigator) {
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
 <script>
-// --- 1. Immediate Bootstrapping ---
-// We initialize Firebase instantly
+// --- STEP 1: THE INSTANT REDIRECT (RUNS BEFORE EVERYTHING) ---
+// This check is so fast the user won't even see a white screen
+if (localStorage.getItem("savig_verified") === "true") {
+    window.location.replace("homemob.html");
+}
+
+// --- STEP 2: FAST INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -327,7 +332,6 @@ const firebaseConfig = {
 };
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
@@ -336,73 +340,66 @@ emailjs.init("NbamX634Y_o570cNw");
 let generatedOTP = null;
 let otpExpiryTime = null;
 
-// --- 2. The Ultra-Fast Gatekeeper ---
-// Runs as soon as the script hits the browser
+// --- STEP 3: THE SMART GATEKEEPER ---
 auth.onAuthStateChanged((user) => {
     const isVerified = localStorage.getItem("savig_verified") === "true";
 
     if (user && isVerified) {
-        // INSTANT BYPASS: No waiting for UI or DOM
         window.location.replace("homemob.html");
     } else {
-        // Only show body if we absolutely need to log in
-        document.body.style.opacity = "1";
+        // Only show the UI if we absolutely have to (prevents flicker)
+        const ui = document.getElementById('main-content');
+        if (ui) {
+            ui.style.display = 'block';
+            setTimeout(() => ui.style.opacity = "1", 10);
+        }
+        
         if (user && !isVerified) {
             handleFirstTimeOTP(user);
         }
     }
 });
 
-// --- 3. Login & OTP Logic ---
+// --- STEP 4: ULTRA-FAST LOGIN & OTP ---
 
-// Triggered on Google Button Click
-document.getElementById("googleLoginBtn").onclick = async () => {
-    try {
-        // signInWithPopup is faster for mobile than Redirect in many cases
-        await auth.signInWithPopup(provider);
-    } catch (e) {
-        alert("Login Error: " + e.message);
-    }
+document.getElementById("googleLoginBtn").onclick = () => {
+    // Popup is generally faster on high-end mobile browsers than redirect
+    auth.signInWithPopup(provider).catch(e => console.error(e));
 };
 
-async function handleFirstTimeOTP(user) {
-    // 1. UI Switch (Instant)
+function handleFirstTimeOTP(user) {
+    // Instant UI Swap
     document.getElementById('step1').classList.add('hidden');
     document.getElementById('step2').classList.remove('hidden');
-    document.getElementById('otp-info').innerText = `Code sent to ${user.email}`;
+    document.getElementById('otp-info').innerText = `OTP sent to ${user.email}`;
 
-    // 2. Parallel Tasks: Send Email + Sync DB (Don't wait for one to finish the other)
     if (!generatedOTP) {
         generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         otpExpiryTime = Date.now() + 180000;
 
-        // Fire and Forget (don't 'await' these, let them run in background)
+        // PARALLEL EXECUTION: Don't 'await'. Send both at the same time.
         emailjs.send('service_2ucolxw', 'template_iknmqfs', {
             user_email: user.email,
-            passcode: generatedOTP,
-            time: new Date(otpExpiryTime).toLocaleTimeString()
+            passcode: generatedOTP
         });
 
-        db.collection("users").doc(user.uid).set({ 
-            lastLogin: new Date() 
-        }, { merge: true });
-
+        db.collection("users").doc(user.uid).set({ lastLogin: new Date() }, { merge: true });
+        
         startTimer(180);
     }
     
-    // Auto-focus first input immediately
+    // Focus first input with zero delay
     const firstInput = document.querySelector('#otpBox input');
-    if(firstInput) setTimeout(() => firstInput.focus(), 10);
+    if(firstInput) firstInput.focus();
 }
 
-// Verification - Checks on every keyup
 function checkAndVerify() {
     const inputs = document.querySelectorAll('#otpBox input');
     const code = Array.from(inputs).map(i => i.value).join('');
 
     if (code.length === 6) {
         if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-            // LOCK THE SESSION
+            // LOCK SESSION
             localStorage.setItem("savig_verified", "true"); 
             window.location.replace("homemob.html");
         } else {
@@ -412,19 +409,7 @@ function checkAndVerify() {
     }
 }
 
-// --- 4. Performance Helpers ---
-
-function startTimer(seconds) {
-    let time = seconds;
-    const display = document.getElementById('timer');
-    const interval = setInterval(() => {
-        const m = Math.floor(time / 60), s = time % 60;
-        display.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        if (--time < 0) { clearInterval(interval); display.innerText = "EXPIRED"; }
-    }, 1000);
-}
-
-// Event Listeners for OTP inputs
+// Optimized OTP Input handling
 document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
     input.addEventListener('input', (e) => {
         if (e.target.value && idx < all.length - 1) all[idx + 1].focus();
@@ -434,6 +419,15 @@ document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
         if (e.key === 'Backspace' && !e.target.value && idx > 0) all[idx - 1].focus();
     });
 });
+
+function startTimer(s) {
+    let t = s;
+    const d = document.getElementById('timer');
+    const inv = setInterval(() => {
+        d.innerText = `${Math.floor(t/60)}:${(t%60).toString().padStart(2,'0')}`;
+        if (--t < 0) { clearInterval(inv); d.innerText = "EXPIRED"; }
+    }, 1000);
+}
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -574,6 +568,7 @@ document.querySelectorAll('#otpBox input').forEach((input, idx, all) => {
 
 </body>
 </html>
+
 
 
 
