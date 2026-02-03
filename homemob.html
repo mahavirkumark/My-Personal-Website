@@ -594,8 +594,8 @@ header, .dashboard-main-content, .animate-card {
 // =================================================================
 // 1. CONFIGURATION AND INITIALIZATION
 // =================================================================
-
-// --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
+<script type="module">
+// --- 1. CONFIGURATION & INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -604,125 +604,73 @@ const firebaseConfig = {
     messagingSenderId: "470207874652",
     appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 };
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const database = firebase.database(); 
+const database = firebase.database();
 
-// Global state variables
-let currentUserId = null;
-let allBirthdays = {}; // Still useful if you display data on the page
-let appSchedulerIntervalId = null; // Keeping this for the logout cleanup
-
-// --- REMOVE ALL NOTIFICATION CONSTANTS (Not needed for email) ---
-
-// =================================================================
-// 2. 🎂 BIRTHDAY LOGIC (SIMPLIFIED) 🎂
-// =================================================================
-
-// The client-side notification/scheduler functions are now REMOVED
-// The server (Cloud Function) handles all scheduling and email sending.
-
-// =================================================================
-// 3. APPLICATION LOGIC (Data and UI)
-// =================================================================
-
-/**
- * Loads the user's birthday data from Firebase for UI display only.
- */
-function loadBirthdayData() {
-    if (!currentUserId) return;
-
-    const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
+// --- 2. THE WORKING LOGOUT FUNCTION ---
+// We attach it to 'window' so your HTML buttons can call it
+window.logout = async function() {
+    console.log("Logout initiated...");
+    // 1. CLEAR FLAG IMMEDIATELY (Stops auto-redirect loop)
+    localStorage.removeItem("savig_verified");
     
-    // The 'value' listener keeps local data updated but does NOT trigger notifications.
-    birthdaysRef.on('value', (snapshot) => {
-        allBirthdays = snapshot.val() || {};
-        console.log("Birthday data updated from Firebase.");
-        
-        // You would update your HTML list of birthdays here.
-    }, (error) => {
-        console.error("Firebase Birthday Read Failed:", error);
-    });
-}
-
-
-function updateUI(user) {
-    const userName = user.displayName || 'Dashboard User';
-    const userEmail = user.email || 'user@example.com';
-    let initial = (user.email && user.email.length > 0) ? user.email[0].toUpperCase() : 'U';
-    
-    const photoPlaceholder = `https://ui-avatars.com/api/?name=${initial}&background=3b82f6&color=fff&size=100`; 
-    const userPhoto = user.photoURL || photoPlaceholder; 
-
-    document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => el.textContent = userName);
-    document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => el.textContent = userEmail);
-    document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => el.src = userPhoto); 
-    
-    currentUserId = user.uid;
-}
-
-window.logout = function() {
-    if(appSchedulerIntervalId) {
-        clearInterval(appSchedulerIntervalId);
-    }
-    auth.signOut().then(() => { 
-        // CHANGE THIS LINE:
-        window.location.replace('indexmob.html'); 
-    }).catch(error => { 
-        console.error('Sign out failed:', error);
-        alert('Sign out failed: ' + error.message); 
-    });
-}
-
-// --- DOM ELEMENTS & EVENT LISTENERS (Kept as is for compatibility) ---
-const menuBtn = document.getElementById('menu-btn');
-const mobileMenu = document.getElementById('mobile-menu');
-const profileToggleBtn = document.getElementById('profile-toggle-btn');
-const mobileProfilePanel = document.getElementById('mobileProfilePanel');
-const profileChevron = document.getElementById('profileChevron');
-const desktopLogoutBtn = document.getElementById('desktopLogout');
-
-if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-}
-if (profileToggleBtn && mobileProfilePanel && profileChevron) {
-    profileToggleBtn.addEventListener('click', () => {
-        const isShown = mobileProfilePanel.classList.toggle('show');
-        if (isShown) {
-            profileChevron.classList.add('rotate-180');
-        } else {
-            profileChevron.classList.remove('rotate-180');
-        }
-    });
-}
-if (desktopLogoutBtn) {
-    desktopLogoutBtn.addEventListener('click', window.logout);
-}
-
-
-// =================================================================
-// 4. AUTH STATE MANAGEMENT (The App Entry Point)
-// =================================================================
-
-async function logout() {
     try {
-        // 1. Clear the speed flag so indexmob.html doesn't redirect you back here
-        localStorage.removeItem("savig_verified");
-        
-        // 2. Sign out from Firebase
-        await firebase.auth().signOut();
-        
-        // 3. Instant redirect to the login page
+        // 2. Sign out of Firebase
+        await auth.signOut();
+        // 3. Jump to login and wipe history
         window.location.replace("indexmob.html");
     } catch (err) {
-        console.error("Logout failed", err);
+        console.error("Sign out failed:", err);
+        window.location.replace("indexmob.html"); // Force redirect anyway
     }
-}
+};
 
+// --- 3. AUTH STATE & UI SYNC ---
+auth.onAuthStateChanged(user => {
+    if (user) {
+        const name = user.displayName || 'User';
+        const email = user.email || '';
+        const initial = email ? email[0].toUpperCase() : 'U';
+        const photo = user.photoURL || `https://ui-avatars.com/api/?name=${initial}&background=3b82f6&color=fff`;
+
+        // Update all UI instances
+        document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => el.textContent = name);
+        document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => el.textContent = email);
+        document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => el.src = photo);
+        
+        // Load data for this user
+        const birthdaysRef = database.ref(`users/${user.uid}/birthdays`);
+        birthdaysRef.on('value', (snap) => console.log("Birthdays loaded"));
+        
+    } else {
+        // Not logged in: ensure flag is gone and redirect
+        localStorage.removeItem("savig_verified");
+        window.location.replace('indexmob.html');
+    }
+});
+
+// --- 4. DOM EVENT LISTENERS ---
+document.addEventListener('DOMContentLoaded', () => {
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const profileToggle = document.getElementById('profile-toggle-btn');
+    const profilePanel = document.getElementById('mobileProfilePanel');
+    const profileChevron = document.getElementById('profileChevron');
+    const desktopLogoutBtn = document.getElementById('desktopLogout');
+
+    if (menuBtn) menuBtn.onclick = () => mobileMenu.classList.toggle('hidden');
+    
+    if (profileToggle) {
+        profileToggle.onclick = () => {
+            const isShown = profilePanel.classList.toggle('hidden');
+            profileChevron.classList.toggle('rotate-180', !isShown);
+        };
+    }
+    
+    if (desktopLogoutBtn) desktopLogoutBtn.onclick = window.logout;
+});
 </script>
     
 <script>
@@ -880,13 +828,15 @@ document.addEventListener('DOMContentLoaded', () => {
         <i id="fabIcon" class="fas fa-th-large text-base"></i>
     </button>
 
-    <div id="fabMenu" class="flex flex-col-reverse gap-3 mb-4 pointer-events-none">
-               <a href="indexmob.html" onclick="instantNav(event, 'index.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
-                <i class="fa-solid fa-right-from-bracket" text-xs"></i>
-            </div>
-            <span class="menu-label">Logout</span>
-        </a>
+ <div id="fabMenu" class="flex flex-col-reverse gap-3 mb-4 pointer-events-none">
+    <a href="javascript:void(0)" onclick="handleLogout()" class="menu-item group flex items-center gap-3">
+        <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
+            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+        </div>
+        <span class="menu-label">Logout</span>
+    </a>
+    
+    </div>
         <a href="added.html" onclick="instantNav(event, 'added.html')" class="menu-item group flex items-center gap-3">
             <div class="icon-box text-slate-500 group-hover:bg-slate-800 group-hover:text-white">
                 <i class="fas fa-cog text-xs"></i>
