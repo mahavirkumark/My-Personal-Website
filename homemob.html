@@ -328,58 +328,81 @@
     &copy; 2025 Savig.com | All rights reserved
 </footer>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. SELECT ELEMENTS
-    const profileToggle = document.getElementById('profile-toggle-btn');
-    const profilePanel = document.getElementById('mobileProfilePanel');
-    const profileChevron = document.getElementById('profileChevron');
-
-    // 2. TOGGLE ACTION
-    if (profileToggle && profilePanel) {
-        profileToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Show/Hide the panel
-            profilePanel.classList.toggle('hidden');
-            // Rotate the arrow icon
-            if (profileChevron) {
-                profileChevron.classList.toggle('rotate-180');
-            }
-        });
-    }
-
-    // 3. FILL DATA FROM FIREBASE
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // Update Mobile IDs
-            const mName = document.getElementById('mobileUserName');
-            const mEmail = document.getElementById('mobileUserEmail');
-            const mPhoto = document.getElementById('mobileUserPhoto');
-
-            if (mName) mName.innerText = user.displayName || "User";
-            if (mEmail) mEmail.innerText = user.email;
-            if (mPhoto) mPhoto.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
-            
-            // Also update Desktop IDs (since they are on the same page)
-            const dName = document.getElementById('desktopUserName');
-            const dEmail = document.getElementById('desktopUserEmail');
-            const dPhoto = document.getElementById('desktopUserPhoto');
-
-            if (dName) dName.innerText = user.displayName || "User";
-            if (dEmail) dEmail.innerText = user.email;
-            if (dPhoto) dPhoto.src = user.photoURL || mPhoto.src;
-        }
-    });
-});
-
-// 4. LOGOUT FUNCTION
+    <script>
+// --- 1. GLOBAL LOGOUT (Must clear LocalStorage for Speed Gate) ---
 async function logout() {
     try {
+        // Clear the speed flag first so indexmob.html doesn't auto-redirect you back in
+        localStorage.removeItem("savig_verified");
+        
+        // Sign out from Firebase session
         await firebase.auth().signOut();
+        
+        // Instant jump to login page (replace clears history so 'back' button doesn't loop)
         window.location.replace("indexmob.html");
     } catch (err) {
         console.error("Logout failed", err);
+        // Fallback redirect if firebase fails
+        window.location.replace("indexmob.html");
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    // UI Elements
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const profileToggle = document.getElementById('profile-toggle-btn');
+    const profilePanel = document.getElementById('mobileProfilePanel');
+    const profileChevron = document.getElementById('profileChevron');
+    const desktopLogout = document.getElementById('desktopLogout');
+
+    // --- 2. FAST UI SYNC ---
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            const name = user.displayName || "User";
+            const email = user.email || "";
+            const photo = user.photoURL || `https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff`;
+
+            // Update all Desktop & Mobile elements in one go
+            document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => el.innerText = name);
+            document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => el.innerText = email);
+            document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => el.src = photo);
+        } else {
+            // Safety: If Firebase says no user, ensure LocalStorage is wiped
+            localStorage.removeItem("savig_verified");
+            window.location.replace("indexmob.html");
+        }
+    });
+
+    // --- 3. MENU & PROFILE TOGGLES ---
+    if (menuBtn && mobileMenu) {
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('hidden');
+        };
+    }
+
+    if (profileToggle && profilePanel) {
+        profileToggle.onclick = (e) => {
+            e.stopPropagation();
+            profilePanel.classList.toggle('hidden');
+            if (profileChevron) profileChevron.classList.toggle('rotate-180');
+        };
+    }
+
+    // Connect desktop logout button if it exists
+    if (desktopLogout) {
+        desktopLogout.onclick = logout;
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuBtn) {
+            mobileMenu.classList.add('hidden');
+        }
+    });
+});
+</script>
 </script>
     <script>
         document.getElementById('menu-btn').onclick = function() {
