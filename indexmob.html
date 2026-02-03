@@ -20,6 +20,14 @@
 <link rel="apple-touch-icon" href="icon-192.jpg">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+
+    <script>
+    // 0ms Check: If already verified, jump to home immediately
+    if (localStorage.getItem("savig_verified") === "true") {
+        window.location.replace("homemob.html");
+    }
+</script>
   <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
@@ -568,6 +576,7 @@ function startTimer(s) {
 
 </body>
 </html>
+
 
 
 
