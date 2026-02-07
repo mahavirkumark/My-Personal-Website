@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SAVIG </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>
+        (function() {
+            // Apply Theme Instantly
+            const savedTheme = localStorage.getItem('app-theme') || 'light';
+            document.documentElement.className = savedTheme;
+
+            // Apply Language Instantly (Google Translate Cookie)
+            const savedLang = localStorage.getItem('app-lang') || 'English';
+            const langMap = {'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr'};
+            const targetCode = langMap[savedLang] || 'en';
+            document.cookie = "googtrans=/en/" + targetCode + "; path=/";
+            document.cookie = "googtrans=/en/" + targetCode + "; domain=" + location.hostname + "; path=/";
+
+            // Local Dictionary for UI labels
+            window.translations = {
+                'English': { 'welcome': 'Welcome', 'settings': 'Settings', 'dark': 'Dark Mode', 'lang': 'Language', 'logout': 'Logout Account' },
+                'Hindi': { 'welcome': 'नमस्ते', 'settings': 'सेटिंग्स', 'dark': 'डार्क मोड', 'lang': 'भाषा बदलें', 'logout': 'लॉग आउट' },
+                'Marathi': { 'welcome': 'नमस्कार', 'settings': 'सेटिंग्स', 'dark': 'डार्क मोड', 'lang': 'भाषा बदला', 'logout': 'लॉग आउट' }
+            };
+        })();
+
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'hi,mr,en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+
+    <style>
+        /* Hide Google UI */
+        #google_translate_element, .skiptranslate, .goog-te-banner-frame, #goog-gt-tt { display: none !important; }
+        body { top: 0 !important; position: static !important; transition: background-color 0.4s ease; font-family: sans-serif; margin: 0; min-height: 100vh; }
+        
+        /* Theme Colors */
+        .dark body { background: #0f172a; color: #f8fafc; }
+        .light body { background: #f8fafc; color: #1e293b; }
+        
+        .full-page { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+        .hover-item:active { transform: scale(0.98); background: rgba(0, 0, 0, 0.05); }
+        .dark .hover-item:active { background: rgba(255, 255, 255, 0.05); }
+        
+        #theme-knob { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body>
+
+    <div id="google_translate_element" style="display:none;"></div>
+
+    <div class="full-page">
+        <header class="p-6 flex justify-between items-center border-b border-gray-500/10 sticky top-0 z-50 bg-inherit">
+            <div class="flex items-center gap-2">
+                <div class="relative flex items-center justify-center">
+                    <i class="fas fa-shield text-blue-600" style="font-size:32px;"></i>
+                    <i class="fas fa-database text-white absolute" style="font-size: 16px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
+                </div>
+                <span class="font-black text-gray-900 dark:text-white tracking-tighter notranslate" style="font-size: 24px;">Savig</span>
+            </div>
+            <i class="fas fa-cog text-gray-400"></i>
+        </header>
+
+        <section class="p-10 text-center border-b border-gray-500/10">
+            <div class="relative inline-block mb-4">
+                <img id="user-photo" src="https://ui-avatars.com/api/?name=U&background=2563eb&color=fff" 
+                     class="w-24 h-24 rounded-full border-2 border-blue-500 mx-auto object-cover shadow-xl">
+            </div>
+            <p class="text-blue-500 font-semibold text-xs uppercase tracking-widest mb-1" data-i18n="welcome">Welcome</p>
+            <h2 id="user-name" class="text-2xl font-bold">User Name</h2>
+            <p id="user-email" class="text-gray-500 text-sm mt-1 italic">firebase-syncing...</p>
+        </section>
+
+        <main class="p-4 flex-grow">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 py-4" data-i18n="settings">Settings</p>
+            
+            <div class="space-y-1">
+                <div class="flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer" onclick="toggleTheme()">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500">
+                            <i class="fas fa-moon"></i>
+                        </div>
+                        <span class="font-medium text-base" data-i18n="dark">Dark Mode</span>
+                    </div>
+                    <div id="theme-track" class="w-12 h-6 bg-gray-300 rounded-full relative p-1 transition-colors">
+                        <div id="theme-knob" class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer" onclick="cycleLanguage()">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <span class="font-medium text-base" data-i18n="lang">Language</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="lang-label" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">English</span>
+                        <i class="fas fa-chevron-right text-[10px] text-gray-300"></i>
+                    </div>
+                </div>
+
+                <div class="h-px bg-gray-500/10 my-4 mx-4"></div>
+
+                <div class="setting-row" icon="fa-chart-pie" color="text-blue-500" bg="bg-blue-500/10" label="Financial Management" dkey="fin_manage"></div>
+                <div class="setting-row" icon="fa-user-group" color="text-emerald-500" bg="bg-emerald-500/10" label="Secure Contacts" dkey="contacts"></div>
+            </div>
+
+            <div class="mt-12 px-4 pb-10">
+                <button id="logout-btn" class="w-full bg-red-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-transform" data-i18n="logout">
+                    Logout Account
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+            authDomain: "sk12-58e9e.firebaseapp.com",
+            projectId: "sk12-58e9e",
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('user-name').innerText = user.displayName || "User Name";
+                document.getElementById('user-email').innerText = user.email;
+                if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+            }
+        });
+
+        document.getElementById('logout-btn').onclick = () => {
+            signOut(auth).then(() => window.location.replace("indexmob.html"));
+        };
+    </script>
+
+    <script>
+        function toggleTheme() {
+            const next = document.documentElement.className === 'dark' ? 'light' : 'dark';
+            document.documentElement.className = next;
+            localStorage.setItem('app-theme', next);
+            updateThemeUI(next);
+        }
+
+        function updateThemeUI(theme) {
+            const knob = document.getElementById('theme-knob');
+            const track = document.getElementById('theme-track');
+            if (theme === 'dark') {
+                knob.style.transform = "translateX(24px)";
+                track?.classList.add('bg-blue-600');
+            } else {
+                knob.style.transform = "translateX(0px)";
+                track?.classList.remove('bg-blue-600');
+            }
+        }
+
+        function cycleLanguage() {
+            const langs = Object.keys(window.translations);
+            const current = localStorage.getItem('app-lang') || 'English';
+            let next = langs[(langs.indexOf(current) + 1) % langs.length];
+            localStorage.setItem('app-lang', next);
+            location.reload(); 
+        }
+
+        function applyLanguage(lang) {
+            document.getElementById('lang-label').innerText = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (window.translations[lang][key]) el.innerText = window.translations[lang][key];
+            });
+        }
+
+        window.onload = () => {
+            const currentTheme = localStorage.getItem('app-theme') || 'light';
+            updateThemeUI(currentTheme);
+            applyLanguage(localStorage.getItem('app-lang') || 'English');
+        };
+
+        document.querySelectorAll('.setting-row').forEach((row) => {
+            row.className = "flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer";
+            row.innerHTML = `<div class="flex items-center gap-4">
+                <div class="w-10 h-10 flex items-center justify-center rounded-xl ${row.getAttribute('bg')} ${row.getAttribute('color')}"><i class="fas ${row.getAttribute('icon')}"></i></div>
+                <span class="font-medium text-base">${row.getAttribute('label')}</span>
+            </div><i class="fas fa-chevron-right text-[10px] text-gray-300"></i>`;
+        });
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
