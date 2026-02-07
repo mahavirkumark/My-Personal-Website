@@ -86,7 +86,78 @@ if ("serviceWorker" in navigator) {
         }
     </style>
 </head>
+<style>
+    /* Hard Hide the Google Widget Container */
+    #google_translate_element, 
+    .skiptranslate, 
+    .goog-te-gadget, 
+    .goog-te-banner-frame {
+        display: none !important;
+        visibility: hidden !important;
+    }
 
+    /* Force the body to stay at the top (removes the blue bar gap) */
+    body {
+        top: 0 !important;
+        position: static !important;
+    }
+
+    /* Hide the 'Original Text' tooltip when hovering over translated words */
+    .goog-te-balloon-frame, 
+    #goog-gt-tt, 
+    .goog-te-balloon-frame.skiptranslate, 
+    .goog-te-gadget-icon {
+        display: none !important;
+    }
+
+    .goog-text-highlight {
+        background: none !important;
+        box-shadow: none !important;
+    }
+</style>
+
+<div id="google_translate_element" style="display:none;"></div>
+
+<style>
+    /* 1. Prevent the "White Flash" or English text from showing first */
+    .translating-mask { opacity: 0; transition: opacity 0.3s ease; }
+    .translation-ready { opacity: 1; }
+
+    /* 2. Total Hide for Google UI Elements */
+    #google_translate_element, .skiptranslate, .goog-te-banner-frame, 
+    #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+    body { top: 0 !important; position: static !important; }
+</style>
+
+<script type="text/javascript">
+    // 3. RUN THIS IMMEDIATELY - Don't wait for DOM to set cookies
+    (function() {
+        const savedLang = localStorage.getItem('app-lang') || 'English';
+        const langMap = {'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr'};
+        const target = langMap[savedLang] || 'en';
+
+        if (target !== 'en') {
+            // Set cookie at the earliest possible millisecond
+            document.cookie = `googtrans=/en/${target}; path=/`;
+            document.cookie = `googtrans=/en/${target}; domain=${location.hostname}; path=/`;
+            // Add a class to hide the body until translated
+            document.documentElement.classList.add('translating-mask');
+        }
+    })();
+
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'en',
+            includedLanguages: 'hi,mr,en',
+            autoDisplay: false
+        }, 'google_translate_element');
+        
+        // 4. Reveal the page once translation is likely finished
+        setTimeout(() => {
+            document.documentElement.classList.add('translation-ready');
+        }, 300); 
+    }
+</script>
 <body class="min-h-screen flex flex-col justify-between">
 <nav class="bg-white shadow-sm py-2" style="margin-bottom: 30px;">
     <div class="container mx-auto px-2">
@@ -585,6 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
 
 
 
