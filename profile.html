@@ -50,11 +50,11 @@
             
             <div class="hidden md:flex space-x-6 text-gray-600 font-medium">
                 <a href="home.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-              
+                <a href="address.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-tasks"></i> Address</a>
                 <a href="password.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
                 <a href="income.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
                 <a href="links.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-link"></i> Links</a>
-                <a href="calender.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+                <a href="calendar.html" class="flex items-center gap-2 transition duration-300 hover:text-blue-500 hover:-translate-y-0.5" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
             
             <div class="hidden md:flex items-center gap-4">
@@ -70,11 +70,11 @@
         
         <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
             <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
-            
+            <a href="address.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-tasks"></i> Address</a>
             <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
             <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
-            <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
             
             <div class="border-t border-gray-300 mt-2 pt-2">
                 <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
@@ -139,70 +139,6 @@
         </div>
     </div>
     
-<style>
-    /* Desktop Check */
-    @media only screen and (min-width: 768px) {
-        #universal-bottom-nav, .nav-spacer { display: none !important; }
-    }
-
-    :root {
-        --nav-bg: #ffffff;
-        --nav-text: #666666;
-        --nav-hover: #007AFF; /* Modern Blue */
-        --nav-height: 65px;
-    }
-
-    /* THE HOVER EFFECT (For Laptop/Mouse) */
-    .nav-link:hover {
-        color: var(--nav-hover) !important;
-    }
-
-    .nav-link:hover i {
-        transform: translateY(-3px); /* Icon pops up slightly */
-        transition: 0.3s;
-    }
-
-    /* THE ACTIVE/TAP EFFECT (For Mobile/Touch) */
-    .nav-link:active {
-        transform: scale(0.9); /* Button shrinks slightly when pressed */
-        color: var(--nav-hover) !important;
-    }
-
-    .nav-link {
-        transition: all 0.2s ease;
-    }
-</style>
-
-<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
-
-    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Home</div>
-    </a>
-
-    <a href="adress.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Address</div>
-    </a>
-
-    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
-    </a>
-
-    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
-    </a>
-
-    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Contact</div>
-    </a>
-
-</nav>
-
-<div class="nav-spacer" style="height: 75px; width: 100%;"></div>
     <script>
         // ====================================================================
         // *** 1. FIREBASE CONFIGURATION ***
@@ -318,158 +254,8 @@
             }
         });
     </script>
-    
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
-</script>
-     <button id="theme-toggle-btn">
-    <span id="theme-icon">🌙</span>
-</button>
-<style>
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
-    :root {
-        --bg-body: #f9fafb;
-        --bg-card: #ffffff;
-        --text-main: #1f2937;   /* Deep Gray 800 */
-        --text-bold: #000000;   /* Pure Black */
-        --border: #e5e7eb;
-        
-        /* BOTTOM NAV COLORS (LIGHT) */
-        --nav-bg: #ffffff;
-        --nav-text: #000000;    /* Pure Black for text and icons */
-        --nav-height: 65px;
-    }
-
-    [data-theme="dark"] {
-        --bg-body: #0f172a;     /* Deep Navy/Black */
-        --bg-card: #1e293b;     /* Slate 800 */
-        --text-main: #cbd5e1;   /* Slate 300 */
-        --text-bold: #f8fafc;   /* Slate 50 */
-        --border: #334155;      /* Slate 700 */
-        
-        /* BOTTOM NAV COLORS (DARK) */
-        --nav-bg: #0f172a;
-        --nav-text: #ffffff;    /* Pure White */
-    }
-
-    /* --- 2. GLOBAL OVERRIDES --- */
-    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
-    
-    /* Ensure all text classes inside containers adapt */
-    h1, h2, h3, h4, .font-bold, .font-semibold, 
-    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
-        color: var(--text-bold) !important; 
-    }
-
-    p, li, span, .text-gray-700, .text-gray-600 { 
-        color: var(--text-main) !important; 
-    }
-
-    /* Component Surfaces */
-    .bg-white, header, aside, main, #mobile-menu, footer {
-        background-color: var(--bg-card) !important;
-        border-color: var(--border) !important;
-    }
-
-    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
-    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
-        background-color: var(--bg-card) !important;
-    }
-    
-    /* Muted Sidebar links in dark mode */
-    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
-    [data-theme="dark"] .sidebar-nav-internal a:hover,
-    [data-theme="dark"] .sidebar-nav-internal a.active {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
-    }
-
-    /* Core Features Overview Boxes */
-    [data-theme="dark"] .bg-gray-100, 
-    [data-theme="dark"] .bg-yellow-50,
-    [data-theme="dark"] .bg-blue-50,
-    [data-theme="dark"] .bg-green-50 {
-        background-color: #334155 !important;
-        border-color: var(--border) !important;
-    }
-
-    /* Brighter borders for boxes in dark mode */
-    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
-        border-color: #4f46e5 !important; 
-    }
-
-    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
-    #universal-bottom-nav {
-        background-color: var(--nav-bg) !important;
-        border-top: 1px solid var(--border) !important;
-        height: var(--nav-height);
-    }
-
-    /* This targets the icon specifically */
-    .nav-link i { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Makes icons look thicker/bolder */
-        font-size: 20px !important;  /* Slightly larger for visibility */
-        transition: transform 0.2s;
-    }
-
-    /* This targets the text label specifically */
-    .nav-link div { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Thickest weight for labels */
-        font-size: 11px !important;
-        margin-top: 2px;
-    }
-
-    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
-    #theme-toggle-btn {
-        position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
-        right: 20px;
-        z-index: 10000;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        border: none;
-        background: #4f46e5;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    #theme-toggle-btn:active { transform: scale(0.9); }
-</style>
 </body>
-
 </html>
-
 
 
 
