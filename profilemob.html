@@ -1,130 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SAVIG </title>
+    <title>Savig</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script>
-        (function() {
-            // Apply Theme Instantly
-            const savedTheme = localStorage.getItem('app-theme') || 'light';
-            document.documentElement.className = savedTheme;
-
-            // Apply Language Instantly (Google Translate Cookie)
-            const savedLang = localStorage.getItem('app-lang') || 'English';
-            const langMap = {'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr'};
-            const targetCode = langMap[savedLang] || 'en';
-            document.cookie = "googtrans=/en/" + targetCode + "; path=/";
-            document.cookie = "googtrans=/en/" + targetCode + "; domain=" + location.hostname + "; path=/";
-
-            // Local Dictionary for UI labels
-            window.translations = {
-                'English': { 'welcome': 'Welcome', 'settings': 'Settings', 'dark': 'Dark Mode', 'lang': 'Language', 'logout': 'Logout Account' },
-                'Hindi': { 'welcome': 'नमस्ते', 'settings': 'सेटिंग्स', 'dark': 'डार्क मोड', 'lang': 'भाषा बदलें', 'logout': 'लॉग आउट' },
-                'Marathi': { 'welcome': 'नमस्कार', 'settings': 'सेटिंग्स', 'dark': 'डार्क मोड', 'lang': 'भाषा बदला', 'logout': 'लॉग आउट' }
-            };
-        })();
-
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'en',
-                includedLanguages: 'hi,mr,en',
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js"></script>
 
     <style>
-        /* Hide Google UI */
-        #google_translate_element, .skiptranslate, .goog-te-banner-frame, #goog-gt-tt { display: none !important; }
-        body { top: 0 !important; position: static !important; transition: background-color 0.4s ease; font-family: sans-serif; margin: 0; min-height: 100vh; }
-        
-        /* Theme Colors */
-        .dark body { background: #0f172a; color: #f8fafc; }
-        .light body { background: #f8fafc; color: #1e293b; }
-        
-        .full-page { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
-        .hover-item:active { transform: scale(0.98); background: rgba(0, 0, 0, 0.05); }
-        .dark .hover-item:active { background: rgba(255, 255, 255, 0.05); }
-        
-        #theme-knob { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        :root {
+            --bg: #ffffff;
+            --text-main: #000000;
+            --icon-tint: rgba(0, 0, 0, 0.15);
+        }
+        [data-theme='dark'] {
+            --bg: #0f172a;
+            --text-main: #ffffff;
+            --icon-tint: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; justify-content: center; min-height: 100vh;
+        }
+
+        .main-container { width: 100%; max-width: 450px; padding: 40px 20px; }
+
+        /* EXTRA DARK ICONS CORE STYLING */
+        .icon-box {
+            width: 46px; height: 46px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--icon-tint);
+        }
+
+        .icon-box i {
+            font-size: 20px;
+            font-weight: 900; /* Thicker strokes */
+            opacity: 1;
+            /* Thicken the icon by adding a slight horizontal offset */
+            text-shadow: 0.7px 0px 0px currentColor; 
+        }
+
+        /* DYNAMIC TOGGLE SWITCH */
+        .toggle-container {
+            width: 50px; height: 26px;
+            background: #d1d5db; /* Default Off */
+            border-radius: 20px;
+            position: relative;
+            padding: 3px;
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toggle-dot {
+            width: 20px; height: 20px;
+            background: white; border-radius: 50%;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* State Changes */
+        [data-theme='dark'] .toggle-container { background: #2563eb; }
+        [data-theme='dark'] .toggle-dot { transform: translateX(24px); }
+
+        .lang-display-btn {
+            background: #ffffff;
+            color: #2563eb;
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        #google_translate_element { display: none !important; }
+        body { top: 0px !important; }
     </style>
 </head>
 <body>
 
-    <div id="google_translate_element" style="display:none;"></div>
 
-    <div class="full-page">
-        <header class="p-6 flex justify-between items-center border-b border-gray-500/10 sticky top-0 z-50 bg-inherit">
-            <div class="flex items-center gap-2">
-                <div class="relative flex items-center justify-center">
-                    <i class="fas fa-shield text-blue-600" style="font-size:32px;"></i>
-                    <i class="fas fa-database text-white absolute" style="font-size: 16px; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
+
+    <div class="main-container">
+        
+        <div class="flex flex-col items-center mb-2">
+            <div class="relative w-28 h-28 mb-1">
+                <img id="user-pic" src="https://ui-avatars.com/api/?name=U&background=2563eb&color=fff" 
+                     class="w-full h-full rounded-full object-cover border-4 border-blue-600/20 p-1 shadow-xl">
+                <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-white dark:border-slate-900 rounded-full"></div>
+            </div>
+            <p class="text-blue-500 font-bold uppercase tracking-[0.2em] text-[10px] mb-1"></p>
+            <h1 id="user-name" class="text-2xl font-black tracking-tight mb-1 text-center"></h1>
+            <p id="user-email" class="text-slate-500 text-sm font-medium opacity-70"></p>
+        </div>
+
+    
+
+        <div class="space-y-4">
+            <div onclick="toggleTheme()" class="flex items-center justify-between p-2 rounded-3xl bg-slate-100/60 dark:bg-slate-800/60 cursor-pointer active:scale-95 transition-all">
+                <div class="flex items-center gap-1">
+                    <div class="icon-box"><i class="fas fa-moon text-indigo-900 dark:text-indigo-400"></i></div>
+                    <span class="font-bold text-sm">Dark Mode</span>
                 </div>
-                <span class="font-black text-gray-900 dark:text-white tracking-tighter notranslate" style="font-size: 24px;">Savig</span>
-            </div>
-            <i class="fas fa-cog text-gray-400"></i>
-        </header>
-
-        <section class="p-10 text-center border-b border-gray-500/10">
-            <div class="relative inline-block mb-4">
-                <img id="user-photo" src="https://ui-avatars.com/api/?name=U&background=2563eb&color=fff" 
-                     class="w-24 h-24 rounded-full border-2 border-blue-500 mx-auto object-cover shadow-xl">
-            </div>
-            <p class="text-blue-500 font-semibold text-xs uppercase tracking-widest mb-1" data-i18n="welcome">Welcome</p>
-            <h2 id="user-name" class="text-2xl font-bold">User Name</h2>
-            <p id="user-email" class="text-gray-500 text-sm mt-1 italic">firebase-syncing...</p>
-        </section>
-
-        <main class="p-4 flex-grow">
-            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 py-4" data-i18n="settings">Settings</p>
-            
-            <div class="space-y-1">
-                <div class="flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer" onclick="toggleTheme()">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-500">
-                            <i class="fas fa-moon"></i>
-                        </div>
-                        <span class="font-medium text-base" data-i18n="dark">Dark Mode</span>
-                    </div>
-                    <div id="theme-track" class="w-12 h-6 bg-gray-300 rounded-full relative p-1 transition-colors">
-                        <div id="theme-knob" class="w-4 h-4 bg-white rounded-full shadow-sm"></div>
-                    </div>
+                <div class="toggle-container">
+                    <div class="toggle-dot"></div>
                 </div>
+            </div>
 
-                <div class="flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer" onclick="cycleLanguage()">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-orange-500/10 text-orange-500">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <span class="font-medium text-base" data-i18n="lang">Language</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="lang-label" class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">English</span>
-                        <i class="fas fa-chevron-right text-[10px] text-gray-300"></i>
-                    </div>
+            <div onclick="cycleLanguage()" class="flex items-center justify-between p-2 rounded-3xl bg-slate-100/60 dark:bg-slate-800/60 cursor-pointer active:scale-95 transition-all">
+                <div class="flex items-center gap-1">
+                    <div class="icon-box"><i class="fas fa-globe text-orange-900 dark:text-orange-500"></i></div>
+                    <span class="font-bold text-sm">Language</span>
                 </div>
-
-                <div class="h-px bg-gray-500/10 my-4 mx-4"></div>
-
-                <div class="setting-row" icon="fa-chart-pie" color="text-blue-500" bg="bg-blue-500/10" label="Financial Management" dkey="fin_manage"></div>
-                <div class="setting-row" icon="fa-user-group" color="text-emerald-500" bg="bg-emerald-500/10" label="Secure Contacts" dkey="contacts"></div>
+                <div class="flex items-center gap-1">
+                    <div class="lang-display-btn">
+                        <span id="current-lang-text">English</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-slate-600 text-[10px] font-black"></i>
+                </div>
             </div>
 
-            <div class="mt-12 px-4 pb-10">
-                <button id="logout-btn" class="w-full bg-red-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-transform" data-i18n="logout">
-                    Logout Account
-                </button>
-            </div>
-        </main>
+            <a href="financemob.html" class="flex items-center justify-between p-2 rounded-3xl bg-slate-100/60 dark:bg-slate-800/60 active:scale-95 transition-all">
+                <div class="flex items-center gap-1">
+                    <div class="icon-box"><i class="fas fa-chart-pie text-blue-900 dark:text-blue-400"></i></div>
+                    <span class="font-bold text-sm">Financial Management</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-600 text-[10px] font-black"></i>
+            </a>
+
+            <a href="contact.html" class="flex items-center justify-between p-2 rounded-3xl bg-slate-100/60 dark:bg-slate-800/60 active:scale-95 transition-all">
+                <div class="flex items-center gap-1">
+                    <div class="icon-box"><i class="fas fa-user-shield text-emerald-900 dark:text-emerald-500"></i></div>
+                    <span class="font-bold text-sm">Secure Contacts</span>
+                </div>
+                <i class="fas fa-chevron-right text-slate-600 text-[10px] font-black"></i>
+            </a>
+
+            <button onclick="handleLogout()" class="w-full mt-7 h-10 rounded-3xl bg-rose-600 text-white font-black uppercase tracking-[0.1em] text-sm flex items-center justify-center active:scale-95 transition-all shadow-lg">
+                Logout Account
+            </button>
+        </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,mr,hi', autoDisplay: false}, 'google_translate_element');
+        }
+
+        const langs = [
+            { code: 'en', label: 'English' },
+            { code: 'mr', label: 'मराठी' },
+            { code: 'hi', label: 'हिन्दी' }
+        ];
+
+        function cycleLanguage() {
+            let current = localStorage.getItem('savig_lang') || 'en';
+            let nextIndex = (langs.findIndex(l => l.code === current) + 1) % langs.length;
+            let nextLang = langs[nextIndex];
+            setLanguage(nextLang.code, nextLang.label);
+        }
+
+        function setLanguage(code, label) {
+            document.getElementById('current-lang-text').innerText = label;
+            const googleCombo = document.querySelector('.goog-te-combo');
+            if (googleCombo) {
+                googleCombo.value = code;
+                googleCombo.dispatchEvent(new Event('change'));
+            }
+            localStorage.setItem('savig_lang', code);
+            localStorage.setItem('savig_lang_label', label);
+        }
 
         const firebaseConfig = {
             apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -132,76 +181,376 @@
             projectId: "sk12-58e9e",
             appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
         };
+        firebase.initializeApp(firebaseConfig);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        onAuthStateChanged(auth, (user) => {
+        firebase.auth().onAuthStateChanged(user => {
             if (user) {
-                document.getElementById('user-name').innerText = user.displayName || "User Name";
+                document.getElementById('user-name').innerText = user.displayName || "Sagar Kulkarni";
                 document.getElementById('user-email').innerText = user.email;
-                if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
-            }
+                if (user.photoURL) document.getElementById('user-pic').src = user.photoURL;
+            } else { window.location.replace("indexmob.html"); }
         });
 
-        document.getElementById('logout-btn').onclick = () => {
-            signOut(auth).then(() => window.location.replace("indexmob.html"));
-        };
-    </script>
-
-    <script>
         function toggleTheme() {
-            const next = document.documentElement.className === 'dark' ? 'light' : 'dark';
-            document.documentElement.className = next;
-            localStorage.setItem('app-theme', next);
-            updateThemeUI(next);
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
+            if (navigator.vibrate) navigator.vibrate(10);
         }
 
-        function updateThemeUI(theme) {
-            const knob = document.getElementById('theme-knob');
-            const track = document.getElementById('theme-track');
-            if (theme === 'dark') {
-                knob.style.transform = "translateX(24px)";
-                track?.classList.add('bg-blue-600');
-            } else {
-                knob.style.transform = "translateX(0px)";
-                track?.classList.remove('bg-blue-600');
-            }
-        }
-
-        function cycleLanguage() {
-            const langs = Object.keys(window.translations);
-            const current = localStorage.getItem('app-lang') || 'English';
-            let next = langs[(langs.indexOf(current) + 1) % langs.length];
-            localStorage.setItem('app-lang', next);
-            location.reload(); 
-        }
-
-        function applyLanguage(lang) {
-            document.getElementById('lang-label').innerText = lang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (window.translations[lang][key]) el.innerText = window.translations[lang][key];
-            });
+        function handleLogout() {
+            firebase.auth().signOut().then(() => window.location.replace("indexmob.html"));
         }
 
         window.onload = () => {
-            const currentTheme = localStorage.getItem('app-theme') || 'light';
-            updateThemeUI(currentTheme);
-            applyLanguage(localStorage.getItem('app-lang') || 'English');
+            const theme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            const savedLang = localStorage.getItem('savig_lang') || 'en';
+            const savedLabel = localStorage.getItem('savig_lang_label') || 'English';
+            document.getElementById('current-lang-text').innerText = savedLabel;
         };
-
-        document.querySelectorAll('.setting-row').forEach((row) => {
-            row.className = "flex items-center justify-between p-4 hover-item rounded-2xl cursor-pointer";
-            row.innerHTML = `<div class="flex items-center gap-4">
-                <div class="w-10 h-10 flex items-center justify-center rounded-xl ${row.getAttribute('bg')} ${row.getAttribute('color')}"><i class="fas ${row.getAttribute('icon')}"></i></div>
-                <span class="font-medium text-base">${row.getAttribute('label')}</span>
-            </div><i class="fas fa-chevron-right text-[10px] text-gray-300"></i>`;
-        });
     </script>
     <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
+
+  <nav id="universal-bottom-nav">
+   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
+    </a>
+
+    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
+    </a>
+
+    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
+    </a>
+
+    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
+    </a>
+          <a href="cr.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
+    </a>
+    </nav>
+
+
+
+
+<style>
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
+}
+
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+}
+
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 10px;
+}
+
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
+
+.nav-link i {
+    font-size: 21px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
+
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+/* 4. Top Grid Boxes Styling */
+.box-container {
+    width: 60px;
+    height: 57px;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: white;
+    border: 1px solid var(--border-color); /* Added for definition */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 5. Modern Pill Toggle Above Nav */
+/* 5. Modern Pill Toggle Above Nav */
+.theme-toggle {
+    position: fixed;
+    bottom: 100px; 
+    right: 2rem;
+    z-index: 10001;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(yellow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    color: var(--active-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+/* 6. Profile Box Top Right */
+.header-container {
+position: fixed;
+
+    top: 20px;
+
+    right: 5px;
+
+    z-index: 1000;
+
+}
+
+
+
+
+
+
+.profile-box {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--active-color);
+    transition: background-color 0.3s ease;
+    margin-top: 55px;
+    margin-bottom: 5px;
+}
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+.header-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    z-index: 1000;
+    background: var(--bg-color); /* Matches theme */
+    box-sizing: border-box;
+}
+
+/* Grid boxes container needs to stay horizontal */
+.top-grid-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+
+.top-grid-nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+
+
+
+/* 1. Reset Body and Layout Logic */
+body.flex.flex-col.items-center {
+    display: block !important; /* Overrides the center stacking */
+    padding-top: 85px !important; /* Prevents content from being hidden */
+    padding-bottom: 80px !important;
+}
+
+/* 2. Force the Nav and Profile into a Row */
+nav.w-full {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: var(--bg-color);
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 15px !important;
+    
+    font-weight: bolder;
+}
+
+/* 3. Fix the Grid Columns for Mobile */
+nav .grid-cols-4 {
+    display: flex !important; /* Using flex instead of grid for better row control */
+    gap: 12px !important;
+    margin: 0 !important;
+}
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+.box-container {
+    flex-shrink: 0 !important; /* Stops boxes from squishing */
+    background: white; /* Default for light mode */
+}
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
+</style>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
