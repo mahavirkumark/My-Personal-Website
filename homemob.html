@@ -3,142 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savig </title>
+    <title>Savig</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-<style>
-/* 1. Theme Variables & Reset */
-:root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
+
+   <style>
+        /* 1. Theme Variables & Professional Reset */
+        :root {
+            --bg-main: #0f172a; /* Deep Midnight Blue */
+            --text-primary: #ffffff;
+            --text-dim: #94a3b8;
+            --accent: #2563eb;
+            --savig-yellow: #ffe11b; /* Brand Yellow */
+            --glass: rgba(30, 41, 59, 0.45);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+#monthSelector {
+    background-color: #ffffff !important; /* पूर्ण पांढरा */
+    color: #000000 !important;           /* मजकूर काळा */
 }
 
-[data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
+/* डार्क मोडमध्येही पांढराच ठेवण्यासाठी */
+[data-theme='dark'] #monthSelector {
+    background-color: #ffffff !important;
+    color: #000000 !important;
 }
 
-body {
-    background-color: var(--bg-color);
-    transition: background-color 0.3s ease;
-    min-height: 100vh;
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
-    padding-bottom: 80px;
-}
+        /* 2. Unified Fixed Header */
+        .nav-container {
+         position: relative;
+  
+            width: 100%;
+            background: var(--bg-main);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+      box-shadow: none !important; /* ही लाईन जोडा किंवा जुनी लाईन काढा */
+       
+        }
 
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 10px;
-    gap:2px
-}
+        /* Mesh Glow Background Effects */
+        .mesh-bg div { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; pointer-events: none; }
+        .blob-1 { width: 250px; height: 250px; background: #0ea5e9; top: -50px; left: -20px; }
+        .blob-2 { width: 200px; height: 200px; background: #1e3a8a; bottom: -30px; right: -20px; }
+        .blob-3 { width: 180px; height: 180px; background: #38bdf8; top: 10%; left: 30%; }
 
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+        /* 3. Grid & Component Styling */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            padding: 10px 5px 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
 
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 60px;
-    gap:3px;
-}
+        .box-container {
+            height: 60px;
+            border-radius: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
 
-.nav-link i {
-    font-size: 21px;
-    margin-bottom: 2px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
-}
+        .box-savig { background: var(--savig-yellow) !important; border: none; }
 
-.nav-link div {
-    font-size: 11px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 2px;
-}
+        /* 4. Scrollable Secondary Nav */
+        .scroll-wrapper {
+            display: flex;
+            overflow-x: auto;
+            gap: 18px;
+            padding: 1px 2px;
+            width: 100%;
+            max-width: 500px;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 10;
+        }
+        .scroll-wrapper::-webkit-scrollbar { display: none; }
 
-.nav-link.active {
-    color: var(--active-color) !important;
-}
+        .icon-frame {
+            width: 30px;
+            height: 30px;
+            background: var(--glass);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            margin-top: -7px;
+        }
 
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
-}
+        /* 5. Entrance Animations */
+        .animate-pop {
+            animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            opacity: 0;
+            animation-delay: calc(var(--d) * 0.1s);
+        }
 
-/* 4. Top Grid Boxes Styling */
-.box-container {
-    width: 60px;
-    height: 57px;
-    border-radius: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    background: white;
-    border: 1px solid var(--border-color); /* Added for definition */
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-}
-
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
-}
-
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-/* 5. Modern Pill Toggle Above Nav */
-/* 5. Modern Pill Toggle Above Nav */
+        @keyframes popIn {
+            from { transform: scale(0.6); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
 .theme-toggle {
     position: fixed;
     bottom: 100px; 
@@ -165,11 +139,55 @@ body {
     background: var(--hover-bg);
 }
 
+
+    </style>
+
+
+<style>
+
+
+
+
+
+/* 3. Bottom Nav Link Styling */
+
+
+
+
+
+/* 5. Modern Pill Toggle Above Nav */
+/* 5. Modern Pill Toggle Above Nav */
+.theme-toggle {
+    position: fixed;
+    bottom: 30px; 
+    right: 2rem;
+    z-index: 10001;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: var(yellow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    color: var(--active-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
 /* 6. Profile Box Top Right */
 .header-container {
 position: fixed;
 
-    top: 20px;
+    top: 5px;
 
     right: 5px;
 
@@ -192,8 +210,8 @@ position: fixed;
     justify-content: center;
     border: 2px solid var(--active-color);
     transition: background-color 0.3s ease;
-    margin-top: 59px;
-    margin-bottom: 5px;
+    margin-top: 10px;
+   
 }
 
 [data-theme='dark'] .profile-box { 
@@ -201,32 +219,11 @@ position: fixed;
 }
 
 /* --- Adjustments for the Top Header Area --- */
-.header-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    z-index: 1000;
-    background: var(--bg-color); /* Matches theme */
-    box-sizing: border-box;
-}
+
 
 /* Grid boxes container needs to stay horizontal */
-.top-grid-nav {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 5px;
-    scrollbar-width: none; /* Hide scrollbar for clean look */
-}
 
-.top-grid-nav::-webkit-scrollbar {
-    display: none;
-}
+
 
 /* Ensure icons in the toggle switch between moon/sun */
 [data-theme='dark'] .theme-toggle .fa-sun { display: block; }
@@ -244,59 +241,7 @@ position: fixed;
 
 
 
-/* 1. Reset Body and Layout Logic */
-body.flex.flex-col.items-center {
-    display: block !important; /* Overrides the center stacking */
-    padding-top: 85px !important; /* Prevents content from being hidden */
-    padding-bottom: 80px !important;
-}
-
-/* 2. Force the Nav and Profile into a Row */
-nav.w-full {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    background: var(--bg-color);
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    padding: 10px 15px !important;
-    
-    font-weight: bolder;
-}
-
-/* 3. Fix the Grid Columns for Mobile */
-nav .grid-cols-4 {
-    display: flex !important; /* Using flex instead of grid for better row control */
-    gap: 12px !important;
-    margin: 0 !important;
-}
-
-/* 4. Positioning the Profile Box back to the top right */
-/* 3. Fix the Grid Columns for Mobile */
-nav .grid-cols-4 {
-    display: grid !important; /* Force Grid, not Flex */
-    grid-template-columns: repeat(4, 1fr) !important; /* 4 perfectly equal shares */
-    width: 100%;
-    gap: 8px !important; /* Control the gap here */
-}
-
-/* 4. Positioning the Box Container */
-.box-container {
-    width: 100% !important; /* Allow it to fill the grid cell */
-    max-width: 75px; /* Maximum size so they don't get too huge on tablets */
-    height: 65px; /* Consistent height */
-    margin: 0 auto;
-    flex-shrink: 0;
-}
-
-/* 5. Data Visibility and Contrast */
-.box-container {
-    flex-shrink: 0 !important; /* Stops boxes from squishing */
-    background: white; /* Default for light mode */
-}
-
+/
 /* Keeps the text readable on the yellow background specifically */
 
 /* If you want ONLY the Savig text to stay dark because the box is yellow */
@@ -311,191 +256,236 @@ nav .grid-cols-4 {
 .universal-bottom-nav:hover{
     color: #2563eb;
 }
-</style>
+
+
+
+/* 1. Global Hover Behavior for Navigation Boxes */
+.box-container {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+/* 2. Specific Hover Styles for the Main Nav (Top Grid) */
+.group:hover .box-container {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* Savig Button (Specific brand hover) */
+.group:hover .box-savig {
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+    border-color: #3b82f6;
+}
+
+/* Finance & Travel (Blue focus) */
+.group:hover .group-hover\:border-blue-500\/50 {
+    border-color: rgba(59, 130, 246, 0.5);
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Grocery (Orange focus) */
+.group:hover .group-hover\:border-orange-500\/50 {
+    border-color: rgba(249, 115, 22, 0.5);
+    background-color: rgba(249, 115, 22, 0.05);
+}
+
+/* 3. Bottom Icon Menu Hover (Cloth, Asset, etc.) */
+.group:hover .group-hover\:bg-blue-500\/20 {
+    background-color: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+    transform: scale(1.1);
+}
+
+/* Text color shift for the labels */
+.group:hover span {
+    color: #f8fafc; /* Slate-50 */
+    transition: color 0.2s ease;
+}
+
+/* 4. Active (Click) State for all buttons */
+.group:active .box-container, 
+.group:active div[class*="rounded-xl"] {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+}
+/* Profile Button Hover */
+.w-12.h-12.rounded-full {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.w-12.h-12.rounded-full:hover {
+    border-color: #60a5fa; /* blue-400 */
+    background-color: rgba(59, 130, 246, 0.2);
+
+    transform: scale(1.05);
+}
+
+/* Global Click Shrink Effect */
+a:active, .w-12.h-12:active {
+    transform: scale(0.92) !important;
+    transition: transform 0.1s ease;
+}
+/* पूर्ण स्क्रोलिंग सुरू करण्यासाठी */
+html, body {
+    height: auto !important;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+}
+
+body {
+    padding-bottom: 100px; /* बॉटम नेव्हिगेशन बारसाठी खालच्या बाजूला रिकामी जागा */
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+
+.no-scrollbar {
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+    
+    /* Smooth Scrolling */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Momentum scroll for iOS */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 </style>
 </head>
-<body class="flex flex-col items-center">
+<body class="min-h-screen bg-white-950 flex flex-col items-center">
 
- <nav class="w-full pt-[5px] px-4"> 
-    <div class="max-w-md mx-auto grid grid-cols-4 gap-2 justify-items-center mt-[-6px]">
-        
-        <a href="homemob.html" class="animate-pop w-full no-underline" style="animation-delay: 0.1s;">
-            <div class="box-container bg-[#ffe11b] mx-auto">
-                <i class="fas fa-shield text-blue-600 text-3xl"></i>
-                <i class="fas fa-database text-white absolute" style="font-size: 15px; top: 35%; left: 50%; transform: translate(-50%, -50%);"></i>
-                <span class="font-black italic text-[13px] uppercase text-slate-900">Savig</span>
-            </div>
-        </a>
-
-        <a href="financemob.html" class="animate-pop w-full no-underline" style="animation-delay: 0.2s;">
-            <div class="box-container mx-auto">
-                <div class="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center mb-1">
-                    <i class="fas fa-rupee-sign text-white text-sm"></i>
-                </div>
-                <span class="font-bold text-black-800 italic text-[13px]">Finance</span>
-            </div>
-        </a>
-
-        <a href="travelmob.html" class="animate-pop w-full no-underline" style="animation-delay: 0.3s;">
-            <div class="box-container mx-auto">
-                <i class="fas fa-plane text-blue-700 text-xl mb-1"></i>
-                <span class="font-bold text-black-800 italic text-[13px]">Travel</span>
-            </div>
-        </a>
-
-        <a href="grocerymob.html" class="animate-pop w-full no-underline" style="animation-delay: 0.4s;">
-            <div class="box-container mx-auto">
-                <i class="fas fa-basket-shopping text-orange-500 text-xl mb-1"></i>
-                <span class="font-bold text-black-800 italic text-[13px]">Grocery</span>
-            </div>
-        </a>
-
+<header class="nav-container relative w-full border-b border-white/10 shadow-2xl overflow-hidden pb-1">
+    <div class="mesh-bg absolute inset-0">
+      <div class="blob-1"></div>
+      <div class="blob-2"></div>
     </div>
+
+    <div class="max-w-7xl mx-auto px-4 relative z-10 mt-2">
+   <nav class="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-3">
+  <a href="homemob.html" class="animate-pop group" style="--d: 1">
+    <div class="box-container box-savig shadow-lg group-hover:scale-105 active:scale-95 flex flex-col items-center justify-center bg-white/5 border border-white/10">
+      <div class="relative flex items-center justify-center">
+        <i class="fas fa-shield text-blue-600 text-3xl"></i>
+        <i class="fas fa-database text-white absolute text-[16px]" style="top: 27%;"></i>
+      </div>
+      <span class="font-black italic text-[14px] uppercase text-slate-900">Savig</span>
+    </div>
+  </a>
+
+ <a href="incomemob.html" class="animate-pop group" style="--d: 2">
+    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
+      <i class="fas fa-rupee-sign text-blue-400 text-xl"></i>
+      <span class="font-bold text-slate-300 italic  text-[14px]">Finance</span>
+    </div>
+  </a>
+
+  <a href="travelmob.html" class="animate-pop group" style="--d: 3">
+    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
+      <i class="fas fa-plane text-blue-400 text-xl"></i>
+      <span class="font-bold text-slate-300 italic  text-[14px]">Travel</span>
+    </div>
+  </a>
+
+  <a href="grocerymob.html" class="animate-pop group" style="--d: 4">
+    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-orange-500/50">
+      <i class="fas fa-basket-shopping text-orange-400 text-xl"></i>
+      <span class="font-bold text-slate-300 italic text-[14px]">Grocery</span>
+    </div>
+  </a>
 </nav>
-
-    <button class="theme-toggle" id="theme-btn">
-<i class="fa-solid fa-sun bg-yellow"></i>
-    <i class="fa-solid fa-moon"></i>
-    </button>
-
-    <div class="header-container">
-        <a href="profilemob.html" class="animate-pop">
-            <div class="profile-box">
-                <i class="fas fa-user-circle text-blue-600 text-2xl"></i>
-            </div>
-        </a>
     </div>
 
-    <nav id="universal-bottom-nav">
-   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
-    </a>
 
-    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
-    </a>
+<div class="w-full py-4 flex justify-between items-center max-w-md mx-auto px-4">
+    <div class="animate-pop flex items-center gap-3" style="--d: 4.5">
+        <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+            <span id="greeting-emoji" class="text-xl">☀️</span>
+        </div>
 
-    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
-    </a>
+        <div>
+            <p id="greeting-time" class="text-white/40 text-[14px]  font-bold leading-none ">
+                Good Morning
+            </p>
+            <h2 class="text-white text-base font-bold">
+                <span id="user-display-name" class="text-[#ffe11b]"></span>
+            </h2>
+        </div>
+    </div>
 
-    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
-    </a>
-          <a href="cr.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
-    </a>
-    </nav>
-    <script>
-        const themeBtn = document.getElementById('theme-btn');
-        const icon = themeBtn.querySelector('i');
-        
-        // Handle Theme Switching
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        updateIcon(currentTheme);
 
-        themeBtn.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            let newTheme = theme === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateIcon(newTheme);
-            if (navigator.vibrate) navigator.vibrate(15);
-        });
+        <div class="flex items-center gap-4">
+          <button class="theme-toggle text-xl text-yellow-400" id="theme-btn">
+            <i class="fa-solid fa-sun"></i>
+          </button>
+          <a href="profilemob.html" class="w-12 h-12  mr-1 rounded-full border-2 border-blue-500/30 bg-slate-800 flex items-center justify-center animate-pop group" style="--d: 6">
+            <i class="fas fa-user-circle text-blue-400 text-3xl group-hover:text-blue-300"></i>
+          </a>
+        </div>
+      </div>
 
-        function updateIcon(theme) {
-            icon.className = theme === 'light' ? 'fas fa-moon' : 'fa-solid fa-sun';
-        }
 
-        // Highlight Active Bottom Nav Link
-        document.querySelectorAll('.nav-link').forEach(link => {
-            const currentPath = window.location.pathname.split('/').pop();
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
-            }
-        });
+     <div class="flex overflow-x-auto no-scrollbar gap-6 md:grid md:grid-cols-5 md:overflow-visible px-4 ">
+  
+  <a href="clothmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 7">
+    <div class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+      <i class="fas fa-tshirt text-blue-400 text-lg group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+    </div>
+    <span class="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors">
+      Cloth
+    </span>
+  </a>
 
-        // Haptic feedback for boxes
-        document.querySelectorAll('.box-container').forEach(box => {
-            box.addEventListener('touchstart', () => {
-                if (navigator.vibrate) navigator.vibrate(10);
-            });
-        });
-    </script>
-   
+  <a href="assetmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 8">
+    <div class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+      <i class="fas fa-coins text-blue-400 text-lg group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+    </div>
+    <span class="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white">
+      Asset
+    </span>
+  </a>
+
+  <a href="principalmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 9">
+    <div class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+      <i class="fas fa-user-shield text-blue-400 text-lg group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+    </div>
+    <span class="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white">
+      Principal
+    </span>
+  </a>
+
+  <a href="storemob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 10">
+    <div class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+      <i class="fas fa-store text-blue-400 text-lg group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+    </div>
+    <span class="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white">
+      Stores
+    </span>
+  </a>
+
+  <a href="eventsmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 11">
+    <div class="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+      <i class="fas fa-cake-candles text-blue-400 text-lg group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+    </div>
+    <span class="text-slate-400 text-[10px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white">
+      Events
+    </span>
+  </a>
+</div>
+    </div>
+  </header>
+
+
+
 
 
 
 
   
 
-    <style>
-        :root { --bg: #f9fafb; --card: #ffffff; --text: #1f2937; }
-        [data-theme='dark'] { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
-        body { background-color: var(--bg); color: var(--text); transition: all 0.3s; }
-        .stat-card { background: var(--card); border-radius: 12px; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-    </style>
-</head>
-
-
-    <style>
-        :root {
-            --bg-body: #f9fafb;
-            --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --border: #e5e7eb;
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #cbd5e1;
-            --border: #334155;
-        }
-
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            transition: all 0.3s ease; 
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        #theme-toggle-btn {
-            position: fixed;
-            bottom: 85px; 
-            right: 15px;
-            z-index: 9999;
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            background: #4f46e5;
-            color: white;
-            border: none;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-    </style>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Savig Finance | LIVE</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js"></script>
@@ -504,7 +494,6 @@ nav .grid-cols-4 {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     
-
 <style>
     :root { 
         --bg: #ffffff;
@@ -529,11 +518,99 @@ nav .grid-cols-4 {
         background: var(--card); 
         border: 1px solid var(--border);
         border-radius: 16px; 
-        padding: 1.25rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        padding: 2px;
+     
+    }
+.chart-wrapper { 
+    position: relative; 
+    height: 220px; 
+    width: 100%;
+    z-index: 1; /* Keep it low */
+}
+    .hidden { display: none !important; }
+
+    .spinner {
+        width: 35px; height: 35px;
+        border: 3px solid var(--border);
+        border-top: 3px solid var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+    /* Custom Active State Styles */
+.active-link i, 
+.active-link div {
+    color: #4f46e5 !important; /* Tailwind's indigo-600 */
+    font-weight: bold;
+}
+
+.active-link {
+    transform: scale(1.1);
+}
+</style>
+
+<div class="flex flex-row items-start justify-between w-full max-w-md mx-auto gap-4 px-4 py-4 mt-2 bg-white rounded-2xl shadow-sm">
+    
+    <div id="todays-overview" class="w-1/2">
+        <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-black uppercase tracking-tight">
+            <i class="fas fa-calendar-day"></i> Schedule
+        </h2>
+        <div id="event-list" class="space-y-3">
+            <p class="text-black font-[600] text-[13px] p-3 border-2 border-solid border-black bg-white rounded-xl text-center leading-tight">
+                Checking...
+            </p>
+        </div>
+    </div>
+
+    <div id="bday-overview-container" class="w-1/2">
+        <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-black">
+            <i class="fas fa-cake-candles"></i> Birthdays
+        </h6>
+        <div id="bday-realtime-list" class="space-y-3">
+            <p class="text-black font-[600] text-[13px] p-3 border-2 border-solid border-black bg-white rounded-xl text-center leading-tight">
+                Checking...
+            </p>
+        </div>
+    </div>
+
+</div>
+
+</div>
+</div>
+<style>
+    :root { 
+        --bg: #ffffff;
+        --card: #f8fafc;
+        --text-main: #0f172a;    /* Deep slate for readability */
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --accent: #6366f1;
     }
 
-    .chart-wrapper { position: relative; height: 320px; width: 100%; }
+    [data-theme="dark"] { 
+        --bg: #0f172a;           /* Deep Navy instead of Black */
+        --card: #1e293b;         /* Slate blue for cards */
+        --text-main: #f1f5f9;    /* Crisp off-white */
+        --text-muted: #94a3b8;
+        --border: #334155;
+    }
+
+.group:hover .box-container {
+    transform: translateY(-2px);
+    box-shadow: none !important; /* Forces shadow removal on hover */
+}
+
+    .stat-card {
+        background: var(--card); 
+        border: 1px solid var(--border);
+        border-radius: 16px; 
+        padding: 2px;
+box-shadow: none !important; /* Removes default shadow */
+    }
+
+    .chart-wrapper { position: relative; height: 250px; width: 100%; }
     .hidden { display: none !important; }
 
     .spinner {
@@ -545,32 +622,8 @@ nav .grid-cols-4 {
     }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
-</head>
-<div class="flex flex-row items-start justify-between w-full max-w-md mx-auto gap-2 px-2 mt-2">
-    
-    <div id="todays-overview" class="w-1/2 mb-1">
-        <h2 class="text-[14px] font-bold mb-2 flex items-center gap-1 text-blue-700 dark:text-blue-700 uppercase tracking-tight">
-            <i class="fas fa-calendar-day text-blue-700"></i> Schedule
-        </h2>
-        <div id="event-list" class="space-y-3">
-            <p class="text-blue-400/70 italic text-[12px] p-3 border border-dashed border-blue-200 dark:border-blue-900/50 rounded-xl text-center leading-tight">Checking...</p>
-        </div>
-    </div>
-
-    <div id="bday-overview-container" class="w-1/2 ">
-        <h6 class="text-[14px] font-bold mb-2 flex items-center gap-1 uppercase tracking-tight text-blue-700 dark:text-blue-700">
-            <i class="fas fa-cake-candles text-blue-600"></i> Birthdays
-        </h6>
-        <div id="bday-realtime-list" class="space-y-3">
-            <p class="text-blue-400/70 italic text-[12px] p-3 border border-dashed border-blue-200 dark:border-blue-900/50 rounded-xl text-center leading-tight">Checking...</p>
-        </div>
-    </div>
-
-</div>
-<body class="p-4 md:p-6">
-
-    <div class="max-w-6xl mx-auto">
-<header class="flex flex-row justify-between items-center gap-4 mb-2 py-2">
+  <div class="max-w-6xl mx-auto">
+<header class="flex flex-row justify-between items-center gap-4 mb-1 py-2">
     <div class="flex items-center gap-2">
         <div class="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
         <h1 class="text-base font-bold tracking-tighter uppercase transition-colors duration-300">
@@ -621,72 +674,200 @@ nav .grid-cols-4 {
      
         </div>
     </div>
-  
+
+  <nav id="universal-bottom-nav">
+   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
+    </a>
+
+    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
+    </a>
+
+    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
+    </a>
+
+    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
+    </a>
+          <a href="cr.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
+    </a>
+    </nav>
+
+
+
+
 <style>
-    /* 1. Component Specific Variables */
-    :root {
-        --event-card-bg: #ffffff;
-        --event-text-title: #1e293b;
-        --event-text-sub: #64748b;
-        --event-border: #f1f5f9;
-        --event-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-
-    [data-theme="dark"] {
-        --event-card-bg: #1e293b; /* Slate 800 */
-        --event-text-title: #f8fafc;
-        --event-text-sub: #94a3b8;
-        --event-border: #334155;
-        --event-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-    }
-
-    /* 2. Styling the Event Cards */
-    .event-dashboard-card {
-        background-color: var(--event-card-bg);
-        border: 1px solid var(--event-border);
-        box-shadow: var(--event-shadow);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        border-left-width: 4px;
-        border-left-color: #6366f1; /* Indigo Accent */
-    }
-
-    .event-dashboard-card:hover {
-        transform: translateY(-2px);
-        border-left-color: #4f46e5;
-    }
-
-    .event-title {
-        color: var(--event-text-title);
-        font-weight: 800;
-        letter-spacing: -0.01em;
-    }
-
-    .event-meta {
-        color: var(--event-text-sub);
-        font-weight: 600;
-    }
-
-    /* 3. Empty State Styling */
-    .empty-event-state {
-        background-color: var(--event-card-bg);
-        border: 2px dashed var(--event-border);
-        color: var(--event-text-sub);
-    }
-  :root {
-    --bg-body: #ffffff; /* Was #f9fafb (grayish) */
-    --bg-card: #ffffff; /* Was #f8fafc (grayish) */
-    --text-main: #1f2937;
-    --border: #e2e8f0;
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
 }
 
-[data-theme="dark"] {
-    --bg-body: #0f172a;
-    --bg-card: #1e293b;
-    --text-main: #f1f5f9;
-    --border: #334155;
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
 }
-   
-</style>
+
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 14px;
+}
+
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
+
+.nav-link i {
+    font-size: 25px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
+
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+
+
+
+
+
+
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+
+
+
+/* 1. Reset Body and Layout Logic */
+
+/* 3. Fix the Grid Columns for Mobile */
+
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
 </style>
    <script>
     // 1. Firebase Configuration
@@ -838,61 +1019,67 @@ async function loadTodaysDashboard() {
     const listCont = document.getElementById('event-list');
     
     if (!user) {
-        listCont.innerHTML = `<p class="text-red-500 text-center">Please log in to view events.</p>`;
+        listCont.innerHTML = `<p class="text-red-500 text-center text-xs font-[600]">Please log in.</p>`;
         return;
     }
 
-    // 1. Get Today's Date in YYYY-MM-DD format
     const now = new Date();
     const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     try {
-        // 2. Fetch data from Firebase
         const snapshot = await firebase.database().ref(`users/${user.uid}/events/${todayISO}`).once("value");
         const data = snapshot.val();
         
-if (!data) {
-    listCont.innerHTML = `
-        <div class="p-2 bg-white dark:bg-slate-800 rounded-xl  text-gray-400 dark:text-gray-500 font-medium border border-dashed border-gray-200 dark:border-slate-700 text-xs text-center">
-            ✨ No events for today.
-        </div>`;
-    return;
-}
+        if (!data) {
+            listCont.innerHTML = `
+                <div class="p-3 bg-white rounded-xl text-black font-[600] border-2 border-black text-[14px] text-center leading-tight">
+                    ✨ No events for today.
+                </div>`;
+            return;
+        }
 
-        // 3. Process and Filter
         const events = Object.entries(data)
             .map(([id, ev]) => ({ id, ...ev }))
             .filter(ev => ev.status === 'pending')
             .sort((a, b) => a.time.localeCompare(b.time));
 
- if (events.length === 0) {
-    listCont.innerHTML = `
-        <div class="p-4 bg-white dark:bg-slate-800 rounded-xl text-center text-emerald-500 font-medium border border-gray-100 dark:border-slate-700">
-            ✅ All events caught up!
-        </div>`;
-    return;
-}
+        if (events.length === 0) {
+            listCont.innerHTML = `
+                <div class="p-3 bg-white rounded-xl text-black font-[600] border-2 border-black text-[14px] text-center leading-tight">
+                    ✅ All events caught up!
+                </div>`;
+            return;
+        }
 
-        // 4. Render HTML
+        // Render HTML with Wrapping support
         listCont.innerHTML = events.map(ev => `
-            <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border-l-4 border-indigo-500 flex justify-between items-center transition hover:shadow-md">
+            <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-2 transition active:translate-y-[1px] active:shadow-none mb-2">
                 <div class="min-w-0">
-                    <h3 class="font-bold bg-white text-gray-800 dark:text-white text-[11px] truncate">${ev.title}</h3>
-                    <div class="flex items-center gap-2  text-indigo-600 font-bold mt-1">
-                        <i class="fas fa-clock"></i> ${ev.time}
-                        ${ev.location ? `<span class="text-gray-400 font-normal">| <i class="fas fa-location-dot"></i> ${ev.location}</span>` : ''}
+                    <h3 class="font-[700] text-black text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
+                    
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black font-[600] mt-1">
+                        <span class="flex items-center whitespace-nowrap">
+                            <i class="fas fa-clock mr-1 text-black text-[14px]"></i>${ev.time}
+                        </span>
+                        
+                        ${ev.location ? `
+                            <span class="text-black font-[500] text-[14px] opacity-60 break-words"> 
+                                <i class="fas fa-location-dot ml-0.5"></i> ${ev.location}
+                            </span>` : ''}
                     </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-300"></i>
+                
+                <div class="bg-black rounded-full p-1.5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-chevron-right text-white text-[14px]"></i>
+                </div>
             </div>
         `).join('');
 
     } catch (err) {
         console.error("Fetch error:", err);
-        listCont.innerHTML = `<p class="text-red-500">Failed to load events.</p>`;
+        listCont.innerHTML = `<p class="text-red-600 text-xs text-center font-[600]">Failed to load events.</p>`;
     }
 }
-
 // Trigger load once user is authenticated
 firebase.auth().onAuthStateChanged(user => {
     if (user) loadTodaysDashboard();
@@ -908,17 +1095,24 @@ async function fetchAndShowTodaysBirthdays() {
     const tDay = today.getDate();
 
     try {
-        const snapshot = await firebase.database().ref(`users/${user.uid}/birthdays`).once("value");
-        const allBdays = snapshot.val();
+        // Fetch both Birthdays and Contacts to link the Phone Numbers
+        const [bdaySnap, contactSnap] = await Promise.all([
+            firebase.database().ref(`users/${user.uid}/birthdays`).once("value"),
+            firebase.database().ref(`users/${user.uid}/contacts`).once("value")
+        ]);
+
+        const allBdays = bdaySnap.val();
+        const allContacts = contactSnap.val() || {};
 
         if (!allBdays) {
-    listCont.innerHTML = `
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 text-gray-400 text-xs text-center">
-            No birthdays saved yet.
-        </div>`;
-    return;
-}
+            listCont.innerHTML = `
+                <div class="p-2 bg-white rounded-xl text-black font-[600] border-2 border-solid border-black text-[14px] text-center leading-tight">
+                    No birthdays saved.
+                </div>`;
+            return;
+        }
 
+        // Filter for today
         const todaysList = Object.values(allBdays).filter(person => {
             if (!person.birthdate || person.birthdate.length < 5) return false;
             const dateParts = person.birthdate.split('-');
@@ -927,58 +1121,334 @@ async function fetchAndShowTodaysBirthdays() {
             return m === tMonth && d === tDay;
         });
 
-if (todaysList.length === 0) {
-    listCont.innerHTML = `
-        <div class="dark:bg-slate-800 p-3 rounded-xl border border-dashed border-gray-200 dark:border-slate-700 dark:text-gray-500 text-gray-400 text-xs text-center bg-white-800 ">
-            No birthdays today.
-        </div>`;
-    return;
-}
+        if (todaysList.length === 0) {
+            listCont.innerHTML = `
+                <div class="p-2 bg-white rounded-xl text-black font-[600] border-2 border-solid border-black text-[14px] text-center leading-tight">
+                    No Birthday Today
+                </div>`;
+            return;
+        }
 
-        listCont.innerHTML = todaysList.map(person => {
-             return `
-    <div class="flex items-center gap-1 p-2 rounded-lg bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700">
-        <div class="w-7 h-4 bg-white dark:bg-slate-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-birthday-cake text-indigo-600 dark:text-indigo-400 text-[10px]"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-            <div class="text-[11px] font-bold text-slate-800 dark:text-slate-100 truncate uppercase">
-                ${person.name}
+        const decoIcons = ["🎂", "🍫", "🌸", "🎉"];
+
+        listCont.innerHTML = todaysList.map((person, index) => {
+            const contactMatch = Object.values(allContacts).find(c => c.name.toLowerCase() === person.name.toLowerCase());
+            const phoneNumber = contactMatch ? (contactMatch.whatsapp || contactMatch.mobile) : null;
+            const deco = decoIcons[index % decoIcons.length];
+            
+            // Standard UTF-8 Emojis for best cross-platform compatibility
+            const message = encodeURIComponent(`Happy Birthday ${person.name}! 🎂🍫🌸🥳`);
+            const waLink = phoneNumber ? `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${message}` : "#";
+
+            return `
+            <div class="bg-white p-2 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center gap-2 mb-2 transition active:translate-y-[1px] active:shadow-none">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-[14px] flex-shrink-0">${deco}</span>
+                    <div class="min-w-0">
+                        <div class="text-[13px] font-[800] text-black leading-[1.1] break-words uppercase">
+                            ${person.name}
+                        </div>
+                    </div>
+                </div>
+                
+                ${phoneNumber ? `
+                    <a href="${waLink}" target="_blank" 
+                       class="bg-[#25D366]  rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0  transition-all duration-200 hover:bg-[#128C7E] hover:scale-110 hover:rotate-6 active:scale-95 active:shadow-none">
+                        <i class="fab fa-whatsapp text-white text-[23px]"></i>
+                    </a>
+                ` : `
+                    <div class="bg-gray-100  rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 opacity-30">
+                        <i class="fas fa-comment-slash text-black text-[65px]"></i>
+                    </div>
+                `}
             </div>
-        </div>
-    </div>
-`;
+        `;
         }).join('');
 
     } catch (error) {
-        console.error("Error fetching birthdays:", error);
-        listCont.innerHTML = `<p class="text-red-500 text-xs text-center bg-white p-2 rounded-lg border border-red-100">Failed to load birthdays.</p>`;
+        console.error("Fetch error:", error);
+        listCont.innerHTML = `<div class="p-2 bg-white border-2 border-black rounded-xl text-[10px] text-center font-bold">Error loading.</div>`;
     }
 }
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        // No user is signed in, redirect to login page immediately
+        console.log("Unauthorized access detected. Redirecting...");
+        window.location.replace("indexmob.html"); 
+    } else {
+        // Access granted: User is signed in
+        console.log("Access granted for:", user.email);
+        
+        // 1. Fetch User Name from Realtime Database
+        const userId = user.uid;
+        firebase.database().ref('users/' + userId).once('value')
+            .then((snapshot) => {
+                const data = snapshot.val();
+                // Priority: DB 'name' -> Auth 'displayName' -> Default 'Safar'
+                const finalName = (data && data.name) || user.displayName || "Safar";
+                
+                const nameElement = document.getElementById('user-display-name');
+                if (nameElement) {
+                    nameElement.innerText = finalName;
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching user name:", error);
+            });
 
-firebase.auth().onAuthStateChanged(user => {
-    if (user) fetchAndShowTodaysBirthdays();
-});
-    firebase.auth().onAuthStateChanged((user) => {
-        if (!user) {
-            // No user is signed in, redirect to login page immediately
-            console.log("Unauthorized access detected. Redirecting...");
-            window.location.replace("indexmob.html"); 
-        } else {
-            // User is signed in, you can initialize your page functions here
-            console.log("Access granted for:", user.email);
-            
-            // Optional: Call your load functions here if they aren't already being called
-            // if (typeof loadAnalytics === "function") loadAnalytics();
+        // 2. Set Time-Based Greeting
+        updateTimeGreeting();
+
+        // 3. Initialize Page Functions
+        if (typeof fetchAndShowTodaysBirthdays === "function") {
+            fetchAndShowTodaysBirthdays();
         }
-    });
+    }
+});
+
+/**
+ * Professional Time-Based Greeting Logic
+ * Sets message based on current hour
+ */
+function updateTimeGreeting() {
+    const hours = new Date().getHours();
+    const greetEl = document.getElementById('greeting-time');
+    const emojiEl = document.getElementById('greeting-emoji');
+    
+    if (!greetEl) return;
+
+    let message = "";
+    let emoji = "";
+
+    if (hours >= 5 && hours < 12) {
+        message = "Good Morning";
+        emoji = "☀️"; // Sun for productivity
+    } else if (hours >= 12 && hours < 17) {
+        message = "Good Afternoon";
+        emoji = "🌤️"; // Soft sun
+    } else if (hours >= 17 && hours < 21) {
+        message = "Good Evening";
+        emoji = "🌆"; // City sunset (very professional/fin-tech vibe)
+    } else {
+        message = "Good Night";
+        emoji = "🌙"; // Calm moon
+    }
+
+    greetEl.innerText = message;
+    if (emojiEl) emojiEl.innerText = emoji;
+}
+
+// Call the function
+updateTimeGreeting();
 </script>
 
-</body>
-</html>
+    <button id="news-open-btn" onclick="toggleWidget()"><span></span>News</button>
+
+    <div class="news-widget" id="newsWidget">
+        <div class="widget-header">
+            <span>ताज्या घडामोडी</span>
+            <span class="close-btn" onclick="toggleWidget()">×</span>
+        </div>
+        <div id="news-list">
+            <div class="loader">बातमी शोधत आहोत...</div>
+        </div>
+    </div>
+       <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-primary: #222222;
+            --text-secondary: #555555;
+            --accent: #d93025;
+            --hover-shadow: rgba(0, 0, 0, 0.1);
+            --border: #eeeeee;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-main: #121212;
+                --card-bg: #1e1e1e;
+                --text-primary: #e0e0e0;
+                --text-secondary: #bbbbbb;
+                --accent: #ff4d4d;
+                --hover-shadow: rgba(0, 0, 0, 0.4);
+                --border: #333333;
+            }
+        }
+
+        /* १. सुरुवातीचे छोटे बटण */
+        #news-open-btn {
+            position: fixed; bottom: 20px; right: 5px;
+            background: var(--accent); color: white; border: none;
+            padding: 5px 5px; border-radius: 50px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 15px var(--hover-shadow);
+            z-index: 999; font-family: 'Segoe UI', sans-serif;
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 70px;
+        }
+
+        /* २. फुल स्क्रीन कंटेनर */
+        .news-widget {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100vw; height: 90vh; background: var(--bg-main);
+            flex-direction: column; z-index: 1000;
+            font-family: 'Segoe UI', sans-serif; animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .widget-header {
+            background: var(--accent); color: white;
+            padding: 15px 20px; font-size: 1.3rem; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        #news-list { flex: 1; overflow-y: auto; padding: 15px; }
+
+        /* ३. कार्ड आणि होव्हर इफेक्ट */
+        .news-item {
+            background: var(--card-bg); margin-bottom: 12px;
+            border-radius: 12px; border-left: 5px solid var(--accent);
+            box-shadow: 0 2px 8px var(--hover-shadow);
+            overflow: hidden; transition: all 0.3s ease;
+        }
+
+        /* लाईट/डार्क मोडनुसार होव्हर बदल */
+        .news-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--hover-shadow);
+            background: var(--card-bg); /* लाईट मोडमध्ये हलका बदल */
+        }
+
+        .news-header-row {
+            padding: 18px; display: flex; align-items: center;
+            justify-content: space-between; cursor: pointer;
+        }
+
+        .news-text {
+            font-size: 1.05rem; font-weight: 500; color: var(--text-primary);
+            flex: 1; line-height: 1.4; padding-right: 15px;
+        }
+
+        .read-arrow {
+            color: var(--accent); font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* ४. डिटेल विभाग (क्लिक केल्यावर उघडेल) */
+        .news-detail {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: var(--bg-main); padding: 0 18px;
+            font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;
+        }
+
+        .news-item.active .news-detail {
+            max-height: 500px; padding-bottom: 18px; padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .news-item.active .read-arrow { transform: rotate(90deg); }
+
+        .full-article-btn {
+            display: inline-block; margin-top: 12px;
+            color: var(--accent); text-decoration: none; font-weight: bold;
+            border: 1px solid var(--accent); padding: 5px 12px; border-radius: 5px;
+        }
+
+        .close-btn { cursor: pointer; font-size: 30px; }
+        .loader { text-align: center; padding: 100px; color: #888; }
+        /* क्लोज बटण होव्हर इफेक्ट */
+.close-btn { 
+    cursor: pointer; 
+    font-size: 30px; 
+    transition: all 0.3s ease; /* स्मूथ बदलण्यासाठी */
+    display: inline-block;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #ffd1d1; /* लाईट पिंक/व्हाईट रंगात बदल */
+    transform: scale(1.2) rotate(90deg); /* मोठे होईल आणि ९० अंशात फिरेल */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* हलकी चकाकी */
+}
+    </style>
+ 
+
+    <script>
+        const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
+        const widget = document.getElementById('newsWidget');
+        let hasFetched = false;
+
+        function toggleWidget() {
+            if (widget.style.display === 'flex') {
+                widget.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            } else {
+                widget.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                if (!hasFetched) fetchNews();
+            }
+        }
+
+        async function fetchNews() {
+            try {
+                const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
+                const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    const newsList = document.getElementById('news-list');
+                    newsList.innerHTML = '';
+                    
+                    data.results.forEach(article => {
+                        const item = document.createElement('div');
+                        item.className = 'news-item';
+                        
+                        const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही. कृपया अधिक माहितीसाठी पूर्ण बातमी वाचा.";
+
+                        item.innerHTML = `
+                            <div class="news-header-row" onclick="this.parentElement.classList.toggle('active')">
+                                <div class="news-text">${article.title}</div>
+                                <div class="read-arrow">→</div>
+                            </div>
+                            <div class="news-detail">
+                                ${summary}
+                                <br>
+                                <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
+                            </div>
+                        `;
+                        newsList.appendChild(item);
+                    });
+                    hasFetched = true;
+                }
+            } catch (err) {
+                document.getElementById('news-list').innerHTML = "<div class='loader'>इंटरनेट तपासा.</div>";
+            }
+        }
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </body>
 
 </html>
+
+
+
+
 
 
 
