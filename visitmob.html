@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>savig</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; transition: all 0.3s ease; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; }
+        .hidden { display: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        @media (max-width: 768px) {
+            /* Focus Mode UI Hiding */
+            body.search-active #headerBranding, 
+            body.search-active #formColumn {
+                display: none !important;
+            }
+
+            body.search-active #backArrow {
+                display: block !important;
+            }
+
+            /* Keep Search container fixed at top */
+            body.search-active #searchContainer {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                padding: 1rem;
+                background: #f8fafc;
+                z-index: 100;
+                border-bottom: 1px solid #e2e8f0;
+                margin: 0 !important;
+            }
+
+            /* Push history list down */
+            body.search-active #historyColumn {
+                margin-top: 80px !important;
+            }
+
+            /* Keep export bar visible */
+            body.search-active #historyColumn .bg-slate-50\/80 {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="loginSection" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full animate__animated animate__zoomIn">
+            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </div>
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">Savig HomeLog</h2>
+            <p class="text-gray-500 mb-6 text-sm">Log visits to Home, Bank, Office, and more.</p>
+            <button id="googleLoginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200">Login with Google</button>
+        </div>
+    </div>
+
+    <div id="mainContent" class="max-w-6xl mx-auto space-y-6 hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate__animated animate__fadeIn relative z-30">
+            <div id="headerBranding">
+                <h1 class="text-3xl font-black tracking-tight text-slate-900">Daily Visit <span class="text-blue-600">Registry</span></h1>
+                <div class="flex items-center gap-2 mt-2 bg-white px-3 py-1 rounded-full border border-slate-200 w-fit shadow-sm">
+                    <img id="userImg" class="w-5 h-5 rounded-full" alt="profile">
+                    <span id="userName" class="text-xs font-bold text-slate-600">User</span>
+                    <button id="logoutBtn" class="text-[10px] text-red-500 ml-2 font-bold uppercase">Logout</button>
+                </div>
+            </div>
+
+            <div id="searchContainer" class="w-full md:w-80 relative z-40 transition-all duration-300"> 
+                <div class="relative flex items-center gap-2">
+                    <button id="backArrow" class="hidden p-2 text-slate-600 hover:bg-slate-100 rounded-full transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                    <div class="relative flex-grow">
+                        <input type="text" id="searchInput" placeholder="Search by name or place..." 
+                            class="w-full pl-10 pr-4 py-3 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:outline-none shadow-sm text-sm bg-white">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div id="formColumn" class="lg:col-span-1 space-y-4">
+                <div class="glass-card p-6 rounded-3xl shadow-sm">
+                    <h2 id="formTitle" class="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-blue-600 rounded-full"></span> New Visit Log
+                    </h2>
+                    <form id="visitForm" class="space-y-4">
+                        <input type="hidden" id="editId">
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Person Name</label>
+                            <input type="text" id="visitorName" placeholder="Who visited?" required class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Visit Location</label>
+                            <select id="visitLocation" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm">
+                                <option value="Home" selected>🏠 Home</option>
+                                <option value="Bank">🏦 Bank</option>
+                                <option value="Office">🏢 Office</option>
+                                <option value="Friends Home">🤝 Friend's Home</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Date</label>
+                            <input type="date" id="visitDate" required class="w-full p-3 rounded-xl border border-slate-200 text-sm">
+                        </div>
+                        <button type="submit" id="submitBtn" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-2xl shadow-xl transition-all">Save Data</button>
+                    </form>
+                    <div id="status" class="mt-4 text-center text-xs font-bold"></div>
+                </div>
+            </div>
+
+            <div id="historyColumn" class="lg:col-span-2 space-y-4">
+                <div class="glass-card rounded-3xl shadow-sm overflow-hidden">
+                    <div class="p-4 bg-slate-50/80 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center">
+                        <div class="flex items-center gap-2 flex-grow w-full">
+                            <select id="shareOption" class="w-full sm:w-auto text-xs font-bold p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm">
+                                <option value="all">Export: All Records</option>
+                                <option value="week_all">Export: Last 7 Days</option>
+                                <option value="month_all">Export: Last 30 Days</option>
+                                <option value="home_month">Export: Home (Last Month)</option>
+                                <option value="bank_month">Export: Bank (Last Month)</option>
+                                <option value="office_month">Export: Office (Last Month)</option>
+                                <option value="today">Export: Today's Log</option>
+                            </select>
+                            <button id="shareBtn" class="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-xl shadow-lg active:scale-90">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                            </button>
+                        </div>
+                        <span id="recordCount" class="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg uppercase whitespace-nowrap">0 Records</span>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[300px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50/50 border-b border-slate-100">
+                                <tr class="text-slate-400 text-[10px] uppercase font-black tracking-widest">
+                                    <th class="px-6 py-4">Visitor</th>
+                                    <th class="px-6 py-4 text-center">Place</th>
+                                    <th class="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="visitTableBody" class="divide-y divide-slate-50"></tbody>
+                        </table>
+                        <div id="loadingMessage" class="py-20 text-center text-slate-400 text-sm italic">Syncing Savig...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentUid = null;
+    let allVisits = [];
+    let isEditing = false;
+
+    // --- DOM Elements ---
+    const searchInput = document.getElementById('searchInput');
+    const backArrow = document.getElementById('backArrow');
+    const recordCountBadge = document.getElementById('recordCount');
+    const visitForm = document.getElementById('visitForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const headerBranding = document.getElementById('headerBranding');
+    const formColumn = document.getElementById('formColumn');
+
+    // --- SEARCH FOCUS MODE HELPERS ---
+    const exitSearchFocus = () => {
+        document.body.classList.remove('search-active');
+        headerBranding.classList.remove('hidden');
+        formColumn.classList.remove('hidden');
+        backArrow.classList.add('hidden');
+        searchInput.value = "";
+        recordCountBadge.classList.remove('hidden');
+        renderTable(allVisits);
+    };
+
+    const enterSearchFocus = () => {
+        if (window.innerWidth < 768) {
+            document.body.classList.add('search-active');
+            headerBranding.classList.add('hidden');
+            formColumn.classList.add('hidden');
+            backArrow.classList.remove('hidden');
+            recordCountBadge.classList.add('hidden');
+        }
+    };
+
+    searchInput.addEventListener('focus', enterSearchFocus);
+    backArrow.addEventListener('click', exitSearchFocus);
+
+    // --- AUTHENTICATION ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUid = user.uid;
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+            document.getElementById('userName').innerText = user.displayName;
+            document.getElementById('userImg').src = user.photoURL;
+            loadData(user.uid);
+        } else {
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainContent').classList.add('hidden');
+        }
+    });
+
+    document.getElementById('googleLoginBtn').onclick = () => signInWithPopup(auth, provider);
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // --- DATA HANDLING ---
+    function loadData(uid) {
+        onValue(ref(db, `visits/${uid}`), (snapshot) => {
+            const data = snapshot.val();
+            allVisits = [];
+            if (data) {
+                Object.keys(data).forEach(key => allVisits.push({ id: key, ...data[key] }));
+            }
+            allVisits.sort((a, b) => b.createdAt - a.createdAt);
+            renderTable(allVisits);
+            document.getElementById('loadingMessage').style.display = 'none';
+            recordCountBadge.innerText = `${allVisits.length} Records`;
+        });
+    }
+
+    function renderTable(data) {
+        const tableBody = document.getElementById('visitTableBody');
+        if (data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No records found.</td></tr>`;
+            return;
+        }
+        tableBody.innerHTML = data.map((v) => `
+            <tr class="hover:bg-slate-50 transition-all animate__animated animate__fadeIn">
+                <td class="px-6 py-4">
+                    <div class="font-bold text-slate-900">${v.name}</div>
+                    <div class="text-[12px] text-slate-500 font-medium">${v.date}</div>
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <span class="text-[11px] px-2 py-1 rounded-lg border border-slate-200 bg-white font-black text-slate-600 uppercase tracking-tighter">${v.location}</span>
+                </td>
+                <td class="px-6 py-4 text-right flex justify-end gap-1">
+                    <button onclick="initEdit('${v.id}')" class="p-2 text-green-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                    <button onclick="deleteLog('${v.id}')" class="p-2 text-red-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                </td>
+            </tr>`).join('');
+    }
+
+    // --- SEARCH LOGIC (NAME + LOCATION) ---
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase().trim();
+        const tableBody = document.getElementById('visitTableBody');
+
+        // AUTO-CLOSE: Return to main view if search is cleared
+        if (term === "" && window.innerWidth < 768) {
+            exitSearchFocus();
+            return;
+        }
+
+        const filtered = allVisits.filter(v => 
+            v.name.toLowerCase().includes(term) || 
+            v.location.toLowerCase().includes(term)
+        );
+
+        if (filtered.length > 0) renderTable(filtered);
+        else tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No matches found for "${term}"</td></tr>`;
+    });
+
+    // --- SAVE & EDIT LOGIC ---
+    visitForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editIdVal = document.getElementById('editId').value;
+        submitBtn.disabled = true;
+
+        const payload = {
+            name: document.getElementById('visitorName').value,
+            location: document.getElementById('visitLocation').value,
+            date: document.getElementById('visitDate').value,
+            createdAt: isEditing ? allVisits.find(v => v.id === editIdVal).createdAt : Date.now()
+        };
+
+        try {
+            if (isEditing) {
+                await set(ref(db, `visits/${currentUid}/${editIdVal}`), payload);
+                isEditing = false;
+                submitBtn.innerText = "Save Data";
+                submitBtn.classList.remove("bg-orange-500");
+                submitBtn.classList.add("bg-blue-900");
+                document.getElementById('formTitle').innerText = "New Visit Log";
+            } else {
+                await push(ref(db, `visits/${currentUid}`), payload);
+            }
+            visitForm.reset();
+            document.getElementById('editId').value = "";
+            document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('status').innerHTML = "<span class='text-green-500 font-bold'>✔ Success</span>";
+        } catch (err) { alert("Error: " + err.message); } 
+        finally { submitBtn.disabled = false; setTimeout(() => document.getElementById('status').innerHTML = "", 3000); }
+    });
+
+    window.initEdit = (id) => {
+        const item = allVisits.find(v => v.id === id);
+        if (!item) return;
+        isEditing = true;
+        document.getElementById('editId').value = id;
+        document.getElementById('visitorName').value = item.name;
+        document.getElementById('visitLocation').value = item.location;
+        document.getElementById('visitDate').value = item.date;
+        document.getElementById('formTitle').innerText = "Edit Visit Log";
+        submitBtn.innerText = "Update Record";
+        submitBtn.classList.remove("bg-blue-900");
+        submitBtn.classList.add("bg-orange-500");
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    };
+
+    window.deleteLog = (id) => { if(confirm("Permanently delete this entry?")) remove(ref(db, `visits/${currentUid}/${id}`)); };
+
+    // --- SHARE TEXT LOGIC (NO PDF) ---
+    document.getElementById('shareBtn').onclick = () => {
+        const option = document.getElementById('shareOption').value;
+        const now = new Date();
+        const oneWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const oneMonth = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const todayStr = now.toISOString().split('T')[0];
+
+        let list = [...allVisits];
+
+        if (option === 'week_all') list = list.filter(v => new Date(v.date) >= oneWeek);
+        else if (option === 'month_all') list = list.filter(v => new Date(v.date) >= oneMonth);
+        else if (option === 'home_month') list = list.filter(v => v.location === 'Home' && new Date(v.date) >= oneMonth);
+        else if (option === 'bank_month') list = list.filter(v => v.location === 'Bank' && new Date(v.date) >= oneMonth);
+        else if (option === 'office_month') list = list.filter(v => v.location === 'Office' && new Date(v.date) >= oneMonth);
+        else if (option === 'today') list = list.filter(v => v.date === todayStr);
+
+        if (list.length === 0) return alert("No records found for this selection.");
+
+        let text = `📋 *SAVIG VISIT REGISTRY*\nScope: ${option.replace('_', ' ').toUpperCase()}\n`;
+        text += `--------------------------\n`;
+        list.forEach((v, i) => text += `${i+1}. ${v.name} | ${v.location} | ${v.date}\n`);
+        text += `\n_Sent via Savig Registry_`;
+
+        if (navigator.share) {
+            navigator.share({ title: 'Savig Export', text: text });
+        } else {
+            navigator.clipboard.writeText(text);
+            alert("Report copied to clipboard!");
+        }
+    };
+
+    document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
+</script>
+   
+
+</body>
+</html>
