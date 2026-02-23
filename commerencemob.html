@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savig</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --primary: #2563eb; --secondary: #64748b; --danger: #b91c1c; --bg: #f8fafc; --card: #ffffff; --border: #e2e8f0; }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1e293b; line-height: 1.5; overflow-x: hidden; }
+
+        .top-nav {
+            background: #1e293b; color: white; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1100;
+        }
+        .top-nav h1 { margin: 0; font-size: 1.1rem; letter-spacing: 1px; }
+
+        .search-container { 
+            background: #ffffff; padding: 10px 20px; 
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 48px; z-index: 1000;
+        }
+
+        #searchBar { width: 100%; max-width: 1400px; margin: 0 auto; display: block; padding: 12px; border: 2px solid var(--primary); border-radius: 10px; outline: none; font-size: 1rem; box-sizing: border-box; }
+
+        .dashboard { display: flex; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 20px; align-items: flex-start; }
+        
+        .entry-side { flex: 0 0 350px; position: sticky; top: 120px; transition: transform 0.3s ease; }
+        .history-side { flex: 1; min-width: 0; }
+
+        .card { background: var(--card); padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border); margin-bottom: 20px; position: relative; }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        h2 { margin: 0; color: var(--primary); font-size: 1rem; text-transform: uppercase; }
+
+        .btn-close {
+            background: #f1f5f9; border: none; color: var(--secondary);
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.2rem; font-weight: bold; transition: 0.2s;
+        }
+        .btn-close:hover { background: var(--danger); color: white; }
+
+        .form-grid { display: flex; flex-direction: column; gap: 12px; }
+        .input-group { display: flex; flex-direction: column; gap: 4px; }
+        label { font-size: 0.7rem; font-weight: 700; color: var(--secondary); text-transform: uppercase; }
+        input, select { padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; background: #fff; }
+
+        .status-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+        .online { background: #dcfce7; color: #15803d; }
+        .offline { background: #fee2e2; color: #b91c1c; }
+
+        .btn-save { padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        
+        /* NO-SCROLL TABLE SYSTEM */
+        .table-wrapper { 
+            border-radius: 8px; 
+            border: 1px solid var(--border);
+            background: white;
+            width: 100%;
+            overflow: hidden; 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: fixed; 
+        }
+
+        th, td { 
+            padding: 10px 4px; 
+            text-align: left; 
+            border-bottom: 1px solid #f1f5f9; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.85rem;
+        }
+        th { background: #f8fafc; color: var(--secondary); font-size: 0.7rem; text-transform: uppercase; }
+
+        /* COLUMN PERCENTAGES */
+        th:nth-child(1), td:nth-child(1) { width: 22%; }
+        th:nth-child(2), td:nth-child(2) { width: 24%; }
+        th:nth-child(3), td:nth-child(3) { width: 17%; }
+        th:nth-child(4), td:nth-child(4) { width: 15%; }
+        th:nth-child(5), td:nth-child(5) { width: 22%; }
+
+        .platform-badge { background: #e0f2fe; color: #0369a1; padding: 2px 4px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; }
+
+        #mobileToggleBtn { display: none; background: var(--primary); position: fixed; bottom: 20px; right: 20px; z-index: 2000; border-radius: 50px; padding: 12px 24px; color: white; border: none; font-weight: 700; cursor: pointer; }
+
+        @media (max-width: 992px) {
+            .dashboard { flex-direction: column; padding: 10px; }
+            .entry-side { 
+                display: none; width: 100%; position: fixed; bottom: 0; left: 0; z-index: 3000;
+                background: white; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.1);
+            }
+            .entry-side.open { display: block; padding: 20px; box-sizing: border-box; }
+            #mobileToggleBtn { display: block; }
+            .history-side { width: 100%; }
+            th, td { font-size: 0.75rem; padding: 8px 2px; }
+            .platform-badge { font-size: 0.6rem; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="top-nav">
+    <h1>Expense Tracker</h1>
+    <div id="authStatus" class="status-badge offline">SYNCING...</div>
+</div>
+
+<div class="search-container">
+    <input type="text" id="searchBar" placeholder="🔍 Search History...">
+</div>
+
+<button id="mobileToggleBtn" onclick="toggleEntry()">➕ Add Purchase</button>
+
+<div class="dashboard">
+    <div class="entry-side" id="entrySection">
+        <div class="card">
+            <div class="card-header">
+                <h2>New Entry</h2>
+                <button type="button" class="btn-close" onclick="toggleEntry()">&times;</button>
+            </div>
+            <form id="dataForm" class="form-grid">
+                <div class="input-group">
+                    <label>Member</label>
+                    <select id="personSelect" required>
+                        <option value="Sagar">Sagar</option>
+                        <option value="Aai">Aai</option>
+                        <option value="Baba">Baba</option>
+                        <option value="Other">Other...</option>
+                    </select>
+                    <input type="text" id="customName" class="hidden" placeholder="Enter Name">
+                </div>
+                <div class="input-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="price" required placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label>Store</label>
+                    <select id="platformSelect" required></select>
+                </div>
+                <div class="input-group">
+                    <label>Item</label>
+                    <input type="text" id="itemName" list="commonItems" required placeholder="Item name">
+                    <datalist id="commonItems">
+                        <option value="Underwear"><option value="Baniyan"><option value="Sweater"><option value="Spectacles">
+                    </datalist>
+                </div>
+                <div class="input-group">
+                    <label>Link (Optional)</label>
+                    <input type="url" id="itemLink" placeholder="http://...">
+                </div>
+                <button type="submit" id="saveBtn" class="btn-save" disabled>WAITING...</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="history-side">
+        <div class="card">
+            <h2>History</h2>
+            <div id="summary" class="hidden" style="margin-bottom:12px; padding:10px; background:#eff6ff; border-radius:8px; font-weight:bold; color:var(--primary); font-size:0.8rem;"></div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>User</th><th>Item</th><th>Price</th><th>Store</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        projectId: "sk12-58e9e",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'purchases');
+
+    let masterData = [];
+
+    window.toggleEntry = () => {
+        const entry = document.getElementById('entrySection');
+        const fab = document.getElementById('mobileToggleBtn');
+        if (window.innerWidth < 992) {
+            entry.classList.toggle('open');
+            fab.style.display = entry.classList.contains('open') ? 'none' : 'block';
+        } else {
+            entry.classList.toggle('hidden');
+        }
+    }
+
+    signInAnonymously(auth).then(() => {
+        document.getElementById('authStatus').innerText = "● LIVE";
+        document.getElementById('authStatus').className = "status-badge online";
+        document.getElementById('saveBtn').disabled = false;
+        document.getElementById('saveBtn').innerText = "SAVE ENTRY";
+    });
+
+    const platforms = ["Amazon", "Flipkart", "Meesho", "Myntra", "Ajio", "JioMart", "DMart", "Blinkit", "Zepto", "Zomato", "Swiggy", "Local Shop", "Reliance Digital", "Croma"];
+    const pSelect = document.getElementById('platformSelect');
+    platforms.sort().forEach(p => pSelect.add(new Option(p, p)));
+
+    document.getElementById('personSelect').addEventListener('change', e => {
+        document.getElementById('customName').classList.toggle('hidden', e.target.value !== 'Other');
+    });
+
+    document.getElementById('dataForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userValue = document.getElementById('personSelect').value === 'Other' ? 
+                          document.getElementById('customName').value : document.getElementById('personSelect').value;
+        
+        try {
+            await push(dbRef, {
+                user: String(userValue),
+                price: Number(document.getElementById('price').value),
+                platform: String(pSelect.value),
+                item: String(document.getElementById('itemName').value),
+                link: String(document.getElementById('itemLink').value || ""),
+                timestamp: Date.now()
+            });
+            document.getElementById('dataForm').reset();
+            document.getElementById('customName').classList.add('hidden');
+            if (window.innerWidth < 992) toggleEntry();
+        } catch (err) { console.error(err); }
+    });
+
+    window.deleteItem = (id) => { 
+        if(confirm("Delete this entry?")) {
+            remove(ref(db, `purchases/${id}`));
+        }
+    };
+
+    function render() {
+        const term = document.getElementById('searchBar').value.toLowerCase();
+        const filtered = masterData.filter(i => 
+            (i.user || "").toLowerCase().includes(term) || 
+            (i.item || "").toLowerCase().includes(term) || 
+            (i.platform || "").toLowerCase().includes(term)
+        );
+
+        const summary = document.getElementById('summary');
+        if (term) {
+            summary.classList.remove('hidden');
+            const total = filtered.reduce((s, i) => s + (Number(i.price) || 0), 0);
+            summary.innerText = `🔍 Results: ${filtered.length} | Total: ₹${total.toLocaleString('en-IN')}`;
+        } else { 
+            summary.classList.add('hidden'); 
+        }
+
+ document.getElementById('tableBody').innerHTML = filtered.map(i => `
+    <tr> 
+        <td style="white-space: normal; word-break: break-word;">
+            <b style="color: #1e293b;">${i.user}</b><br>
+            <small style="color:#94a3b8; font-size: 9px;">${new Date(i.timestamp).toLocaleDateString()}</small>
+        </td>
+        <td style="color: #475569; white-space: normal; word-break: break-word;">${i.item}</td>
+        <td><b style="color: #1e293b;">₹${i.price}</b></td>
+        <td><span class="platform-badge">${i.platform}</span></td>
+        <td>
+            <div class="vertical-actions">
+                <button onclick="deleteItem('${i.id}')" class="action-btn"
+                    style="width: 30px; height: 30px; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                ${i.link ? `
+                    <a href="${i.link}" target="_blank" class="action-btn"
+                        style="width: 30px; height: 30px; background: #f1f5f9; color: var(--secondary); border: 1px solid var(--border); border-radius: 4px; display: flex; align-items: center; justify-content: center; text-decoration: none;">
+                        <i class="fa-solid fa-link"></i>
+                    </a>` : ''} 
+            </div>
+        </td>
+    </tr>`).join('');}
+
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        masterData = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse() : [];
+        render();
+    });
+
+    document.getElementById('searchBar').addEventListener('input', render);
+</script>
+<style>
+  /* TABLE WRAPPER: Forced to 100% width with no horizontal scroll */
+    .table-wrapper { 
+        border-radius: 8px; 
+        border: 1px solid var(--border);
+        background: white;
+        width: 100%;
+        overflow: hidden; 
+    }
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        table-layout: fixed; /* Locks columns to percentages */
+    }
+
+    th, td { 
+        padding: 8px 4px; 
+        text-align: left; 
+        border-bottom: 1px solid #f1f5f9; 
+        vertical-align: middle;
+    }
+
+    /* ALLOT WIDTHS FOR 5 COLUMNS */
+    th:nth-child(1), td:nth-child(1) { width: 22%; } /* User */
+    th:nth-child(2), td:nth-child(2) { width: 30%; } /* Item */
+    th:nth-child(3), td:nth-child(3) { width: 18%; } /* Price */
+    th:nth-child(4), td:nth-child(4) { width: 15%; } /* Store */
+    th:nth-child(5), td:nth-chi/* TABLE WRAPPER: Forced to 100% width with no horizontal scroll */
+    .table-wrapper { 
+        border-radius: 8px; 
+        border: 1px solid var(--border);
+        background: white;
+        width: 100%;
+        overflow: hidden; 
+    }
+
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        table-layout: fixed; /* Locks columns to percentages */
+    }
+
+    th, td { 
+        padding: 8px 4px; 
+        text-align: left; 
+        border-bottom: 1px solid #f1f5f9; 
+        vertical-align: middle;
+    }
+
+    /* ALLOT WIDTHS FOR 5 COLUMNS */
+    th:nth-child(1), td:nth-child(1) { width: 22%; } /* User */
+    th:nth-child(2), td:nth-child(2) { width: 30%; } /* Item */
+    th:nth-child(3), td:nth-child(3) { width: 18%; } /* Price */
+    th:nth-child(4), td:nth-child(4) { width: 15%; } /* Store */
+    th:nth-child(5), td:nth-child(5) { width: 15%; } /* Actions (Single button width) */
+
+    /* STACKED BUTTON CONTAINER */
+    .vertical-actions {
+        display: flex;
+        flex-direction: column; /* This puts them in one vertical line */
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 600px) {
+        th, td { font-size: 0.75rem; padding: 10px 2px; }
+        .action-btn {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 11px !important;
+        }
+    }ld(5) { width: 15%; } /* Actions (Single button width) */
+
+    /* STACKED BUTTON CONTAINER */
+    .vertical-actions {
+        display: flex;
+        flex-direction: column; /* This puts them in one vertical line */
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (max-width: 600px) {
+        th, td { font-size: 0.75rem; padding: 10px 2px; }
+        .action-btn {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 11px !important;
+        }
+    }
+</style>
+</body>
+</html>
