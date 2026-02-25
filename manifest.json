@@ -4,20 +4,20 @@
   "start_url": "indexmob.html?launcher=true",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0d1117",
-  "theme_color": "#2196F3",
+  "background_color": "#ffff00", 
+  "theme_color": "#ffff00",
   "icons": [
     {
       "src": "icon-192.jpg",
       "sizes": "192x192",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "icon-512.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
