@@ -97,7 +97,7 @@
         <p class="text-[11px] font-bold text-slate-400 uppercase mb-1">Total Income</p>
         <div id="incomeDisplay" class="text-lg font-extrabold text-emerald-600 mb-1">₹0</div>
      <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-1 focus-within:border-emerald-400 w-fit">
-  <i class="fas fa-indian-rupee-sign text-[10px] text-slate-500 ml-1"></i>
+  <i class="fas fa-indian-rupee-sign text-[12px] text-slate-500 ml-1"></i>
   <input type="number" id="incomeInput" placeholder="Amt" class="w-12 sm:w-14 bg-transparent py-1 text-[11px] font-bold outline-none placeholder:truncate placeholder:max-w-[30px]">
   <button onclick="saveIncomeData()" class="bg-emerald-600 text-white px-2 py-1 rounded-md text-[9px] font-bold uppercase active:scale-90">Save</button>
 </div>
@@ -208,8 +208,8 @@
 
     <div class="bg-white rounded-xl glass-border card-shadow overflow-hidden">
       <div class="p-3 border-b flex justify-between items-center bg-slate-50/50">
-        <h2 class="text-xs font-bold text-slate-900 uppercase">Registry</h2>
-        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search..." class="bg-white border p-1 rounded text-xs w-28 outline-none" />
+        <h2 class="text-base font-bold text-slate-900 uppercase">Registry</h2>
+        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search..." class="bg-white border-radius:50%  border p-1 rounded text-base w-48 outline-none" />
       </div>
       <div class="table-scroll">
         <table class="border-collapse">
@@ -618,18 +618,18 @@ async function loadData() {
       // Note: Added 'w-[14.28%]' and 'truncate' to each TD to maintain the equal grid
       table.innerHTML += `
         <tr class="hover:bg-slate-50 transition-colors border-b">
-          <td class="w-[14.28%] p-3 border-r truncate font-extrabold text-slate-900 text-sm" title="${d.name}">${d.name}</td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[9px] text-slate-900 uppercase truncate">${category}</td>
-          <td class="w-[14.28%] p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter truncate">₹${d.amount.toLocaleString('en-IN')}</td>
+          <td class="w-[14.28%] p-3 border-r truncate font-extrabold text-slate-900 text-[12px] " title="${d.name}">${d.name}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] text-slate-900 uppercase truncate">${category}</td>
+          <td class="w-[14.28%] p-3 border-r text-rose-600 text-center text-[12px]  font-extrabold tracking-tighter truncate">₹${d.amount.toLocaleString('en-IN')}</td>
           <td class="w-[14.28%] p-3 border-r text-center">
             <div class="flex justify-center gap-2 text-base">
               <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600 hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></button>
               <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500 hover:scale-110 transition-transform"><i class="fa-solid fa-trash-can"></i></button>
             </div>
           </td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[10px] uppercase truncate">${shopDisplay}</td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[11px] text-slate-600 truncate">${d.purchasedFor || '-'}</td>
-          <td class="w-[14.28%] p-3 text-center text-[10px] text-indigo-600 uppercase font-bold truncate">${payDisplay}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] uppercase truncate">${shopDisplay}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] text-slate-600 truncate">${d.purchasedFor || '-'}</td>
+          <td class="w-[14.28%] p-3 text-center text-[12px] text-indigo-600 uppercase font-bold truncate">${payDisplay}</td>
         </tr>`;
     });
   }
