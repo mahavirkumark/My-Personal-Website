@@ -633,18 +633,18 @@ async function loadData() {
       // Note: Added 'w-[14.28%]' and 'truncate' to each TD to maintain the equal grid
       table.innerHTML += `
         <tr class="hover:bg-slate-50 transition-colors border-b">
-          <td class="w-[14.28%] p-3 border-r truncate font-extrabold text-slate-900 text-sm" title="${d.name}">${d.name}</td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[9px] text-slate-900 uppercase truncate">${category}</td>
-          <td class="w-[14.28%] p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter truncate">₹${d.amount.toLocaleString('en-IN')}</td>
+          <td class="w-[14.28%] p-3 border-r truncate font-extrabold text-slate-900 text-xs" title="${d.name}">${d.name}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] text-slate-900 uppercase truncate">${category}</td>
+          <td class="w-[14.28%] p-3 border-r text-rose-600 text-xs text-center font-extrabold tracking-tighter truncate">₹${d.amount.toLocaleString('en-IN')}</td>
           <td class="w-[14.28%] p-3 border-r text-center">
             <div class="flex justify-center gap-2 text-base">
-              <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600 hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500 hover:scale-110 transition-transform"><i class="fa-solid fa-trash-can"></i></button>
+              <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600 text-xs hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500 hover:scale-110 text-xs transition-transform"><i class="fa-solid fa-trash-can"></i></button>
             </div>
           </td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[10px] uppercase truncate">${shopDisplay}</td>
-          <td class="w-[14.28%] p-3 border-r text-center text-[11px] text-slate-600 truncate">${d.purchasedFor || '-'}</td>
-          <td class="w-[14.28%] p-3 text-center text-[10px] text-indigo-600 uppercase font-bold truncate">${payDisplay}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] uppercase truncate">${shopDisplay}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[12px] text-slate-600 truncate">${d.purchasedFor || '-'}</td>
+          <td class="w-[14.28%] p-3 text-center text-[12px] text-indigo-600 uppercase font-bold truncate">${payDisplay}</td>
         </tr>`;
     });
   }
