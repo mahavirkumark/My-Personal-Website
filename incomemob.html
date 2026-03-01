@@ -208,13 +208,13 @@
         <table class="border-collapse">
           <thead>
             <tr>
-              <th class="col-item border-r">Item</th>
-              <th class="col-cat border-r text-center">Category</th>
-              <th class="col-val border-r text-center">Price</th>
-              <th class="col-act border-r text-center">Action</th>
-              <th class="col-extra border-r text-center">Source</th>
-              <th class="col-extra border-r text-center">For Whom</th>
-              <th class="col-extra text-center">Payment</th>
+        <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Name</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Category</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Amount</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Actions</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Shop</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">For</th>
+            <th class="w-[14.28%] p-3 border text-xs font-bold uppercase">Payment</th>
             </tr>
           </thead>
           <tbody id="expenseTable" class="divide-y divide-slate-100 font-bold text-[13px] text-slate-900"></tbody>
@@ -605,48 +605,50 @@ nav .grid-cols-4 {
     document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut().then(() => location.href = "index.html"));
   });
 
-  async function loadData() {
-    const month = document.getElementById("monthSelector").value;
-    if (!month || !currentUID) return;
+async function loadData() {
+  const month = document.getElementById("monthSelector").value;
+  if (!month || !currentUID) return;
 
-    const incomeSnap = await db.ref(`users/${currentUID}/income/${month}`).get();
-    const income = incomeSnap.exists() ? incomeSnap.val() : 0;
-    document.getElementById("incomeDisplay").textContent = `₹${income.toLocaleString('en-IN')}`;
+  const incomeSnap = await db.ref(`users/${currentUID}/income/${month}`).get();
+  const income = incomeSnap.exists() ? incomeSnap.val() : 0;
+  document.getElementById("incomeDisplay").textContent = `₹${income.toLocaleString('en-IN')}`;
 
-    const expenseSnap = await db.ref(`users/${currentUID}/expenses/${month}`).get();
-    const table = document.getElementById("expenseTable");
-    table.innerHTML = "";
-    
-    let total = 0;
-    const typeTotals = {};
+  const expenseSnap = await db.ref(`users/${currentUID}/expenses/${month}`).get();
+  const table = document.getElementById("expenseTable");
+  table.innerHTML = "";
+  
+  let total = 0;
+  const typeTotals = {};
 
-    if (expenseSnap.exists()) {
-      expenseSnap.forEach(child => {
-        const d = child.val();
-        total += d.amount;
-        const category = d.type || "Misc";
-        typeTotals[category] = (typeTotals[category] || 0) + d.amount;
-        
-        const shopDisplay = d.storeName === "Offline Store" ? (d.localShop || "Local Shop") : (d.storeName || "-");
-        const payDisplay = d.paymentStatus === "EMI" ? `EMI: ₹${d.emiAmount || 0}` : "Full";
+  if (expenseSnap.exists()) {
+    expenseSnap.forEach(child => {
+      const d = child.val();
+      total += d.amount;
+      const category = d.type || "Misc";
+      typeTotals[category] = (typeTotals[category] || 0) + d.amount;
+      
+      const shopDisplay = d.storeName === "Offline Store" ? (d.localShop || "Local Shop") : (d.storeName || "-");
+      const payDisplay = d.paymentStatus === "EMI" ? `EMI: ₹${d.emiAmount || 0}` : "Full";
 
-        table.innerHTML += `
-          <tr class="hover:bg-slate-50 transition-colors">
-            <td class="p-3 border-r truncate font-extrabold text-slate-900">${d.name}</td>
-            <td class="p-3 border-r text-center text-[9px] text-slate-500 uppercase">${category}</td>
-            <td class="p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter">₹${d.amount.toLocaleString('en-IN')}</td>
-            <td class="p-3 border-r text-center">
-              <div class="flex justify-center gap-2 text-lg">
-                <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
-              </div>
-            </td>
-            <td class="p-3 border-r text-center text-[10px] uppercase">${shopDisplay}</td>
-            <td class="p-3 border-r text-center text-[11px] text-slate-600">${d.purchasedFor || '-'}</td>
-            <td class="p-3 text-center text-[10px] text-indigo-600 uppercase font-bold">${payDisplay}</td>
-          </tr>`;
-      });
-    }
+      // Note: Added 'w-[14.28%]' and 'truncate' to each TD to maintain the equal grid
+      table.innerHTML += `
+        <tr class="hover:bg-slate-50 transition-colors border-b">
+          <td class="w-[14.28%] p-3 border-r truncate font-extrabold text-slate-900 text-sm" title="${d.name}">${d.name}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[9px] text-slate-900 uppercase truncate">${category}</td>
+          <td class="w-[14.28%] p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter truncate">₹${d.amount.toLocaleString('en-IN')}</td>
+          <td class="w-[14.28%] p-3 border-r text-center">
+            <div class="flex justify-center gap-2 text-base">
+              <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600 hover:scale-110 transition-transform"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500 hover:scale-110 transition-transform"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+          </td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[10px] uppercase truncate">${shopDisplay}</td>
+          <td class="w-[14.28%] p-3 border-r text-center text-[11px] text-slate-600 truncate">${d.purchasedFor || '-'}</td>
+          <td class="w-[14.28%] p-3 text-center text-[10px] text-indigo-600 uppercase font-bold truncate">${payDisplay}</td>
+        </tr>`;
+    });
+  }
+
 
     document.getElementById("monthExpense").textContent = `₹${total.toLocaleString('en-IN')}`;
     document.getElementById("monthSaving").textContent = `₹${(income - total).toLocaleString('en-IN')}`;
