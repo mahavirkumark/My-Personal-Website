@@ -105,16 +105,16 @@
       
       <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-rose-500 card-shadow flex flex-col justify-center">
         <p class="text-[11px] font-bold text-slate-400 uppercase">Expense</p>
-        <div id="monthExpense" class="text-xl font-extrabold text-rose-600">₹0</div>
+        <div id="monthExpense" class="text-base font-extrabold text-rose-600">₹0</div>
       </div>
       
       <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-indigo-500 card-shadow flex flex-col justify-center">
         <p class="text-[11px] font-bold text-slate-400 uppercase">Monthly Saving</p>
-        <div id="monthSaving" class="text-xl font-extrabold text-indigo-600">₹0</div>
+        <div id="monthSaving" class="text-base font-extrabold text-indigo-600">₹0</div>
       </div>
       
       <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-slate-900 card-shadow flex flex-col justify-center">
-        <p class="text-[11px] fong" class="text-xl font-extrabold text-slate-900">Overall Saving</div>
+        <p class="text-[11px] fong" class="text-base font-extrabold text-slate-900">Overall Saving</div>
       </div>
     </div>
 
@@ -636,7 +636,7 @@ nav .grid-cols-4 {
             <td class="p-3 border-r text-center text-[9px] text-slate-500 uppercase">${category}</td>
             <td class="p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter">₹${d.amount.toLocaleString('en-IN')}</td>
             <td class="p-3 border-r text-center">
-              <div class="flex justify-center gap-4 text-lg">
+              <div class="flex justify-center gap-2 text-lg">
                 <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600"><i class="fa-solid fa-pen-to-square"></i></button>
                 <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
               </div>
