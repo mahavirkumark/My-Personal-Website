@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Savig </title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #0f172a; overflow-x: hidden; }
+    .glass-border { border: 1px solid #e2e8f0; }
+    .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+    
+    thead th {
+      color: #000000 !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      text-transform: uppercase;
+      background-color: #f1f5f9;
+      white-space: nowrap;
+      padding: 10px 4px !important;
+    }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+
+    .col-item { width: 30%; }
+    .col-cat  { width: 20%; }
+    .col-val  { width: 25%; }
+    .col-act  { width: 25%; }
+    .col-extra { width: 150px; } 
+
+    @media (max-width: 767px) {
+        .table-scroll table { min-width: 850px; }
+        .main-container { padding: 0.5rem !important; }
+    }
+
+    /* Custom Bottom Nav Styling */
+    #universal-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid #e2e8f0;
+      z-index: 100;
+    }
+    .nav-link { font-size: 10px; color: #94a3b8; }
+
+    @media (min-width: 768px) { #universal-bottom-nav, .mobile-top-nav { display: none !important; } }
+    #main-content { display: none; }
+  </style>
+</head>
+<body class="pb-24 md:pb-0">
+
+<div id="loader" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
+  <div class="flex gap-2 mb-4">
+    <div class="w-3 h-3 bg-indigo-600 rounded-full animate-bounce"></div>
+    <div class="w-3 h-3 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+    <div class="w-3 h-3 bg-indigo-600 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+  </div>
+  <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center">Syncing Savig Vault...</p>
+</div>
+
+<div id="main-content">
+  <header class="hidden md:flex bg-white border-b border-slate-200 p-2 px-8 justify-between items-center sticky top-0 z-50">
+    <div class="flex items-center gap-2">
+      <i class="fas fa-shield-halved text-indigo-600 text-3xl"></i>
+      <span class="font-extrabold text-2xl tracking-tighter text-slate-900">Savig</span>
+    </div>
+    <div class="flex gap-4 items-center">
+      <div class="text-right">
+        <p id="userName" class="text-sm font-bold text-slate-900">User</p>
+        <p id="userEmail" class="text-[11px] text-slate-500">email@example.com</p>
+      </div>
+      <div id="userAvatar" class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">S</div>
+      <button id="logoutBtn" class="p-2 rounded-lg bg-slate-50 border hover:bg-rose-50 hover:text-rose-600 transition"><i class="fas fa-power-off"></i></button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto main-container p-4 lg:p-8 space-y-4">
+    <div class="flex justify-between items-center bg-white p-4 rounded-xl glass-border card-shadow">
+      <h1 class="text-base font-extrabold text-slate-900 uppercase">Finance LIVE</h1>
+      <input type="month" id="monthSelector" class="bg-slate-50 border p-2 rounded-lg font-bold text-xs focus:ring-2 focus:ring-indigo-500 outline-none w-auto" />
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-white p-3 rounded-xl glass-border border-l-4 border-l-emerald-500 card-shadow">
+        <p class="text-[12px] font-bold text-slate-400 uppercase mb-1">Total Income</p>
+        <div id="incomeDisplay" class="text-lg font-extrabold text-emerald-600 mb-1">₹0</div>
+        <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg px-2 focus-within:border-emerald-400 transition-all">
+          <i class="fas fa-indian-rupee-sign text-[12px] text-slate-400"></i>
+          <input type="number" id="incomeInput" placeholder="Amt" class="w-20 sm:w-30 bg-transparent py-2 text-[12px] font-bold outline-none placeholder:text-slate-300" />
+          <button onclick="saveIncomeData()" class="flex-shrink-0 bg-emerald-600 text-white px-2 py-1 rounded-md text-[12px] font-extrabold uppercase transition hover:bg-emerald-700 active:scale-95">Save</button>
+        </div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-rose-500 card-shadow flex flex-col justify-center">
+        <p class="text-[12px] font-bold text-slate-400 uppercase">Expense</p>
+        <div id="monthExpense" class="text-xl font-extrabold text-rose-600">₹0</div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-indigo-500 card-shadow flex flex-col justify-center">
+        <p class="text-[12px] font-bold text-slate-400 uppercase">Monthly Saving</p>
+        <div id="monthSaving" class="text-xl font-extrabold text-indigo-600">₹0</div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-xl glass-border border-l-4 border-l-slate-900 card-shadow flex flex-col justify-center">
+        <p class="text-[12px] font-bold text-slate-400 uppercase">Overall Saving</p>
+        <div id="overallSaving" class="text-xl font-extrabold text-slate-900">₹0</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 bg-white p-5 rounded-xl glass-border card-shadow">
+        <h2 class="text-xs font-bold text-slate-900 mb-4 uppercase tracking-widest"><i class="fas fa-plus-circle text-indigo-600 mr-2"></i>Journal Item</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input type="text" id="expenseName" placeholder="Item Name *" class="bg-slate-50 border p-3 rounded-lg text-base outline-none border-indigo-200 font-bold" />
+          <input type="number" id="expenseAmount" placeholder="Price (₹) *" class="bg-slate-50 border p-3 rounded-lg text-base outline-none border-indigo-200 font-bold" />
+          
+          <select id="storeName" class="bg-slate-50 border p-3 rounded-lg text-sm outline-none focus:border-indigo-400 transition" onchange="checkLocalStore()">
+            <option value="">-- Store (Optional) --</option>
+            <optgroup label="E-Commerce">
+              <option value="Amazon">Amazon</option><option value="Flipkart">Flipkart</option><option value="Myntra">Myntra</option><option value="Ajio">Ajio</option><option value="Nykaa">Nykaa</option>
+            </optgroup>
+            <optgroup label="Quick Commerce">
+              <option value="Blinkit">Blinkit</option><option value="Zepto">Zepto</option><option value="Swiggy Instamart">Instamart</option>
+            </optgroup>
+            <option value="Offline Store">Local Offline Shop</option>
+          </select>
+          <input type="text" id="localStoreText" placeholder="Shop Name (Optional)" class="hidden bg-slate-50 border p-3 rounded-lg text-sm outline-none border-indigo-300" />
+
+          <input type="text" id="purchasedFor" placeholder="Purchased For (Optional)" class="bg-slate-50 border p-3 rounded-lg text-sm outline-none" />
+
+          <div class="col-span-1 sm:col-span-2 space-y-2">
+            <div class="relative flex items-center bg-indigo-50 border border-indigo-100 rounded-lg overflow-hidden focus-within:border-indigo-400 transition">
+              <div class="px-3 text-indigo-400"><i class="fas fa-search text-xs"></i></div>
+              <input type="text" id="categorySearch" onkeyup="filterCategories()" placeholder="Quick Search Category (Milk, Dalan, D2h...)" class="w-full py-2 bg-transparent text-xs font-bold outline-none" />
+            </div>
+
+            <select id="expenseType" class="bg-slate-50 border p-3 rounded-lg text-sm outline-none w-full">
+              <option value="">-- Select Category (Optional) --</option>
+              <optgroup label="Monthly Essentials & Dalan">
+                  <option value="Monthly Grocery">Monthly Grocery (Kirana)</option>
+                  <option value="Monthly Dalan">Monthly Dalan (Atta/Mill)</option>
+                  <option value="Rice/Grains">Rice / Grains / Pulses</option>
+                  <option value="Cooking Oil">Cooking Oil</option>
+                  <option value="Spices/Masala">Spices / Masala</option>
+              </optgroup>
+              <optgroup label="Dairy & Daily Food">
+                  <option value="Milk">Milk (Daily)</option>
+                  <option value="Curd/Dahi">Curd / Dahi</option>
+                  <option value="Paneer">Paneer</option>
+                  <option value="Eggs">Eggs</option>
+                  <option value="Vegetables">Vegetables</option>
+              </optgroup>
+              <optgroup label="Bills & Utilities">
+                  <option value="Electricity Bill">Electricity Bill</option>
+                  <option value="Water Bill">Water Bill</option>
+                  <option value="d2h Recharge">d2h / Dish TV Recharge</option>
+                  <option value="Mobile Recharge">Mobile Recharge</option>
+                  <option value="Internet/Wi-Fi">Wi-Fi Bill</option>
+                  <option value="House Rent">House Rent</option>
+              </optgroup>
+              <optgroup label="Fashion & Beauty">
+                  <option value="Mens Wear">Men's Wear</option>
+                  <option value="Womens Wear">Women's Wear</option>
+                  <option value="Innerwear">Innerwear / Underwear</option>
+                  <option value="Perfume - Fogg">Perfume: Fogg</option>
+                  <option value="Footwear">Footwear (Shoes)</option>
+              </optgroup>
+              <optgroup label="Food & Lifestyle">
+                  <option value="Pizza">Pizza</option><option value="Burger">Burger</option>
+                  <option value="Chinese">Chinese Food</option><option value="Movie Ticket">Movie Ticket</option>
+                  <option value="Gym Fee">Gym / Fitness Fee</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <select id="paymentStatus" class="bg-slate-50 border p-3 rounded-lg text-sm outline-none" onchange="toggleEmi()">
+            <option value="Paid Full">Paid Full</option>
+            <option value="EMI">EMI</option>
+          </select>
+          <input type="number" id="emiAmount" placeholder="EMI Amt (Optional)" class="hidden bg-slate-50 border p-3 rounded-lg text-sm outline-none border-indigo-300" />
+
+          <button onclick="addExpense()" class="bg-slate-700 text-white font-bold py-3 rounded-lg text-sm uppercase transition active:scale-95 col-span-1 sm:col-span-2">Add Expense</button>
+        </div>
+      </div>
+      <div class="bg-white p-5 rounded-xl glass-border card-shadow flex flex-col items-center justify-center">
+        <canvas id="expenseTypeChart" style="max-width: 150px; max-height: 150px;"></canvas>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl glass-border card-shadow overflow-hidden">
+      <div class="p-3 border-b flex justify-between items-center bg-slate-50/50">
+        <h2 class="text-xs font-bold text-slate-900 uppercase">Registry</h2>
+        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Search..." class="bg-white border p-1 rounded text-xs w-28 outline-none" />
+      </div>
+      <div class="table-scroll">
+        <table class="border-collapse">
+          <thead>
+            <tr>
+              <th class="col-item border-r">Item</th>
+              <th class="col-cat border-r text-center">Category</th>
+              <th class="col-val border-r text-center">Price</th>
+              <th class="col-act border-r text-center">Action</th>
+              <th class="col-extra border-r text-center">Source</th>
+              <th class="col-extra border-r text-center">For Whom</th>
+              <th class="col-extra text-center">Payment</th>
+            </tr>
+          </thead>
+          <tbody id="expenseTable" class="divide-y divide-slate-100 font-bold text-[13px] text-slate-900"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <nav id="universal-bottom-nav">
+    <a href="homemob.html" class="nav-link group flex flex-col items-center">
+      <i class="fa-solid fa-house text-xl"></i>
+      <span>Home</span>
+    </a>
+    <a href="addressmob.html" class="nav-link group flex flex-col items-center">
+      <i class="fa-solid fa-location-dot text-xl"></i>
+      <span>Address</span>
+    </a>
+    <a href="passwordmob.html" class="nav-link group flex flex-col items-center">
+      <i class="fa-solid fa-key text-xl"></i>
+      <span>Password</span>
+    </a>
+    <a href="contact.html" class="nav-link group flex flex-col items-center">
+      <i class="fa-solid fa-envelope text-xl"></i>
+      <span>Contact</span>
+    </a>
+    <a href="cr.html" class="nav-link group flex flex-col items-center">
+      <i class="fas fa-calendar-alt text-xl"></i>
+      <span>Calendar</span>
+    </a>
+  </nav>
+</div>
+</body>
+</html>
+
+
+
+<style>
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
+}
+
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    transition: background-color 0.3s ease;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+}
+
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 10px;
+}
+
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
+
+.nav-link i {
+    font-size: 21px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
+
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+/* 4. Top Grid Boxes Styling */
+.box-container {
+    width: 60px;
+    height: 57px;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: white;
+    border: 1px solid var(--border-color); /* Added for definition */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 5. Modern Pill Toggle Above Nav */
+/* 5. Modern Pill Toggle Above Nav */
+.theme-toggle {
+    position: fixed;
+    bottom: 100px; 
+    right: 2rem;
+    z-index: 10001;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(yellow);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    color: var(--active-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+/* 6. Profile Box Top Right */
+.header-container {
+position: fixed;
+
+    top: 20px;
+
+    right: 5px;
+
+    z-index: 1000;
+
+}
+
+
+
+
+
+
+.profile-box {
+    width: 30px;
+    height: 30px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--active-color);
+    transition: background-color 0.3s ease;
+    margin-top: 55px;
+    margin-bottom: 5px;
+}
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+.header-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    z-index: 1000;
+    background: var(--bg-color); /* Matches theme */
+    box-sizing: border-box;
+}
+
+/* Grid boxes container needs to stay horizontal */
+.top-grid-nav {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+
+.top-grid-nav::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+
+
+
+/* 1. Reset Body and Layout Logic */
+body.flex.flex-col.items-center {
+    display: block !important; /* Overrides the center stacking */
+    padding-top: 85px !important; /* Prevents content from being hidden */
+    padding-bottom: 80px !important;
+}
+
+/* 2. Force the Nav and Profile into a Row */
+nav.w-full {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: var(--bg-color);
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 15px !important;
+    
+    font-weight: bolder;
+}
+
+/* 3. Fix the Grid Columns for Mobile */
+nav .grid-cols-4 {
+    display: flex !important; /* Using flex instead of grid for better row control */
+    gap: 12px !important;
+    margin: 0 !important;
+}
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+.box-container {
+    flex-shrink: 0 !important; /* Stops boxes from squishing */
+    background: white; /* Default for light mode */
+}
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
+</style>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+  let currentUID = null;
+  let expenseChart = null;
+
+  function toggleEmi() {
+    const val = document.getElementById("paymentStatus").value;
+    document.getElementById("emiAmount").classList.toggle("hidden", val !== "EMI");
+  }
+
+  function checkLocalStore() {
+    const val = document.getElementById("storeName").value;
+    document.getElementById("localStoreText").classList.toggle("hidden", val !== "Offline Store");
+  }
+
+  window.addEventListener('load', () => {
+    const mEl = document.getElementById("monthSelector");
+    if(mEl) {
+        const now = new Date();
+        mEl.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    }
+    
+    auth.onAuthStateChanged(user => {
+      if (!user) { location.href = "index.html"; return; }
+      currentUID = user.uid;
+      const initials = (user.displayName || "U").charAt(0).toUpperCase();
+      document.getElementById("userAvatar").textContent = initials;
+      document.getElementById("userName").textContent = user.displayName;
+      document.getElementById("userEmail").textContent = user.email;
+      
+      setTimeout(() => {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        loadData();
+      }, 1000);
+    });
+
+    document.getElementById("monthSelector").addEventListener("change", loadData);
+    document.getElementById("logoutBtn").addEventListener("click", () => auth.signOut().then(() => location.href = "index.html"));
+  });
+
+  async function loadData() {
+    const month = document.getElementById("monthSelector").value;
+    if (!month || !currentUID) return;
+
+    const incomeSnap = await db.ref(`users/${currentUID}/income/${month}`).get();
+    const income = incomeSnap.exists() ? incomeSnap.val() : 0;
+    document.getElementById("incomeDisplay").textContent = `₹${income.toLocaleString('en-IN')}`;
+
+    const expenseSnap = await db.ref(`users/${currentUID}/expenses/${month}`).get();
+    const table = document.getElementById("expenseTable");
+    table.innerHTML = "";
+    
+    let total = 0;
+    const typeTotals = {};
+
+    if (expenseSnap.exists()) {
+      expenseSnap.forEach(child => {
+        const d = child.val();
+        total += d.amount;
+        const category = d.type || "Misc";
+        typeTotals[category] = (typeTotals[category] || 0) + d.amount;
+        
+        const shopDisplay = d.storeName === "Offline Store" ? (d.localShop || "Local Shop") : (d.storeName || "-");
+        const payDisplay = d.paymentStatus === "EMI" ? `EMI: ₹${d.emiAmount || 0}` : "Full";
+
+        table.innerHTML += `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3 border-r truncate font-extrabold text-slate-900">${d.name}</td>
+            <td class="p-3 border-r text-center text-[9px] text-slate-500 uppercase">${category}</td>
+            <td class="p-3 border-r text-rose-600 text-center font-extrabold tracking-tighter">₹${d.amount.toLocaleString('en-IN')}</td>
+            <td class="p-3 border-r text-center">
+              <div class="flex justify-center gap-4 text-lg">
+                <button onclick="editExpense('${month}', '${child.key}', '${d.name}', ${d.amount})" class="text-indigo-600"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button onclick="deleteExpense('${month}', '${child.key}')" class="text-rose-500"><i class="fa-solid fa-trash-can"></i></button>
+              </div>
+            </td>
+            <td class="p-3 border-r text-center text-[10px] uppercase">${shopDisplay}</td>
+            <td class="p-3 border-r text-center text-[11px] text-slate-600">${d.purchasedFor || '-'}</td>
+            <td class="p-3 text-center text-[10px] text-indigo-600 uppercase font-bold">${payDisplay}</td>
+          </tr>`;
+      });
+    }
+
+    document.getElementById("monthExpense").textContent = `₹${total.toLocaleString('en-IN')}`;
+    document.getElementById("monthSaving").textContent = `₹${(income - total).toLocaleString('en-IN')}`;
+    updateChart(typeTotals);
+    updateOverallSavings();
+  }
+
+  function editExpense(m, id, oldN, oldA) {
+    const newN = prompt("New Name:", oldN);
+    const newA = parseFloat(prompt("New Price:", oldA));
+    if (newN && !isNaN(newA)) db.ref(`users/${currentUID}/expenses/${m}/${id}`).update({ name: newN, amount: newA }).then(loadData);
+  }
+
+  function deleteExpense(m, id) {
+    if (confirm("Delete entry?")) db.ref(`users/${currentUID}/expenses/${m}/${id}`).remove().then(loadData);
+  }
+
+  async function updateOverallSavings() {
+    const incSnap = await db.ref(`users/${currentUID}/income`).get();
+    const expSnap = await db.ref(`users/${currentUID}/expenses`).get();
+    let bal = 0;
+    const months = new Set([...Object.keys(incSnap.val()||{}), ...Object.keys(expSnap.val()||{})]);
+    months.forEach(m => {
+      const i = incSnap.child(m).val() || 0;
+      let e = 0;
+      expSnap.child(m).forEach(c => e += c.val().amount || 0);
+      bal += i - e;
+    });
+    document.getElementById("overallSaving").textContent = `₹${bal.toLocaleString('en-IN')}`;
+  }
+
+
+
+function updateChart(typeTotals) {
+    const ctx = document.getElementById('expenseTypeChart').getContext('2d');
+    if (expenseChart) expenseChart.destroy();
+    if (Object.keys(typeTotals).length === 0) return;
+    expenseChart = new Chart(ctx, {
+      type: 'pie',
+      data: { labels: Object.keys(typeTotals), datasets: [{ data: Object.values(typeTotals), backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#334155'], borderWidth: 1 }] },
+      options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 14, weight: 'bold' } } } } }
+    });
+  }
+
+  async function saveIncomeData() {
+    const m = document.getElementById("monthSelector").value;
+    const v = parseFloat(document.getElementById("incomeInput").value);
+    if (!m || isNaN(v)) return;
+    await db.ref(`users/${currentUID}/income/${m}`).set(v);
+    document.getElementById("incomeInput").value = "";
+    loadData();
+  }
+
+  async function addExpense() {
+    const n = document.getElementById("expenseName").value.trim();
+    const a = parseFloat(document.getElementById("expenseAmount").value);
+    
+    // Validation: Only Item Name and Amount are required
+    if (!n || isNaN(a)) return alert("Please enter Item Name and Total Price.");
+
+    const t = document.getElementById("expenseType").value || "Miscellaneous";
+    const st = document.getElementById("storeName").value || "N/A";
+    const local = document.getElementById("localStoreText").value || "";
+    const pFor = document.getElementById("purchasedFor").value || "";
+    const pS = document.getElementById("paymentStatus").value;
+    const emi = document.getElementById("emiAmount").value || 0;
+    const m = document.getElementById("monthSelector").value;
+    
+    await db.ref(`users/${currentUID}/expenses/${m}`).push({ 
+      name: n, amount: a, type: t, storeName: st, localShop: local, purchasedFor: pFor, paymentStatus: pS, emiAmount: emi, date: new Date().toLocaleDateString() 
+    });
+    
+    // Clear all fields
+    document.getElementById("expenseName").value = "";
+    document.getElementById("expenseAmount").value = "";
+    document.getElementById("purchasedFor").value = "";
+    document.getElementById("localStoreText").value = "";
+    document.getElementById("emiAmount").value = "";
+    document.getElementById("storeName").value = "";
+    document.getElementById("expenseType").value = "";
+    loadData();
+  }
+
+  function filterTable() {
+    const q = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("#expenseTable tr");
+    rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(q) ? "" : "none");
+  }
+</script>
+</body>
+</html>
