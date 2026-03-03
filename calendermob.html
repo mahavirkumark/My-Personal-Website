@@ -599,7 +599,7 @@ function renderCalendar(){
         
         let dayOfWeekText = '';
         if (window.innerWidth < 768) {
-            dayOfWeekText = `<span class="text-base text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
+            dayOfWeekText = `<span class="text-sm text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
         }
 
 
@@ -810,7 +810,7 @@ function loadTasks(date) {
           line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
                 isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
             }`;
-            line.style.fontSize = "16px"; 
+            line.style.fontSize = "14px"; 
             
             const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
             line.innerHTML = `${icon}${item.title}`;
@@ -972,12 +972,12 @@ function loadModalTasks(date) {
             contentContainer.innerHTML = `
                 <div class="flex flex-col gap-1">
                     <div class="flex items-center gap-1">
-                        <span class="text-lg">${isEvent ? '🗓️' : '📝'}</span>
+                        <span class="text-base">${isEvent ? '🗓️' : '📝'}</span>
                         <strong class="text-sm md:text-sm font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
                     </div>
-                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
+                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-1">🕒 ${item.time}</div>` : ''}
                 </div>
-                ${hasDesc ? `<div class="border-t border-slate-100 pt-1 mt-1 ml-8 text-sm text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
+                ${hasDesc ? `<div class="border-t border-slate-100 pt-1 mt-1 ml-1 text-sm text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
             `;
 
             const actionsSection = document.createElement("div");
