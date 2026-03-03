@@ -230,11 +230,11 @@ body {
 </div>
 
 <div id="taskModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-8xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[650px] md:h-auto border border-gray-100">
+    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-8xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[600px] md:h-auto border border-gray-100">
 
 
     <div class="flex justify-between items-center mb-1 border-b pb-1">
-        <h2 id="modalDate" class="text-xl md:text-base font-extrabold text-indigo-700">Tasks for date</h2> 
+        <h2 id="modalDate" class="text-base md:text-base font-extrabold text-indigo-700">Tasks for date</h2> 
         <button id="closeModal" 
                 class="text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
@@ -271,7 +271,7 @@ body {
   
 
 
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
+    <div class="flex justify-between items-center mb-2 border-b pb-2">
         <h2 id="eventModalTitle" class="text-xl md:text-base font-extrabold text-black-700">Add New Event</h2> 
         <button id="closeEventModal" 
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
@@ -920,7 +920,7 @@ function loadModalTasks(date) {
     if (!cont) return;
 
     // UI Setup: Reverted to standard modern container weights
-    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-half mt-1 md:max-w-[99%] shadow-inner";
+    cont.className = "max-h-[370px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-half mt-1 md:max-w-[99%] shadow-inner";
     
     cont.innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 gap-1">
@@ -963,7 +963,7 @@ function loadModalTasks(date) {
             const hasDesc = item.desc && item.desc.trim() !== "";
             const div = document.createElement("div");
             
-            div.className = `grid grid-cols-1 md:grid-cols-[1fr_120px] items-start gap-2 p-5 mb-1 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
+            div.className = `grid grid-cols-1 md:grid-cols-[1fr_120px] items-start gap-1 p-5 mb-1 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
                 isEvent ? 'border-l-[3px] border-l-emerald-500' : 'border-l-[3px] border-l-indigo-500'
             }`;
 
@@ -989,13 +989,13 @@ function loadModalTasks(date) {
             // --- INCREASED SIZE EDIT BUTTON ---
             const editBtn = document.createElement("button");
             editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>EDIT</span>`;
-           editBtn.className = "flex-1 md:w-[30px] h-10 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+           editBtn.className = "flex-1 md:w-[20px] h-8 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
             editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
 
             // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
             const delBtn = document.createElement("button");
             delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
-            delBtn.className = "flex-1 md:w-[30px] h-10 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
+            delBtn.className = "flex-1 md:w-[30px] h-8 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
             delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
 
             crudRow.appendChild(editBtn);
