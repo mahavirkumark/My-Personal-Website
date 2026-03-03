@@ -130,12 +130,12 @@ body {
 </head>
 <body class="bg-f8fafc">
   
-<nav class="bg-white shadow-lg fixed w-full z-50 top-0 mb-[15px]">
+<nav class="bg-white shadow-lg fixed w-full z-50 top-0 mb-[5px]">
     <div class="container mx-auto flex justify-between items-center p-3 md:px-8">
 
-        <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
-            <i class="fas fa-user-circle ml-[-20px]" style="font-size: 35px; color: #4f46e5;"></i>
-            <span style="font-size: 25px;">My Personal Website</span>
+        <div class="flex items-center gap-2 text-base font-bold text-gray-800">
+            <i class="fas fa-user-circle ml-[-10px]" style="font-size: 15px; color: #4f46e5;"></i>
+            <span style="font-size: 15px;">My Personal Website</span>
         </div>
 
         <div class="hidden md:flex space-x-6 font-medium">
@@ -156,7 +156,7 @@ body {
             <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-full hover:bg-red-700 transition duration-300">Logout</button>
         </div>
 
-        <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
+        <button id="menu-btn" class="md:hidden text-gray-700 text-xl"><i class="fas fa-bars"></i></button>
     </div>
  <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
         <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
@@ -210,7 +210,7 @@ body {
         </div>
     </div>
 
-    <div id="searchResults" class="mt-[2px] px-3 md:px-0"></div> 
+    <div id="searchResults" class="mt-[1px] px-3 md:px-0"></div> 
 
     <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0">
         <button onclick="changeMonth(-1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">← Prev</button>
@@ -271,18 +271,18 @@ body {
   
 
 
-    <div class="flex justify-between items-center mb-2 border-b pb-2">
+    <div class="flex justify-between items-center mb-1 border-b pb-2">
         <h2 id="eventModalTitle" class="text-xl md:text-base font-extrabold text-black-700">Add New Event</h2> 
         <button id="closeEventModal" 
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div class="flex flex-col gap-2"> 
+    <div class="flex flex-col gap-1"> 
         <input id="eventTitle" type="text" placeholder="Event Name (e.g., Doctor Appointment)" 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-base shadow-sm">
         
         <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Date and Time Selection</h3>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1">
             <div class="flex flex-col md:flex-row gap-2">
                 <div class="modern-input-group w-full md:w-1/2">
                     <i class="fas fa-calendar-alt text-gray-500 self-center"></i>
@@ -295,7 +295,7 @@ body {
             </div>
              </div>
         
-        <h3 class="text-lg font-semibold text-gray-700 mt-2 border-b pb-1">Location and Details</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Location and Details</h3>
         
         <input id="eventLocation" type="text" placeholder="Location (Optional)" 
             class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-sm shadow-sm">
