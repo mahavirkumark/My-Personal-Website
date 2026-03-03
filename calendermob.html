@@ -180,8 +180,8 @@ body {
 
 <main class="main-content-padding flex flex-col gap-1 mx-auto w-full max-w-7xl">
 
-    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-2 md:gap-2 px-3 md:px-0 pt-3 md:pt-0">
-        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
+    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-1 md:gap-1 px-3 md:px-0 pt-1 md:pt-0">
+        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-1">
             <input type="text" id="searchInput" placeholder="Search tasks..."
                 class="p-2 px-5 md:p-3 md:px-5 md:py-2 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm md:text-base w-full flex-1">
             
@@ -212,7 +212,7 @@ body {
 
     <div id="searchResults" class="mt-[2px] px-3 md:px-0"></div> 
 
-    <div id="calendar-controls" class="flex justify-between items-center mb-1.5 px-3 md:px-0">
+    <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0">
         <button onclick="changeMonth(-1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">← Prev</button>
         <h2 id="monthYear" class="text-lg md:text-xl font-bold text-center flex-1">Month Year</h2>
         <button onclick="changeMonth(1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">Next →</button>
@@ -223,67 +223,67 @@ body {
         <div class="text-red-500">Sat</div><div class="text-red-500">Sun</div>
     </div>
     
-    <div id="calendar" class="text-sm md:text-[12px] pb-2"></div>
+    <div id="calendar" class="text-sm md:text-[20px] pb-1"></div>
 
 </main>
 <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 text-white text-xl flex items-center justify-center">
 </div>
 
 <div id="taskModal" 
-    class="fixed bg-white shadow-2xl p-2 text-base rounded-xl w-11/12 md:w-3/4 max-w-7xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[600px] md:h-auto border border-gray-100">
+    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-7xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[650px] md:h-auto border border-gray-100">
 
 
     <div class="flex justify-between items-center mb-1 border-b pb-1">
         <h2 id="modalDate" class="text-xl md:text-xl font-extrabold text-indigo-700">Tasks for date</h2> 
         <button id="closeModal" 
-                class="text-red-500 hover:text-white text-[18px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-1"> 
         
         <div class="flex flex-col">
             <input id="taskTitle" type="text" placeholder="Title" 
-                class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-base shadow-sm">
+                class="border border-gray-300 rounded-lg p-3 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
             <textarea id="taskDesc" placeholder="Details (optional)" 
-                     class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-base flex-1 min-h-[30px] md:min-h-[30px] shadow-sm"></textarea>
+                     class="border border-gray-300 rounded-lg p-3 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[50px] md:min-h-[50px] shadow-sm"></textarea>
             <div class="flex gap-1 mt-1">
                 <button id="saveTaskBtn" 
-                        class="flex-1 bg-indigo-600 text-white px-2 py-1 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-base transform hover:scale-[1.01]">
+                        class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Save Task
                 </button>
                 <button id="cancelTaskBtn" 
-                        class="flex-1 bg-gray-400 text-white px-2 py-1 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-base transform hover:scale-[1.01]">
+                        class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Cancel
                 </button>
             </div>
         </div>
 
-        <div id="existingTasks" class="border border-gray-200 rounded-xl p-1 bg-gray-50 shadow-inner">
-            <div class="text-center text-gray-500 italic p-1">No tasks or events yet.</div>
+        <div id="existingTasks" class="border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner">
+            <div class="text-center text-gray-500 italic p-3">No tasks or events yet.</div>
         </div>
 
     </div>
 </div>
 
 <div id="eventModal" 
- class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-[54%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[270px] border border-gray-100">
+ class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-[54%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[570px] border border-gray-100">
     
   
 
 
-    <div class="flex justify-between items-center mb-1 border-b pb-1">
-        <h2 id="eventModalTitle" class="text-base md:text-base font-extrabold text-black-700">Add New Event</h2> 
+    <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <h2 id="eventModalTitle" class="text-xl md:text-xl font-extrabold text-black-700">Add New Event</h2> 
         <button id="closeEventModal" 
-                class="text-red-500 hover:text-white text-[16px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div class="flex flex-col gap-1"> 
+    <div class="flex flex-col gap-4"> 
         <input id="eventTitle" type="text" placeholder="Event Name (e.g., Doctor Appointment)" 
             class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
         
-        <h3 class="text-base font-semibold text-gray-700 mt-1 border-b pb-1">Date and Time Selection</h3>
-        <div class="flex flex-col gap-1">
-            <div class="flex flex-col md:flex-row gap-1">
+        <h3 class="text-lg font-semibold text-gray-700 mt-2 border-b pb-1">Date and Time Selection</h3>
+        <div class="flex flex-col gap-3">
+            <div class="flex flex-col md:flex-row gap-4">
                 <div class="modern-input-group w-full md:w-1/2">
                     <i class="fas fa-calendar-alt text-gray-500 self-center"></i>
                     <input type="date" id="eventDate" required aria-label="Event Date">
@@ -295,7 +295,7 @@ body {
             </div>
              </div>
         
-        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Location and Details</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mt-2 border-b pb-1">Location and Details</h3>
         
         <input id="eventLocation" type="text" placeholder="Location (Optional)" 
             class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
@@ -303,7 +303,7 @@ body {
         <textarea id="eventDesc" placeholder="Details (Optional)" 
                  class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg flex-1 min-h-[10px] shadow-sm resize-none"></textarea>
                  
-        <div class="flex gap-1 mt-1">
+        <div class="flex gap-3 mt-2">
             <button id="saveEventBtn" 
                     class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-emerald-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                 <i class="fas fa-bell mr-2"></i> Save Event
@@ -319,23 +319,23 @@ body {
 <div id="rescheduleModal"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
     
-    <div class="flex justify-between items-center mb-2 border-b pb-2">
-        <h2 class="text-xl md:text-base font-extrabold text-indigo-700">Reschedule Event</h2> 
+    <div class="flex justify-between items-center mb-2 border-b pb-1">
+        <h2 class="text-xl md:text-2xl font-extrabold text-indigo-700">Reschedule Event</h2> 
         <button id="closeRescheduleModal" 
                 class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
     
-    <p class="mb-1 text-base text-gray-800">
+    <p class="mb-2 text-lg text-gray-800">
         Reschedule: <strong id="rescheduleEventTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
     </p>
 
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-2">
         <input type="date" id="rescheduleDate" required 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-base shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
         <input type="time" id="rescheduleTime" required value="09:00"
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-base shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
         
-        <button id="confirmRescheduleBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-base">
+        <button id="confirmRescheduleBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg">
             Confirm New Date/Time
         </button>
     </div>
@@ -345,10 +345,10 @@ body {
 <div id="statusPromptModal"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
     
-    <div class="flex justify-between items-center mb-1 border-b pb-3">
-        <h2 class="text-base md:text-xl font-extrabold text-yellow-700">Update Event Status</h2> 
+    <div class="flex justify-between items-center mb-2 border-b pb-2">
+        <h2 class="text-xl md:text-xl font-extrabold text-yellow-700">Update Event Status</h2> 
         <button id="closeStatusPromptModal" 
-                class="text-red-500 hover:text-white text-[16px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
     
     <div id="promptContent">
@@ -356,9 +356,9 @@ body {
             Did you complete the event: 
             <strong id="eventToPromptTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
         </p>
-        <p class="text-sm text-gray-500 italic mb-2">Date: <span id="eventToPromptDate"></span> | Time: <span id="eventToPromptTime"></span></p>
+        <p class="text-sm text-gray-500 italic mb-4">Date: <span id="eventToPromptDate"></span> | Time: <span id="eventToPromptTime"></span></p>
 
-        <div class="flex flex-col gap-3">
+        <div class="flex flex-col gap-2">
             <button id="completeEventBtn" class="bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition duration-200 font-bold text-lg">
                 <i class="fas fa-check"></i> Completed Event
             </button>
@@ -381,13 +381,13 @@ body {
 <div id="eventTrackingSection"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
 
-    <div class="flex justify-between items-center mb-1 border-b pb-1">
+    <div class="flex justify-between items-center mb-2 border-b pb-1">
         <h2 id="trackingModalTitle" class="text-xl md:text-xl font-extrabold text-gray-700">Event History</h2> 
         <button id="closeTrackingModal" 
-                class="text-red-500 hover:text-white text-[12px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div id="trackingEventsList" class="max-h-[170vh] overflow-y-auto custom-scroll">
+    <div id="trackingEventsList" class="max-h-[70vh] overflow-y-auto custom-scroll">
         <p class="text-center text-gray-500 italic p-3">Loading events...</p>
     </div>
 </div>
@@ -605,10 +605,10 @@ function renderCalendar(){
 
         cell.innerHTML=`
             <div class="flex justify-start items-center gap-1 font-semibold text-gray-800">
-                <span class="text-base md:text-xl">${d}</span>
+                <span class="text-xl md:text-xl">${d}</span>
                 ${dayOfWeekText}
             </div>
-            <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
+            <div id="tasks-${iso}" class="mt-1 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
         `;
         cell.onclick=()=>openModal(iso); 
         cal.appendChild(cell);
@@ -810,9 +810,9 @@ function loadTasks(date) {
           line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
                 isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
             }`;
-            line.style.fontSize = "12px"; 
+            line.style.fontSize = "16px"; 
             
-            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 10px;"></i>` : '• ';
+            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
             line.innerHTML = `${icon}${item.title}`;
             c.appendChild(line);
         });
@@ -902,7 +902,7 @@ function loadTasks(date) {
           line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
                 isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
             }`;
-            line.style.fontSize = "12px"; 
+            line.style.fontSize = "16px"; 
             
             const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
             line.innerHTML = `${icon}${item.title}`;
@@ -920,7 +920,7 @@ function loadModalTasks(date) {
     if (!cont) return;
 
     // UI Setup: Reverted to standard modern container weights
-    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-half md:max-w-[99%] shadow-inner";
+    cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-half mt-1 md:max-w-[99%] shadow-inner";
     
     cont.innerHTML = `
         <div class="flex flex-col items-center justify-center py-12 gap-1">
@@ -968,16 +968,16 @@ function loadModalTasks(date) {
             }`;
 
             const contentContainer = document.createElement("div");
-            contentContainer.className = "flex flex-col gap-2 min-w-0";
+            contentContainer.className = "flex flex-col gap-1 min-w-0";
             contentContainer.innerHTML = `
                 <div class="flex flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base">${isEvent ? '🗓️' : '📝'}</span>
-                        <strong class="text-base md:text-base font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
+                    <div class="flex items-center gap-1">
+                        <span class="text-lg">${isEvent ? '🗓️' : '📝'}</span>
+                        <strong class="text-base md:text-lg font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
                     </div>
-                    ${isEvent ? `<div class="text-base font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
+                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
                 </div>
-                ${hasDesc ? `<div class="border-t border-slate-100 pt-1 mt-1 ml-8 text-base text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
+                ${hasDesc ? `<div class="border-t border-slate-100 pt-1 mt-1 ml-8 text-lg text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
             `;
 
             const actionsSection = document.createElement("div");
@@ -989,13 +989,13 @@ function loadModalTasks(date) {
             // --- INCREASED SIZE EDIT BUTTON ---
             const editBtn = document.createElement("button");
             editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>EDIT</span>`;
-           editBtn.className = "flex-1 md:w-[7px] h-8 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+           editBtn.className = "flex-1 md:w-[40px] h-10 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
             editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
 
             // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
             const delBtn = document.createElement("button");
             delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
-            delBtn.className = "flex-1 md:w-[7px] h-8 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[10px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
+            delBtn.className = "flex-1 md:w-[40px] h-10 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
             delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
 
             crudRow.appendChild(editBtn);
@@ -1004,7 +1004,7 @@ function loadModalTasks(date) {
 
             if (isEvent) {
                 const statusGroup = document.createElement("div");
-                statusGroup.className = "flex flex-col gap-1 w-full pt-1 border-t border-slate-100";
+                statusGroup.className = "flex flex-col gap-1 w-full pt-2 border-t border-slate-100";
                 statusGroup.innerHTML = `
                     <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.COMPLETED}', true)" 
                         class="bg-emerald-600 text-white text-[10px] h-10 rounded-lg hover:bg-emerald-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
@@ -1257,7 +1257,7 @@ function loadTrackingEvents(status) {
             eventDiv.innerHTML = `
                 <div class="flex items-start justify-between">
                     <div class="flex-1 min-w-0">
-                        <strong class="text-xl text-gray-800 block">
+                        <strong class="text-lg text-gray-800 block">
                             <i class="fas ${icon} mr-3"></i> ${event.title}
                         </strong>
                         <span class="text-sm text-gray-600 block">${formatDate(event.date)} at ${event.time}</span>
@@ -1513,7 +1513,7 @@ function searchTasks(isFocusEvent = false) {
             // Header for Mobile
             listContainer.innerHTML = `
                 <div class="flex justify-between items-center mb-1 pb-1 border-b border-gray-200 md:hidden">
-                    <h3 class="text-base font-bold text-gray-700">Search Results</h3>
+                    <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
                     <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
                 </div>`;
 
@@ -1541,7 +1541,7 @@ function searchTasks(isFocusEvent = false) {
                         itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50`; 
                         itemDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="text-base font-bold text-gray-800 md:text-base">
+                                <strong class="text-base font-bold text-gray-800 md:text-lg">
                                     <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'}
                                 </strong>
                                 <span class="text-sm text-gray-600">${formattedDate}</span>
@@ -1707,204 +1707,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-  <nav id="universal-bottom-nav">
-   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
-    </a>
-
-    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
-    </a>
-
-    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
-    </a>
-
-    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
-    </a>
-          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calendar</div>
-    </a>
-    </nav>
-
-
-
-
-<style>
-/* 1. Theme Variables & Reset */
-:root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
-}
-
-[data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 14px;
-}
-
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 40px;
-}
-
-.nav-link i {
-    font-size: 25px;
-    margin-bottom: 4px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
-}
-
-.nav-link div {
-    font-size: 11px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 5px;
-}
-
-.nav-link.active {
-    color: var(--active-color) !important;
-}
-
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
-}
-
-
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
-}
-
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
-
-
-
-
-
-
-
-
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
-}
-
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-
-
-
-/* 1. Reset Body and Layout Logic */
-
-/* 3. Fix the Grid Columns for Mobile */
-
-
-/* 4. Positioning the Profile Box back to the top right */
-
-
-/* 5. Data Visibility and Contrast */
-
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
-</style>
-      <button id="theme-toggle-btn">
-    <span id="theme-icon">🌙</span>
-</button>
+      
 
 
 
