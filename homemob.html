@@ -1342,17 +1342,17 @@ const initializeSavigSearch = () => {
 
             // Define all possible paths
             const paths = [
-                { path: `addresses/${uid}`, mod: 'address' },
-                { path: `users/${uid}/contacts`, mod: 'contact' },
-                { path: `users/${uid}/birthdays`, mod: 'birthday' },
-                { path: `users/${uid}/links`, mod: 'link' },
-                { path: `users/${uid}/income`, mod: 'finance' },
+                { path: `addresses/${uid}`, mod: 'addressmob' },
+                { path: `users/${uid}/contacts`, mod: 'contactmob' },
+                { path: `users/${uid}/birthdays`, mod: 'birthdaymob' },
+                { path: `users/${uid}/links`, mod: 'linkmob' },
+                { path: `users/${uid}/income`, mod: 'incomemob' },
                 { path: `users/${uid}/expenses`, mod: 'finance' },
-                { path: `users/${uid}/events`, mod: 'calendar' },
-                { path: `users/${uid}/tasks`, mod: 'calendar' },
-                { path: `users/${uid}/grocery`, mod: 'grocery' },
-                { path: `users/${uid}/asset`, mod: 'asset' },
-                { path: `principles/${uid}`, mod: 'principle' }
+                { path: `users/${uid}/events`, mod: 'calendarmob' },
+                { path: `users/${uid}/tasks`, mod: 'calendarmob' },
+                { path: `users/${uid}/grocery`, mod: 'grocerymob' },
+                { path: `users/${uid}/asset`, mod: 'assetmob' },
+                { path: `principles/${uid}`, mod: 'principlemob' }
             ];
 
             try {
