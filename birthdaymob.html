@@ -726,51 +726,40 @@ searchInput.addEventListener('focus', () => {
     editForm.addEventListener('submit', handleEditBirthday);
     closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
 
-    allItemsList.addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        
-        const listItem = e.target.closest('li');
-        const birthdayId = listItem.dataset.birthdayId;
-        const contactId = listItem.dataset.contactId;
-        const name = listItem.dataset.name;
+ allItemsList.addEventListener('click', (e) => {
+    // 1. Find the button that was clicked
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    
+    // 2. Find the list item (li) to get the data IDs
+    const listItem = btn.closest('li');
+    const birthdayId = listItem.getAttribute('data-birthday-id');
+    const contactId = listItem.getAttribute('data-contact-id');
+    const name = listItem.getAttribute('data-name');
+    const mobile = listItem.getAttribute('data-mobile');
 
-        if (btn.classList.contains('delete-btn')) {
-             if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-                if (birthdayId) {
-                    deleteBirthday(birthdayId);
-                }
-                if (contactId && !birthdayId) { 
-                    deleteContact(contactId);
-                }
-            }
-        } else if (btn.classList.contains('edit-btn')) {
-            if(birthdayId) {
-                openEditModal(birthdayId);
-            }
-        } else if (btn.classList.contains('add-birthday-btn')) {
-            document.getElementById('name').value = name;
-            document.getElementById('mobile').value = listItem.dataset.mobile || '';
-            document.getElementById('birthdate').value = '';
-            document.getElementById('age').value = '';
-            document.getElementById('name').focus(); 
-        } else if (btn.classList.contains('share-contact-btn')) {
-             const contact = allContacts[contactId] || vcardContacts.find(c => c.id === contactId);
-            if (contact) {
-                shareContact(contact);
-            } else {
-                console.error("No contact details to share for this entry.");
-            }
-        } else if (btn.classList.contains('share-birthday-btn')) {
-            const birthday = allBirthdays[birthdayId];
-            if (birthday) {
-                shareBirthday(birthday);
-            } else {
-                console.error("No birthday details to share for this entry.");
-            }
+    // 3. Logic for each button type
+    if (btn.classList.contains('delete-btn')) {
+        if (confirm(`Delete ${name}?`)) {
+            if (birthdayId) deleteBirthday(birthdayId);
+            else if (contactId) deleteContact(contactId);
         }
-    });
-
+    } 
+    else if (btn.classList.contains('edit-btn')) {
+        if (birthdayId) openEditModal(birthdayId);
+    } 
+    else if (btn.classList.contains('add-birthday-btn')) {
+        // Populates the "Add" form with contact info
+        document.getElementById('name').value = name;
+        document.getElementById('mobile').value = mobile || '';
+        document.getElementById('name').focus();
+        // Exit search mode if active so user can see the form
+        if (typeof exitSearchMode === 'function') exitSearchMode();
+    } 
+    else if (btn.classList.contains('share-contact-btn')) {
+        shareContact({ name, mobile });
+    }
+});
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         renderAllItems(searchTerm);
