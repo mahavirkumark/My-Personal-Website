@@ -2397,7 +2397,38 @@
         });
         renderContacts(filtered);
     }
-    
+       window.processFile = function(file) {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        let contacts = [];
+
+        if (file.name.endsWith('.vcf')) {
+            contacts = parseVCFContent(content);
+        } else {
+            // Simple TXT parsing: Name, Mobile
+            const lines = content.split('\n');
+            lines.forEach(line => {
+                const parts = line.split(',');
+                if (parts.length >= 2) {
+                    contacts.push({
+                        name: parts[0].trim(),
+                        mobile: parts[1].trim()
+                    });
+                }
+            });
+        }
+
+        if (contacts.length > 0) {
+            saveContactsToFirebase(contacts);
+        } else {
+            alert("No valid contacts found in file.");
+        }
+    };
+    reader.readAsText(file);
+};
     function attachEventListeners(contacts) {
         // NOTE: contactMap is updated in renderContacts, so we don't need to do it here.
         const debouncedFilter = debounce(filterContacts, 300); 
@@ -2611,6 +2642,7 @@ document.addEventListener('DOMContentLoaded', () => {
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
 </html>
+
 
 
 
