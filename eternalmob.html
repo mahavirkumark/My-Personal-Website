@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eternal | Premium Anniversary Tracker</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+    <style>
+        :root {
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --secondary: #6366f1;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; transition: background 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            /* Fix: Ensure body allows scrolling */
+            overflow-y: auto;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; color: var(--text-muted); }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-box i { font-size: 1.2rem; color: var(--primary); padding: 10px; background: rgba(244, 63, 94, 0.1); border-radius: 12px; }
+
+        /* --- Main Layout Fix --- */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 25px;
+            align-items: start; /* Fix: Prevents the sidebar from stretching the whole height */
+        }
+
+        @media (max-width: 900px) { 
+            .main-layout { grid-template-columns: 1fr; } 
+            .stats-row { grid-template-columns: 1fr; }
+            .form-card { position: relative !important; top: 0 !important; }
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            /* Sticky fix */
+            position: -webkit-sticky;
+            position: sticky;
+            top: 20px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .form-card h3 { margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px; }
+
+        .input-field { margin-bottom: 12px; }
+        label { display: block; font-size: 0.75rem; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        input:focus { outline: 2px solid var(--secondary); border-color: transparent; }
+
+        .btn-save {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-save:hover { background: var(--primary-hover); }
+
+        .anni-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .item-card {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .names { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+        .meta { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 12px; align-items: center; }
+        
+        .years-badge {
+            background: var(--secondary);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+
+        .actions { display: flex; gap: 8px; }
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            color: var(--text-muted);
+        }
+
+        .action-btn:hover { background: var(--secondary); color: white; }
+        .delete-btn:hover { background: var(--primary); }
+    </style>
+
+</html>
+</head>
+<body>
+
+<div class="container">
+    <div class="top-bar">
+        <div>
+            <h2 style="margin:0">Eternal Moments</h2>
+            <p style="color:var(--text-muted); margin:0;">Beautifully tracking your milestones</p>
+        </div>
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-box">
+            <i class="fa-solid fa-cake-candles"></i>
+            <div>
+                <label>Today's Anniversary</label>
+                <div id="todayVal" style="font-weight:700">None</div>
+            </div>
+        </div>
+        <div class="stat-box">
+            <i class="fa-solid fa-calendar-days"></i>
+            <div>
+                <label>Next Up</label>
+                <div id="upcomingVal" style="font-weight:700">None</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-layout">
+        <div class="form-card">
+            <h3><i class="fa-solid fa-pen-nib"></i> Add Record</h3>
+            <input type="hidden" id="editIdx" value="-1">
+            
+            <div class="input-field">
+                <label>Husband's Name</label>
+                <input type="text" id="hName" placeholder="e.g. Michael">
+            </div>
+
+            <div class="input-field">
+                <label>Wife's Name</label>
+                <input type="text" id="wName" placeholder="e.g. Sarah">
+            </div>
+
+            <div class="input-field">
+                <label>Anniversary Date</label>
+                <input type="date" id="anniDate">
+            </div>
+
+            <div class="input-field">
+                <label>Years Completed (Optional)</label>
+                <input type="number" id="manualYears" placeholder="Enter only if you want to show it">
+            </div>
+
+            <button class="btn-save" onclick="handleSave()">Save Anniversary</button>
+        </div>
+
+        <div class="anni-list" id="list">
+            </div>
+    </div>
+</div>
+
+<script>
+    let storage = JSON.parse(localStorage.getItem('anni_v3')) || [];
+
+    function handleSave() {
+        const h = document.getElementById('hName').value;
+        const w = document.getElementById('wName').value;
+        const d = document.getElementById('anniDate').value;
+        const y = document.getElementById('manualYears').value;
+        const idx = document.getElementById('editIdx').value;
+
+        if(!h || !w || !d) return alert("Please fill the main fields.");
+
+        const data = { h, w, d, manualYears: y };
+
+        if(idx == -1) storage.push(data);
+        else storage[idx] = data;
+
+        localStorage.setItem('anni_v3', JSON.stringify(storage));
+        resetForm();
+        render();
+    }
+
+    function render() {
+        const list = document.getElementById('list');
+        const todayEl = document.getElementById('todayVal');
+        list.innerHTML = '';
+        let todays = [];
+
+        storage.forEach((item, i) => {
+            const dateObj = new Date(item.d);
+            const today = new Date();
+            
+            // Logic for auto-increasing years based on manual input
+            let displayYears = "";
+            if(item.manualYears && item.manualYears !== "") {
+                let baseYears = today.getFullYear() - dateObj.getFullYear();
+                const m = today.getMonth() - dateObj.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < dateObj.getDate())) baseYears--;
+                
+                // Add the manual starting number to the auto-calculated difference
+                displayYears = parseInt(item.manualYears) + baseYears;
+            }
+
+            const isToday = today.getDate() === dateObj.getDate() && today.getMonth() === dateObj.getMonth();
+            if(isToday) todays.push(`${item.h} & ${item.w}`);
+
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div>
+                    <div class="names">${item.h} <i class="fa-solid fa-heart" style="color:var(--primary); font-size:0.8rem"></i> ${item.w}</div>
+                    <div class="meta">
+                        <span><i class="fa-regular fa-calendar"></i> ${item.d}</span>
+                        ${item.manualYears ? `<span class="years-badge">${displayYears} Years Completed</span>` : ''}
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="action-btn" onclick="editItem(${i})"><i class="fa-solid fa-pencil"></i></button>
+                    <button class="action-btn delete-btn" onclick="deleteItem(${i})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+
+        todayEl.innerText = todays.length ? todays.join(', ') : "None today";
+    }
+
+    function editItem(i) {
+        const item = storage[i];
+        document.getElementById('hName').value = item.h;
+        document.getElementById('wName').value = item.w;
+        document.getElementById('anniDate').value = item.d;
+        document.getElementById('manualYears').value = item.manualYears;
+        document.getElementById('editIdx').value = i;
+    }
+
+    function deleteItem(i) {
+        storage.splice(i, 1);
+        localStorage.setItem('anni_v3', JSON.stringify(storage));
+        render();
+    }
+
+    function resetForm() {
+        document.getElementById('hName').value = '';
+        document.getElementById('wName').value = '';
+        document.getElementById('anniDate').value = '';
+        document.getElementById('manualYears').value = '';
+        document.getElementById('editIdx').value = '-1';
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const icon = document.getElementById('themeIcon');
+        if(body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            icon.className = 'fa-solid fa-moon';
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            icon.className = 'fa-solid fa-sun';
+        }
+    }
+
+    render();
+</script>
+
+</body>
+</html>
+
+</body>
+</html>
+  <nav id="universal-bottom-nav">
+   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
+    </a>
+
+    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
+    </a>
+
+    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
+    </a>
+
+    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
+    </a>
+          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
+    </a>
+    </nav>
+
+
+
+
+<style>
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
+}
+
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 14px;
+}
+
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
+
+.nav-link i {
+    font-size: 25px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
+
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+
+
+
+
+
+
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+
+
+
+/* 1. Reset Body and Layout Logic */
+
+/* 3. Fix the Grid Columns for Mobile */
+
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
+</style>
+</body>
+</html>
