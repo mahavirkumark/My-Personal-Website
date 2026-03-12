@@ -7,8 +7,9 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
         :root {
             --primary: #f43f5e;
@@ -125,7 +126,7 @@
 
         .btn-save:hover { background: var(--primary-hover); }
 
-        .anni-list { display: flex; flex-direction: column; gap: 15px;margin-bottom:200px; }
+        .anni-list { display: flex; flex-direction: column; gap: 15px; }
 
         .item-card {
             background: var(--card-bg);
@@ -234,110 +235,148 @@
             </div>
     </div>
 </div>
-
 <script>
-    let storage = JSON.parse(localStorage.getItem('anni_v3')) || [];
+    // --- 1. FIREBASE CONFIGURATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "147194239940",
+    appId: "1:147194239940:web:c66474c95c7e2dd8dffada"
+};
 
-    function handleSave() {
-        const h = document.getElementById('hName').value;
-        const w = document.getElementById('wName').value;
-        const d = document.getElementById('anniDate').value;
-        const y = document.getElementById('manualYears').value;
-        const idx = document.getElementById('editIdx').value;
+// Initialize
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let storage = {};
+let userAnniRef = null;
 
-        if(!h || !w || !d) return alert("Please fill the main fields.");
-
-        const data = { h, w, d, manualYears: y };
-
-        if(idx == -1) storage.push(data);
-        else storage[idx] = data;
-
-        localStorage.setItem('anni_v3', JSON.stringify(storage));
-        resetForm();
-        render();
-    }
-
-    function render() {
-        const list = document.getElementById('list');
-        const todayEl = document.getElementById('todayVal');
-        list.innerHTML = '';
-        let todays = [];
-
-        storage.forEach((item, i) => {
-            const dateObj = new Date(item.d);
-            const today = new Date();
-            
-            // Logic for auto-increasing years based on manual input
-            let displayYears = "";
-            if(item.manualYears && item.manualYears !== "") {
-                let baseYears = today.getFullYear() - dateObj.getFullYear();
-                const m = today.getMonth() - dateObj.getMonth();
-                if (m < 0 || (m === 0 && today.getDate() < dateObj.getDate())) baseYears--;
-                
-                // Add the manual starting number to the auto-calculated difference
-                displayYears = parseInt(item.manualYears) + baseYears;
-            }
-
-            const isToday = today.getDate() === dateObj.getDate() && today.getMonth() === dateObj.getMonth();
-            if(isToday) todays.push(`${item.h} & ${item.w}`);
-
-            const card = document.createElement('div');
-            card.className = 'item-card';
-            card.innerHTML = `
-                <div>
-                    <div class="names">${item.h} <i class="fa-solid fa-heart" style="color:var(--primary); font-size:0.8rem"></i> ${item.w}</div>
-                    <div class="meta">
-                        <span><i class="fa-regular fa-calendar"></i> ${item.d}</span>
-                        ${item.manualYears ? `<span class="years-badge">${displayYears} Years Completed</span>` : ''}
-                    </div>
-                </div>
-                <div class="actions">
-                    <button class="action-btn" onclick="editItem(${i})"><i class="fa-solid fa-pencil"></i></button>
-                    <button class="action-btn delete-btn" onclick="deleteItem(${i})"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-            list.appendChild(card);
+// --- 2. AUTH & REAL-TIME SYNC ---
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        // Point to the private user folder: anniversaries/UID
+        userAnniRef = db.ref('anniversaries/' + user.uid);
+        
+        // Listen for changes
+        userAnniRef.on('value', (snapshot) => {
+            storage = snapshot.val() || {};
+            render();
         });
+    } else {
+        console.warn("User not authenticated. Please log in.");
+        // Optional: window.location.href = 'login.html';
+    }
+});
 
-        todayEl.innerText = todays.length ? todays.join(', ') : "None today";
+// --- 3. CORE FUNCTIONS ---
+
+function handleSave() {
+    if (!userAnniRef) return alert("Please log in to save data.");
+
+    const h = document.getElementById('hName').value;
+    const w = document.getElementById('wName').value;
+    const d = document.getElementById('anniDate').value;
+    const y = document.getElementById('manualYears').value;
+    const idx = document.getElementById('editIdx').value;
+
+    if (!h || !w || !d) return alert("Please fill the main fields.");
+
+    const data = { h, w, d, manualYears: y };
+
+    if (idx === "-1") {
+        userAnniRef.push(data);
+    } else {
+        // Correct path for updating: anniversaries/UID/KEY
+        userAnniRef.child(idx).set(data);
     }
 
-    function editItem(i) {
-        const item = storage[i];
-        document.getElementById('hName').value = item.h;
-        document.getElementById('wName').value = item.w;
-        document.getElementById('anniDate').value = item.d;
-        document.getElementById('manualYears').value = item.manualYears;
-        document.getElementById('editIdx').value = i;
-    }
+    resetForm();
+}
 
-    function deleteItem(i) {
-        storage.splice(i, 1);
-        localStorage.setItem('anni_v3', JSON.stringify(storage));
-        render();
-    }
+function render() {
+    const list = document.getElementById('list');
+    const todayEl = document.getElementById('todayVal');
+    const upcomingEl = document.getElementById('upcomingVal');
+    list.innerHTML = '';
+    let todays = [];
+    let upcoming = [];
 
-    function resetForm() {
-        document.getElementById('hName').value = '';
-        document.getElementById('wName').value = '';
-        document.getElementById('anniDate').value = '';
-        document.getElementById('manualYears').value = '';
-        document.getElementById('editIdx').value = '-1';
-    }
-
-    function toggleTheme() {
-        const body = document.body;
-        const icon = document.getElementById('themeIcon');
-        if(body.getAttribute('data-theme') === 'dark') {
-            body.removeAttribute('data-theme');
-            icon.className = 'fa-solid fa-moon';
-        } else {
-            body.setAttribute('data-theme', 'dark');
-            icon.className = 'fa-solid fa-sun';
+    Object.keys(storage).forEach((key) => {
+        const item = storage[key];
+        const dateObj = new Date(item.d);
+        const today = new Date();
+        
+        // Years calculation
+        let displayYears = "";
+        if (item.manualYears && item.manualYears !== "") {
+            let baseYears = today.getFullYear() - dateObj.getFullYear();
+            const m = today.getMonth() - dateObj.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dateObj.getDate())) baseYears--;
+            displayYears = parseInt(item.manualYears) + baseYears;
         }
-    }
 
-    render();
+        const isToday = today.getDate() === dateObj.getDate() && 
+                        today.getMonth() === dateObj.getMonth();
+        
+        if (isToday) todays.push(`${item.h} & ${item.w}`);
+
+        const card = document.createElement('div');
+        card.className = 'item-card animate-pop';
+        card.innerHTML = `
+            <div>
+                <div class="names">${item.h} <i class="fa-solid fa-heart" style="color:var(--primary)"></i> ${item.w}</div>
+                <div class="meta">
+                    <span><i class="fa-regular fa-calendar"></i> ${item.d}</span>
+                    ${item.manualYears ? `<span class="years-badge">${displayYears} Years</span>` : ''}
+                </div>
+            </div>
+            <div class="actions">
+                <button class="action-btn" onclick="editItem('${key}')"><i class="fa-solid fa-pencil"></i></button>
+                <button class="action-btn delete-btn" onclick="deleteItem('${key}')"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+
+    todayEl.innerText = todays.length ? todays.join(', ') : "None today";
+}
+
+function editItem(key) {
+    const item = storage[key];
+    document.getElementById('hName').value = item.h;
+    document.getElementById('wName').value = item.w;
+    document.getElementById('anniDate').value = item.d;
+    document.getElementById('manualYears').value = item.manualYears;
+    document.getElementById('editIdx').value = key;
+}
+
+function deleteItem(key) {
+    if (confirm("Remove this anniversary?") && userAnniRef) {
+        userAnniRef.child(key).remove();
+    }
+}
+
+function resetForm() {
+    document.getElementById('hName').value = '';
+    document.getElementById('wName').value = '';
+    document.getElementById('anniDate').value = '';
+    document.getElementById('manualYears').value = '';
+    document.getElementById('editIdx').value = '-1';
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById('themeIcon');
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        icon.className = 'fa-solid fa-moon';
+    } else {
+        body.setAttribute('data-theme', 'dark');
+        icon.className = 'fa-solid fa-sun';
+    }
+}
 </script>
 
 </body>
