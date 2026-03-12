@@ -1240,13 +1240,13 @@ async function fetchAndShowTodaysEvents() {
             const waLink = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` : null;
 
           return `
-<div style="border: 1px solid #000;" class="bg-white rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between p-1 mb-2">
+<div style="border: 1px solid #000;" class="bg-white rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between  mb-1">
     <div class="flex items-center min-w-0 flex-1">
-        <div class="rounded-lg w-10 h-10 flex items-center justify-center text-xl flex-shrink-0">
+        <div class="rounded-lg w-10 h-10 flex items-center justify-center text-xm flex-shrink-0">
             ${event.icon}
         </div>
         
-        <div class="min-w-0 flex-1 text-center px-1">
+        <div class="min-w-0 flex-1 text-center ">
             <div class="text-[12px] font-[900] text-black uppercase break-words leading-[1.1]">
                 ${event.name}
             </div>
@@ -1261,7 +1261,7 @@ async function fetchAndShowTodaysEvents() {
         ${waLink ? `
             <a href="${waLink}" target="_blank" 
                style="border: 1px solid #000;" 
-               class="bg-[red] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
+               class="bg-[green] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
                 <i class="fab fa-whatsapp text-white text-[27px]"></i>
             </a>
         ` : ''}
