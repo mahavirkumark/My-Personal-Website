@@ -1166,15 +1166,15 @@ async function fetchAndShowTodaysEvents() {
 
     // --- SKELETON LOADER ---
     listCont.innerHTML = `
-        <div style="border: 2px solid #000000;" class="bg-white p-1.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-1 mb-1 animate-pulse">
+        <div style="border: 1px solid #000000;" class="bg-white p-0.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-1  animate-pulse">
             <div class="flex items-center gap-1 min-w-0">
                 <div style="border: 1px solid #000000;" class="bg-slate-100 rounded-lg w-6 h-6 flex-shrink-0"></div>
                 <div class="min-w-0 flex flex-col gap-1">
-                    <div class="h-2 w-16 bg-slate-200 rounded"></div>
-                    <div class="h-2 w-16 bg-slate-100 rounded"></div>
+                    <div class="h-2 w-13 bg-slate-200 rounded"></div>
+                    <div class="h-2 w-13 bg-slate-200 rounded"></div>
                 </div>
             </div>
-            <div style="border: 1px solid #000000;" class="bg-slate-50 rounded-lg w-7 h-7 flex-shrink-0"></div>
+            <div style="border: 1px solid #000000;" class="bg-slate-50 rounded-lg w-6 h-6 flex-shrink-0"></div>
         </div>`;
 
     const today = new Date();
@@ -1273,7 +1273,7 @@ async function fetchAndShowTodaysEvents() {
                 ${waLink ? `
                     <a href="${waLink}" target="_blank" 
                      style="border: 1px solid #000000;"
-                       class="bg-[#25D366] rounded-lg w-9 h-9 flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
+                       class="bg-[#25D366] rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
                         <i class="fab fa-whatsapp text-white text-[27px]"></i>
                     </a>
                 ` : ''}
