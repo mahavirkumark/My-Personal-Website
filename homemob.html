@@ -1131,7 +1131,7 @@ async function loadTodaysDashboard() {
 
         // Render HTML with Wrapping support
         listCont.innerHTML = events.map(ev => `
-            <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-2 transition active:translate-y-[1px] active:shadow-none mb-2">
+            <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-2 transition active:translate-y-[1px] active:shadow-none mb-1">
                 <div class="min-w-0">
                     <h3 class="font-[700] text-black text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
                     
@@ -1147,7 +1147,7 @@ async function loadTodaysDashboard() {
                     </div>
                 </div>
                 
-                <div class="bg-black rounded-full p-1.5 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div class="bg-black rounded-full p-1 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <i class="fas fa-chevron-right text-white text-[14px]"></i>
                 </div>
             </div>
@@ -1161,25 +1161,11 @@ async function loadTodaysDashboard() {
 async function fetchAndShowTodaysEvents() {
     const user = firebase.auth().currentUser;
     const listCont = document.getElementById('bday-realtime-list');
-    
     if (!user || !listCont) return;
 
-    // --- SKELETON LOADER ---
-    listCont.innerHTML = `
-        <div style="border: 1px solid #000000;" class="bg-white p-0.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-1  animate-pulse">
-            <div class="flex items-center  min-w-0">
-                <div style="border: 1px solid #000000;" class="bg-slate-100 rounded-lg w-6 h-6 flex-shrink-0"></div>
-                <div class="min-w-0 flex flex-col gap-1">
-                    <div class="h-2 w-13 bg-slate-200 rounded"></div>
-                    <div class="h-2 w-13 bg-slate-200 rounded"></div>
-                </div>
-            </div>
-            <div style="border: 1px solid #000000;" class="bg-slate-50 rounded-lg w-6 h-6 flex-shrink-0"></div>
-        </div>`;
-
-    const today = new Date();
-    const tMonth = today.getMonth() + 1;
-    const tDay = today.getDate();
+    const now = new Date();
+    const tDay = now.getDate();
+    const tMonth = now.getMonth() + 1;
 
     try {
         const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
@@ -1194,97 +1180,98 @@ async function fetchAndShowTodaysEvents() {
 
         let mergedItems = [];
 
-        // 1. Birthdays Logic
+        const parseDate = (str) => {
+            if (!str) return null;
+            const p = str.split(/[-/]/); 
+            if (p[0].length === 4) return { y: parseInt(p[0]), m: parseInt(p[1]), d: parseInt(p[2]) };
+            return { d: parseInt(p[0]), m: parseInt(p[1]), y: parseInt(p[2]) };
+        };
+
+        // 1. Process Birthdays
         Object.values(allBdays).forEach(person => {
-            if (!person.birthdate) return;
-            const dateParts = person.birthdate.split('-');
-            const m = parseInt(dateParts[dateParts.length - 2]);
-            const d = parseInt(dateParts[dateParts.length - 1]);
-            if (m === tMonth && d === tDay) {
+            const dt = parseDate(person.birthdate);
+            if (dt && dt.d === tDay && dt.m === tMonth) {
                 mergedItems.push({
                     name: person.name,
                     type: 'birthday',
                     icon: "🎂",
-                    msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day filled with joy! ✨🎈`
+                    msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day! ✨🎈`
                 });
             }
         });
 
-        // 2. Anniversaries + SMART CONTACT MATCHING
+        // 2. Process Anniversaries
         Object.values(allAnnis).forEach(item => {
-            if (!item.d) return; 
-            const dateObj = new Date(item.d);
-            if ((dateObj.getMonth() + 1) === tMonth && dateObj.getDate() === tDay) {
-                let baseYears = today.getFullYear() - dateObj.getFullYear();
+            const dt = parseDate(item.d);
+            if (dt && dt.d === tDay && dt.m === tMonth) {
+                let baseYears = now.getFullYear() - dt.y;
                 let displayYears = item.manualYears ? (parseInt(item.manualYears) + baseYears) : baseYears;
                 
-                const husbandMatch = allContacts.find(c => c.name.toLowerCase() === (item.h || "").toLowerCase());
-                const wifeMatch = allContacts.find(c => c.name.toLowerCase() === (item.w || "").toLowerCase());
-                
-                const finalContact = husbandMatch || wifeMatch;
-                const phone = finalContact ? (finalContact.whatsapp || finalContact.mobile) : null;
-
-                // Personalized Anniversary Message
-                let anniMsg = `Happy Anniversary to a wonderful couple, ${item.h} & ${item.w}! 🥂💖`;
-                if (displayYears > 0) {
-                    anniMsg = `Happy ${displayYears}th Anniversary ${item.h} & ${item.w}! 💍✨ Wishing you many more years of love and happiness! ❤️🎉`;
-                }
-
                 mergedItems.push({
                     name: `${item.h} & ${item.w}`,
+                    searchNames: [item.h, item.w], // Store both names to check contacts later
                     type: 'anniversary',
                     icon: "💍",
                     years: displayYears,
-                    msg: anniMsg,
-                    phone: phone
+                    msg: `Happy ${displayYears > 0 ? displayYears + 'th ' : ''}Anniversary ${item.h} & ${item.w}! 🥂💖 Wishing you a lifetime of love! ✨`
                 });
             }
         });
 
         if (mergedItems.length === 0) {
-            listCont.innerHTML = `
-                <div style="border: 1px solid #000000;" class="bg-white rounded-xl text-black font-[800] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[11px] text-center uppercase">
-                    No Events Today 🗓️
-                </div>`;
+            listCont.innerHTML = `<div style="border:1px solid #000" class="bg-white p-2 rounded-xl text-center font-bold text-[10px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">No Events Today 🗓️</div>`;
             return;
         }
 
-        const htmlResults = mergedItems.map(event => {
-            let finalPhone = event.phone;
+        // 3. Render
+        listCont.innerHTML = mergedItems.map(event => {
+            // Find phone number in contacts
+            let contactMatch;
             if (event.type === 'birthday') {
-                const bc = allContacts.find(c => c.name.toLowerCase() === event.name.toLowerCase());
-                finalPhone = bc ? (bc.whatsapp || bc.mobile) : null;
+                contactMatch = allContacts.find(c => c.name?.toLowerCase() === event.name.toLowerCase());
+            } else {
+                // For anniversaries, check if either the husband or wife exists in contacts
+                contactMatch = allContacts.find(c => 
+                    event.searchNames.some(n => n?.toLowerCase() === c.name?.toLowerCase())
+                );
             }
 
-            const waLink = finalPhone ? `https://wa.me/${finalPhone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` : null;
+            const phone = contactMatch ? (contactMatch.whatsapp || contactMatch.mobile) : null;
+            const waLink = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` : null;
 
             return `
-            <div style="border: 1px solid #000000;" class="bg-white  rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-1 mb-1">
-                <div class="flex items-center gap-1 min-w-0">
-                    <div style="border: 0px solid #000000;" class="bg-slate-50 rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0 text-base">
+            <div style="border: 1px solid #000;" class="bg-white  rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between  mb-1">
+                <div class="flex items-center min-w-0 flex-1">
+                    <div class=" rounded-lg w-9 h-9 flex items-center justify-center text-xm flex-shrink-0 ">
                         ${event.icon}
                     </div>
-                    <div class="min-w-0 leading-tight">
-                        <div class="text-[14px] font-[800] text-black uppercase truncate">${event.name}</div>
-                        ${event.years ? `<div class="text-[10px] font-bold text-pink-600 uppercase">${event.years} Years Completed</div>` : ''}
+                    
+                    <div class="min-w-0 flex-1 text-center pr-1">
+                        <div class="text-[13px] font-[900] text-black uppercase break-words leading-[1.2]">
+                            ${event.name}
+                        </div>
+                        ${event.years ? `
+                            <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
+                                ${event.years} Years Completed
+                            </div>` : ''}
                     </div>
                 </div>
 
-                ${waLink ? `
-                    <a href="${waLink}" target="_blank" 
-                     style="border: 1px solid #000000;"
-                       class="bg-[#25D366] rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
-                        <i class="fab fa-whatsapp text-white text-[27px]"></i>
-                    </a>
-                ` : ''}
+                <div class="flex-shrink-0 w-9">
+                    ${waLink ? `
+                        <a href="${waLink}" target="_blank" 
+                           style="border: 1px solid #000;" 
+                           class="bg-[#25D366] rounded-lg w-7 h-7 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:shadow-none">
+                            <i class="fab fa-whatsapp text-white text-[25px]"></i>
+                        </a>
+                    ` : ''}
+                </div>
             </div>`;
         }).join('');
 
-        listCont.innerHTML = htmlResults;
-
     } catch (e) {
         console.error(e);
-        listCont.innerHTML = '<div style="border: 1px solid #000000;" class="bg-white p-1 rounded-xl text-center text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Error Loading Data ⚠️</div>';
+        listCont.innerHTML = `<div class="text-[10px] font-bold text-center border border-black p-2 rounded-xl">Error Loading ⚠️</div>`;
     }
 }
 // FIX: Updated the Auth Listener to call the correct merged function
@@ -1792,6 +1779,241 @@ function showSuccessNotification(reg) {
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
