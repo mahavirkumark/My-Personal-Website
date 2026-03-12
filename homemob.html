@@ -1158,96 +1158,162 @@ async function loadTodaysDashboard() {
         listCont.innerHTML = `<p class="text-red-600 text-xs text-center font-[600]">Failed to load events.</p>`;
     }
 }
-// Trigger load once user is authenticated
-firebase.auth().onAuthStateChanged(user => {
-    if (user) loadTodaysDashboard();
-});
-async function fetchAndShowTodaysBirthdays() {
+async function fetchAndShowTodaysEvents() {
     const user = firebase.auth().currentUser;
     const listCont = document.getElementById('bday-realtime-list');
     
-    if (!user) return;
+    if (!user || !listCont) return;
+
+    // --- SKELETON LOADER ---
+    listCont.innerHTML = `
+        <div style="border: 2px solid #000000;" class="bg-white p-1.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-2 mb-2 animate-pulse">
+            <div class="flex items-center gap-2 min-w-0">
+                <div style="border: 1.5px solid #000000;" class="bg-slate-100 rounded-lg w-8 h-8 flex-shrink-0"></div>
+                <div class="min-w-0 flex flex-col gap-1">
+                    <div class="h-3 w-24 bg-slate-200 rounded"></div>
+                    <div class="h-2 w-16 bg-slate-100 rounded"></div>
+                </div>
+            </div>
+            <div style="border: 2px solid #000000;" class="bg-slate-50 rounded-lg w-9 h-9 flex-shrink-0"></div>
+        </div>`;
 
     const today = new Date();
     const tMonth = today.getMonth() + 1;
     const tDay = today.getDate();
 
     try {
-        // Fetch both Birthdays and Contacts to link the Phone Numbers
-        const [bdaySnap, contactSnap] = await Promise.all([
+        const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
             firebase.database().ref(`users/${user.uid}/birthdays`).once("value"),
+            firebase.database().ref(`anniversaries/${user.uid}`).once("value"),
             firebase.database().ref(`users/${user.uid}/contacts`).once("value")
         ]);
 
-        const allBdays = bdaySnap.val();
-        const allContacts = contactSnap.val() || {};
+        const allBdays = bdaySnap.val() || {};
+        const allAnnis = anniSnap.val() || {};
+        const allContacts = Object.values(contactSnap.val() || {});
 
-        if (!allBdays) {
-            listCont.innerHTML = `
-                <div class="p-2 bg-white rounded-xl text-black font-[600] border-2 border-solid border-black text-[14px] text-center leading-tight">
-                    No birthdays saved.
-                </div>`;
-            return;
-        }
+        let mergedItems = [];
 
-        // Filter for today
-        const todaysList = Object.values(allBdays).filter(person => {
-            if (!person.birthdate || person.birthdate.length < 5) return false;
+        // 1. Birthdays Logic
+        Object.values(allBdays).forEach(person => {
+            if (!person.birthdate) return;
             const dateParts = person.birthdate.split('-');
             const m = parseInt(dateParts[dateParts.length - 2]);
             const d = parseInt(dateParts[dateParts.length - 1]);
-            return m === tMonth && d === tDay;
+            if (m === tMonth && d === tDay) {
+                mergedItems.push({
+                    name: person.name,
+                    type: 'birthday',
+                    icon: "🎂",
+                    msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day filled with joy! ✨🎈`
+                });
+            }
         });
 
-        if (todaysList.length === 0) {
+        // 2. Anniversaries + SMART CONTACT MATCHING
+        Object.values(allAnnis).forEach(item => {
+            if (!item.d) return; 
+            const dateObj = new Date(item.d);
+            if ((dateObj.getMonth() + 1) === tMonth && dateObj.getDate() === tDay) {
+                let baseYears = today.getFullYear() - dateObj.getFullYear();
+                let displayYears = item.manualYears ? (parseInt(item.manualYears) + baseYears) : baseYears;
+                
+                const husbandMatch = allContacts.find(c => c.name.toLowerCase() === (item.h || "").toLowerCase());
+                const wifeMatch = allContacts.find(c => c.name.toLowerCase() === (item.w || "").toLowerCase());
+                
+                const finalContact = husbandMatch || wifeMatch;
+                const phone = finalContact ? (finalContact.whatsapp || finalContact.mobile) : null;
+
+                // Personalized Anniversary Message
+                let anniMsg = `Happy Anniversary to a wonderful couple, ${item.h} & ${item.w}! 🥂💖`;
+                if (displayYears > 0) {
+                    anniMsg = `Happy ${displayYears}th Anniversary ${item.h} & ${item.w}! 💍✨ Wishing you many more years of love and happiness! ❤️🎉`;
+                }
+
+                mergedItems.push({
+                    name: `${item.h} & ${item.w}`,
+                    type: 'anniversary',
+                    icon: "💍",
+                    years: displayYears,
+                    msg: anniMsg,
+                    phone: phone
+                });
+            }
+        });
+
+        if (mergedItems.length === 0) {
             listCont.innerHTML = `
-                <div class="p-2 bg-white rounded-xl text-black font-[600] border-2 border-solid border-black text-[14px] text-center leading-tight">
-                   🎉 No Birthday Today
+                <div style="border: 2px solid #000000;" class="p-2 bg-white rounded-xl text-black font-[800] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[11px] text-center uppercase">
+                    No Events Today 🗓️
                 </div>`;
             return;
         }
 
-        const decoIcons = ["🎂", "🍫", "🌸", "🎉"];
+        const htmlResults = mergedItems.map(event => {
+            let finalPhone = event.phone;
+            if (event.type === 'birthday') {
+                const bc = allContacts.find(c => c.name.toLowerCase() === event.name.toLowerCase());
+                finalPhone = bc ? (bc.whatsapp || bc.mobile) : null;
+            }
 
-        listCont.innerHTML = todaysList.map((person, index) => {
-            const contactMatch = Object.values(allContacts).find(c => c.name.toLowerCase() === person.name.toLowerCase());
-            const phoneNumber = contactMatch ? (contactMatch.whatsapp || contactMatch.mobile) : null;
-            const deco = decoIcons[index % decoIcons.length];
-            
-            // Standard UTF-8 Emojis for best cross-platform compatibility
-            const message = encodeURIComponent(`Happy Birthday ${person.name}! 🎂🍫🌸🥳`);
-            const waLink = phoneNumber ? `https://wa.me/${phoneNumber.replace(/\D/g, '')}?text=${message}` : "#";
+            const waLink = finalPhone ? `https://wa.me/${finalPhone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` : null;
 
             return `
-            <div class="bg-white p-2 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex justify-between items-center gap-2 mb-2 transition active:translate-y-[1px] active:shadow-none">
-                <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-[14px] flex-shrink-0">${deco}</span>
-                    <div class="min-w-0">
-                        <div class="text-[13px] font-[800] text-black leading-[1.1] break-words uppercase">
-                            ${person.name}
-                        </div>
+            <div style="border: 2px solid #000000;" class="bg-white p-1.5 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div style="border: 1.5px solid #000000;" class="bg-slate-50 rounded-lg w-8 h-8 flex items-center justify-center flex-shrink-0 text-base">
+                        ${event.icon}
+                    </div>
+                    <div class="min-w-0 leading-tight">
+                        <div class="text-[14px] font-[800] text-black uppercase truncate">${event.name}</div>
+                        ${event.years ? `<div class="text-[10px] font-bold text-pink-600 uppercase">${event.years} Years Completed</div>` : ''}
                     </div>
                 </div>
-                
-                ${phoneNumber ? `
+
+                ${waLink ? `
                     <a href="${waLink}" target="_blank" 
-                       class="bg-[#25D366]  rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0  transition-all duration-200 hover:bg-[#128C7E] hover:scale-110 hover:rotate-6 active:scale-95 active:shadow-none">
-                        <i class="fab fa-whatsapp text-white text-[23px]"></i>
+                       style="border: 2px solid #000000;"
+                       class="bg-[#25D366] rounded-lg w-9 h-9 flex items-center justify-center flex-shrink-0 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]">
+                        <i class="fab fa-whatsapp text-white text-[18px]"></i>
                     </a>
-                ` : `
-                    <div class="bg-gray-100  rounded-full w-7 h-7 flex items-center justify-center flex-shrink-0 opacity-30">
-                        <i class="fas fa-comment-slash text-black text-[65px]"></i>
-                    </div>
-                `}
-            </div>
-        `;
+                ` : ''}
+            </div>`;
         }).join('');
 
-    } catch (error) {
-        console.error("Fetch error:", error);
-        listCont.innerHTML = `<div class="p-2 bg-white border-2 border-black rounded-xl text-[10px] text-center font-bold">Error loading.</div>`;
+        listCont.innerHTML = htmlResults;
+
+    } catch (e) {
+        console.error(e);
+        listCont.innerHTML = '<div style="border: 2px solid #000000;" class="bg-white p-2 rounded-xl text-center text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">Error Loading Data ⚠️</div>';
     }
 }
+// FIX: Updated the Auth Listener to call the correct merged function
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        window.location.replace("indexmob.html"); 
+    } else {
+        // 1. Fetch User Name
+        firebase.database().ref('users/' + user.uid).once('value').then((snapshot) => {
+            const data = snapshot.val();
+            const finalName = (data && data.name) || user.displayName || "Safar";
+            const nameElement = document.getElementById('user-display-name');
+            if (nameElement) nameElement.innerText = finalName;
+        });
+
+        // 2. Set Time-Based Greeting
+        updateTimeGreeting();
+
+        // 3. INITIALIZE BOTH DASHBOARDS
+        loadTodaysDashboard();       // For "Schedule" (Events)
+        fetchAndShowTodaysEvents();  // For "Birthdays" (Merged Birthday + Anniversary)
+    }
+});
+
+// Trigger load once user is authenticated
+firebase.auth().onAuthStateChanged(user => {
+    if (user) loadTodaysDashboard();
+});
+
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
         // No user is signed in, redirect to login page immediately
@@ -1726,71 +1792,6 @@ function showSuccessNotification(reg) {
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
