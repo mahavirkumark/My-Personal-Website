@@ -94,7 +94,7 @@
             background: #f8fafc;
             z-index: 40;
             /* Pushes list down: Nav (56px) + Search (approx 60px) + Buffer */
-            padding-top: 125px !important; 
+            padding-top: 65px !important; 
             overflow-y: auto;
         }
 
@@ -169,238 +169,187 @@
     }
 }
 @media (max-width: 767px) {
-    /* Force hide the universal bottom nav when search is active */
-    body.search-active #universal-bottom-nav {
+    /* ... your existing search-active styles ... */
+
+    /* Hide the footer entirely when mobile search is focused */
+    body.search-active footer {
         display: none !important;
     }
 }
-/* Apply this to your global stylesheet */
-
-/* Apply this to your global stylesheet */
-html, body {
-  height: 100%;
-  margin: 0;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* This ensures the main content grows to fill available space */
-main, .content-wrapper {
-  flex: 1;
-}
-
-/* This ensures the main content grows to fill available space */
-
 </style>
 </head>
-<style>
-    /* Hard Hide the Google Widget Container */
-    #google_translate_element, 
-    .skiptranslate, 
-    .goog-te-gadget, 
-    .goog-te-banner-frame {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* Force the body to stay at the top (removes the blue bar gap) */
-    body {
-        top: 0 !important;
-        position: static !important;
-    }
-
-    /* Hide the 'Original Text' tooltip when hovering over translated words */
-    .goog-te-balloon-frame, 
-    #goog-gt-tt, 
-    .goog-te-balloon-frame.skiptranslate, 
-    .goog-te-gadget-icon {
-        display: none !important;
-    }
-
-    .goog-text-highlight {
-        background: none !important;
-        box-shadow: none !important;
-    }
-</style>
-
-<div id="google_translate_element" style="display:none;"></div>
-
-<style>
-    /* 1. Prevent the "White Flash" or English text from showing first */
-    .translating-mask { opacity: 0; transition: opacity 0.3s ease; }
-    .translation-ready { opacity: 1; }
-
-    /* 2. Total Hide for Google UI Elements */
-    #google_translate_element, .skiptranslate, .goog-te-banner-frame, 
-    #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-    body { top: 0 !important; position: static !important; }
-</style>
-
-<script type="text/javascript">
-    // 3. RUN THIS IMMEDIATELY - Don't wait for DOM to set cookies
-    (function() {
-        const savedLang = localStorage.getItem('app-lang') || 'English';
-        const langMap = {'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr'};
-        const target = langMap[savedLang] || 'en';
-
-        if (target !== 'en') {
-            // Set cookie at the earliest possible millisecond
-            document.cookie = `googtrans=/en/${target}; path=/`;
-            document.cookie = `googtrans=/en/${target}; domain=${location.hostname}; path=/`;
-            // Add a class to hide the body until translated
-            document.documentElement.classList.add('translating-mask');
-        }
-    })();
-
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'en',
-            includedLanguages: 'hi,mr,en',
-            autoDisplay: false
-        }, 'google_translate_element');
-        
-        // 4. Reveal the page once translation is likely finished
-        setTimeout(() => {
-            document.documentElement.classList.add('translation-ready');
-        }, 300); 
-    }
-</script>
-    
 <body class="bg-gray-100 font-sans antialiased">
-<nav class="bg-white shadow-sm py-2 fixed w-full top-0 z-20">
 
-    <div class="container mx-auto flex justify-between items-center px-2 md:px-4">
-        
-        <div class="flex items-center gap-1">
-            <div class="relative flex items-center justify-center">
-                <i class="fas fa-shield text-blue-600" style="font-size:27px; -webkit-font-smoothing: antialiased; text-shadow: none;"></i>
-                <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-font-smoothing: antialiased; text-shadow: none;"></i>
+    <nav class="bg-white shadow-lg fixed w-full top-0 z-20">
+        <div class="container mx-auto flex justify-between items-center p-2 md:px-4">
+            <div class="flex items-center gap-2 text-lg md:text-xl font-bold text-gray-800 -ml-[4px]">
+                <i class="fas fa-user-circle text-indigo-500 text-3xl md:text-3xl"></i>
+                <span class="text-xl md:text-2xl">Savig</span>
             </div>
-            <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</span>
-        </div>
-        <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
-            <a href="homemob.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
-            <a href="passwordmob.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
-            <a href="c.html" class="flex items-center gap-2 hover:text-blue-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        </div>
 
-        <div class="hidden md:flex items-center gap-4">
-            <div class="text-right">
-                <p id="userName" class="font-bold text-gray-900 leading-none">Loading...</p>
-                <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
-                <p id="userId" class="hidden"></p>
+            <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
+                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
+                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
+                <a href="links.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
+                <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
-            <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-blue-500 shadow-sm">
-            <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm font-bold">Logout</button>
-        </div>
 
-        <button id="menu-btn" class="md:hidden text-gray-700 text-2xl focus:outline-none">
-            <i class="fas fa-bars"></i>
-        </button>
-    </div>
-
-    <div id="mobileMenu" class="mr-[10px] hidden md:hidden flex flex-col px-4 pb-4 space-y-1 text-gray-700 font-medium bg-gray-50 border-t border-gray-100">
-  
-        <a href="homemob.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-house"></i> Home</a>
-        <a href="passwordmob.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-key"></i> Passwords</a>
-        <a href="income.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-wallet"></i> Income</a>
-        <a href="links.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-link"></i> Links</a>
-        <a href="c.html" class="flex items-center gap-2 p-3 rounded hover:bg-blue-50 hover:text-blue-600"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        
-        <div class="border-t border-gray-300 mt-2 pt-4">
-            <div class="flex items-center gap-3 mb-3">
-                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border border-gray-300">
-                <div>
-                    <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                    <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+            <div class="hidden md:flex items-center gap-4">
+                <div class="text-right">
+                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
+                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                    <p id="userId" class="hidden"></p>
                 </div>
+                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500">
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm">Logout</button>
             </div>
-            <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 w-full font-bold transition">Logout</button>
-        </div>
-    </div>
-</nav>
-    <div>
-<div id="searchWrapper" class="flex items-center gap-1 mb-1 ml-[25px] w-[280px] h-[60px] transition-all duration-300 overflow-hidden">
-    <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
-        <i class="fas fa-arrow-left"></i>
-    </button>
-    
-    <input type="text" id="searchInput" placeholder="Search..." 
-            class="flex-grow p-3 border border-gray-300 rounded-lg outline-none transition shadow-sm text-lg 
-                   hover:border-amber-400 focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
-            oninput="filterAddresses()"
-            onfocus="toggleMobileSearchFocus(true)" />
-</div></div>
-<div class="max-w-8xl mx-auto px-4 mt-6">
-    <button id="toggleFormBtn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-md">
-        + Add New Address
-    </button>
-</div>
-
-<div class="max-w-8xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-5 -mt-[9px]">
-
-    <div id="addressForm" class="hidden bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
-        <div class="flex justify-between items-center mb-2 border-b pb-2">
-            <h2 class="text-2xl font-bold text-indigo-700">➕ Save New Address</h2>
             
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
         
-        <div class="space-y-4">
-            <div>
-                <label for="placeInput" class="block text-sm font-medium text-gray-700 mb-1">Place Name (e.g., Home, Office)</label>
-                <input type="text" id="placeInput" placeholder="Enter place name..." 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
+            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-house"></i> Home</a>
+            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-key"></i> Passwords</a>
+            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
+            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-link"></i> Links</a>
+            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="border-t border-gray-300 mt-2 pt-2">
+                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
+                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
             </div>
-
-            <div>
-                <label for="landmarkInput" class="block text-sm font-medium text-gray-700 mb-1">Landmark / Details</label>
-                <textarea id="landmarkInput" placeholder="Enter building number, street..." rows="2"
-                          class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"></textarea>
-            </div>
-
-            <div>
-                <label for="mapInput" class="block text-sm font-medium text-gray-700 mb-1">Google Map Location (Optional)</label>
-                <input type="url" id="mapInput" placeholder="Paste Google Maps URL..." 
-                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition mb-2" />
-                
-                <a href="https://www.google.com/maps" target="_blank" 
-                   class="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 py-2.5 rounded-lg hover:bg-gray-50 transition duration-300 font-medium text-sm shadow-sm">
-                    <img src="https://www.gstatic.com/images/branding/product/1x/maps_96dp.png" alt="Google Maps" class="w-5 h-5">
-                    Find Location on Google Maps
-                </a>
-            </div>
-
-            <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center shadow-md">
-                <i class="fas fa-save mr-2"></i> Save Address
-            </button>
         </div>
-    </div>
+    </nav>
 
-   
+    <div class="pt-2 md:pt-4">
+        
+        <div class="md:hidden px-4 mb-[10px]">
+            <div id="searchWrapper" class="flex items-center gap-2">
+                <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <input type="text" id="searchInput" placeholder="Search place or landmark..." 
+                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition shadow-sm text-lg"
+                       oninput="filterAddresses()" 
+                       onfocus="toggleMobileSearchFocus(true)" />
+            </div>
+        </div>
 
-   
-    <div class="right-container">
-        <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
-   
+        <div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8">
 
-        <div id="addressList" class="space-y-4">
-             <div id="loadingIndicator" class="text-center p-10 text-gray-500">
-                <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
-                <div class="text-center p-10 text-gray-400">
-                    <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
-                    <p>Your saved locations will appear here.</p>
+            <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
+                <div class="flex justify-between items-center cursor-pointer border-b pb-2" onclick="document.getElementById('addressFormContent').classList.toggle('hidden')">
+                    <h2 class="text-2xl font-bold text-indigo-700">➕ Save New Address</h2>
+                    <i class="fas fa-chevron-down md:hidden text-indigo-700"></i>
+                </div>
+                
+                <div id="addressFormContent" class="hidden md:block space-y-4 mt-4">
+                    <div>
+                        <label for="placeInput" class="block text-sm font-medium text-gray-700 mb-1">Place Name (e.g., Home, Office)</label>
+                        <input type="text" id="placeInput" placeholder="Enter place name..." 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" />
+                    </div>
+
+                    <div>
+                        <label for="landmarkInput" class="block text-sm font-medium text-gray-700 mb-1">Landmark / Details</label>
+                        <textarea id="landmarkInput" 
+                                  placeholder="Enter building number, street, or full address details..." 
+                                  rows="2"
+                                  class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition resize-y"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="mapInput" class="block text-sm font-medium text-gray-700 mb-1">Google Map Location (Optional)</label>
+                        <input type="url" id="mapInput" placeholder="Paste Google Maps URL or coordinates here..." 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition mb-2" />
+                        
+                        <a href="https://www.google.com/maps" target="_blank" 
+                           class="w-full flex items-center justify-center gap-2 bg-white text-gray-700 border border-gray-300 py-2.5 rounded-lg hover:bg-gray-50 transition duration-300 font-medium text-sm shadow-sm">
+                            <img src="https://www.gstatic.com/images/branding/product/1x/maps_96dp.png" alt="Google Maps" class="w-5 h-5">
+                            Find Location on Google Maps
+                        </a>
+                    </div>
+
+                    <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center shadow-md">
+                        <i class="fas fa-save mr-2"></i> Save Address
+                    </button>
+                </div>
+            </div>
+
+            <div class="right-container">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
+                
+                <div id="searchWrapper" class="hidden md:flex items-center gap-2 mb-[17px]">
+                    <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <input type="text" id="searchInput" placeholder="Search place or landmark..." 
+                            class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition shadow-sm text-lg"
+                            oninput="filterAddresses()" 
+                            onfocus="toggleMobileSearchFocus(true)" />
+                </div>
+
+                <div id="addressList" class="space-y-4">
+                     <div id="loadingIndicator" class="text-center p-10 text-gray-500">
+                        <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
+                        <div class="text-center p-10 text-gray-400">
+                            <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                            <p>Your saved locations will appear here.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-  <nav id="universal-bottom-nav">
+</body>
+<style>
+    /* Desktop Check */
+    @media only screen and (min-width: 768px) {
+        #universal-bottom-nav, .nav-spacer { display: none !important; }
+    }
+
+    :root {
+        --nav-bg: #ffffff;
+        --nav-text: #000000; /* Made pure black for higher contrast */
+        --nav-hover: #007AFF; 
+        --nav-height: 65px;
+    }
+
+    /* --- INSTANT REDIRECT FIX --- */
+    .nav-link {
+        /* Set transition to 0s to remove all delay when clicking */
+        transition: none !important; 
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+    }
+
+    /* Remove the movement (translateY/scale) that makes it feel slow */
+    .nav-link:hover i, .nav-link:active {
+        transform: none !important; 
+        color: var(--nav-hover) !important;
+    }
+
+    /* Keep icons and text bold and dark */
+    .nav-link i { 
+        font-size: 18px; 
+        display: block; 
+        margin-bottom: 3px; 
+        font-weight: 900 !important; /* Bolder icons */
+    }
+    
+    .nav-link div { 
+        font-size: 10px; 
+        font-weight: 800 !important; /* Bolder text */
+    }
+
+    /* Optimization for Dark Mode */
+    [data-theme="dark"] {
+        --nav-bg: #1f2937;
+        --nav-text: #ffffff;
+    }
+</style>
+<nav id="universal-bottom-nav">
    <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
         <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
         <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
@@ -420,68 +369,180 @@ main, .content-wrapper {
         <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
         <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
     </a>
-          <a href="cr.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
         <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
         <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
     </a>
     </nav>
 
 
+
+
 <style>
-    /* ... Your existing CSS ... */
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
+}
 
-    :root {
-        --nav-bg: #ffffff;
-        --nav-text: #000000;
-        --nav-hover: #007AFF;
-        --input-bg: #ffffff;
-        --input-text: #1f2937;
-        --placeholder-color: #9ca3af;
-        --border-color: #e5e7eb;
-    }
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
 
-    /* --- DARK MODE OVERRIDES --- */
-    [data-theme="dark"] {
-        --nav-bg: #111827; /* Match your screenshot's dark sidebar */
-        --nav-text: #f3f4f6;
-        --nav-hover: #3b82f6;
-        --input-bg: #1f2937; /* Lighter than body for contrast */
-        --input-text: #ffffff;
-        --placeholder-color: #9ca3af;
-        --border-color: #374151;
-    }
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 14px;
+}
 
-    /* Apply to Mobile Nav */
-    #universal-bottom-nav {
-        background-color: var(--nav-bg) !important;
-        color: var(--nav-text) !important;
-        border-top: 1px solid var(--border-color);
-    }
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
-    /* Apply to Search Bars & Inputs */
-    input, textarea {
-        background-color: var(--input-bg) !important;
-        color: var(--input-text) !important;
-        border: 1px solid var(--border-color) !important;
-    }
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
 
-    /* Target Search Placeholders specifically */
-    input::placeholder, textarea::placeholder {
-        color: var(--placeholder-color) !important;
-        opacity: 1; /* Firefox fix */
-    }
+.nav-link i {
+    font-size: 25px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
 
-    /* Desktop Nav Adjustments for Dark Mode */
-    [data-theme="dark"] nav.bg-white {
-        background-color: var(--nav-bg) !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
-    
-    [data-theme="dark"] #mobileMenu {
-        background-color: var(--nav-bg) !important;
-    }
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+
+
+
+
+
+
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+
+
+
+/* 1. Reset Body and Layout Logic */
+
+/* 3. Fix the Grid Columns for Mobile */
+
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
 </style>
-
 
 <div class="nav-spacer" style="height: 75px; width: 100%;"></div>
   <script>
@@ -535,39 +596,22 @@ main, .content-wrapper {
         });
 
         // --- AUTHENTICATION STATE & UI UPDATE ---
-     firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-        const name = user.displayName || "User";
-        const email = user.email;
-        const photo = user.photoURL || "https://via.placeholder.com/40";
-
-        const elements = {
-            "userName": name,
-            "mobileUserName": name,
-            "userEmail": email,
-            "mobileUserEmail": email
-        };
-
-        // Update Text Elements
-        for (let id in elements) {
-            let el = document.getElementById(id);
-            if (el) el.innerText = elements[id];
-        }
-
-        // Update All Photo Elements (Desktop & Mobile)
-        // This finds every image with the id "userPhoto" or similar classes
-        document.querySelectorAll('img[id*="userPhoto"]').forEach(img => {
-            img.src = photo;
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                document.getElementById("userName").innerText = user.displayName || "My Account";
+                document.getElementById("userEmail").innerText = user.email;
+                document.getElementById("userPhoto").src = user.photoURL || "https://via.placeholder.com/40";
+                document.getElementById("mobileUserName").innerText = user.displayName || "My Account";
+                document.getElementById("mobileUserEmail").innerText = user.email;
+                
+                loadAddresses(user.uid);
+            } else {
+                window.location.href = "index.html";
+            }
         });
-
-        loadAddresses(user.uid);
-    } else {
-        window.location.href = "indexmob.html";
-    }
-});
         
         function logout() {
-            firebase.auth().signOut().then(() => window.location.href = "indexmob.html");
+            firebase.auth().signOut().then(() => window.location.href = "index.html");
         }
 
         // --- CRUD FUNCTIONS ---
@@ -740,7 +784,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
     addressListEl.innerHTML = "";
 
     if (dataList.length === 0) {
-        addressListEl.innerHTML = '<div class="text-center p-6 text-gray-500 bg-gray-100 rounded-lg">No Addresses Found Matching Your Search.</div>';
+        addressListEl.innerHTML = '<div class="text-center p-2 text-gray-500 bg-gray-100 rounded-lg">No Addresses Found Matching Your Search.</div>';
         return;
     }
 
@@ -748,7 +792,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
         const uid = firebase.auth().currentUser.uid;
         const div = document.createElement("div");
         div.id = `item-${data.id}`;
-        div.className = "address-item bg-white p-4 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
+        div.className = "address-item bg-white p-2 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
 
         const mapButtonHTML = data.mapLink ? `
             <a href="${data.mapLink}" target="_blank" class="bg-indigo-500 text-white px-3 py-1 rounded-full hover:bg-indigo-600 transition text-sm flex items-center">
@@ -763,7 +807,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
                         <p class="text-sm text-gray-600 whitespace-pre-wrap">${data.landmark}</p>
                     </div>
                 </div>
-                <div class="flex flex-wrap justify-end gap-2 mt-3"> 
+                <div class="flex flex-wrap justify-end gap-2 mt-1"> 
                     ${mapButtonHTML}
                     
                     <button class="bg-orange-500 text-white px-3 py-1 rounded-full hover:bg-green-700 transition text-sm flex items-center" 
@@ -786,7 +830,7 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
                     </button>
                 </div>
             </div>
-            <div id="edit-form-${data.id}" class="hidden space-y-3 pt-3 border-t mt-3">
+            <div id="edit-form-${data.id}" class="hidden space-y-3 pt-3 border-t mt-1">
                 <h4 class="font-bold text-gray-700">Editing: ${data.place}</h4>
                 <label class="block text-xs font-medium text-gray-500">Place Name</label>
                 <input type="text" id="edit-place-${data.id}" value="${data.place}" class="w-full p-2 border border-gray-300 rounded-lg text-sm" />
@@ -821,33 +865,36 @@ function toggleMobileSearchFocus(isFocused) {
     const navBar = document.querySelector("nav");
 
     if (window.innerWidth < 768) {
-        document.body.classList.toggle('search-active', isFocused);
-
         if (isFocused) {
-            // Hide everything else
-            if (leftContainer) leftContainer.classList.add("hidden");
-            if (rightHeader) rightHeader.classList.add("hidden");
-            if (navBar) navBar.classList.add("hidden");
-
-            // Pin search bar to top
-            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "z-50", "p-3", "shadow-md");
+            // 1. Hide everything else
+            leftContainer.classList.add("hidden");
+            rightHeader.classList.add("hidden");
+            navBar.classList.add("hidden");
+            
+            // 2. Move Search to the very top
+            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
             backBtn.classList.remove("hidden");
+            
+            // 3. Add padding to list so it's not hidden under fixed search
+            addressListEl.style.marginTop = "10px";
         } else {
-            // Restore UI
-            if (leftContainer) leftContainer.classList.remove("hidden");
-            if (rightHeader) rightHeader.classList.remove("hidden");
-            if (navBar) navBar.classList.remove("hidden");
-
-            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "z-50", "p-3", "shadow-md");
+            // Restore everything
+            leftContainer.classList.remove("hidden");
+            rightHeader.classList.remove("hidden");
+            navBar.classList.remove("hidden");
+            
+            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
             backBtn.classList.add("hidden");
             
-            searchInputEl.value = ""; 
+            addressListEl.style.marginTop = "0px";
+            searchInputEl.value = ""; // Clear search on back
             filterAddresses();
         }
     }
 }
     </script>
-    <script>
+    
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('theme-toggle-btn');
     const icon = document.getElementById('theme-icon');
@@ -873,9 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-     <button id="theme-toggle-btn">
-    <span id="theme-icon">🌙</span>
-</button>
+  
 <style>
     /* --- 1. THEME VARIABLE DEFINITIONS --- */
     :root {
@@ -954,7 +999,6 @@ document.addEventListener('DOMContentLoaded', () => {
         background-color: var(--nav-bg) !important;
         border-top: 1px solid var(--border) !important;
         height: var(--nav-height);
-        color:white;
     }
 
     /* This targets the icon specifically */
@@ -976,11 +1020,11 @@ document.addEventListener('DOMContentLoaded', () => {
     /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 85px; /* 65px height + 50px gap */
-        right: 5px;
+        bottom: 115px; /* 65px height + 50px gap */
+        right: 20px;
         z-index: 10000;
-        width: 38px;
-        height: 38px;
+        width: 52px;
+        height: 52px;
         border-radius: 50%;
         border: none;
         background: #4f46e5;
@@ -994,392 +1038,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     #theme-toggle-btn:active { transform: scale(0.9); }
-    /* Ensure fixed search wrapper respects dark mode */
-[data-theme="dark"] #searchWrapper.fixed {
-    background-color: #111827 !important; /* Deep Navy to match your UI */
-    border-bottom: 1px solid #374151;
-}
-
-/* Ensure the input inside the fixed wrapper stays dark */
-[data-theme="dark"] #searchWrapper input {
-    background-color: #1f2937 !important;
-    color: white !important;
-}
-
-/* Style the placeholder specifically for better visibility */
-[data-theme="dark"] input::placeholder {
-    color: #9ca3af !important;
-}
 </style>
-<style>
-@media (max-width: 767px) {
-    /* 1. Remove the body's top padding so search bar touches the top edge */
-    body.search-active {
-        padding-top: 0 !important;
-        overflow: hidden;
-        background-color: var(--bg-body) !important;
-    }
-
-    /* 2. Hide all Nav and Footer elements */
-    body.search-active nav, 
-    body.search-active #universal-bottom-nav, 
-    body.search-active .nav-spacer {
-        display: none !important;
-    }
-
-    /* 3. Pin Search Bar to top 0 */
-    body.search-active #searchWrapper {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 10px 16px !important;
-        z-index: 100 !important;
-        background-color: var(--bg-card) !important;
-        display: flex !important;
-    }
-
-    /* 4. Results container covers full screen with theme background */
-    body.search-active .right-container {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100vh !important;
-        background-color: var(--bg-body) !important;
-        z-index: 40 !important;
-        padding-top: 80px !important; /* Space to see results below bar */
-        overflow-y: auto;
-    }
-}
-body.search-active {
-        padding-top: 0 !important;
-        overflow: hidden;
-    }
-
-    body.search-active nav, 
-    body.search-active #universal-bottom-nav, 
-    body.search-active .nav-spacer {
-        display: none !important;
-    }
-
-    body.search-active #searchWrapper {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 10px 16px !important;
-        z-index: 100 !important;
-        display: flex !important;
-    }
-
-    /* Full dark background for search results */
-    [data-theme="dark"] body.search-active,
-    [data-theme="dark"] body.search-active .right-container {
-        background-color: #0f172a !important; /* Your deep dark color */
-        position: fixed;
-        inset: 0;
-        z-index: 40;
-        padding-top: 80px !important;
-        overflow-y: auto;
-    }
-
-</style>
-<script>
-    const toggleBtn = document.getElementById('toggleFormBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const addressForm = document.getElementById('addressForm');
-
-    // Show form when "Add New Address" is clicked
-    toggleBtn.addEventListener('click', () => {
-        addressForm.classList.toggle('hidden');
-        
-        // Change button text based on state
-        if (addressForm.classList.contains('hidden')) {
-            toggleBtn.innerText = '+ Add New Address';
-        } else {
-            toggleBtn.innerText = 'Close Form';
-        }
-    });
-
-    // Hide form when "Cancel" is clicked
-    cancelBtn.addEventListener('click', () => {
-        addressForm.classList.add('hidden');
-        toggleBtn.innerText = '+ Add New Address';
-    });
-</script>
-<div id="fabOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-200 z-[998]"></div>
-
-<div id="fabContainer" class="fixed bottom-20 left-2 z-[999] flex flex-col-reverse items-start">
-    
-    <button id="fabTrigger" class="pulse w-11 h-11 bg-blue-600 text-white rounded-xl shadow-lg flex items-center justify-center transition-all duration-200 active:scale-90 z-50">
-        <i id="fabIcon" class="fas fa-th-large text-base"></i>
-    </button>
-
-    <div id="fabMenu" class="flex flex-col-reverse gap-3 mb-4 pointer-events-none">
-               <a href="index.html" onclick="instantNav(event, 'index.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
-                <i class="fa-solid fa-right-from-bracket" text-xs"></i>
-            </div>
-            <span class="menu-label">Logout</span>
-        </a>
-        <a href="added.html" onclick="instantNav(event, 'added.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-slate-500 group-hover:bg-slate-800 group-hover:text-white">
-                <i class="fas fa-cog text-xs"></i>
-            </div>
-            <span class="menu-label">Settings</span>
-        </a>
-
-        <a href="principle.html" onclick="instantNav(event, 'principle.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-orange-500 group-hover:bg-orange-500 group-hover:text-white">
-                <i class="fas fa-lightbulb text-xs"></i>
-            </div>
-            <span class="menu-label">Principles</span>
-        </a>
-
-        <a href="daily.html" onclick="instantNav(event, 'daily.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white">
-                <i class="fas fa-tasks text-xs"></i>
-            </div>
-            <span class="menu-label">Daily Tasks</span>
-        </a>
-
-        <a href="cr.html" onclick="instantNav(event, 'cr.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-red-500 group-hover:bg-red-500 group-hover:text-white">
-                <i class="fa-solid fa-calendar-alt text-xs"></i>
-            </div>
-            <span class="menu-label">Calender</span>
-        </a>
-
-        <a href="asset.html" onclick="instantNav(event, 'asset.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white">
-                <i class="fas fa-wallet text-xs"></i>
-            </div>
-            <span class="menu-label">Assets</span>
-        </a>
-
-        <a href="Links.html" onclick="instantNav(event, 'link.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-blue-500 group-hover:bg-blue-500 group-hover:text-white">
-                <i class="fa-solid fa-link text-xs"></i>
-            </div>
-            <span class="menu-label">Links</span>
-        </a>
-
-        <a href="essential.html" onclick="instantNav(event, 'essential.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-pink-500 group-hover:bg-pink-500 group-hover:text-white">
-                <i class="fas fa-shopping-basket text-xs"></i>
-            </div>
-            <span class="menu-label">Essentials</span>
-        </a>
-
-        <a href="profile.html" onclick="instantNav(event, 'profile.html')" class="menu-item group flex items-center gap-3">
-            <div class="icon-box text-cyan-600 group-hover:bg-cyan-600 group-hover:text-white">
-                <i class="fas fa-user text-xs"></i>
-            </div>
-            <span class="menu-label">Profile</span>
-        </a>
-       
-        
-    </div>
-</div>
-
-<style>
-    /* BASE ITEM STYLES */
-    .menu-item {
-        opacity: 0;
-        transform: translateY(10px);
-        transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
-    }
-
-    .icon-box {
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        background: white;
-        box-shadow: 0 10px 15px -3px rgba(60, 35, 112, 0.1);
-        border: 1px solid #e5e7eb;
-        flex-shrink: 0;
-    }
-
-    /* FIX: Names visibility in Light Mode */
-    .menu-label {
-        font-size: 11px;
-        font-weight: 800;
-        padding: 5px 5px;
-        border-radius: 8px;
-        background: #f8fafc; /* Very light background for contrast */
-        color: #1e293b;      /* Deep dark text for light mode */
-        white-space: nowrap;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        border: 1px solid #e2e8f0;
-    }
-
-    /* FIX: Names visibility in Dark Mode */
-    [data-theme="dark"] .icon-box { background: #1e293b; border-color: #334155; }
-    [data-theme="dark"] .menu-label { 
-        background: #334155; 
-        color: #f8fafc; /* Bright text for dark mode */
-        border: 1px solid rgba(255,255,255,0.1); 
-    }
-
-    .menu-active .menu-item { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .overlay-active { opacity: 1 !important; pointer-events: auto !important; }
-
-    @keyframes pulse-blue {
-        0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-    }
-    .pulse { animation: pulse-blue 2s infinite; }
-</style>
-
-<script>
-    const trigger = document.getElementById('fabTrigger');
-    const container = document.getElementById('fabContainer');
-    const icon = document.getElementById('fabIcon');
-    const overlay = document.getElementById('fabOverlay');
-
-    function toggleMenu() {
-        const isActive = container.classList.toggle('menu-active');
-        overlay.classList.toggle('overlay-active');
-        
-        if(isActive) {
-            icon.className = 'fas fa-times text-base transition-all duration-200';
-            trigger.classList.replace('bg-blue-600', 'bg-slate-800');
-            trigger.classList.remove('pulse');
-        } else {
-            icon.className = 'fas fa-th-large text-base transition-all duration-200';
-            trigger.classList.replace('bg-slate-800', 'bg-blue-600');
-            trigger.classList.add('pulse');
-        }
-    }
-
-    function instantNav(event, url) {
-        event.preventDefault();
-        window.location.replace(url); // Instant jump
-    }
-
-    trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleMenu();
-    });
-
-    document.addEventListener('click', (e) => {
-        if (container.classList.contains('menu-active') && !container.contains(e.target)) {
-            toggleMenu();
-        }
-    });
-</script>
-<style>
-    /* Hard Hide the Google Widget Container */
-    #google_translate_element, 
-    .skiptranslate, 
-    .goog-te-gadget, 
-    .goog-te-banner-frame {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* Force the body to stay at the top (removes the blue bar gap) */
-    body {
-        top: 0 !important;
-        position: static !important;
-    }
-
-    /* Hide the 'Original Text' tooltip when hovering over translated words */
-    .goog-te-balloon-frame, 
-    #goog-gt-tt, 
-    .goog-te-balloon-frame.skiptranslate, 
-    .goog-te-gadget-icon {
-        display: none !important;
-    }
-
-    .goog-text-highlight {
-        background: none !important;
-        box-shadow: none !important;
-    }
-</style>
-
-<div id="google_translate_element" style="display:none;"></div>
-
-<style>
-    /* 1. Prevent the "White Flash" or English text from showing first */
-    .translating-mask { opacity: 0; transition: opacity 0.3s ease; }
-    .translation-ready { opacity: 1; }
-
-    /* 2. Total Hide for Google UI Elements */
-    #google_translate_element, .skiptranslate, .goog-te-banner-frame, 
-    #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-    body { top: 0 !important; position: static !important; }
-</style>
-
-<script type="text/javascript">
-    // 3. RUN THIS IMMEDIATELY - Don't wait for DOM to set cookies
-    (function() {
-        const savedLang = localStorage.getItem('app-lang') || 'English';
-        const langMap = {'English': 'en', 'Hindi': 'hi', 'Marathi': 'mr'};
-        const target = langMap[savedLang] || 'en';
-
-        if (target !== 'en') {
-            // Set cookie at the earliest possible millisecond
-            document.cookie = `googtrans=/en/${target}; path=/`;
-            document.cookie = `googtrans=/en/${target}; domain=${location.hostname}; path=/`;
-            // Add a class to hide the body until translated
-            document.documentElement.classList.add('translating-mask');
-        }
-    })();
-
-    function googleTranslateElementInit() {
-        new google.translate.TranslateElement({
-            pageLanguage: 'en',
-            includedLanguages: 'hi,mr,en',
-            autoDisplay: false
-        }, 'google_translate_element');
-        
-        // 4. Reveal the page once translation is likely finished
-        setTimeout(() => {
-            document.documentElement.classList.add('translation-ready');
-        }, 300); 
-    }
-</script>
-
-    
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
