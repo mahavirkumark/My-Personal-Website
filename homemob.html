@@ -1219,7 +1219,7 @@ async function fetchAndShowTodaysEvents() {
         });
 
         if (mergedItems.length === 0) {
-            listCont.innerHTML = `<div style="border:1px solid #000" class="bg-white p-2 rounded-xl text-center font-bold text-[10px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">No Events Today 🗓️</div>`;
+            listCont.innerHTML = `<div style="border:1px solid #000" class="bg-white p-2 rounded-xl text-center font-bold text-[14px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">No Events Today 🗓️</div>`;
             return;
         }
 
@@ -1271,7 +1271,7 @@ async function fetchAndShowTodaysEvents() {
 
     } catch (e) {
         console.error(e);
-        listCont.innerHTML = `<div class="text-[10px] font-bold text-center border border-black p-2 rounded-xl">Error Loading ⚠️</div>`;
+        listCont.innerHTML = `<div class="text-[14px] font-bold text-center border border-black p-2 rounded-xl">Error Loading ⚠️</div>`;
     }
 }
 // FIX: Updated the Auth Listener to call the correct merged function
