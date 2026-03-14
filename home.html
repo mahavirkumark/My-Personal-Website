@@ -831,6 +831,38 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Permission status is already:", Notification.permission);
     }
 });
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+
+const btn = document.getElementById('token-btn');
+const output = document.getElementById('token-output');
+const status = document.getElementById('token-status');
+
+btn.onclick = async () => {
+    status.innerText = "Requesting permission...";
+    const permission = await Notification.requestPermission();
+    
+    if (permission === 'granted') {
+        const messaging = getMessaging();
+        try {
+            // REPLACE THIS KEY with your Web Push Certificate Key
+            const token = await getToken(messaging, { 
+                vapidKey: 'YOUR_VAPID_KEY_HERE' 
+            });
+            
+            if (token) {
+                output.value = token;
+                status.innerText = "Success! Copy this token:";
+            } else {
+                status.innerText = "No token. Is firebase-messaging-sw.js in your public folder?";
+            }
+        } catch (err) {
+            status.innerText = "Error: " + err.message;
+        }
+    } else {
+        status.innerText = "Permission denied.";
+    }
+};
+        
 </script>
     <script>
     window.addEventListener('load', async () => {
