@@ -81,13 +81,13 @@
             <option value="Naming Ceremony">🏷️ Naming Ceremony</option>
             <option value="Birthday">🎂 Birthday</option>
             <option value="Anniversary">🎉 Anniversary</option>
-            <option value="Thread Ceremony">📿 Thread Ceremony</option>
+     
             <option value="Retirement">🎊 Retirement Party</option>
         </optgroup>
         <optgroup label="Home & Religious">
             <option value="Vastu Shanti">🏠 Vastu Shanti</option>
             <option value="Puja">🙏 Festive Puja</option>
-            <option value="Kirtan">🎶 Kirtan / Bhajan</option>
+     
             <option value="Festival">🏮 Festival Celebration</option>
             <option value="Temple Visit">🕌 Temple Visit</option>
         </optgroup>
@@ -109,7 +109,7 @@
             <option value="Sport Event">⚽ Sports Event</option>
             <option value="Concert">🎸 Concert / Show</option>
             <option value="Interview">📋 Interview</option>
-            <option value="Other">✨ Other Occasion</option>
+      
         </optgroup>
     </select>
 </div>
@@ -121,9 +121,9 @@
 
                     <div id="namesContainer" class="space-y-2">
                         <label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Visitor Names</label>
-                        <div class="flex gap-2">
-                            <input type="text" placeholder="Name" required class="person-name flex-1 p-4 bg-blue-50/50 border border-blue-100 rounded-2xl outline-none font-bold">
-                            <button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-14 rounded-2xl flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all">
+                        <div class="flex gap-1">
+                            <input type="text" placeholder="Name" required class="person-name flex-1 p-2 bg-blue-50/50 border border-blue-100 rounded-2xl outline-none font-bold">
+                            <button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-7 rounded-2xl flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -264,12 +264,12 @@
         card.innerHTML = `<div class="flex justify-between items-start">
                     <div class="flex-1">
                         <div class="flex items-center gap-1 mb-2">
-                             <p class="text-[15px] font-black text-indigo-600 uppercase tracking-widest">${data.purpose}</p>
-                             <span class="text-[12px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">HOST: ${data.invitedBy || 'N/A'}</span>
+                             <p class="text-[13px] font-black text-indigo-600 uppercase tracking-widest">${data.purpose}</p>
+                             <span class="text-[11px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">HOST: ${data.invitedBy || 'N/A'}</span>
                         </div>
                         <div class="flex flex-wrap gap-1 mb-2">${data.names.map(n => `<span class="bg-blue-600 text-white text-[13px] px-3 py-1 rounded-lg font-bold uppercase shadow-sm">${n}</span>`).join('')}</div>
                         <h3 class="data-text-main text-lg">${data.location}</h3>
-                        <div class="flex flex-wrap gap-4 text-[12px] data-text-sub uppercase mt-3">
+                        <div class="flex flex-wrap gap-2 text-[11px] data-text-sub uppercase mt-3">
                             <span><i class="far fa-calendar-check text-blue-600 mr-1"></i> ${data.date}</span>
                             <span><i class="far fa-clock text-blue-600 mr-1"></i> ${data.time}</span>
                             <span><i class="fas ${data.travelIcon} text-blue-600 mr-1"></i> ${data.travelName}</span>
