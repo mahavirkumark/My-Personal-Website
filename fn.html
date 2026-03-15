@@ -119,15 +119,16 @@
                         <input type="text" id="invitedBy" placeholder="Person who invited" required class="w-full p-4 bg-blue-50/50 border border-blue-100 rounded-2xl outline-none mt-1 font-bold">
                     </div>
 
-                    <div id="namesContainer" class="space-y-2">
-                        <label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Visitor Names</label>
-                        <div class="flex gap-1">
-                            <input type="text" placeholder="Name" required class="person-name flex-1 p-2 bg-blue-50/50 border border-blue-100 rounded-2xl outline-none font-bold">
-                            <button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-7 rounded-2xl flex items-center justify-center shadow-lg hover:bg-blue-700 transition-all">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
+                <div id="namesContainer" class="space-y-1 max-w-[300px]"> <label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Visitor Names</label>
+    <div class="flex gap-1">
+        <input type="text" placeholder="Name" required 
+               class="person-name flex-1 p-2 text-sm bg-blue-50/50 border border-blue-100 rounded-xl outline-none font-bold">
+        <button type="button" onclick="addNameField()" 
+                class="bg-blue-600 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-md hover:bg-blue-700 transition-all shrink-0">
+            <i class="fas fa-plus text-xs"></i>
+        </button>
+    </div>
+</div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -201,9 +202,9 @@
     function addNameField(value = "") {
         const container = document.getElementById('namesContainer');
         const div = document.createElement('div');
-        div.className = "flex gap-2 items-center animate-pop mt-2";
-        div.innerHTML = `<input type="text" value="${value}" placeholder="Name" class="person-name flex-1 p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold">
-                         <button type="button" onclick="this.parentElement.remove()" class="text-red-500 p-2"><i class="fas fa-circle-xmark fa-xl"></i></button>`;
+        div.className = "flex gap-1 items-center animate-pop mt-2";
+        div.innerHTML = `<input type="text" value="${value}" placeholder="Name" class="person-name flex-1 p-2 text-[15px] bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold">
+                         <button type="button" onclick="this.parentElement.remove()" class="text-red-500 p-1"><i class="fas fa-circle-xmark fa-xl"></i></button>`;
         container.appendChild(div);
     }
 
@@ -240,8 +241,8 @@
         document.getElementById('eventForm').reset();
         setDefaults();
         document.getElementById('namesContainer').innerHTML = `<label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Visitor Names</label>
-            <div class="flex gap-2"><input type="text" placeholder="Name" required class="person-name flex-1 p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold">
-            <button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-14 rounded-2xl flex items-center justify-center shadow-lg"><i class="fas fa-plus"></i></button></div>`;
+            <div class="flex gap-2"><input type="text" placeholder="Name" required class="person-name flex-1 p-2 bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold">
+            <button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-10 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-plus"></i></button></div>`;
     }
 
     let allRecords = [];
@@ -260,7 +261,7 @@
 
     function createCard(data) {
         const card = document.createElement('div');
-        card.className = "p-5 bg-white border border-blue-100 rounded-3xl shadow-sm hover:shadow-md transition-all animate-pop border-l-4 border-l-blue-600";
+        card.className = "p-5 bg-white border border-blue-100 rounded-xl shadow-sm hover:shadow-md transition-all animate-pop border-l-4 border-l-blue-600";
         card.innerHTML = `<div class="flex justify-between items-start">
                     <div class="flex-1">
                         <div class="flex items-center gap-1 mb-2">
@@ -275,7 +276,7 @@
                             <span><i class="fas ${data.travelIcon} text-blue-600 mr-1"></i> ${data.travelName}</span>
                         </div>
                     </div>
-                    <div class="flex flex-col gap-2">
+                    <div class="flex flex-col gap-1 ml-3">
                         <button onclick="editRecord('${data.key}')" class="btn-action btn-edit"><i class="fas fa-pen"></i></button>
                         <button onclick="shareRecord('${data.key}')" class="btn-action btn-share"><i class="fas fa-paper-plane"></i></button>
                         <button onclick="deleteRecord('${data.key}')" class="btn-action btn-delete"><i class="fas fa-trash"></i></button>
@@ -298,7 +299,7 @@
         container.innerHTML = '<label class="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Visitor Names</label>';
         r.names.forEach((name, idx) => {
             if(idx === 0) {
-                container.innerHTML += `<div class="flex gap-2"><input type="text" value="${name}" required class="person-name flex-1 p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold"><button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-14 rounded-2xl flex items-center justify-center"><i class="fas fa-plus"></i></button></div>`;
+                container.innerHTML += `<div class="flex gap-1"><input type="text" value="${name}" required class="person-name flex-1 p-4 bg-blue-50 border border-blue-100 rounded-2xl outline-none font-bold"><button type="button" onclick="addNameField()" class="bg-blue-600 text-white w-14 rounded-2xl flex items-center justify-center"><i class="fas fa-plus"></i></button></div>`;
             } else {
                 addNameField(name);
             }
