@@ -13,7 +13,7 @@
         .smooth-scroll { scroll-behavior: smooth; overflow-y: auto; }
         .smooth-scroll::-webkit-scrollbar { width: 5px; }
         .smooth-scroll::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
-        #searchOverlay { display: none; position: fixed; inset: 0; background: white; z-index: 9999; padding: 1.5rem; }
+        #searchOverlay { display: none; position: fixed; inset: 0; background: white; z-index: 9999; padding: 1 rem; }
         .btn-action { background: #e0e7ff; color: #4338ca; padding: 10px; border-radius: 12px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
         .btn-edit:hover { background: #2563eb; color: white; transform: scale(1.1); }
         .btn-share:hover { background: #059669; color: white; transform: scale(1.1); }
@@ -51,10 +51,10 @@
 
 <div id="searchOverlay" class="flex flex-col">
     <div class="flex items-center gap-1 mb-4">
-        <button onclick="closeSearch()" class="p-1 bg-blue-50 rounded-full text-blue-600">
+        <button onclick="closeSearch()" class="p-2 bg-blue-50 rounded-full text-blue-600">
             <i class="fas fa-arrow-left"></i>
         </button>
-        <input type="text" id="mobileSearchInput" oninput="filterData(this.value)" placeholder="Search..." class="flex-1 p-1 bg-slate-50 border-2 border-blue-500 rounded-2xl outline-none text-lg font-black">
+        <input type="text" id="mobileSearchInput" oninput="filterData(this.value)" placeholder="Search..." class="flex-1 p-1 bg-slate-50 border-2 border-blue-500 rounded-xl outline-none text-lg font-black">
     </div>
     <div id="searchResults" class="flex-1 smooth-scroll space-y-4"></div>
 </div>
