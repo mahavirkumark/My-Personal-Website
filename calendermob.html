@@ -2120,32 +2120,7 @@ function closeSearchView() {
 
 
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
-</script>
 
 
 
