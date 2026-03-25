@@ -56,7 +56,7 @@ body {
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     font-weight: bold;
-    padding-bottom: 5px;
+    padding-bottom: 10px;
     color: #4b5563; 
 }
 
@@ -170,11 +170,11 @@ body.focus-active #existingTasks {
 <body class="bg-f8fafc">
 
 
-<div id="calendar-controls" class="flex justify-between items-center px-4 md:px-0 mt-4 mb-2">
+<div id="calendar-controls" class="flex justify-between items-center px-4 md:px-0 mt-4 mb-6">
 
 
     <div class="text-center">
-        <h1 class="text-xl font-black text-indigo-700 uppercase tracking-tighter leading-none">Calendar</h1>
+        <h1 class="text-2xl font-black text-indigo-700 uppercase tracking-tighter leading-none">Calendar</h1>
       
     </div>
 
@@ -217,7 +217,7 @@ body.focus-active #existingTasks {
 
     <div id="searchResults" class="mt-[1px] px-3 md:px-0"></div> 
 
-    <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0 mt-[-15]">
+    <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0">
         <button onclick="changeMonth(-1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">← Prev</button>
         <h2 id="monthYear" class="text-lg md:text-xl font-bold text-center flex-1">Month Year</h2>
         <button onclick="changeMonth(1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">Next →</button>
@@ -399,7 +399,7 @@ body.focus-active #existingTasks {
 <nav id="universal-bottom-nav">
    <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
         <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold ">Home</div>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
     </a>
 
     <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
@@ -416,7 +416,7 @@ body.focus-active #existingTasks {
         <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
         <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
     </a>
-          <a href="c.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
         <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
         <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
     </a>
@@ -462,7 +462,7 @@ body.focus-active #existingTasks {
     z-index: 999999;
     padding-bottom: env(safe-area-inset-bottom);
     animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 11px;
+    font-size: 12px;
 }
 
 @keyframes navSlideUp {
@@ -494,7 +494,7 @@ body.focus-active #existingTasks {
 }
 
 .nav-link div {
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800; /* 900 can be too chunky on some screens */
     text-transform: uppercase;
     color: inherit;
@@ -650,7 +650,7 @@ body.search-mode-active main > *:not(.search-container):not(#searchResults) {
 }
 
 #searchResults {
-    margin-top: 40px; /* Space for fixed search bar */
+    margin-top: 80px; /* Space for fixed search bar */
 }
 
 /* --- Back Arrow Styling --- */
@@ -2118,6 +2118,34 @@ function closeSearchView() {
 
 
 
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+    const icon = document.getElementById('theme-icon');
+    
+    // 1. Load saved theme immediately on page load
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    // 2. Click Event
+    btn.addEventListener('click', () => {
+        let currentTheme = document.documentElement.getAttribute('data-theme');
+        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        // Apply new theme
+        document.documentElement.setAttribute('data-theme', newTheme);
+        
+        // Save to LocalStorage (works across all pages on your site)
+        localStorage.setItem('theme', newTheme);
+        
+        // Update Icon
+        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+});
+</script>
 
 
 
