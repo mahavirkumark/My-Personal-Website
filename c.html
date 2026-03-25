@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Personal Website - Calendar</title>
+<title>Savig</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -14,355 +14,250 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <style>
-<style>
-/* ============================================================
-   1. GLOBAL RESET & BASE STYLES
-   ============================================================ */
+
 body {
     font-family: 'Times New Roman', Times, serif; 
     color: #334155; 
-    background-color: #f8fafc;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    line-height: 1.5;
+    background-color: #f8fafc; 
 }
 
 .main-content-padding {
-    padding-top: 100px;
-    width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
+    padding-top: 1px; 
 }
 
-/* ============================================================
-   2. RESPONSIVE NAVIGATION
-   ============================================================ */
-nav {
-    box-sizing: border-box;
-    position: fixed; 
-    top: 0;
-    width: 100%;
-    z-index: 1001;
-    background: white;
-    height: 65px;
+/* --- Responsive Search & Action Container --- */
+.search-container {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* Logic: Hide search container when nav menu is active on mobile */
-body.menu-open .search-container {
+/* Arrange buttons in 2x2 grid on mobile, single row on desktop */
+.search-controls-row {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+@media (min-width: 1024px) {
+    .search-container {
+        flex-direction: row;
+    }
+    .search-controls-row {
+        display: flex !important;
+        width: auto;
+    }
+}
+
+/* --- Calendar Header (Mon-Sun) --- */
+.calendar-header {
+    display: none; /* Hidden on mobile */
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 10px;
+    color: #4b5563; 
+}
+
+@media (min-width: 768px) {
+    .calendar-header {
+        display: grid; /* Shown on desktop */
+    }
+}
+
+/* --- The Responsive Grid --- */
+#calendar {
+    display: grid;
+    /* Mobile: 2 dates per row */
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+    padding: 0 10px;
+}
+
+@media (min-width: 768px) {
+    #calendar {
+        /* Desktop: 7 dates per row */
+        grid-template-columns: repeat(7, 1fr) !important;
+        gap: 8px;
+        padding: 0;
+    }
+}
+
+/* --- Cell Styling --- */
+.calendar-cell {
+    border: 1px solid #e5e7eb; 
+    border-radius: 12px;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: auto; 
+    min-height: 130px; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .calendar-cell {
+        height: 170px; /* Fixed height only on desktop */
+        border-radius: 8px;
+    }
+    .calendar-cell:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+}
+
+/* --- Highlights & Modals --- */
+.sunday-cell { background-color: #fff1f2; border-color: #fda4af; }
+.today { border: 3px solid #4f46e5; background-color: #e0f2fe; }
+
+#taskModal, #eventModal {
+    width: 95% !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 20px !important;
+}
+
+@media (min-width: 768px) {
+    #taskModal, #eventModal {
+        width: 75% !important;
+    }
+}
+/* --- Full Page Task Mode --- */
+body.focus-active {
+    overflow: hidden !important;
+}
+
+/* Hide the background: Nav, Search, Calendar, and Bottom Bar */
+body.focus-active nav, 
+body.focus-active .search-container, 
+body.focus-active #calendar-controls, 
+body.focus-active .calendar-header, 
+body.focus-active #calendar, 
+body.focus-active #universal-bottom-nav {
     display: none !important;
 }
 
-/* ============================================================
-   3. SEARCH BAR & RESULTS (DYNAMIC MOBILE FOCUS)
-   ============================================================ */
-.search-container {
-    position: relative;
-    z-index: 60; 
-    width: 100%;
-    /* Ensure search bar and dropdown are in the same row */
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
+/* Force the Modal to be the only thing visible (Full Screen) */
+body.focus-active #taskModal {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform: none !important;
+    z-index: 10000 !important;
+    background: white !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
 }
 
-#searchInput {
-    flex: 1; /* Search bar takes available space */
-}
-
-#searchTimeframe {
-    width: auto; /* Dropdown stays in the same row */
-}
-
-@media (max-width: 767px) {
-     .search-overlay-background {
-        display: none; 
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh; 
-        background-color: rgba(255, 255, 255, 0.98); 
-        z-index: 55; 
-        pointer-events: none; 
-    }
-    .search-active .search-overlay-background {
-        display: block;
-        pointer-events: all;
-    }
-    .search-active .search-container {
-        position: fixed; 
-        top: 0;
-        left: 0;
-        width: 100%;
-        padding: 1rem 1rem; 
-        background-color: white; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 56; 
-        display: flex !important;
-        flex-direction: row;
-        padding-top: 20px; 
-        padding-bottom: 20px;
-    }
-    
-    #searchResults {
-        position: relative; 
-        z-index: 57; 
-        padding-top: 0; 
-        max-width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .search-active #searchResults {
-        position: fixed; 
-        top: 100px; 
-        left: 0;
-        right: 0;
-        max-width: 1120px; 
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-
-    .search-results-panel {
-        background-color: white;
-        padding: 1rem;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        border-radius: 0.75rem;
-        max-height: calc(100vh - 120px); 
-        overflow-y: auto; 
-        border: 1px solid #e5e7eb;
-    }
-    .search-result-item {
-        border: 1px solid #e5e7eb;
-        background-color: #ffffff;
-        margin-bottom: 0.5rem; 
-        padding: 0.75rem; 
-        border-radius: 0.5rem;
-        transition: all 0.15s;
-    }
-    .search-result-item:hover {
-        background-color: #f3f4f6; 
-    }
-
-
-    #closeModal, #closeEventModal, #closeStatusPromptModal, #closeTrackingModal {
-        color: #ef4444; 
-        transition: all 0.2s;
-    }
-    #closeModal:hover, #closeEventModal:hover, #closeStatusPromptModal:hover, #closeTrackingModal:hover {
-        background-color: #ef4444; 
-        color: white !important;
-        border-radius: 50%;
-        transform: scale(1.1); 
-    }
-
-/* ============================================================
-   4. CALENDAR GRID (RESPONSIVE)
-   ============================================================ */
-#calendar {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
-    padding: 15px;
-    width: 100%;
-}
-
-.calendar-cell {
-    border: 1px solid #cbd5e1 !important; 
-    border-radius: 10px;
-    padding: 10px;
-    background-color: white;
-    min-height: 150px; 
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: all 0.2s ease;
-}
-}
-@media (max-width: 1024px) {
-    #calendar { grid-template-columns: repeat(4, 1fr); }
-    .calendar-header { display: none; }
-}
-
-@media (max-width: 767px) {
-    #calendar { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
-    .calendar-cell { min-height: 120px; }
-    
-    /* Default buttons hidden on mobile */
-    #downloadMonthTasks, #openEventModalBtn, 
-    #openCompletedEventsBtn, #openIncompleteEventsBtn {
-        display: none !important;
-    }
-}
-
-/* ============================================================
-   5. MODALS & SCROLLBARS
-   ============================================================ */
-.custom-scroll::-webkit-scrollbar { width: 6px; }
-.custom-scroll::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 10px;
-}
-
-#taskModal, #eventModal {
-    max-height: 85vh;
-    overflow-y: auto;
-    width: 95% !important;
-    max-width: 600px;
-    z-index: 3000;
+/* Ensure the task list inside the modal takes enough space */
+body.focus-active #existingTasks {
+    max-height: none !important; 
+    flex: 1;
 }
 </style>
-</style>
-</style>
-</style>
 
-</head>
 <body class="bg-f8fafc">
-<nav class="bg-white shadow-xl fixed w-full z-50 top-0 border-b border-gray-100">
-    <div class="container mx-auto flex justify-between items-center p-3 md:p-4 px-4 md:px-6"> 
-        <div class="flex items-center gap-2 font-bold text-gray-800 flex-shrink-0">
-            <i class="fas fa-user-circle text-indigo-600 text-2xl md:text-3xl"></i>
-            <span class="web-name-text">My Personal Website</span>
-        </div>
-        
-        <div class="hidden lg:flex space-x-4 xl:space-x-6">
-            <a href="home.html" class="nav-link-style"><i class="fas fa-house"></i> Home</a>
-            <a href="birthday.html" class="nav-link-style"><i class="fas fa-birthday-cake"></i> Birthday</a>
-            <a href="password.html" class="nav-link-style"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="nav-link-style"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="nav-link-style"><i class="fas fa-link"></i> Links</a>
-            <a href="calendar.html" class="nav-link-style text-indigo-600 font-bold border-b-2 border-indigo-600">Calendar</a>
-        </div>
 
-        <div class="hidden md:flex items-center gap-4">
-            <div class="text-right hidden xl:block">
-                <p id="userName" class="font-bold text-gray-900 text-sm">Loading...</p>
-                <p id="userEmail" class="text-xs text-gray-500">Loading...</p>
-            </div>
-            <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500 object-cover">
-            <button onclick="logout()" class="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition shadow-md font-bold text-sm">Logout</button>
-        </div>
 
-        <button id="menu-btn" class="lg:hidden text-gray-700 text-2xl focus:outline-none p-2">
-            <i class="fas fa-bars" id="menu-icon"></i>
-        </button>
+<div id="calendar-controls" class="flex justify-between items-center px-4 md:px-0 mt-4 mb-6">
+
+
+    <div class="text-center">
+        <h1 class="text-2xl font-black text-indigo-700 uppercase tracking-tighter leading-none">Calendar</h1>
+      
     </div>
-  <div id="mobileMenu" class="hidden md:hidden w-full flex-col px-3 pb-2 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 shadow-inner">
-        <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-house"></i> Home</a>
-        
-        <a href="birthday.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-birthday-cake"></i> Birthday</a>
-        <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-key"></i> Passwords</a>
-        <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
-        <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-link"></i> Links</a>
-        <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-indigo-600 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
-        <div class="border-t border-gray-300 mt-2 pt-2 flex items-center gap-3">
-             <img id="mobileUserPhoto" src="https://via.placeholder.com/40" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #4f46e5;">
-            <div>
-                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-            </div>
-        </div>
-        <button onclick="logout()" class="bg-red-600 text-white px-3 py-2 rounded-full hover:bg-red-700 mt-2 w-full shadow-md">Logout</button>
-    </div>
-</nav>
 
 
-
+</div>
 
 <div class="search-overlay-background"></div>
 
-<main class="main-content-padding flex flex-col gap-2 mx-auto w-full max-w-7xl">
+<main class="main-content-padding flex flex-col gap-1 mx-auto w-full max-w-7xl">
 
-    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 px-4 md:px-0 pt-4 md:pt-0">
-        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-3">
+    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-1 md:gap-1 px-3 md:px-0 pt-1 md:pt-0 ">
+        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-1">
             <input type="text" id="searchInput" placeholder="Search tasks..."
-                class="p-3 px-6 md:p-4 md:px-6 md:py-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base md:text-lg w-full flex-1">
+                class="p-2 px-5 md:p-3 md:px-5 md:py-2 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm md:text-base w-full flex-1">
             
-            <div class="search-controls-row flex flex-row w-full gap-2 items-center justify-between md:w-auto">
-                <select id="searchTimeframe" class="p-3 md:p-4 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-1/2 text-sm px-2 md:w-auto md:text-base">
+            <div class="search-controls-row flex flex-wrap gap-2 items-center">
+                <select id="searchTimeframe" class="p-2 rounded-full border border-gray-300 shadow-md outline-none cursor-pointer text-sm">
                     <option value="1year">Search Last 1 Year</option>
                     <option value="alltime">Search All Time</option>
                 </select>
                 
-                <button id="downloadMonthTasks"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap">
-                    <i class="fas fa-download mr-1"></i> Download Month's Data
+                <button id="downloadMonthTasks" class="btn-control bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-emerald-700 transition-all text-sm">
+                    <i class="fas fa-download mr-1"></i> Download 
                 </button>
                 
-                <button id="openEventModalBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap">
+                <button id="openEventModalBtn" class="btn-control bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-700 transition-all text-sm">
                     <i class="fas fa-plus mr-1"></i> Add Event
                 </button>
 
-                 <button id="openCompletedEventsBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap"
-                    onclick="openTrackingModal('completed')">
-                    <i class="fas fa-check-circle mr-1"></i> Completed Events
+                <button id="openCompletedEventsBtn" class="btn-control bg-green-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-green-700 transition-all text-sm" onclick="openTrackingModal('completed')">
+                    <i class="fas fa-check-circle mr-1"></i> Completed
                 </button>
 
-                <button id="openIncompleteEventsBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap"
-                    onclick="openTrackingModal('incomplete')">
-                    <i class="fas fa-times-circle mr-1"></i> Incomplete Events
+                <button id="openIncompleteEventsBtn" class="btn-control bg-red-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-red-700 transition-all text-sm" onclick="openTrackingModal('incomplete')">
+                    <i class="fas fa-times-circle mr-1"></i> Incomplete
                 </button>
             </div>
         </div>
-        
     </div>
-    <div id="searchResults" class="mt-[10px] px-4 md:px-0"></div> 
 
-    <div id="calendar-controls" class="flex justify-between items-center mb-2 px-4 md:px-0">
-        <button onclick="changeMonth(-1)" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold">← Prev</button>
-        <h2 id="monthYear" class="text-xl md:text-2xl font-bold text-center flex-1">Month Year</h2>
-        <button onclick="changeMonth(1)" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold">Next →</button>
+    <div id="searchResults" class="mt-[1px] px-3 md:px-0"></div> 
+
+    <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0">
+        <button onclick="changeMonth(-1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">← Prev</button>
+        <h2 id="monthYear" class="text-lg md:text-xl font-bold text-center flex-1">Month Year</h2>
+        <button onclick="changeMonth(1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">Next →</button>
     </div>
     
-    <div class="calendar-header hidden md:grid">
-        <div>Mon</div>
-        <div>Tue</div>
-        <div>Wed</div>
-        <div>Thu</div>
-        <div>Fri</div>
-        <div class="text-red-500">Sat</div>
-        <div class="text-red-500">Sun</div>
+    <div class="calendar-header hidden md:grid text-sm">
+        <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div>
+        <div class="text-red-500">Sat</div><div class="text-red-500">Sun</div>
     </div>
-    <div id="calendar" class="text-base md:text-[22px] pb-8"></div>
+    
+    <div id="calendar" class="text-sm md:text-[14px] pb-1"></div>
 
 </main>
-
-<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 text-white text-2xl flex items-center justify-center">
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 text-white text-xl flex items-center justify-center">
 </div>
 
 <div id="taskModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-7xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
+    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-8xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[560px] md:h-auto border border-gray-100">
 
 
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 id="modalDate" class="text-xl md:text-2xl font-extrabold text-indigo-700">Tasks for date</h2> 
+    <div class="flex justify-between items-center mb-1 border-b pb-1">
+        <h2 id="modalDate" class="text-base md:text-base font-extrabold text-indigo-700">Tasks for date</h2> 
         <button id="closeModal" 
-                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-1"> 
         
         <div class="flex flex-col">
             <input id="taskTitle" type="text" placeholder="Title" 
-                class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
+                class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
             <textarea id="taskDesc" placeholder="Details (optional)" 
-                     class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
-            <div class="flex gap-3 mt-2">
+                     class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm flex-1 min-h-[30px] md:min-h-[30px] shadow-sm"></textarea>
+            <div class="flex gap-1 mt-1">
                 <button id="saveTaskBtn" 
-                        class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-indigo-600 text-white px-4 py-1 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
                     Save Task
                 </button>
                 <button id="cancelTaskBtn" 
-                        class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-gray-400 text-white px-4 py-1 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
                     Cancel
                 </button>
             </div>
@@ -376,21 +271,24 @@ body.menu-open .search-container {
 </div>
 
 <div id="eventModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[80vh] md:h-auto border border-gray-100">
+ class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-[54%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[570px] border border-gray-100">
+    
+  
 
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 id="eventModalTitle" class="text-xl md:text-2xl font-extrabold text-emerald-700">Add New Event</h2> 
+
+    <div class="flex justify-between items-center mb-1 border-b pb-2">
+        <h2 id="eventModalTitle" class="text-xl md:text-base font-extrabold text-black-700">Add New Event</h2> 
         <button id="closeEventModal" 
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div class="flex flex-col gap-4"> 
+    <div class="flex flex-col gap-1"> 
         <input id="eventTitle" type="text" placeholder="Event Name (e.g., Doctor Appointment)" 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-base shadow-sm">
         
-        <h3 class="text-lg font-semibold text-gray-700 mt-2 border-b pb-1">Date and Time Selection</h3>
-        <div class="flex flex-col gap-3">
-            <div class="flex flex-col md:flex-row gap-4">
+        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Date and Time Selection</h3>
+        <div class="flex flex-col gap-1">
+            <div class="flex flex-col md:flex-row gap-2">
                 <div class="modern-input-group w-full md:w-1/2">
                     <i class="fas fa-calendar-alt text-gray-500 self-center"></i>
                     <input type="date" id="eventDate" required aria-label="Event Date">
@@ -402,21 +300,21 @@ body.menu-open .search-container {
             </div>
              </div>
         
-        <h3 class="text-lg font-semibold text-gray-700 mt-2 border-b pb-1">Location and Details</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Location and Details</h3>
         
         <input id="eventLocation" type="text" placeholder="Location (Optional)" 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-sm shadow-sm">
             
         <textarea id="eventDesc" placeholder="Details (Optional)" 
-                 class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-lg flex-1 min-h-[100px] shadow-sm resize-none"></textarea>
+                 class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-sm flex-1 min-h-[10px] shadow-sm resize-none"></textarea>
                  
         <div class="flex gap-3 mt-2">
             <button id="saveEventBtn" 
-                    class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-emerald-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                    class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-emerald-700 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
                 <i class="fas fa-bell mr-2"></i> Save Event
             </button>
             <button id="cancelEventBtn" 
-                    class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                    class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
                 Cancel
             </button>
         </div>
@@ -426,23 +324,23 @@ body.menu-open .search-container {
 <div id="rescheduleModal"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
     
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 class="text-xl md:text-2xl font-extrabold text-indigo-700">Reschedule Event</h2> 
+    <div class="flex justify-between items-center mb-2 border-b pb-1">
+        <h2 class="text-xl md:text-xl font-extrabold text-indigo-700">Reschedule Event</h2> 
         <button id="closeRescheduleModal" 
-                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
     
-    <p class="mb-4 text-lg text-gray-800">
+    <p class="mb-1 text-sm text-gray-800">
         Reschedule: <strong id="rescheduleEventTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
     </p>
 
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
         <input type="date" id="rescheduleDate" required 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
         <input type="time" id="rescheduleTime" required value="09:00"
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
+            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
         
-        <button id="confirmRescheduleBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg">
+        <button id="confirmRescheduleBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-sm">
             Confirm New Date/Time
         </button>
     </div>
@@ -452,33 +350,33 @@ body.menu-open .search-container {
 <div id="statusPromptModal"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
     
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 class="text-xl md:text-2xl font-extrabold text-yellow-700">Update Event Status</h2> 
+    <div class="flex justify-between items-center mb-2 border-b pb-2">
+        <h2 class="text-base md:text-base font-extrabold text-yellow-700">Update Event Status</h2> 
         <button id="closeStatusPromptModal" 
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
     
     <div id="promptContent">
-        <p class="mb-4 text-lg text-gray-800">
+        <p class="mb-1 text-lg text-gray-800">
             Did you complete the event: 
             <strong id="eventToPromptTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
         </p>
-        <p class="text-sm text-gray-500 italic mb-4">Date: <span id="eventToPromptDate"></span> | Time: <span id="eventToPromptTime"></span></p>
+        <p class="text-sm text-gray-500 italic mb-2">Date: <span id="eventToPromptDate"></span> | Time: <span id="eventToPromptTime"></span></p>
 
-        <div class="flex flex-col gap-3">
-            <button id="completeEventBtn" class="bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition duration-200 font-bold text-lg">
+        <div class="flex flex-col gap-1">
+            <button id="completeEventBtn" class="bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition duration-200 font-bold text-sm">
                 <i class="fas fa-check"></i> Completed Event
             </button>
-            <button id="incompleteEventBtn" class="bg-red-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-red-700 transition duration-200 font-bold text-lg">
+            <button id="incompleteEventBtn" class="bg-red-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-red-700 transition duration-200 font-bold text-sm">
                 <i class="fas fa-times"></i> Incomplete Event
             </button>
             
             <hr class="my-2 border-gray-200"/>
 
-            <button id="reschedulePromptBtn" class="bg-indigo-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-600 transition duration-200 font-bold text-lg">
+            <button id="reschedulePromptBtn" class="bg-indigo-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-600 transition duration-200 font-bold text-sm">
                 <i class="fas fa-calendar-alt"></i> Change Date & Time
             </button>
-            <button id="cancelPromptBtn" class="bg-gray-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-600 transition duration-200 font-bold text-lg">
+            <button id="cancelPromptBtn" class="bg-gray-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-600 transition duration-200 font-bold text-sm">
                 <i class="fas fa-trash-can"></i> Cancel Event Permanently
             </button>
         </div>
@@ -488,85 +386,352 @@ body.menu-open .search-container {
 <div id="eventTrackingSection"
     class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
 
-    <div class="flex justify-between items-center mb-4 border-b pb-3">
-        <h2 id="trackingModalTitle" class="text-xl md:text-2xl font-extrabold text-gray-700">Event History</h2> 
+    <div class="flex justify-between items-center mb-2 border-b pb-1">
+        <h2 id="trackingModalTitle" class="text-base md:text-base font-extrabold text-gray-700">Event History</h2> 
         <button id="closeTrackingModal" 
-                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
+                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
     <div id="trackingEventsList" class="max-h-[70vh] overflow-y-auto custom-scroll">
         <p class="text-center text-gray-500 italic p-3">Loading events...</p>
     </div>
 </div>
+<nav id="universal-bottom-nav">
+   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
+    </a>
 
-<footer class="mt-12 pt-4 pb-4 bg-white text-gray-500 text-center text-sm border-t shadow-inner">
-    &copy; 2025 Personal Website | All rights reserved
-</footer>
+    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
+    </a>
+
+    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
+    </a>
+
+    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
+    </a>
+          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
+        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calender</div>
+    </a>
+    </nav>
+
 
 <style>
-    /* Desktop Check */
-    @media only screen and (min-width: 768px) {
-        #universal-bottom-nav, .nav-spacer { display: none !important; }
-    }
+/* 1. Theme Variables & Reset */
+:root {
+    --bg-color: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.95); 
+    --nav-text: #000000; /* Pure black for light mode */
+    --hover-bg: #f8fafc;
+    --active-color: #2563eb;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --nav-height: 70px;
+}
 
-    :root {
-        --nav-bg: #ffffff;
-        --nav-text: #666666;
-        --nav-hover: #007AFF; /* Modern Blue */
-        --nav-height: 65px;
-    }
+[data-theme='dark'] {
+    --bg-color: #0f172a;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
+    --hover-bg: #1e293b;
+    --active-color: #60a5fa;
+    --border-color: rgba(255, 255, 255, 0.1);
+}
 
-    /* THE HOVER EFFECT (For Laptop/Mouse) */
-    .nav-link:hover {
-        color: var(--nav-hover) !important;
-    }
+/* 2. Universal Bottom Nav Entrance Animation */
+#universal-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+    z-index: 999999;
+    padding-bottom: env(safe-area-inset-bottom);
+    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    font-size: 12px;
+}
 
-    .nav-link:hover i {
-        transform: translateY(-3px); /* Icon pops up slightly */
-        transition: 0.3s;
-    }
+@keyframes navSlideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 
-    /* THE ACTIVE/TAP EFFECT (For Mobile/Touch) */
-    .nav-link:active {
-        transform: scale(0.9); /* Button shrinks slightly when pressed */
-        color: var(--nav-hover) !important;
-    }
+/* 3. Bottom Nav Link Styling */
+.nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text) !important; 
+    text-decoration: none !important;
+    transition: color 0.3s ease;
+    position: relative;
+    height: 40px;
+}
 
-    .nav-link {
-        transition: all 0.2s ease;
-    }
+.nav-link i {
+    font-size: 25px;
+    margin-bottom: 4px;
+    color: inherit;
+    /* Cleaned up stroke for better legibility */
+    -webkit-text-stroke: 0.5px var(--nav-text); 
+    font-weight: 700;
+}
+
+.nav-link div {
+    font-size: 11px;
+    font-weight: 800; /* 900 can be too chunky on some screens */
+    text-transform: uppercase;
+    color: inherit;
+    letter-spacing: 0.02em;
+    gap: 5px;
+}
+
+.nav-link.active {
+    color: var(--active-color) !important;
+}
+
+.nav-link.active i {
+    transform: translateY(-3px);
+    -webkit-text-stroke: 0.5px var(--active-color);
+}
+
+
+[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
+    background: #1e293b;
+    color: #ffffff; /* Ensures text is visible in dark mode */
+}
+
+.animate-pop {
+    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+.theme-toggle:hover {
+    transform: translateY(-2px);
+    background: var(--hover-bg);
+}
+
+
+
+
+
+
+
+
+[data-theme='dark'] .profile-box { 
+    background: #1e293b; 
+}
+
+/* --- Adjustments for the Top Header Area --- */
+
+
+/* Ensure icons in the toggle switch between moon/sun */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block; }
+
+/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
+[data-theme='dark'] .theme-toggle i.fa-sun {
+    display: inline-block;
+}
+[data-theme='light'] .theme-toggle i.fa-moon {
+    display: inline-block;
+}
+#tableContainer {
+    max-height: 500px; /* Adjust height as needed */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+#tableContainer::-webkit-scrollbar {
+    width: 5px;
+}
+
+#tableContainer::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+}
+/* Fix for the sticky header background */
+thead th {
+    background-color: white !important;
+}
+
+/* Professional Scrollbar for the data list */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Adjust main content to not be hidden by bottom nav */
+#mainContent {
+    padding-bottom: 100px;
+}
+
+/* 1. Reset Body and Layout Logic */
+
+/* 3. Fix the Grid Columns for Mobile */
+
+
+/* 4. Positioning the Profile Box back to the top right */
+
+
+/* 5. Data Visibility and Contrast */
+
+/* Keeps the text readable on the yellow background specifically */
+
+/* If you want ONLY the Savig text to stay dark because the box is yellow */
+[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
+    color: #000000 !important;
+}
+/* 6. Theme Toggle Logic (Icon Display) */
+[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
+[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
+[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
+.universal-bottom-nav:hover{
+    color: #2563eb;
+}
+/* --- Focus Mode Styles --- */
+.focus-active nav, 
+.focus-active #calendar-controls, 
+.focus-active .calendar-header, 
+.focus-active #calendar, 
+.focus-active .search-container,
+.focus-active #universal-bottom-nav {
+    display: none !important;
+}
+
+/* --- Search Focus Mode --- */
+body.search-mode-active .search-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background: white;
+    padding: 15px;
+}
+
+body.search-mode-active main > *:not(.search-container):not(#searchResults) {
+    display: none !important;
+}
+
+#searchResults {
+    margin-top: 80px; /* Space for fixed search bar */
+}
+
+/* --- Back Arrow Styling --- */
+.back-arrow {
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+    color: #4f46e5;
+}
+
+/* Ensure Search bar is always at top when active */
+.search-active-header {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+/* --- Full Page Search Mode --- */
+body.search-mode-active {
+    overflow: hidden !important;
+}
+
+/* Hide everything else */
+body.search-mode-active nav, 
+body.search-mode-active #calendar-controls, 
+body.search-mode-active .calendar-header, 
+body.search-mode-active #calendar, 
+body.search-mode-active #universal-bottom-nav,
+body.search-mode-active #calendar-controls + div, /* Hide current month header */
+body.search-mode-active .search-controls-row {
+    display: none !important;
+}
+
+/* Force Search Bar to the very top in a single row */
+body.search-mode-active .search-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    z-index: 9999 !important;
+    padding: 10px 15px !important;
+    display: flex !important;
+    flex-direction: row !important; /* Row layout for Arrow + Input */
+    align-items: center !important;
+    gap: 10px !important;
+    border-bottom: 1px solid #ddd;
+}
+
+/* The Search Input within the container */
+body.search-mode-active .search-container > div {
+    flex-direction: row !important;
+    width: 100% !important;
+}
+
+/* Search Results covering the whole screen below the bar */
+#searchResults.active-view {
+    position: fixed !important;
+    top: 60px !important; 
+    left: 0 !important;
+    width: 100% !important;
+    height: calc(100vh - 60px) !important;
+    background: #f8fafc !important;
+    z-index: 9998 !important;
+    overflow-y: auto !important;
+    display: block !important;
+    padding: 15px !important;
+}
+
+/* Back Arrow Styling */
+.search-back-btn {
+    font-size: 22px;
+    color: #4f46e5;
+    cursor: pointer;
+    padding-right: 10px;
+}
+
+
 </style>
 
-<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
 
-    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Home</div>
-    </a>
 
-    <a href="adress.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Address</div>
-    </a>
-
-    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
-    </a>
-
-    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
-    </a>
-
-    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Contact</div>
-    </a>
-
-</nav>
-
-<div class="nav-spacer" style="height: 75px; width: 100%;"></div>
 <script>
 // --- Mobile Menu Toggle (from previous code) ---
 const menuBtn = document.getElementById("menu-btn");
@@ -594,13 +759,11 @@ const db = firebase.database();
 // --- Globals & Enums ---
 let currentUser = null;
 let currentDate = new Date();
-let selectedDate = null;
-let editTaskId = null;
-let editEventId = null;
-let eventsToPrompt = []; // Queue for status prompts
-let realTimeCheckInterval; // Reference for the recurring timer
-
-// Variables for storing the event currently being rescheduled/prompted
+let selectedDate = null;      // Declared once
+let editTaskId = null;        // Declared once
+let editEventId = null;       // Declared once
+let eventsToPrompt = [];      // Queue for status prompts
+let realTimeCheckInterval;    // Reference for the recurring timer
 let currentEventForAction = null; 
 
 const EVENT_STATUS = {
@@ -641,7 +804,6 @@ const closeTrackingModalBtn = document.getElementById("closeTrackingModal");
 const reschedulePromptBtn = document.getElementById("reschedulePromptBtn"); 
 const cancelPromptBtn = document.getElementById("cancelPromptBtn"); 
 const searchOverlayBackground = document.querySelector('.search-overlay-background');
-
 
 // --- Helpers ---
 const toISODate = d => {
@@ -690,40 +852,39 @@ function startRealTimeChecks() {
 // --- END Real-Time Polling Logic ---
 
 
-// --- Auth ---
+// --- Updated Auth Block ---
 auth.onAuthStateChanged(user => {
     if(user){
         currentUser = user;
-        document.getElementById("userName").textContent = user.displayName || "User Name";
-        document.getElementById("userEmail").textContent = user.email;
-        document.getElementById("mobileUserName").textContent = user.displayName || "User Name";
-        document.getElementById("mobileUserEmail").textContent = user.email;
         
-        const photoUrl = user.photoURL || "https://via.placeholder.com/40";
-        document.getElementById("userPhoto").src = photoUrl;
+        // Fill profile info
+        if(document.getElementById("userName")) document.getElementById("userName").textContent = user.displayName || "User";
+        if(document.getElementById("userEmail")) document.getElementById("userEmail").textContent = user.email;
         
-        const mobilePhotoElement = document.getElementById("mobileUserPhoto");
-        if(mobilePhotoElement) {
-            mobileUserPhoto.src = photoUrl;
-        }
+        // 1. CRITICAL: Initialize the date object if it somehow got lost
+        if (!currentDate) currentDate = new Date();
 
-        renderCalendar();
-        requestNotificationPermission();
-        // Start continuous checking for notifications
-        startRealTimeChecks(); 
-        // INSTANT PROMPT on page load/login
-        checkAndPromptForEventStatus(); 
+        // 2. CRITICAL: Trigger the render immediately
+        console.log("User authenticated, rendering calendar...");
+        renderCalendar(); 
+
+        // Start background services
+        startRealTimeChecks();
+        checkAndPromptForEventStatus();
     } else {
-        // Clear interval on logout
-        if (realTimeCheckInterval) {
-            clearInterval(realTimeCheckInterval);
-        }
-        if (window.location.pathname !== '/index.html' && !window.location.pathname.endsWith('/')) {
+        // Redirect to login if no user
+        if (!window.location.pathname.includes('index.html')) {
             window.location.href = "index.html"; 
         }
     }
 });
 
+// 3. ADD THIS: Force a render if the page finishes loading and user is already cached
+window.onload = () => {
+    if (firebase.auth().currentUser) {
+        renderCalendar();
+    }
+};
 function logout(){
     auth.signOut().then(() => {
         location.href="index.html";
@@ -775,16 +936,16 @@ function renderCalendar(){
         
         let dayOfWeekText = '';
         if (window.innerWidth < 768) {
-            dayOfWeekText = `<span class="text-base text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
+            dayOfWeekText = `<span class="text-sm text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
         }
 
 
         cell.innerHTML=`
-            <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
-                <span class="text-xl md:text-2xl">${d}</span>
+            <div class="flex justify-start items-center gap-1 font-semibold text-gray-800">
+                <span class="text-sm md:text-sm">${d}</span>
                 ${dayOfWeekText}
             </div>
-            <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
+            <div id="tasks-${iso}" class="mt-1 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
         `;
         cell.onclick=()=>openModal(iso); 
         cal.appendChild(cell);
@@ -792,24 +953,31 @@ function renderCalendar(){
     }
 }
 
-// --- Modals ---
 function openModal(dateISO) {
-    if (!currentUser) return alert("Please sign in to manage tasks.");
-    closeEventModal();
-    closeTrackingModal();
-    closeStatusPromptModal();
+    if (!currentUser) return;
+    
+    // Activate Focus Mode
+    document.body.classList.add("focus-active");
+    
+    // Change Close button to a Back Arrow
+    closeModalBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
+    closeModalBtn.className = "text-indigo-600 text-2xl p-2";
 
-    document.getElementById("modalDate").textContent = `Tasks & Events for ${formatDate(dateISO)}`;
     selectedDate = dateISO;
-    editTaskId = null;
-    document.getElementById("taskTitle").value = "";
-    document.getElementById("taskDesc").value = "";
-
-    overlayElement.classList.remove("hidden");
-    taskModalElement.classList.remove("hidden");
-
+    document.getElementById("modalDate").textContent = `Tasks: ${formatDate(dateISO)}`;
     loadModalTasks(dateISO);
 }
+
+function closeModal() {
+    document.body.classList.remove("focus-active");
+    
+    // Reset Close button to X
+    closeModalBtn.innerHTML = "&times;";
+    closeModalBtn.className = "text-red-500 hover:text-white text-[33px] font-bold p-1 hover:bg-red-500 rounded-full";
+    
+    document.body.style.overflow = 'auto';
+}
+
 
 function openEventModal(dateISO = null) {
     if (!currentUser) return alert("Please sign in to manage events.");
@@ -861,16 +1029,20 @@ function openRescheduleModal(event) {
     rescheduleModal.classList.remove("hidden");
 }
 
+function closeModal() {
+    // 1. Remove Focus Mode
+    document.body.classList.remove("focus-active");
 
-function closeModal(){
-    selectedDate=null; editTaskId=null;
-    overlayElement.classList.add("hidden");
-    taskModalElement.classList.add("hidden");
-    document.getElementById("existingTasks").innerHTML="";
-    // Reset search view logic... (kept simplified here for brevity)
-    document.body.style.overflow = 'auto'; 
+    // 2. Restore Modal to original popup classes
+    taskModalElement.classList.add("hidden", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2");
+    taskModalElement.classList.remove("inset-0", "w-full", "h-full", "max-w-none", "rounded-none");
+    
+    // 3. Reset Close Button
+    closeModalBtn.innerHTML = "&times;";
+    closeModalBtn.className = "text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-50 rounded-full";
+
+    document.body.style.overflow = 'auto';
 }
-
 function closeEventModal(){
     editEventId = null;
     overlayElement.classList.add("hidden");
@@ -954,7 +1126,46 @@ document.getElementById("saveTaskBtn").addEventListener("click",()=>{
     document.getElementById("taskDesc").value="";
 });
 
-// --- NEW: Save Event (Applied Capitalization, Optimized Reload - FIXES ISSUE) ---
+
+
+
+function loadTasks(date) {
+    if (!currentUser) return;
+    const c = document.getElementById(`tasks-${date}`);
+    if (!c) return;
+    c.innerHTML = "";
+
+    // Optimization: Single path fetch to increase loading speed
+    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
+        const data = snap.val() || {};
+        const tasks = data.tasks?.[date] || {};
+        const events = data.events?.[date] || {};
+        
+        let allItems = [];
+        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
+        Object.values(events)
+            .filter(e => e.status === EVENT_STATUS.PENDING)
+            .forEach(e => allItems.push({ type: 'event', ...e }));
+
+        // Sort: Events first
+        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
+
+        allItems.slice(0, 3).forEach(item => { 
+            const isEvent = item.type === 'event';
+            const line = document.createElement("div");
+            
+            // UI Requirement: 16px font, slightly darker but not black
+          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
+                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
+            }`;
+            line.style.fontSize = "14px"; 
+            
+            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
+            line.innerHTML = `${icon}${item.title}`;
+            c.appendChild(line);
+        });
+    });
+}
 document.getElementById("saveEventBtn").addEventListener("click",()=>{
     if (!currentUser) return alert("User not logged in.");
 
@@ -1039,7 +1250,7 @@ function loadTasks(date) {
           line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
                 isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
             }`;
-            line.style.fontSize = "16px"; 
+            line.style.fontSize = "14px"; 
             
             const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
             line.innerHTML = `${icon}${item.title}`;
@@ -1048,31 +1259,50 @@ function loadTasks(date) {
     });
 }
 
+
 // --- 2. Modal Task List (Vertical Actions, Description Below Title, No Overlap) ---
 function loadModalTasks(date) {
     if (!currentUser) return;
+    selectedDate = date; 
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
 
-    // Container: 500px Height & Reduced weight for modern look
-    cont.className = "max-h-[400px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-full md:max-w-[94%]";
-
-    cont.innerHTML = `<div class="flex justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>`;
+    // UI Setup: Reverted to standardunded-2xl border border-gray-200 mx-auto w-half mt-1 md:max-w-[99%] shado modern container weights
+    cont.className = "max-h-[370px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 row-inner";
     
-    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
-        const data = snap.val() || {};
-        const tasks = data.tasks?.[date] || {};
-        const events = data.events?.[date] || {};
+    cont.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12 gap-1">
+            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-indigo-600"></div>
+            <p class="text-indigo-500 italic text-sm">Syncing schedule...</p>
+        </div>`;
 
+    const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
+    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
+
+    Promise.all([taskRef.once("value"), eventRef.once("value")]).then(([taskSnap, eventSnap]) => {
         let allItems = [];
-        Object.entries(tasks).forEach(([id, t]) => allItems.push({ type: 'task', id, date, ...t }));
+        const tasks = taskSnap.val() || {};
+        const events = eventSnap.val() || {};
+
+        Object.entries(tasks).forEach(([id, t]) => {
+            allItems.push({ type: 'task', id, date, ...t });
+        });
+        
         Object.entries(events)
             .filter(([id, e]) => e.status === EVENT_STATUS.PENDING)
-            .forEach(([id, e]) => allItems.push({ type: 'event', id, date, ...e }));
+            .forEach(([id, e]) => {
+                allItems.push({ type: 'event', id, date, ...e });
+            });
+
+        allItems.sort((a, b) => {
+            if (a.type === 'event' && b.type === 'task') return -1;
+            if (a.type === 'task' && b.type === 'event') return 1;
+            return (a.time || "").localeCompare(b.time || "");
+        });
 
         cont.innerHTML = '';
-        if(allItems.length === 0) {
-            cont.innerHTML = `<div class="text-center py-16 text-slate-400 text-lg italic uppercase">Clear Schedule</div>`;
+        if (allItems.length === 0) {
+            cont.innerHTML = `<div class="text-center py-16 text-slate-400 text-lg italic uppercase tracking-widest">Clear Schedule</div>`;
             return;
         }
 
@@ -1081,69 +1311,71 @@ function loadModalTasks(date) {
             const hasDesc = item.desc && item.desc.trim() !== "";
             const div = document.createElement("div");
             
-            // Responsive Grid: Prevents overlapping by separating content and buttons
-            div.className = `grid grid-cols-1 md:grid-cols-[1fr_auto] items-start gap-4 p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
-                isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'
+            div.className = `grid grid-cols-1 md:grid-cols-[1fr_120px] items-start gap-1 p-5 mb-1 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
+                isEvent ? 'border-l-[3px] border-l-emerald-500' : 'border-l-[3px] border-l-indigo-500'
             }`;
 
-            // Content: Title & Description stacked
             const contentContainer = document.createElement("div");
-            contentContainer.className = "flex flex-col gap-2 min-w-0";
+            contentContainer.className = "flex flex-col gap-1 min-w-0";
             contentContainer.innerHTML = `
-                <div class="flex flex-col gap-1">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
-                        <strong class="text-xl md:text-2xl font-bold text-slate-800 break-words">${item.title}</strong>
+                <div class="flex flex-col gap-1 ">
+                    <div class="flex items-center gap-1 ">
+                        <span class="text-base">${isEvent ? '🗓️' : '📝'}</span>
+                        <strong class="text-sm md:text-sm font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
                     </div>
-                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ml-8">🕒 ${item.time}</div>` : ''}
+                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ">🕒 ${item.time}</div>` : ''}
                 </div>
-                ${hasDesc ? `
-                    <div class="border-t border-slate-100 pt-2 mt-1 ml-8">
-                        <p class="text-lg md:text-xl text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">${item.desc}</p>
-                    </div>
-                ` : ''}
+                ${hasDesc ? `<div class="border-t border-slate-100  mt-1  text-sm text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
             `;
 
-            // Actions: Responsive alignment with mobile touch feedback
             const actionsSection = document.createElement("div");
-            actionsSection.className = "flex flex-row md:flex-col gap-3 items-center justify-end md:border-l border-slate-100 md:pl-4 shrink-0 pt-2 md:pt-0";
-            
-            const btnBase = "h-11 w-11 flex items-center justify-center rounded-lg transition-all border border-slate-200 text-slate-400 bg-slate-50 active:scale-95";
+            actionsSection.className = "flex flex-col gap-1 shrink-0 md:border-l border-slate-100 md:pl-4 w-full md:w-auto";
 
+            const crudRow = document.createElement("div");
+            crudRow.className = "flex flex-row md:flex-col gap-1";
 
-// --- Modern Edit Button (Professional Deep Indigo) ---
-const editBtn = document.createElement("button");
-editBtn.innerHTML = `<i class="fas fa-pencil-alt text-[10px]"></i> <span>EDIT</span>`;
+            // --- INCREASED SIZE EDIT BUTTON ---
+            const editBtn = document.createElement("button");
+            editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>EDIT</span>`;
+           editBtn.className = "flex-1 md:w-[15px] h-8 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
+            editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
 
-// STYLING:
-// bg-slate-800: Use a deep charcoal/slate instead of bright blue for a "premium" look
-// rounded-full: Pill-shaped buttons are more modern than blocky ones
-// shadow-sm: Very subtle shadow to prevent a "cheap" floating look
-editBtn.className = `w-[100px] h-9 flex items-center justify-center gap-2 bg-slate-800 text-white font-bold tracking-widest text-[10px] rounded-full border-none hover:bg-indigo-600 active:scale-90 transition-all duration-200 cursor-pointer shadow-sm`;
-editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
+            // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
+            const delBtn = document.createElement("button");
+            delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
+            delBtn.className = "flex-1 md:w-[27px] h-8 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
+            delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
 
-// --- Modern Delete Button (Soft Muted Rose) ---
-const delBtn = document.createElement("button");
-delBtn.innerHTML = `<i class="fas fa-trash-alt text-[10px]"></i> <span>DELETE</span>`;
+            crudRow.appendChild(editBtn);
+            crudRow.appendChild(delBtn);
+            actionsSection.appendChild(crudRow);
 
-// STYLING:
-// bg-rose-50: A soft, light background with dark text is often more "modern" than solid red
-// text-rose-600: High-contrast red text on a light red background
-delBtn.className = `w-[100px] h-9 flex items-center justify-center gap-2 bg-rose-50 text-rose-600 font-bold tracking-widest text-[10px] rounded-full border border-rose-100 hover:bg-rose-600 hover:text-white active:scale-90 transition-all duration-200 cursor-pointer`;
-delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
+            if (isEvent) {
+                const statusGroup = document.createElement("div");
+                statusGroup.className = "flex flex-col gap-1 w-full pt-1 border-t border-slate-100";
+                statusGroup.innerHTML = `
+                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.COMPLETED}', true)" 
+                        class="bg-emerald-600 text-white text-[10px] h-10 rounded-lg hover:bg-emerald-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-check"></i> COMPLETED
+                    </button>
+                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.INCOMPLETE}', true)" 
+                        class="bg-rose-600 text-white text-[10px] h-10 rounded-lg hover:bg-rose-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
+                        <i class="fas fa-times"></i> INCOMPLETE
+                    </button>
+                `;
+                actionsSection.appendChild(statusGroup);
+            }
 
-            actionsSection.appendChild(editBtn);
-            actionsSection.appendChild(delBtn);
             div.appendChild(contentContainer);
             div.appendChild(actionsSection);
             cont.appendChild(div);
         });
+    }).catch(err => {
+        console.error("Data Load Error:", err);
+        cont.innerHTML = `<div class="text-center text-rose-500 font-bold py-10">Sync Failed.</div>`;
     });
-
-    // Touch feedback for the Close Cross button
-    const closeBtn = document.querySelector("#taskModal .close-btn-class");
-    if(closeBtn) closeBtn.classList.add("active:scale-90", "transition-all", "active:text-rose-500");
 }
+
 
 // --- 3. CRUD Action Helpers ---
 function handleEdit(type, id, date) {
@@ -1187,51 +1419,6 @@ function handleDelete(type, id, date) {
             });
     }
 }
-// --- NEW: Reschedule Logic ---
-
-/**
- * Executes the reschedule action by moving the event in Firebase.
- */
-function rescheduleEvent(event, newDateISO, newTime) {
-    if (!currentUser) return;
-    
-    // NOTE: This logic handles the rescheduling from the status prompt modal
-    
-    const oldRef = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-    const newRef = db.ref(`users/${currentUser.uid}/events/${newDateISO}`);
-    
-    const newTimestamp = new Date(`${newDateISO}T${newTime}:00`).getTime();
-    
-    // Fetch the old event data
-    db.ref(oldRef).once('value').then(snap => {
-        const oldData = snap.val();
-        if (!oldData) return alert("Original event not found.");
-
-        const newData = {
-            ...oldData,
-            date: newDateISO, // Not strictly needed in the object body but good for clarity
-            time: newTime,
-            timestamp: newTimestamp,
-            savedTimestamp: new Date().getTime(), // Reset saved time to ensure prompt delay restarts
-            status: EVENT_STATUS.PENDING // Ensure status is reset to pending
-        };
-
-        // 1. Push new data to the new date node
-        return newRef.push(newData).then(() => {
-            // 2. Remove old data from the old date node
-            return db.ref(oldRef).remove();
-        });
-    }).then(() => {
-        alert(`Event '${event.title}' successfully rescheduled to ${newDateISO} at ${newTime}.`);
-        renderCalendar();
-        checkAndShowNotifications();
-        checkAndPromptForEventStatus();
-    }).catch(error => {
-        console.error("Rescheduling error:", error);
-        alert("Failed to reschedule event.");
-    });
-}
-
 /**
  * Permanently deletes an event, typically used from the 24hr prompt modal.
  */
@@ -1252,33 +1439,44 @@ function cancelEventPermanent(event) {
 }
 
 
-// --- NEW: Status Prompt Logic (FIXED: Uses savedTimestamp for 24hr check) ---
 
+
+// --- FIXED: Prompt for status the day AFTER the event date ---
 async function checkAndPromptForEventStatus() {
     if (!currentUser) return;
     
-    const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
-    const allEvents = snapshot.val() || {};
-    
-    eventsToPrompt = []; 
+    try {
+        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
+        const allEvents = snapshot.val() || {};
+        
+        eventsToPrompt = []; 
+        const now = new Date();
+        // Set 'now' to the start of the current day to compare dates easily
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        
+        Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
+            Object.entries(dayEvents).forEach(([id, event]) => {
+                
+                // 1. Create a Date object for the event day
+                const eventDateParts = dateISO.split('-').map(Number);
+                // Create date at 00:00:00 of that day
+                const eventDayObj = new Date(eventDateParts[0], eventDateParts[1] - 1, eventDateParts[2]);
+                const eventDayTime = eventDayObj.getTime();
 
-    const now = new Date().getTime();
-    
-    Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
-        Object.entries(dayEvents).forEach(([id, event]) => {
-            // Check if status is pending AND (saved timestamp + 24 hours) has passed
-            const savedTime = event.savedTimestamp || event.timestamp; 
-            const promptTime = savedTime + PROMPT_DELAY_MS;
-            
-            if (event.status === EVENT_STATUS.PENDING && promptTime < now) {
-                eventsToPrompt.push({ date: dateISO, id, ...event });
-            }
+                // 2. LOGIC: 
+                // We prompt if status is PENDING 
+                // AND Today is strictly GREATER than the Event Date
+                if (event.status === EVENT_STATUS.PENDING && todayStart > eventDayTime) {
+                    eventsToPrompt.push({ date: dateISO, id, ...event });
+                }
+            });
         });
-    });
 
-    // Check instantly if there are pending prompts
-    if (eventsToPrompt.length > 0) {
-        processNextPendingEvent();
+        if (eventsToPrompt.length > 0) {
+            processNextPendingEvent();
+        }
+    } catch (error) {
+        console.error("Error checking pending events:", error);
     }
 }
 
@@ -1289,7 +1487,7 @@ function processNextPendingEvent() {
     }
     
     const event = eventsToPrompt[0]; 
-    currentEventForAction = event; // Store current event for action buttons
+    currentEventForAction = event; 
 
     document.getElementById("eventToPromptTitle").textContent = event.title;
     document.getElementById("eventToPromptDate").textContent = formatDate(event.date);
@@ -1298,55 +1496,59 @@ function processNextPendingEvent() {
     // Set listeners for prompt actions
     completeEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.COMPLETED);
     incompleteEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.INCOMPLETE);
-    reschedulePromptBtn.onclick = () => openRescheduleModal(event); // Open reschedule modal
-    cancelPromptBtn.onclick = () => cancelEventPermanent(event); // Permanently cancel event
+    reschedulePromptBtn.onclick = () => openRescheduleModal(event);
+    cancelPromptBtn.onclick = () => cancelEventPermanent(event);
 
     overlayElement.classList.remove("hidden");
     statusPromptModal.classList.remove("hidden");
 }
 
+// --- 2. THE CENTRAL UPDATE FUNCTION (Fixed Date/Path Issues) ---
 function updateEventStatus(event, status, calledFromModal = false) {
-    if (!currentUser) return;
+    if (!currentUser || !event.date || !event.id) {
+        console.error("Missing Event Data:", event);
+        return;
+    }
 
-    db.ref(`users/${currentUser.uid}/events/${event.date}/${event.id}`)
+    const eventPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
+
+    db.ref(eventPath)
       .update({ status: status })
       .then(() => {
-          console.log(`Event ${event.id} status updated to ${status}.`);
+          console.log(`Successfully updated ${event.id} to ${status}`);
           
+          // ALWAYS refresh the main calendar cell
+          if (typeof loadTasks === "function") loadTasks(event.date);
+
           if (calledFromModal) {
-              // If clicked from the date modal, just refresh that modal view
-              loadModalTasks(event.date);
+              // Refresh the specific day/modal view
+              if (typeof loadModalTasks === "function") loadModalTasks(event.date);
           } else {
-              // If clicked from the 24hr prompt or tracking modal
-              eventsToPrompt.shift(); // Remove from queue
-              
-              // FIXED: If we are currently viewing the tracking modal, refresh it
-              if (eventTrackingSection.classList.contains('hidden') === false) {
-                  // Only refresh tracking list if the item moved out of the current status
-                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") ? EVENT_STATUS.INCOMPLETE : EVENT_STATUS.COMPLETED;
-                  loadTrackingEvents(currentStatusInView); 
+              // Logic for 24hr Prompt Queue
+              // Only remove from queue if this event is the one being prompted
+              if (eventsToPrompt.length > 0 && eventsToPrompt[0].id === event.id) {
+                  eventsToPrompt.shift();
+                  closeStatusPromptModal();
+                  processNextPendingEvent();
               }
               
-              closeStatusPromptModal(); // Close if open
-              processNextPendingEvent(); // Process next in queue
+              // Refresh Tracking Modal if it is currently visible
+              const isTrackingOpen = !eventTrackingSection.classList.contains('hidden');
+              if (isTrackingOpen) {
+                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") 
+                      ? EVENT_STATUS.INCOMPLETE 
+                      : EVENT_STATUS.COMPLETED;
+                  loadTrackingEvents(currentStatusInView); 
+              }
           }
-          
-          loadTasks(event.date); // Optimized update for calendar cell
       })
       .catch(err => {
-          console.error(`Failed to update status for event ${event.id}:`, err);
-          alert(`Failed to update status for ${event.title}. Please try again.`);
-          if (!calledFromModal) {
-            processNextPendingEvent();
-          }
+          console.error("Update failed:", err);
+          alert("Could not update status. Please try again.");
       });
 }
 
-// --- NEW: Tracking Events Logic (Completed/Incomplete) - FIXED: Sorting by timestamp DESC ---
-
-/**
- * Fetches and displays events based on the final status (Last 30 Days).
- */
+// --- 3. TRACKING EVENTS LOGIC ---
 function loadTrackingEvents(status) {
     if (!currentUser) return;
 
@@ -1356,24 +1558,20 @@ function loadTrackingEvents(status) {
         const allEvents = snapshot.val() || {};
         let filteredEvents = [];
 
-        // FIXED: Calculate 30 days ago date (in UTC format for consistent comparison)
         const cutoffDate = new Date();
         cutoffDate.setUTCDate(cutoffDate.getUTCDate() - 30);
         cutoffDate.setUTCHours(0, 0, 0, 0); 
 
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
+                const eventDate = new Date(dateISO); 
                 
-                const eventDate = new Date(dateISO); // Check only the date part
-                
-                // FIXED: Filter for status and date range
                 if (event.status === status && eventDate >= cutoffDate) {
-                    filteredEvents.push({ date: dateISO, id: id, ...event }); // Include ID
+                    filteredEvents.push({ date: dateISO, id: id, ...event });
                 }
             });
         });
 
-        // FIXED: Sort by full timestamp in descending order (Newest first)
         filteredEvents.sort((a, b) => b.timestamp - a.timestamp);
 
         if (filteredEvents.length === 0) {
@@ -1381,22 +1579,23 @@ function loadTrackingEvents(status) {
             return;
         }
 
-        trackingEventsList.innerHTML = ''; // Clear loading message
+        trackingEventsList.innerHTML = ''; 
 
         filteredEvents.forEach(event => {
             const isCompleted = event.status === EVENT_STATUS.COMPLETED;
             const bgColor = isCompleted ? 'bg-green-50' : 'bg-red-50';
             const icon = isCompleted ? 'fa-check-circle text-green-700' : 'fa-times-circle text-red-700';
-            const locationText = event.location && event.location.trim() !== '' ? `Location: ${event.location}` : 'Location: N/A';
+            const locationText = (event.location && event.location.trim() !== '') ? `Location: ${event.location}` : 'Location: N/A';
 
             const eventDiv = document.createElement("div");
             eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200`;
             
             let completeButton = '';
-            // Only show 'Complete Event' button if it's currently INCOMPLETE (Increased size)
             if (status === EVENT_STATUS.INCOMPLETE) {
+                 // Escape title for the onclick string
+                 const safeTitle = event.title.replace(/'/g, "\\'");
                  completeButton = `
-                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}' }, '${EVENT_STATUS.COMPLETED}', false)"
+                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
                              class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
                          <i class="fas fa-check"></i> Complete Event
                      </button>
@@ -1406,14 +1605,14 @@ function loadTrackingEvents(status) {
             eventDiv.innerHTML = `
                 <div class="flex items-start justify-between">
                     <div class="flex-1 min-w-0">
-                        <strong class="text-xl text-gray-800 block">
+                        <strong class="text-lg text-gray-800 block">
                             <i class="fas ${icon} mr-3"></i> ${event.title}
                         </strong>
                         <span class="text-sm text-gray-600 block">${formatDate(event.date)} at ${event.time}</span>
                     </div>
                     <div class="ml-4">${completeButton}</div>
                 </div>
-                <p class="mt-2 text-gray-600">${event.desc || 'No Description'}</p>
+                <p class="mt-1 text-gray-600">${event.desc || 'No Description'}</p>
                 <p class="text-sm text-gray-500 mt-1 italic">${locationText}</p>
             `;
             trackingEventsList.appendChild(eventDiv);
@@ -1491,49 +1690,89 @@ function requestNotificationPermission() {
     }
 }
 
-function checkAndShowNotifications() {
+/**
+ * Checks for pending events and triggers system notifications.
+ * Uses a more robust checking logic and cleaner formatting.
+ */
+async function checkAndShowNotifications() {
+    // 1. Early exits for permissions and auth
     if (!currentUser || Notification.permission !== "granted") return;
 
-    db.ref(`users/${currentUser.uid}/events`).once("value").then(snapshot => {
+    try {
+        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
         const allEvents = snapshot.val();
         if (!allEvents) return;
 
-        const now = new Date().getTime();
+        const now = Date.now();
         
+        // Use flatMap or nested forEach to process events
         Object.entries(allEvents).forEach(([date, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
                 
-                // Only show notification for PENDING events
+                // Logic Guard: Only process PENDING events
                 if (event.status !== EVENT_STATUS.PENDING) return;
 
                 const eventTimestamp = event.timestamp; 
                 
-                // FIXED: Use the NOTIFICATION_TOLERANCE_MS (12 hours)
-                if (eventTimestamp && eventTimestamp > now - NOTIFICATION_TOLERANCE_MS && eventTimestamp <= now) {
-                    
-                    const eventTimeStr = event.time; 
+                // Timing Window: Event is within the past 12 hours (tolerance) up until 'now'
+                const isWithinWindow = eventTimestamp > (now - NOTIFICATION_TOLERANCE_MS) && eventTimestamp <= now;
 
-                    // FIXED: Handle empty location (do not show location line if empty)
-                    const locationText = event.location && event.location.trim() !== '' ? `\nLocation: ${event.location}` : '';
-                    
-                    const options = {
-                        body: `Time: ${eventTimeStr}${locationText}\nDetails: ${event.desc || 'No details'}`,
-                        icon: 'https://via.placeholder.com/64/10b981/ffffff?text=E', 
-                        tag: `event-${date}-${id}`, 
-                        vibrate: [200, 100, 200]
-                    };
-                    
-                    try {
-                        new Notification(event.title, options);
-                    } catch (e) {
-                        console.error("Failed to show notification:", e);
-                    }
+                if (eventTimestamp && isWithinWindow) {
+                    sendProfessionalNotification(date, id, event);
                 }
             });
         });
-    }).catch(err => {
-        console.error("Error checking notifications:", err);
-    });
+    } catch (err) {
+        console.error("Critical: Notification sync failed", err);
+    }
+}
+
+/**
+ * Helper to handle the UI/UX of the notification itself
+ */
+/**
+ * Triggers a professionally formatted system notification
+ */
+function sendProfessionalNotification(date, id, event) {
+    // Header for the body content
+    const header = "EVENT DETAILS";
+    const divider = "───────────────────";
+    
+    // Formatting the content with clean labels and spacing
+    const timeEntry = `⏰ Time:     ${event.time || 'Not specified'}`;
+    const locEntry  = event.location?.trim() ? `📍 Location: ${event.location}` : '';
+    const descEntry = `📝 Note:     ${event.desc || 'No details provided'}`;
+
+    // Construct the body: Only include location if it exists
+    const bodyContent = [
+        header,
+        divider,
+        timeEntry,
+        locEntry,
+        descEntry
+    ].filter(line => line !== '').join('\n');
+
+    const options = {
+        body: bodyContent,
+        // Using a high-quality local asset for a native app feel
+        icon: '/assets/img/calendar-notification-icon.png', 
+        badge: '/assets/img/badge-icon.png', 
+        tag: `event-${date}-${id}`,
+        vibrate: [200, 100, 200],
+        requireInteraction: false // Automatically hides after a few seconds
+    };
+
+    const title = event.title?.toUpperCase() || "EVENT REMINDER";
+
+    try {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+        } else {
+            new Notification(title, options);
+        }
+    } catch (e) {
+        console.error("Notification UI Error:", e);
+    }
 }
 // --- Search Functions (OPTIMIZED: Instant response) ---
 let debounceTimeout;
@@ -1621,7 +1860,7 @@ function searchTasks(isFocusEvent = false) {
             
             // Header for Mobile
             listContainer.innerHTML = `
-                <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
+                <div class="flex justify-between items-center mb-1 pb-1 border-b border-gray-200 md:hidden">
                     <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
                     <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
                 </div>`;
@@ -1650,7 +1889,7 @@ function searchTasks(isFocusEvent = false) {
                         itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50`; 
                         itemDiv.innerHTML = `
                             <div class="flex justify-between items-center">
-                                <strong class="text-base font-bold text-gray-800 md:text-xl">
+                                <strong class="text-base font-bold text-gray-800 md:text-lg">
                                     <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'}
                                 </strong>
                                 <span class="text-sm text-gray-600">${formattedDate}</span>
@@ -1781,11 +2020,106 @@ document.getElementById("saveEventBtn").addEventListener("click", () => {
         })
         .catch(err => alert("Save failed: " + err.message));
 });
+// Add this helper to insert a back arrow into the search container if it doesn't exist
+function injectSearchBackArrow() {
+    const container = document.querySelector('.search-container');
+    if (!document.getElementById('searchBackArrow')) {
+        const arrow = document.createElement('i');
+        arrow.className = "fas fa-arrow-left back-arrow";
+        arrow.id = "searchBackArrow";
+        arrow.onclick = closeSearchView;
+        container.prepend(arrow);
+    }
+}
+function searchTasks(isFocusEvent = false) {
+    const query = searchInput.value.toLowerCase().trim();
+    const timeframe = searchTimeframe.value;
+    
+    // 1. Activate UI State
+    if (isFocusEvent || query.length > 0) {
+        document.body.classList.add("search-mode-active");
+        document.getElementById("searchResults").classList.add("active-view");
+        
+        // Ensure Back Arrow is present in the row
+        if (!document.getElementById('searchBackBtn')) {
+            const btn = document.createElement('i');
+            btn.className = "fas fa-arrow-left search-back-btn";
+            btn.id = "searchBackBtn";
+            btn.onclick = closeSearchView;
+            // Prepend to the wrapper so it stays in the same row
+            searchInput.parentElement.prepend(btn);
+        }
+    }
 
+    if (!query) {
+        searchResults.innerHTML = "";
+        return;
+    }
+
+    // 2. Search Logic (Debounced)
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        if (!currentUser) return;
+
+        db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
+            const data = snap.val() || {};
+            const tasks = data.tasks || {};
+            const events = data.events || {};
+            let results = [];
+
+            // Search through Tasks and Events
+            [tasks, events].forEach((source, index) => {
+                const type = index === 0 ? 'task' : 'event';
+                Object.entries(source).forEach(([date, items]) => {
+                    Object.entries(items).forEach(([id, item]) => {
+                        if (item.title?.toLowerCase().includes(query) || item.desc?.toLowerCase().includes(query)) {
+                            results.push({ ...item, date, id, type });
+                        }
+                    });
+                });
+            });
+
+            // 3. Render Results
+            renderSearchResults(results);
+        });
+    }, 300);
+}
+
+function renderSearchResults(results) {
+    const cont = document.getElementById("searchResults");
+    if (results.length === 0) {
+        cont.innerHTML = `<p class="text-center py-10 text-gray-500">No matches found for "${searchInput.value}"</p>`;
+        return;
+    }
+
+    cont.innerHTML = results.map(item => `
+        <div class="p-4 mb-2 bg-white rounded-lg shadow-sm border-l-4 ${item.type === 'event' ? 'border-emerald-500' : 'border-indigo-500'}" onclick="openModal('${item.date}')">
+            <div class="flex justify-between">
+                <strong class="text-gray-800">${item.title}</strong>
+                <span class="text-xs text-gray-500">${item.date}</span>
+            </div>
+            <p class="text-sm text-gray-600 truncate">${item.desc || ''}</p>
+        </div>
+    `).join('');
+}
+
+function closeSearchView() {
+    document.body.classList.remove("search-mode-active");
+    document.getElementById("searchResults").classList.remove("active-view");
+    const btn = document.getElementById("searchBackBtn");
+    if (btn) btn.remove();
+    searchInput.value = "";
+    searchResults.innerHTML = "";
+    document.body.style.overflow = 'auto';
+}
 
 </script>
-</script>
-   
+
+
+
+
+
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('theme-toggle-btn');
@@ -1812,129 +2146,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-        <button id="theme-toggle-btn">
-    <span id="theme-icon">🌙</span>
-</button>
-<style>
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
-    :root {
-        --bg-body: #f9fafb;
-        --bg-card: #ffffff;
-        --text-main: #1f2937;   /* Deep Gray 800 */
-        --text-bold: #000000;   /* Pure Black */
-        --border: #e5e7eb;
-        
-        /* BOTTOM NAV COLORS (LIGHT) */
-        --nav-bg: #ffffff;
-        --nav-text: #000000;    /* Pure Black for text and icons */
-        --nav-height: 65px;
-    }
 
-    [data-theme="dark"] {
-        --bg-body: #0f172a;     /* Deep Navy/Black */
-        --bg-card: #1e293b;     /* Slate 800 */
-        --text-main: #cbd5e1;   /* Slate 300 */
-        --text-bold: #f8fafc;   /* Slate 50 */
-        --border: #334155;      /* Slate 700 */
-        
-        /* BOTTOM NAV COLORS (DARK) */
-        --nav-bg: #0f172a;
-        --nav-text: #ffffff;    /* Pure White */
-    }
 
-    /* --- 2. GLOBAL OVERRIDES --- */
-    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
-    
-    /* Ensure all text classes inside containers adapt */
-    h1, h2, h3, h4, .font-bold, .font-semibold, 
-    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
-        color: var(--text-bold) !important; 
-    }
 
-    p, li, span, .text-gray-700, .text-gray-600 { 
-        color: var(--text-main) !important; 
-    }
 
-    /* Component Surfaces */
-    .bg-white, header, aside, main, #mobile-menu, footer {
-        background-color: var(--bg-card) !important;
-        border-color: var(--border) !important;
-    }
 
-    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
-    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
-        background-color: var(--bg-card) !important;
-    }
-    
-    /* Muted Sidebar links in dark mode */
-    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
-    [data-theme="dark"] .sidebar-nav-internal a:hover,
-    [data-theme="dark"] .sidebar-nav-internal a.active {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
-    }
 
-    /* Core Features Overview Boxes */
-    [data-theme="dark"] .bg-gray-100, 
-    [data-theme="dark"] .bg-yellow-50,
-    [data-theme="dark"] .bg-blue-50,
-    [data-theme="dark"] .bg-green-50 {
-        background-color: #334155 !important;
-        border-color: var(--border) !important;
-    }
 
-    /* Brighter borders for boxes in dark mode */
-    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
-        border-color: #4f46e5 !important; 
-    }
 
-    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
-    #universal-bottom-nav {
-        background-color: var(--nav-bg) !important;
-        border-top: 1px solid var(--border) !important;
-        height: var(--nav-height);
-    }
 
-    /* This targets the icon specifically */
-    .nav-link i { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Makes icons look thicker/bolder */
-        font-size: 20px !important;  /* Slightly larger for visibility */
-        transition: transform 0.2s;
-    }
 
-    /* This targets the text label specifically */
-    .nav-link div { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Thickest weight for labels */
-        font-size: 11px !important;
-        margin-top: 2px;
-    }
 
-    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
-    #theme-toggle-btn {
-        position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
-        right: 20px;
-        z-index: 10000;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        border: none;
-        background: #4f46e5;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    #theme-toggle-btn:active { transform: scale(0.9); }
-</style>
-</body>
-    </html>
 
 
 
