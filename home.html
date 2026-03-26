@@ -658,74 +658,50 @@ auth.onAuthStateChanged(user => {
 });
 </script>
     
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore.js";
-
-// 1. Initialize Firestore (Assumes your firebaseApp is already initialized)
-const db = getFirestore(firebaseApp);
-
-async function checkFirebaseHolidayAndNotify() {
-    // Check Notification Permission
+// This function uses the Firebase v8 instance already initialized in your app
+function checkFirebaseHolidayAndNotify() {
+    // 1. Check if user already granted permission
     if (Notification.permission !== "granted") return;
 
-    // Get Today's Date String (MM-DD)
+    // 2. Get Today's Date String in MM-DD format
     const now = new Date();
     const tD = String(now.getDate()).padStart(2, '0');
     const tM = String(now.getMonth() + 1).padStart(2, '0');
-    const todayID = `${tM}-${tD}`; // Matches Firestore Document ID format
+    const todayID = `${tM}-${tD}`; 
 
-    // 2. Prevent duplicate notifications today
+    // 3. One-time-per-day check using LocalStorage
     const lastNotified = localStorage.getItem('lastNotificationDate');
     if (lastNotified === todayID) return;
 
-    try {
-        // 3. Fetch from Firebase
-        const docRef = doc(db, "holidays", todayID);
-        const docSnap = await getDoc(docRef);
+    // 4. Fetch from Realtime Database (matching your firebase.database() config)
+    firebase.database().ref('holidays/' + todayID).once('value')
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const holidayData = snapshot.val();
+                
+                // 5. Trigger the Actual Notification
+                new Notification("🚩 आज सुट्टी आहे!", {
+                    body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
+                    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
+                });
 
-        if (docSnap.exists()) {
-            const holidayName = docSnap.data().name;
-
-            // 4. Trigger Notification
-            new Notification("🚩 आज सुट्टी आहे!", {
-                body: `आज ${holidayName} निमित्त सरकारी सुट्टी आहे.`,
-                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
-            });
-
-            // 5. Mark as notified
-            localStorage.setItem('lastNotificationDate', todayID);
-        }
-    } catch (error) {
-        console.error("Firebase Notification Error:", error);
-    }
+                // 6. Save state to prevent spamming on refresh
+                localStorage.setItem('lastNotificationDate', todayID);
+            }
+        })
+        .catch((error) => console.error("Firebase Holiday Check Error:", error));
 }
 
-// Run on page load
-window.addEventListener("DOMContentLoaded", checkFirebaseHolidayAndNotify);
+// Ensure the check only runs after Firebase Auth confirms the user
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        // Run the holiday check immediately upon login/auth
+        checkFirebaseHolidayAndNotify();
+    }
+});
+</script>
     
 </script>
      <button id="theme-toggle-btn">
