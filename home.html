@@ -283,103 +283,144 @@
         &copy; 2025 Savig.com | All rights reserved
     </footer>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. SELECT ELEMENTS
-    const profileToggle = document.getElementById('profile-toggle-btn');
-    const profilePanel = document.getElementById('mobileProfilePanel');
-    const profileChevron = document.getElementById('profileChevron');
+// =================================================================
+// 1. FIREBASE CONFIGURATION & INITIALIZATION
+// =================================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+};
 
-    // 2. TOGGLE ACTION
-    if (profileToggle && profilePanel) {
-        profileToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Show/Hide the panel
-            profilePanel.classList.toggle('hidden');
-            // Rotate the arrow icon
-            if (profileChevron) {
-                profileChevron.classList.toggle('rotate-180');
-            }
-        });
-    }
-
-    // 3. FILL DATA FROM FIREBASE
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // Update Mobile IDs
-            const mName = document.getElementById('mobileUserName');
-            const mEmail = document.getElementById('mobileUserEmail');
-            const mPhoto = document.getElementById('mobileUserPhoto');
-
-            if (mName) mName.innerText = user.displayName || "User";
-            if (mEmail) mEmail.innerText = user.email;
-            if (mPhoto) mPhoto.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
-            
-            // Also update Desktop IDs (since they are on the same page)
-            const dName = document.getElementById('desktopUserName');
-            const dEmail = document.getElementById('desktopUserEmail');
-            const dPhoto = document.getElementById('desktopUserPhoto');
-
-            if (dName) dName.innerText = user.displayName || "User";
-            if (dEmail) dEmail.innerText = user.email;
-            if (dPhoto) dPhoto.src = user.photoURL || mPhoto.src;
-        }
-    });
-});
-
-// 4. LOGOUT FUNCTION
-async function logout() {
-    try {
-        await firebase.auth().signOut();
-        window.location.replace("index.html");
-    } catch (err) {
-        console.error("Logout failed", err);
-    }
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
 }
-</script>
-    <script>
-        document.getElementById('menu-btn').onclick = function() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        };
-        document.getElementById('profile-toggle-btn').onclick = function() {
-            var panel = document.getElementById('mobileProfilePanel');
-            panel.classList.toggle('hidden');
-            document.getElementById('profileChevron').classList.toggle('rotate-180');
-        };
-    </script>
-   <script>
+
+const auth = firebase.auth();
+const database = firebase.database();
+
+// =================================================================
+// 2. HOLIDAY NOTIFICATION LOGIC (Runs once per day)
+// =================================================================
+function checkHolidayNotification() {
+    if (Notification.permission !== "granted") return;
+
+    const now = new Date();
+    const tD = String(now.getDate()).padStart(2, '0');
+    const tM = String(now.getMonth() + 1).padStart(2, '0');
+    const todayID = `${tM}-${tD}`; 
+
+    const lastNotified = localStorage.getItem('lastNotificationDate');
+    if (lastNotified === todayID) return;
+
+    // Fetch from Firebase Realtime Database
+    database.ref('holidays/' + todayID).once('value')
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const holidayData = snapshot.val();
+                new Notification("🚩 आज सुट्टी आहे!", {
+                    body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
+                    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
+                });
+                localStorage.setItem('lastNotificationDate', todayID);
+            }
+        })
+        .catch((err) => console.error("Holiday check failed:", err));
+}
+
+// =================================================================
+// 3. CORE UI & AUTH LOGIC
+// =================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Elements ---
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const profileToggle = document.getElementById('profile-toggle-btn');
     const profilePanel = document.getElementById('mobileProfilePanel');
     const profileChevron = document.getElementById('profileChevron');
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
 
-    // 1. Toggle Main Hamburger Menu
-    if (menuBtn && mobileMenu) {
-        menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevents immediate closing
-            mobileMenu.classList.toggle('hidden');
-        });
+    // --- 1. Theme Logic ---
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    if (themeBtn) {
+        themeBtn.onclick = () => {
+            let current = document.documentElement.getAttribute('data-theme');
+            let next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            if (themeIcon) themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
+        };
     }
 
-    // 2. Toggle Profile Panel inside Menu
+    // --- 2. Mobile Menu Interactions ---
+    if (menuBtn && mobileMenu) {
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('hidden');
+        };
+    }
+
     if (profileToggle && profilePanel) {
-        profileToggle.addEventListener('click', (e) => {
+        profileToggle.onclick = (e) => {
             e.stopPropagation();
             profilePanel.classList.toggle('hidden');
-            if (profileChevron) {
-                profileChevron.classList.toggle('rotate-180');
-            }
-        });
+            if (profileChevron) profileChevron.classList.toggle('rotate-180');
+        };
     }
 
-    // 3. Close menu if user clicks anywhere else on the screen
+    // Close menu on outside click
     document.addEventListener('click', (e) => {
         if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuBtn) {
             mobileMenu.classList.add('hidden');
         }
     });
+
+    // --- 3. Firebase Auth State ---
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            const userName = user.displayName || "User";
+            const userEmail = user.email;
+            const userPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
+
+            // Update all Desktop & Mobile Profile UI
+            document.querySelectorAll('[id*="UserName"]').forEach(el => el.innerText = userName);
+            document.querySelectorAll('[id*="UserEmail"]').forEach(el => el.innerText = userEmail);
+            document.querySelectorAll('[id*="UserPhoto"]').forEach(el => el.src = userPhoto);
+
+            // Trigger Holiday Check
+            checkHolidayNotification();
+
+            // Request permission once if not set
+            if (Notification.permission === "default") {
+                Notification.requestPermission();
+            }
+        } else {
+            // Redirect to sign-in based on device detection
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            // We use replace to prevent user from clicking "back" into a locked dashboard
+            window.location.replace("index.html"); 
+        }
+    });
 });
+
+// =================================================================
+// 4. GLOBAL FUNCTIONS
+// =================================================================
+async function logout() {
+    try {
+        await auth.signOut();
+        // Redirect is handled automatically by onAuthStateChanged
+    } catch (err) {
+        console.error("Logout failed", err);
+    }
+}
 </script>
 </body>
 <style>
