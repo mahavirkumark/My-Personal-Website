@@ -286,9 +286,7 @@
         &copy; 2025 Savig.com | All rights reserved
     </footer>
 <script>
-// =================================================================
-// 1. FIREBASE CONFIGURATION & INITIALIZATION
-// =================================================================
+// 1. FIREBASE CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -302,25 +300,28 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-const auth = firebase.auth();
-const database = firebase.database();
-
-// =================================================================
-// 2. HOLIDAY NOTIFICATION LOGIC (Runs once per day)
-// =================================================================
-function checkHolidayNotification() {
-    if (Notification.permission !== "granted") return;
+// 2. CONSOLIDATED HOLIDAY NOTIFICATION LOGIC
+function triggerHolidayNotification() {
+    // Check Permission
+    if (Notification.permission !== "granted") {
+        console.log("Notifications not allowed by user.");
+        return;
+    }
 
     const now = new Date();
     const tD = String(now.getDate()).padStart(2, '0');
     const tM = String(now.getMonth() + 1).padStart(2, '0');
     const todayID = `${tM}-${tD}`; 
 
+    // One-time-per-day check
     const lastNotified = localStorage.getItem('lastNotificationDate');
-    if (lastNotified === todayID) return;
+    if (lastNotified === todayID) {
+        console.log("Already notified for today.");
+        return;
+    }
 
-    // Fetch from Firebase Realtime Database
-    database.ref('holidays/' + todayID).once('value')
+    // Fetch from Database
+    firebase.database().ref('holidays/' + todayID).once('value')
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const holidayData = snapshot.val();
@@ -331,100 +332,77 @@ function checkHolidayNotification() {
                 localStorage.setItem('lastNotificationDate', todayID);
             }
         })
-        .catch((err) => console.error("Holiday check failed:", err));
+        .catch((error) => console.error("Database Read Error:", error));
 }
 
-// =================================================================
-// 3. CORE UI & AUTH LOGIC
-// =================================================================
+// 3. UI & AUTH MANAGEMENT
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elements ---
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const profileToggle = document.getElementById('profile-toggle-btn');
-    const profilePanel = document.getElementById('mobileProfilePanel');
-    const profileChevron = document.getElementById('profileChevron');
+    const auth = firebase.auth();
+    
+    // Theme Logic
     const themeBtn = document.getElementById('theme-toggle-btn');
-    const themeIcon = document.getElementById('theme-icon');
-
-    // --- 1. Theme Logic ---
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    if (themeIcon) themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    if (themeBtn) {
+    
+    if(themeBtn) {
         themeBtn.onclick = () => {
-            let current = document.documentElement.getAttribute('data-theme');
-            let next = current === 'dark' ? 'light' : 'dark';
+            let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            if (themeIcon) themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
         };
     }
 
-    // --- 2. Mobile Menu Interactions ---
-    if (menuBtn && mobileMenu) {
-        menuBtn.onclick = (e) => {
-            e.stopPropagation();
-            mobileMenu.classList.toggle('hidden');
-        };
-    }
-
-    if (profileToggle && profilePanel) {
-        profileToggle.onclick = (e) => {
-            e.stopPropagation();
-            profilePanel.classList.toggle('hidden');
-            if (profileChevron) profileChevron.classList.toggle('rotate-180');
-        };
-    }
-
-    // Close menu on outside click
-    document.addEventListener('click', (e) => {
-        if (mobileMenu && !mobileMenu.contains(e.target) && e.target !== menuBtn) {
-            mobileMenu.classList.add('hidden');
-        }
-    });
-
-    // --- 3. Firebase Auth State ---
+    // Auth State Change (Single Source of Truth)
     auth.onAuthStateChanged((user) => {
         if (user) {
-            const userName = user.displayName || "User";
-            const userEmail = user.email;
-            const userPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
+            console.log("Savig User Authenticated:", user.email);
+            
+            // Update UI Elements
+            const uName = user.displayName || "Dashboard User";
+            const uPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=3b82f6&color=fff`;
+            
+            document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => el.innerText = uName);
+            document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => el.innerText = user.email);
+            document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => el.src = uPhoto);
 
-            // Update all Desktop & Mobile Profile UI
-            document.querySelectorAll('[id*="UserName"]').forEach(el => el.innerText = userName);
-            document.querySelectorAll('[id*="UserEmail"]').forEach(el => el.innerText = userEmail);
-            document.querySelectorAll('[id*="UserPhoto"]').forEach(el => el.src = userPhoto);
-
-            // Trigger Holiday Check
-            checkHolidayNotification();
-
-            // Request permission once if not set
+            // Trigger Notification Logic
             if (Notification.permission === "default") {
-                Notification.requestPermission();
+                Notification.requestPermission().then(perm => {
+                    if(perm === 'granted') triggerHolidayNotification();
+                });
+            } else {
+                triggerHolidayNotification();
             }
+
         } else {
-            // Redirect to sign-in based on device detection
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            // We use replace to prevent user from clicking "back" into a locked dashboard
-            window.location.replace("index.html"); 
+            window.location.replace("index.html");
         }
     });
 });
 
-// =================================================================
-// 4. GLOBAL FUNCTIONS
-// =================================================================
 async function logout() {
-    try {
-        await auth.signOut();
-        // Redirect is handled automatically by onAuthStateChanged
-    } catch (err) {
-        console.error("Logout failed", err);
-    }
+    await firebase.auth().signOut();
+    window.location.replace("index.html");
 }
 </script>
+
+<style>
+    /* Theme Toggle Button Positioning */
+    #theme-toggle-btn {
+        position: fixed;
+        bottom: 85px; /* Above the bottom nav */
+        right: 20px;
+        z-index: 1000;
+        background: #2563eb;
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        cursor: pointer;
+    }
+</style>
 </body>
 <style>
     /* Desktop Check */
