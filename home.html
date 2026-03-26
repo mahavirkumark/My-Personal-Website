@@ -876,37 +876,49 @@ window.addEventListener("DOMContentLoaded", checkFirebaseHolidayAndNotify);
         console.log("Permission status is already:", Notification.permission);
     }
 });
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
-
-const btn = document.getElementById('token-btn');
-const output = document.getElementById('token-output');
-const status = document.getElementById('token-status');
-
-btn.onclick = async () => {
-    status.innerText = "Requesting permission...";
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-        const messaging = getMessaging();
-        try {
-            // REPLACE THIS KEY with your Web Push Certificate Key
-            const token = await getToken(messaging, { 
-                vapidKey: 'YOUR_VAPID_KEY_HERE' 
-            });
-            
-            if (token) {
-                output.value = token;
-                status.innerText = "Success! Copy this token:";
-            } else {
-                status.innerText = "No token. Is firebase-messaging-sw.js in your public folder?";
-            }
-        } catch (err) {
-            status.innerText = "Error: " + err.message;
-        }
-    } else {
-        status.innerText = "Permission denied.";
+// This version works with the script tags you already have (v8.10.1)
+function checkFirebaseHolidayAndNotify() {
+    // 1. Check Permission
+    if (Notification.permission !== "granted") {
+        console.log("Notification permission not granted.");
+        return;
     }
-};
+
+    const now = new Date();
+    const tD = String(now.getDate()).padStart(2, '0');
+    const tM = String(now.getMonth() + 1).padStart(2, '0');
+    const todayID = `${tM}-${tD}`; 
+
+    // 2. Prevent duplicate alerts
+    const lastNotified = localStorage.getItem('lastNotificationDate');
+    if (lastNotified === todayID) return;
+
+    // 3. Use Firebase v8 Database (Matching your existing scripts)
+    // Note: I am checking the Realtime Database since you have it linked
+    firebase.database().ref('holidays/' + todayID).once('value')
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                const holidayData = snapshot.val();
+                
+                new Notification("🚩 आज सुट्टी आहे!", {
+                    body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
+                    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
+                });
+
+                localStorage.setItem('lastNotificationDate', todayID);
+            }
+        })
+        .catch((error) => {
+            console.error("Firebase Read Error:", error);
+        });
+}
+
+// Ensure this runs ONLY after the user is logged in
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        checkFirebaseHolidayAndNotify();
+    }
+});
         
 </script>
     <script>
