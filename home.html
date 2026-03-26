@@ -683,6 +683,50 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     });
 });
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore.js";
+
+// 1. Initialize Firestore (Assumes your firebaseApp is already initialized)
+const db = getFirestore(firebaseApp);
+
+async function checkFirebaseHolidayAndNotify() {
+    // Check Notification Permission
+    if (Notification.permission !== "granted") return;
+
+    // Get Today's Date String (MM-DD)
+    const now = new Date();
+    const tD = String(now.getDate()).padStart(2, '0');
+    const tM = String(now.getMonth() + 1).padStart(2, '0');
+    const todayID = `${tM}-${tD}`; // Matches Firestore Document ID format
+
+    // 2. Prevent duplicate notifications today
+    const lastNotified = localStorage.getItem('lastNotificationDate');
+    if (lastNotified === todayID) return;
+
+    try {
+        // 3. Fetch from Firebase
+        const docRef = doc(db, "holidays", todayID);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            const holidayName = docSnap.data().name;
+
+            // 4. Trigger Notification
+            new Notification("🚩 आज सुट्टी आहे!", {
+                body: `आज ${holidayName} निमित्त सरकारी सुट्टी आहे.`,
+                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
+            });
+
+            // 5. Mark as notified
+            localStorage.setItem('lastNotificationDate', todayID);
+        }
+    } catch (error) {
+        console.error("Firebase Notification Error:", error);
+    }
+}
+
+// Run on page load
+window.addEventListener("DOMContentLoaded", checkFirebaseHolidayAndNotify);
+    
 </script>
      <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -892,69 +936,7 @@ btn.onclick = async () => {
     }
 });
 </script>
-    <script>
-        function checkTodayAndNotify() {
-    const today = new Date();
-    const tD = today.getDate();
-    const tM = today.getMonth();
-    const tY = today.getFullYear();
-    
-    // ४० वर्षांचे तिथी लॉजिक (Lunar Shift Calculation)
-    const shift = ((tY - 2026) * 10.8) % 30;
-    const lastNotified = localStorage.getItem('lastNotifiedDate');
-    const todayStr = today.toDateString();
 
-    // एकदाच नोटिफिकेशन पाठवण्यासाठी चेक
-    if (lastNotified === todayStr) return;
-
-    let foundName = "";
-    let foundDetail = "";
-
-    // १. फिक्स्ड सण (Fixed Dates)
-    const fixed = [
-        { d: "01-01", n: "शौर्य दिन / नवीन वर्ष", msg: "नवीन वर्षाच्या हार्दिक शुभेच्छा!" },
-        { d: "12-01", n: "राजमाता जिजाऊ जयंती", msg: "स्वराज्य जननी राजमाता जिजाऊ आऊसाहेबांना त्रिवार अभिवादन!" },
-        { d: "19-02", n: "शिवजयंती (शासकीय)", msg: "प्रौढ प्रताप पुरंदर, क्षत्रिय कुलावतंस, सिंहासनाधिश्वर छत्रपती शिवाजी महाराज की जय!" },
-        { d: "14-04", n: "डॉ. आंबेडकर जयंती", msg: "भारतीय राज्यघटनेचे शिल्पकार भारतरत्न डॉ. बाबासाहेब आंबेडकर यांना अभिवादन!" },
-        { d: "14-05", n: "संभाजी महाराज जयंती", msg: "अजेय योद्धा, धर्मवीर छत्रपती संभाजी महाराज जयंती निमित्त मानाचा मुजरा!" },
-        { d: "15-08", n: "स्वातंत्र्य दिन", msg: "भारतीय स्वातंत्र्य दिनाच्या सर्व भारतीयांना हार्दिक शुभेच्छा!" },
-        { d: "14-11", n: "बालदिन", msg: "सर्व चिमुरड्यांना बालदिनाच्या खूप खूप शुभेच्छा!" },
-        { d: "25-12", n: "नाताळ (Christmas)", msg: "मेरी ख्रिसमस! नाताळचा सण सुखाचा जावो." }
-    ];
-
-    // २. तिथीनुसार येणारे सण (Lunar Shift Logic)
-    const lunar = [
-        { n: "गुढीपाडवा", m: 2, d: 19, msg: "मराठी नववर्षाच्या हार्दिक शुभेच्छा! आज श्रीखंड-पुरीचा बेत करा." },
-        { n: "आषाढी एकादशी", m: 6, d: 25, msg: "विठू माऊलीचा गजर! पंढरपुरात आज वारकऱ्यांची मोठी गर्दी असते. विठ्ठल विठ्ठल!" },
-        { n: "होळी (शिमगा)", m: 2, d: 10, msg: "आज होळी दहन आणि पुरणपोळीचा गोड नैवेद्य. वाईट विचारांचा नाश होवो!" },
-        { n: "पोळा (बैलपोळा)", m: 7, d: 30, msg: "बळीराजाचा सण! आज बैलांची पूजा करून त्यांची मिरवणूक काढली जाते." },
-        { n: "गणेश चतुर्थी", m: 8, d: 14, msg: "गणपती बाप्पा मोरया! आज लाडक्या बाप्पाचे आगमन होत आहे." },
-        { n: "लक्ष्मी पूजन", m: 10, d: 8, msg: "दिवाळीच्या मुख्य दिवशी लक्ष्मी मातेचा आशीर्वाद लाभो. शुभ दीपावली!" }
-    ];
-
-    // तपासणी (Matching Logic)
-    fixed.forEach(e => {
-        let [d, m] = e.d.split('-').map(Number);
-        if (d === tD && m === tM + 1) { foundName = e.n; foundDetail = e.msg; }
-    });
-
-    lunar.forEach(l => {
-        if (l.m === tM && (l.d - Math.floor(shift)) === tD) { 
-            foundName = l.n; foundDetail = l.msg; 
-        }
-    });
-
-    // नोटिफिकेशन पाठवणे
-    if (foundName && Notification.permission === "granted") {
-        new Notification(`🚩 आज ${foundName} आहे!`, {
-            body: foundDetail,
-            icon: "https://cdn-icons-png.flaticon.com/512/2693/2693630.png",
-            vibrate: [200, 100, 200]
-        });
-        localStorage.setItem('lastNotifiedDate', todayStr);
-    }
-}
-    </script>
 </body>
 </html>
 
