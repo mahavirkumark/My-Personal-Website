@@ -113,42 +113,97 @@
         "shivaji": "शिवजयंती", "ambedkar": "आंबेडकर", "gudi": "गुढी", "padwa": "पाडवा",
         "rose": "rose", "valentine": "valentine", "pola": "पोळा", "holi": "होळी"
     };
+const fixedEvents = [
 
-    const fixedEvents = [
-        { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "holiday" },
-        { d: "03-01", n: "सावित्रीबाई फुले जयंती", t: "fest" },
-        { d: "12-01", n: "राजमाता जिजाऊ जयंती", t: "fest" },
-        { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
-        { d: "07-02", n: "Rose Day 🌹", t: "love" },
-        { d: "14-02", n: "Valentine's Day ❤️", t: "love" },
-        { d: "19-02", n: "शिवजयंती (शासकीय)", t: "holiday" },
-        { d: "27-02", n: "मराठी भाषा गौरव दिन", t: "fest" },
-        { d: "08-03", n: "जागतिक महिला दिन", t: "intl" },
-        { d: "14-04", n: "डॉ. आंबेडकर जयंती", t: "holiday" },
-        { d: "01-05", n: "महाराष्ट्र दिन", t: "holiday" },
-        { d: "14-05", n: "संभाजी महाराज जयंती", t: "fest" },
-        { d: "06-06", n: "शिवराज्यभिषेक दिन", t: "fest" },
-        { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
-        { d: "02-10", n: "गांधी जयंती", t: "holiday" },
-        { d: "14-11", n: "बालदिन", t: "intl" },
-        { d: "06-12", n: "महापरिनिर्वाण दिन", t: "holiday" },
-        { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" }
-    ];
+    // --- JANUARY ---
+    { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
+    { d: "03-01", n: "सावित्रीबाई फुले जयंती", t: "fest" },
+    { d: "12-01", n: "राजमाता जिजाऊ जयंती", t: "fest" },
+    { d: "14-01", n: "मकर संक्रांत", t: "fest" },
+    { d: "23-01", n: "नेताजी सुभाषचंद्र बोस जयंती", t: "fest" },
+    { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
 
+    // --- FEBRUARY ---
+    { d: "15-02", n: "महाशिवरात्री", t: "god" }, // 2026
+    { d: "19-02", n: "शिवजयंती (शासकीय)", t: "holiday" },
+    { d: "23-02", n: "संत गाडगे बाबा जयंती", t: "fest" },
+
+    // --- MARCH ---
+    { d: "03-03", n: "होळी (धुलिवंदन)", t: "fest" }, // 2026
+    { d: "18-03", n: "रंगपंचमी", t: "holiday" },
+    { d: "19-03", n: "गुढीपाडवा (मराठी नववर्ष)", t: "holiday" }, // 2026
+    { d: "21-03", n: "रमजान ईद (Eid-ul-Fitr)", t: "holiday" }, // 2026
+    { d: "26-03", n: "श्री राम नवमी", t: "holiday" }, // 2026
+
+    // --- APRIL ---
+    { d: "01-04", n: "हनुमान जयंती", t: "holidayt" }, // 2026
+    { d: "03-04", n: "गुड फ्रायडे", t: "holiday" }, // 2026
+    { d: "05-04", n: "ईस्टर", t: "fest" },
+    { d: "11-04", n: "महात्मा फुले जयंती", t: "fest" },
+    { d: "13-04", n: "बैसाखी", t: "fest" },
+    { d: "14-04", n: "डॉ. आंबेडकर जयंती", t: "holiday" },
+    { d: "18-04", n: "अक्षय तृतीया", t: "fest" },
+
+    // --- MAY ---
+    { d: "01-05", n: "महाराष्ट्र दिन", t: "holiday" },
+    { d: "14-05", n: "संभाजी महाराज जयंती", t: "fest" },
+
+    // --- JUNE ---
+    { d: "06-06", n: "शिवराज्यभिषेक दिन", t: "fest" },
+    { d: "07-06", n: "ईद-उल-अजहा (बकरीद)", t: "holiday" }, // 2026
+    { d: "26-06", n: "राजर्षी शाहू महाराज जयंती", t: "fest" },
+
+    // --- JULY ---
+    { d: "17-07", n: "मुहर्रम", t: "holiday" }, // 2026
+    { d: "26-07", n: "आषाढी एकादशी", t: "god" }, // 2026
+
+    // --- AUGUST ---
+    { d: "07-08", n: "नाग पंचमी", t: "god" },
+    { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
+    { d: "16-08", n: "पारसी नववर्ष (नवरोज)", t: "holiday" },
+    { d: "28-08", n: "नारळी पौर्णिमा / रक्षाबंधन", t: "holiday" }, // 2026
+
+    // --- SEPTEMBER ---
+    { d: "01-09", n: "ओणम", t: "fest" },
+    { d: "04-09", n: "कृष्ण जन्माष्टमी", t: "holiday" }, // 2026
+    { d: "14-09", n: "गणेश चतुर्थी", t: "fest" }, // 2026
+    { d: "15-09", n: "ईद-ए-मिलाद", t: "holiday" }, // 2026
+    { d: "17-09", n: "गौरी पूजन", t: "fest" },
+    { d: "25-09", n: "अनंत चतुर्दशी", t: "fest" }, // 2026
+
+    // --- OCTOBER ---
+    { d: "02-10", n: "गांधी जयंती", t: "holiday" },
+    { d: "20-10", n: "दसरा (विजयादशमी)", t: "holiday" }, // 2026
+    { d: "29-10", n: "धनत्रयोदशी (धनतेरस)", t: "holiday" },
+
+    // --- NOVEMBER ---
+    { d: "08-11", n: "दिवाळी (लक्ष्मीपूजन)", t: "holiday" }, // 2026
+    { d: "09-11", n: "दिवाळी पाडवा (बलिप्रतिपदा)", t: "holiday" }, // 2026
+    { d: "10-11", n: "भाऊबीज / छठ पूजा", t: "holiday" }, // 2026
+    { d: "12-11", n: "तुळशी विवाह", t: "fest" },
+    { d: "14-11", n: "बालदिन", t: "intl" },
+    { d: "27-11", n: "गुरुनानक जयंती", t: "holiday" },
+
+    // --- DECEMBER ---
+    { d: "06-12", n: "महापरिनिर्वाण दिन", t: "holiday" },
+    { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" },
+    { d: "28-12", n: "दत्त जयंती", t: "god" }
+
+];
     const lunarEvents = [
         { n: "मकर संक्रांत", m:0, d:14, t: "fest" },
         { n: "महाशिवरात्री", m:1, d:16, t: "holiday" },
         { n: "होळी (शिमगा)", m:2, d:10, t: "holiday" },
         { n: "गुढीपाडवा", m:2, d:19, t: "holiday" },
-        { n: "रमजान ईद", m:2, d:30, t: "green" },
+        { n: "रमजान ईद", m:2, d:30, t: "holiday" },
         { n: "आषाढी एकादशी", m:6, d:25, t: "fest" },
         { n: "नागपंचमी 🐍", m:7, d:17, t: "fest" },
-        { n: "बैलपोळा 🐂", m:7, d:30, t: "fest" },
+        { n: "बैलपोळा 🐂", m:7, d:30, t: "holiday" },
         { n: "गणेश चतुर्थी", m:8, d:14, t: "holiday" },
         { n: "दसरा", m:9, d:22, t: "holiday" },
         { n: "लक्ष्मी पूजन (दिवाळी)", m:10, d:8, t: "holiday" },
-        { n: "भाऊबीज", m:10, d:10, t: "fest" },
-        { n: "गुरुनानक जयंती", m:10, d:15, t: "green" }
+        { n: "भाऊबीज", m:10, d:10, t: "holiday" },
+        { n: "गुरुनानक जयंती", m:10, d:15, t: "holiday" }
     ];
 
     // Year Dropdown (60 Years)
@@ -171,36 +226,39 @@
         return false;
     }
 
-    function updateStatus() {
-        const now = new Date();
-        const tD = now.getDate(), tM = now.getMonth(), tY = now.getFullYear();
-        const viewYear = parseInt(ys.value);
-        const shift = ((viewYear - 2026) * 10.8) % 30;
-        
-        let festName = "आज कोणताही मोठा सण नाही";
-        let isHoliday = false;
+function updateStatus() {
+    const now = new Date();
+    const tD = now.getDate();
+    const tM = now.getMonth() + 1; // JS Months are 0-11
+    const tY = now.getFullYear();
+    const currentDayStr = `${tD < 10 ? '0' + tD : tD}-${tM < 10 ? '0' + tM : tM}`;
 
-        if (viewYear === tY) {
-            fixedEvents.forEach(e => {
-                let [d, m] = e.d.split('-').map(Number);
-                if(d === tD && m === tM + 1) { festName = "🚩 आज " + e.n + " आहे!"; if(e.t === "holiday") isHoliday = true; }
-            });
-            lunarEvents.forEach(l => {
-                if(l.m === tM && (l.d - Math.floor(shift)) === tD) { festName = "🚩 आज " + l.n + " आहे!"; isHoliday = true; }
-            });
+    let todayEvent = fixedEvents.find(e => e.d === currentDayStr);
+    let isTodayHoliday = todayEvent && todayEvent.t === "holiday";
+    
+    // Check if today is Sunday or 2nd/4th Saturday
+    let isWeekend = isBankHoliday(now);
+    
+    // Final Logic
+    let bankClosed = isTodayHoliday || isWeekend;
+    let govtClosed = isTodayHoliday || now.getDay() === 0; // Govt usually open on 2nd/4th Sat
 
-            const bankClosed = isHoliday || isBankHoliday(now);
-            const govtClosed = isHoliday || now.getDay() === 0;
-
-            document.getElementById('todayFest').innerText = festName;
-            document.getElementById('bankStatus').innerText = bankClosed ? "🏦 बँक: बंद (Closed)" : "🏦 बँक: सुरू (Open)";
-            document.getElementById('govtStatus').innerText = govtClosed ? "🏢 कार्यालय: बंद (Closed)" : "🏢 कार्यालय: सुरू (Open)";
-            document.getElementById('statusBanner').className = (bankClosed || govtClosed) ? "closed" : "open";
-        } else {
-            document.getElementById('todayFest').innerText = viewYear + " सालाचे कॅलेंडर";
-            document.getElementById('statusBanner').className = "";
-        }
+    // Update UI
+    const festDisplay = document.getElementById('todayFest');
+    if (todayEvent) {
+        festDisplay.innerText = "🚩 आज " + todayEvent.n + " आहे!";
+    } else if (isWeekend) {
+        festDisplay.innerText = "आज बँकेला सुट्टी आहे (रविवार/शनिवार)";
+    } else {
+        festDisplay.innerText = "आज कोणताही सार्वजनिक सण नाही";
     }
+
+    document.getElementById('bankStatus').innerText = bankClosed ? "🏦 बँक: बंद (Closed)" : "🏦 बँक: सुरू (Open)";
+    document.getElementById('govtStatus').innerText = govtClosed ? "🏢 कार्यालय: बंद (Closed)" : "🏢 कार्यालय: सुरू (Open)";
+    
+    // Dynamic Color Class
+    document.getElementById('statusBanner').className = bankClosed ? "status-closed" : "status-open";
+}
 
     function renderCalendar() {
         const year = parseInt(ys.value);
@@ -249,6 +307,55 @@
 
     renderCalendar();
     updateStatus();
+   function checkAndNotify() {
+    if (Notification.permission !== "granted") return;
+
+    const now = new Date();
+    const tD = now.getDate();
+    const tM = now.getMonth() + 1;
+    const currentDayStr = `${tD < 10 ? '0' + tD : tD}-${tM < 10 ? '0' + tM : tM}`;
+
+    // 1. Check if we already showed a notification TODAY
+    const lastNotified = localStorage.getItem('lastNotificationDate');
+    if (lastNotified === currentDayStr) {
+        console.log("Notification already shown for today.");
+        return; 
+    }
+
+    // 2. Find if today is a holiday
+    let todayEvent = fixedEvents.find(e => e.d === currentDayStr && e.t === "holiday");
+
+    if (todayEvent) {
+        new Notification("🚩 आज सुट्टी आहे!", {
+            body: `आज ${todayEvent.n} निमित्त बँका आणि सरकारी कार्यालये बंद राहतील.`,
+            icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png" 
+        });
+
+        // 3. Save today's date so it doesn't show again until tomorrow
+        localStorage.setItem('lastNotificationDate', currentDayStr);
+    }
+}
+
+// Updated window.onload to ensure functions run in order
+window.onload = () => {
+    // Fill the year dropdown first
+    const ys = document.getElementById('yearSelect');
+    if(ys.options.length === 0) { // Safety check if not already filled
+        for(let y = 2026; y <= 2086; y++) {
+            let o = document.createElement('option');
+            o.value = y; o.innerText = y;
+            ys.appendChild(o);
+        }
+    }
+
+    renderCalendar();
+    updateStatus();
+    
+    // Auto-check notification if permission is already there
+    if (Notification.permission === "granted") {
+        checkAndNotify();
+    }
+};
 </script>
 </body>
 </html>
