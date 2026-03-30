@@ -1582,71 +1582,94 @@ document.addEventListener('DOMContentLoaded', initializeSavigSearch);
 firebase.auth().onAuthStateChanged(initializeSavigSearch);
 
 </script>
+<style>
+    :root {
+        --bg-main: #121212;
+        --card-bg: #1e1e1e;
+        --text-primary: #ffffff; /* Improved: Pure white for news titles */
+        --text-secondary: #bbbbbb; /* Improved: Light grey for news description */
+        --accent: #d93025;
+        --border: #333333;
+    }
 
-    <button id="news-open-btn" onclick="toggleWidget()"><span></span>News</button>
+    /* News Toggle Button */
+    #news-open-btn {
+        position: fixed;
+        bottom: 90px;
+        right: 15px;
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: bold;
+        z-index: 999;
+        animation: pulse-red 2s infinite;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
 
-    <div class="news-widget" id="newsWidget">
-        <div class="widget-header">
-            <span>ताज्या घडामोडी</span>
-            <span class="close-btn" onclick="toggleWidget()">×</span>
-        </div>
-        <div id="news-list">
-            <div class="loader">बातमी शोधत आहोत...</div>
-        </div>
-    </div>
-       <style>
-        :root {
-            --bg-main: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-primary: #222222;
-            --text-secondary: #555555;
-            --accent: #d93025;
-            --hover-shadow: rgba(0, 0, 0, 0.1);
-            --border: #eeeeee;
-        }
+    #news-open-btn:active {
+        transform: scale(0.9);
+    }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-main: #121212;
-                --card-bg: #1e1e1e;
-                --text-primary: #e0e0e0;
-                --text-secondary: #bbbbbb;
-                --accent: #ff4d4d;
-                --hover-shadow: rgba(0, 0, 0, 0.4);
-                --border: #333333;
-            }
-        }
-.btn-s {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    transition: 0.2s;
-    border: 1px solid transparent;
-}
-.btn-s:active {
-    transform: scale(0.95);
-}
-#cred-list-mobile-overlay {
-    padding-bottom: 100px; /* Space for scrolling */
-}
-        /* १. सुरुवातीचे छोटे बटण */
-        #news-open-btn {
-            position: fixed; bottom: 20px; right: 5px;
-            background: var(--accent); color: white; border: none;
-            padding: 5px 5px; border-radius: 50px; font-weight: bold;
-            cursor: pointer; box-shadow: 0 4px 15px var(--hover-shadow);
-            z-index: 999; font-family: 'Segoe UI', sans-serif;
-            display: flex; align-items: center; gap: 8px;
-            margin-bottom: 70px;
-        }
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.7); }
+        70% { box-shadow: 0 0 0 12px rgba(217, 48, 37, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0); }
+    }
 
-        /* २. फुल स्क्रीन कंटेनर */
-        .news-widget {
+    /* Main Widget Container */
+    .news-widget {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 92vh;
+        background: var(--bg-main);
+        flex-direction: column;
+        z-index: 1000;
+        font-family: 'Segoe UI', Roboto, sans-serif;
+    }
+
+    /* Header */
+    .widget-header {
+        background: var(--accent);
+        color: white;
+        padding: 12px 20px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Close Button - Professional & Sharp */
+    .close-btn {
+        cursor: pointer;
+        font-size: 36px; /* Fixed font size */
+        line-height: 1;
+        color: #ffffff; /* Crisp white text */
+        padding: 4px; /* Fixed 2px padding */
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin-right: 3px;
+    }
+
+    /* Professional Hover State */
+    .close-btn:hover {
+        background-color: rgba(255, 255, 255, 0.2); /* Soft professional overlay */
+        color: #ffffff;
+    }
+
+    .close-btn:active {
+        transform: scale(0.9);
+    }
+  .news-widget {
             display: none; position: fixed; top: 0; left: 0;
             width: 100vw; height: 92vh; background: var(--bg-main);
             flex-direction: column; z-index: 1000;
@@ -1714,41 +1737,76 @@ firebase.auth().onAuthStateChanged(initializeSavigSearch);
             border: 1px solid var(--accent); padding: 5px 12px; border-radius: 5px;
         }
 
-        .close-btn { cursor: pointer; font-size: 30px; }
-        .loader { text-align: center; padding: 100px; color: #888; }
-        /* क्लोज बटण होव्हर इफेक्ट */
-.close-btn { 
-    cursor: pointer; 
-    font-size: 30px; 
-    transition: all 0.3s ease; /* स्मूथ बदलण्यासाठी */
-    display: inline-block;
-    line-height: 1;
-}
+</style>
+</head>
+<body>
 
-.close-btn:hover {
-    color: #ffd1d1; /* लाईट पिंक/व्हाईट रंगात बदल */
-    transform: scale(1.2) rotate(90deg); /* मोठे होईल आणि ९० अंशात फिरेल */
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* हलकी चकाकी */
-}
-    </style>
- 
+    <button id="news-open-btn" onclick="toggleWidget()">
+        <span>🔔</span> News
+    </button>
+
+    <div class="news-widget" id="newsWidget">
+        <div class="widget-header">
+            <span>ताज्या घडामोडी</span>
+            <span class="close-btn" onclick="toggleWidget()">×</span>
+        </div>
+        <div id="news-list">
+            <div class="loader">बातमी शोधत आहोत...</div>
+        </div>
+    </div>
 
     <script>
+        function toggleWidget() {
+            const widget = document.getElementById('newsWidget');
+            const isOpen = widget.classList.contains('active');
+
+            if (!isOpen) {
+                widget.style.display = 'flex';
+                // Small delay to ensure display:flex is applied before animation starts
+                setTimeout(() => {
+                    widget.classList.add('active');
+                }, 10);
+            } else {
+                widget.classList.remove('active');
+                // Wait for animation to finish before hiding
+                setTimeout(() => {
+                    widget.style.display = 'none';
+                }, 400); 
+            }
+        }
+
+        // Close on 'Esc' key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") {
+                const widget = document.getElementById('newsWidget');
+                if (widget.classList.contains('active')) toggleWidget();
+            }
+        });
+    </script>
+</body>
+</html>
+ 
+
+ <script>
     // Global references
     const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
-    let hasFetched = false;
+    let isFetching = false; // Prevents multiple simultaneous clicks
+    let hasFetched = false; // Tracks if we already have data
 
-    // We must attach this to window because HTML onclick looks at the global scope
     window.toggleWidget = function() {
         const widget = document.getElementById('newsWidget');
         if (!widget) return;
 
+        // Simplified display check
         const isHidden = window.getComputedStyle(widget).display === 'none';
         
         if (isHidden) {
             widget.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            if (!hasFetched) fetchNews();
+            // Only fetch if we haven't already and aren't currently fetching
+            if (!hasFetched && !isFetching) {
+                fetchNews();
+            }
         } else {
             widget.style.display = 'none';
             document.body.style.overflow = 'auto';
@@ -1757,42 +1815,63 @@ firebase.auth().onAuthStateChanged(initializeSavigSearch);
 
     async function fetchNews() {
         const newsList = document.getElementById('news-list');
+        if (!newsList) return;
+
+        isFetching = true;
+        newsList.innerHTML = '<div class="loader">बातमी शोधत आहे...</div>'; // Marathi Loading text
+
         try {
+            // Your query looks good for Marathi news
             const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
             const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
 
             const response = await fetch(url);
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
             const data = await response.json();
 
-            if (data.status === "success" && data.results) {
-                newsList.innerHTML = '';
+            if (data.status === "success" && data.results && data.results.length > 0) {
+                newsList.innerHTML = ''; // Clear loader
                 
                 data.results.forEach(article => {
                     const item = document.createElement('div');
                     item.className = 'news-item';
+                    
+                    // Fallback for missing description
                     const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
 
                     item.innerHTML = `
-                        <div class="news-header-row" onclick="this.parentElement.classList.toggle('active')">
+                        <div class="news-header-row">
                             <div class="news-text">${article.title}</div>
                             <div class="read-arrow">→</div>
                         </div>
                         <div class="news-detail">
-                            ${summary}
-                            <br>
+                            <p>${summary}</p>
                             <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
                         </div>
                     `;
+
+                    // Better Event Listener approach than inline onclick
+                    item.querySelector('.news-header-row').addEventListener('click', () => {
+                        item.classList.toggle('active');
+                    });
+
                     newsList.appendChild(item);
                 });
                 hasFetched = true;
+            } else {
+                newsList.innerHTML = "<div class='loader'>सध्या कोणतीही बातमी उपलब्ध नाही.</div>";
             }
         } catch (err) {
             console.error("News Fetch Error:", err);
-            if (newsList) newsList.innerHTML = "<div class='loader'>इंटरनेट तपासा किंवा API मर्यादा संपली आहे.</div>";
+            newsList.innerHTML = "<div class='loader'>त्रुटी: इंटरनेट तपासा किंवा API मर्यादा संपली आहे.</div>";
+        } finally {
+            isFetching = false;
         }
     }
 </script>
+
 
 
 <script type="module">
@@ -1872,106 +1951,6 @@ function showSuccessNotification(reg) {
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
