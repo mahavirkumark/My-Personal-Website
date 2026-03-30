@@ -967,7 +967,22 @@ box-shadow: none !important; /* Removes default shadow */
         messagingSenderId: "470207874652",
         appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
     };
-
+const fixedEvents = [
+    { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
+    { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
+    { d: "19-02", n: "शिवजयंती (शासकीय)", t: "holiday" },
+    { d: "15-02", n: "महाशिवरात्री", t: "vrat" },
+    { d: "04-03", n: "धुलिवंदन", t: "holiday" },
+    { d: "19-03", n: "गुढीपाडवा (मराठी नववर्ष)", t: "holiday" },
+    { d: "14-04", n: "डॉ. आंबेडकर जयंती", t: "holiday" },
+    { d: "01-05", n: "महाराष्ट्र दिन", t: "holiday" },
+    { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
+    { d: "14-09", n: "गणेश चतुर्थी", t: "holiday" },
+    { d: "20-10", n: "दसरा (विजयादशमी)", t: "holiday" },
+    { d: "08-11", n: "दिवाळी (लक्ष्मीपूजन)", t: "holiday" },
+    { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" }
+    // ... add others as needed
+];
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
@@ -1101,6 +1116,9 @@ box-shadow: none !important; /* Removes default shadow */
  * Fetches only the 'Pending' events for the current date.
  * Returns an Array of event objects.
  */
+// 1. Ensure your fixedEvents array is accessible to this function
+// (Assuming it's defined globally as in your previous code)
+
 async function loadTodaysDashboard() {
     const user = firebase.auth().currentUser;
     const listCont = document.getElementById('event-list');
@@ -1111,42 +1129,70 @@ async function loadTodaysDashboard() {
     }
 
     const now = new Date();
+    // Format: YYYY-MM-DD for Firebase
     const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    // Format: DD-MM for Festival checking
+    const todayShort = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     try {
+        // --- STEP 1: Fetch Personal Events from Firebase ---
         const snapshot = await firebase.database().ref(`users/${user.uid}/events/${todayISO}`).once("value");
         const data = snapshot.val();
+        let personalEvents = [];
         
-        if (!data) {
+        if (data) {
+            personalEvents = Object.entries(data)
+                .map(([id, ev]) => ({ id, ...ev }))
+                .filter(ev => ev.status === 'pending');
+        }
+
+        // --- STEP 2: Fetch Public Festival for Today ---
+        let festivalEvents = [];
+        // fixedEvents is the array from your Mahadin-Darshika code
+        const todayFest = fixedEvents.find(f => f.d === todayShort);
+        
+        if (todayFest) {
+            festivalEvents.push({
+                id: 'fest-' + todayShort,
+                title: `🚩 ${todayFest.n}`,
+                time: "All Day",
+                location: todayFest.t === 'holiday' ? "Bank Holiday" : "Festival",
+                isFestival: true // Tag to style it differently
+            });
+        }
+
+        // --- STEP 3: Combine and Sort ---
+        const allEvents = [...festivalEvents, ...personalEvents];
+        
+        // Sort: Festivals first, then others by time
+        allEvents.sort((a, b) => {
+            if (a.isFestival) return -1;
+            if (b.isFestival) return 1;
+            return a.time.localeCompare(b.time);
+        });
+
+        if (allEvents.length === 0) {
             listCont.innerHTML = `
                 <div class="p-3 bg-white rounded-xl text-black font-[600] border-2 border-black text-[14px] text-center leading-tight">
-                    ✨ No events for today.
+                    ✨ No schedule for today.
                 </div>`;
             return;
         }
 
-        const events = Object.entries(data)
-            .map(([id, ev]) => ({ id, ...ev }))
-            .filter(ev => ev.status === 'pending')
-            .sort((a, b) => a.time.localeCompare(b.time));
+        // --- STEP 4: Render Combined HTML ---
+        listCont.innerHTML = allEvents.map(ev => {
+            // Apply a special saffron border if it's a festival
+            const borderClass = ev.isFestival ? "border-orange-500 bg-orange-50" : "border-black bg-white";
+            const iconClass = ev.isFestival ? "fa-flag" : "fa-clock";
 
-        if (events.length === 0) {
-            listCont.innerHTML = `
-                <div class="p-3 bg-white rounded-xl text-black font-[600] border-2 border-black text-[14px] text-center leading-tight">
-                    ✅ All events caught up!
-                </div>`;
-            return;
-        }
-
-        // Render HTML with Wrapping support
-        listCont.innerHTML = events.map(ev => `
-            <div class="bg-white p-3 rounded-xl border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-2 transition active:translate-y-[1px] active:shadow-none mb-1">
+            return `
+            <div class="${borderClass} p-3 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-2 mb-1">
                 <div class="min-w-0">
                     <h3 class="font-[700] text-black text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
                     
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black font-[600] mt-1">
                         <span class="flex items-center whitespace-nowrap">
-                            <i class="fas fa-clock mr-1 text-black text-[14px]"></i>${ev.time}
+                            <i class="fas ${iconClass} mr-1 text-black text-[14px]"></i>${ev.time}
                         </span>
                         
                         ${ev.location ? `
@@ -1160,11 +1206,11 @@ async function loadTodaysDashboard() {
                     <i class="fas fa-chevron-right text-white text-[14px]"></i>
                 </div>
             </div>
-        `).join('');
+        `}).join('');
 
     } catch (err) {
-        console.error("Fetch error:", err);
-        listCont.innerHTML = `<p class="text-red-600 text-xs text-center font-[600]">Failed to load events.</p>`;
+        console.error("Dashboard error:", err);
+        listCont.innerHTML = `<p class="text-red-600 text-xs text-center font-[600]">Failed to load schedule.</p>`;
     }
 }
 async function fetchAndShowTodaysEvents() {
@@ -1688,97 +1734,103 @@ firebase.auth().onAuthStateChanged(initializeSavigSearch);
  
 
     <script>
-        const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
+    // Global references
+    const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
+    let hasFetched = false;
+
+    // We must attach this to window because HTML onclick looks at the global scope
+    window.toggleWidget = function() {
         const widget = document.getElementById('newsWidget');
-        let hasFetched = false;
+        if (!widget) return;
 
-        function toggleWidget() {
-            if (widget.style.display === 'flex') {
-                widget.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            } else {
-                widget.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                if (!hasFetched) fetchNews();
-            }
-        }
-
-        async function fetchNews() {
-            try {
-                const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
-                const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
-
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.status === "success") {
-                    const newsList = document.getElementById('news-list');
-                    newsList.innerHTML = '';
-                    
-                    data.results.forEach(article => {
-                        const item = document.createElement('div');
-                        item.className = 'news-item';
-                        
-                        const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही. कृपया अधिक माहितीसाठी पूर्ण बातमी वाचा.";
-
-                        item.innerHTML = `
-                            <div class="news-header-row" onclick="this.parentElement.classList.toggle('active')">
-                                <div class="news-text">${article.title}</div>
-                                <div class="read-arrow">→</div>
-                            </div>
-                            <div class="news-detail">
-                                ${summary}
-                                <br>
-                                <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
-                            </div>
-                        `;
-                        newsList.appendChild(item);
-                    });
-                    hasFetched = true;
-                }
-            } catch (err) {
-                document.getElementById('news-list').innerHTML = "<div class='loader'>इंटरनेट तपासा.</div>";
-            }
-        }
-
+        const isHidden = window.getComputedStyle(widget).display === 'none';
         
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+        if (isHidden) {
+            widget.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            if (!hasFetched) fetchNews();
+        } else {
+            widget.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    };
 
-const btn = document.getElementById('token-btn');
-const output = document.getElementById('token-output');
-const status = document.getElementById('token-status');
-
-btn.onclick = async () => {
-    status.innerText = "Requesting permission...";
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-        const messaging = getMessaging();
+    async function fetchNews() {
+        const newsList = document.getElementById('news-list');
         try {
-            // REPLACE THIS KEY with your Web Push Certificate Key
-            const token = await getToken(messaging, { 
-                vapidKey: 'YOUR_VAPID_KEY_HERE' 
-            });
-            
-            if (token) {
-                output.value = token;
-                status.innerText = "Success! Copy this token:";
-            } else {
-                status.innerText = "No token. Is firebase-messaging-sw.js in your public folder?";
+            const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
+            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
+
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.status === "success" && data.results) {
+                newsList.innerHTML = '';
+                
+                data.results.forEach(article => {
+                    const item = document.createElement('div');
+                    item.className = 'news-item';
+                    const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
+
+                    item.innerHTML = `
+                        <div class="news-header-row" onclick="this.parentElement.classList.toggle('active')">
+                            <div class="news-text">${article.title}</div>
+                            <div class="read-arrow">→</div>
+                        </div>
+                        <div class="news-detail">
+                            ${summary}
+                            <br>
+                            <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
+                        </div>
+                    `;
+                    newsList.appendChild(item);
+                });
+                hasFetched = true;
             }
         } catch (err) {
-            status.innerText = "Error: " + err.message;
+            console.error("News Fetch Error:", err);
+            if (newsList) newsList.innerHTML = "<div class='loader'>इंटरनेट तपासा किंवा API मर्यादा संपली आहे.</div>";
         }
-    } else {
-        status.innerText = "Permission denied.";
     }
-};
-
-    </script>
+</script>
 
 
+<script type="module">
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
+    const btn = document.getElementById('token-btn');
+    const output = document.getElementById('token-output');
+    const status = document.getElementById('token-status');
 
+    if (btn) {
+        btn.onclick = async () => {
+            status.innerText = "Permission विनंती करत आहे...";
+            try {
+                const permission = await Notification.requestPermission();
+                
+                if (permission === 'granted') {
+                    const messaging = getMessaging();
+                    // Replace 'YOUR_VAPID_KEY_HERE' with your actual key from Firebase Settings
+                    const token = await getToken(messaging, { 
+                        vapidKey: 'YOUR_VAPID_KEY_HERE' 
+                    });
+                    
+                    if (token) {
+                        if (output) output.value = token;
+                        status.innerText = "यशस्वी! टोकन कॉपी करा:";
+                    } else {
+                        status.innerText = "टोकन मिळाले नाही. स्व-तपासणी करा.";
+                    }
+                } else {
+                    status.innerText = "परवानगी नाकारली.";
+                }
+            } catch (err) {
+                status.innerText = "Error: " + err.message;
+                console.error("Firebase Token Error:", err);
+            }
+        };
+    }
+</script>
 
 
 
@@ -1820,6 +1872,68 @@ function showSuccessNotification(reg) {
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
