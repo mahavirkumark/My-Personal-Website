@@ -797,8 +797,9 @@ function shareAddress(place, landmark, mapLink, method = 'system') {
         div.id = `item-${data.id}`;
         div.className = "address-item bg-white p-2 border border-gray-200 rounded-xl shadow-md hover:shadow-lg transition duration-300";
 // Replace the old mapButtonHTML with this:
+// Replace the old mapButtonHTML with this format:
 const mapButtonHTML = data.mapLink ? `
-    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(data.mapLink)}" 
+    <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(data.mapLink.replace('maps.google.com', ''))}&travelmode=driving" 
        target="_blank" 
        class="bg-indigo-500 text-white px-3 py-1 rounded-full hover:bg-indigo-600 transition text-sm flex items-center">
         <i class="fas fa-directions mr-1"></i> Directions
