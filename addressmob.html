@@ -924,45 +924,67 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     });
 });
+// --- 1. SMART GPS FUNCTION (Fixes Timeout) ---
 function fetchGPS() {
     const btn = document.getElementById("gpsBtn");
     const mapInput = document.getElementById("mapInput");
     
-    if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
-        return;
-    }
+    if (!navigator.geolocation) return alert("Geolocation not supported.");
 
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locating...';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Waking GPS...';
     btn.disabled = true;
 
     const options = {
-        enableHighAccuracy: true, // This wakes up the GPS chip
-        timeout: 10000,           // Wait up to 10 seconds
-        maximumAge: 0             // Do not use old cached data
+        enableHighAccuracy: true, 
+        timeout: 15000,           // Increased to 15 seconds
+        maximumAge: 0
     };
 
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            const accuracy = position.coords.accuracy.toFixed(1);
-            
-            // Create a clean Google Maps coordinate link
-            mapInput.value = `https://www.google.com/maps?q=${lat},${lng}`;
-            
-            btn.innerHTML = `<i class="fas fa-check"></i> Found (Accurate to ${accuracy}m)`;
-            btn.classList.replace("bg-green-600", "bg-blue-600");
-            btn.disabled = false;
-        },
-        (error) => {
-            btn.innerHTML = '<i class="fas fa-location-crosshairs"></i> Try Again';
-            btn.disabled = false;
-            alert("Error: " + error.message);
-        },
-        options
-    );
+    function success(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        mapInput.value = `https://www.google.com/maps?q=${lat},${lng}`;
+        btn.innerHTML = `<i class="fas fa-check"></i> Location Locked!`;
+        btn.classList.replace("bg-green-600", "bg-blue-600");
+        btn.disabled = false;
+    }
+
+    function error(err) {
+        if (err.code === 3) { // Timeout
+            btn.innerHTML = '<i class="fas fa-redo"></i> Timeout. Try Again?';
+        } else {
+            btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> GPS Error';
+        }
+        btn.disabled = false;
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error, options);
 }
+
+// --- 2. THEME TOGGLE FIX (Fixes line 948 error) ---
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('theme-toggle-btn');
+    const icon = document.getElementById('theme-icon');
+    
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    // Safety check: Only update icon if it exists in HTML
+    if (icon) {
+        icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    }
+
+    if (btn) {
+        btn.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (icon) icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+    }
+});
 </script>
   
 <style>
