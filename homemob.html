@@ -7,7 +7,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <meta name="mobile-web-app-capable" content="yes">
+    <script type="module">
+import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
+async function setupNotifications() {
+    const messaging = getMessaging();
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            // Replace with the VAPID Key you generated in Step 1
+            const token = await getToken(messaging, { 
+                vapidKey: 'YOUR_GENERATED_VAPID_KEY' 
+            });
+            
+            if (token) {
+                console.log("Your Token:", token);
+                // Save this token to your Firebase Database under users/uid/fcmToken
+                const user = firebase.auth().currentUser;
+                if(user) {
+                   firebase.database().ref(`users/${user.uid}/fcmToken`).set(token);
+                }
+            }
+        }
+    } catch (err) {
+        console.log("An error occurred while retrieving token. ", err);
+    }
+}
+
+// Trigger this after the user logs in
+firebase.auth().onAuthStateChanged(user => {
+    if (user) setupNotifications();
+});
+    </script>
    <style>
         /* 1. Theme Variables & Professional Reset */
         :root {
