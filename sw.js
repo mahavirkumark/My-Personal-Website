@@ -1,29 +1,26 @@
-const CACHE_NAME = "savig-v1";
-// Add all your files here that you want to load INSTANTLY
-const ASSETS = [
-  "/",
-  "/index.html",
-  "/homemob.html",
-  "https://cdn.tailwindcss.com",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-];
+// public/sw.js
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-// Install Event: Save files to phone storage
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting();
+firebase.initializeApp({
+  apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+  projectId: "sk12-58e9e",
+  messagingSenderId: "470207874652",
+  appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 });
 
-// Fetch Event: Serve files from Cache first, then Network
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached file if found, otherwise fetch from web
-      return response || fetch(event.request);
-    })
-  );
+const messaging = firebase.messaging();
+
+// Handle background notifications
+messaging.onBackgroundMessage((payload) => {
+  console.log('Background message received: ', payload);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/icon.png', // Path to your Savig icon
+    badge: '/badge.png', // Small icon for status bar
+    image: payload.notification.image || '/news-default.jpg' // Big image like Zomato
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
