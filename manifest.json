@@ -1,11 +1,14 @@
 {
-  "name": "Savig",
+  "name": "Savig Dashboard",
   "short_name": "Savig",
-  "start_url": "indexmob.html?launcher=true",
-  "scope": "./",
+  "description": "Personal data and finance management assistant.",
+  "gcm_sender_id": "103953800507",
+  "start_url": "/indexmob.html?launcher=true",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffff00", 
-  "theme_color": "#ffff00",
+  "background_color": "#ffe11b",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icon-192.jpg",
@@ -20,9 +23,4 @@
       "purpose": "maskable"
     }
   ]
-}
-{
-  "name": "Savig Dashboard",
-  "gcm_sender_id": "103953800507",
-  ...
 }
