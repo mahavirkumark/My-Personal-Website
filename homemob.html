@@ -1159,12 +1159,6 @@ const fixedEvents = [
         }, 50);
     });
 
-/**
- * Fetches only the 'Pending' events for the current date.
- * Returns an Array of event objects.
- */
-// 1. Ensure your fixedEvents array is accessible to this function
-// (Assuming it's defined globally as in your previous code)
 
 async function loadTodaysDashboard() {
     const user = firebase.auth().currentUser;
@@ -1233,11 +1227,11 @@ async function loadTodaysDashboard() {
             const iconClass = ev.isFestival ? "fa-flag" : "fa-clock";
 
             return `
-            <div class="${borderClass} p-3 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1 ">
+            <div class="${borderClass} p-2 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1 ">
                 <div class="min-w-0">
                     <h3 class="font-[700] text-black text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
                     
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black font-[600] mt-1">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black font-[600] ">
                         <span class="flex items-center whitespace-nowrap">
                             <i class="fas ${iconClass} mr-1 text-black text-[14px]"></i>${ev.time}
                         </span>
