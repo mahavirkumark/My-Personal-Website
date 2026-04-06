@@ -2672,7 +2672,112 @@ document.addEventListener('DOMContentLoaded', () => {
         color: white !important;
     }
 }
+/* --- SAVIG FULL-PAGE DARK MODAL OVERRIDE --- */
+[data-theme='dark'] {
+    /* 1. Modal Background - Force Full Dark */
+    #taskModal, 
+    #eventModal,
+    #statusPromptModal,
+    #rescheduleModal {
+        background-color: #020617 !important; /* Near Black */
+        border: 2px solid #ffffff !important; /* High Contrast White Border */
+        color: #ffffff !important;
+        box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.9) !important; /* Dims the entire background page */
+    }
 
+    /* 2. Inner Containers Visibility */
+    #existingTasks {
+        background-color: #000000 !important; /* Pure Black Inner Well */
+        border: 1px solid #334155 !important;
+        border-radius: 12px !important;
+    }
+
+    /* Task/Event Cards inside the Modal */
+    #existingTasks .grid,
+    #existingTasks div.bg-white,
+    .calendar-cell-modal-item {
+        background-color: #1e293b !important; /* Slate 800 Card */
+        border: 1.5px solid #475569 !important;
+        color: #ffffff !important;
+        margin-bottom: 8px !important;
+    }
+
+    /* 3. Text & Headers inside Modal */
+    #modalDate, 
+    #eventModalTitle,
+    #rescheduleEventTitle {
+        color: #818cf8 !important; /* Bright Indigo */
+        font-weight: 900 !important;
+        text-transform: uppercase;
+    }
+
+    #existingTasks strong {
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    #existingTasks .text-slate-700,
+    #existingTasks .text-slate-600,
+    #existingTasks .text-gray-600 {
+        color: #cbd5e1 !important; /* Light Slate for descriptions */
+    }
+
+    /* 4. Form Inputs inside Modal */
+    #taskTitle, 
+    #taskDesc,
+    #eventTitle,
+    #eventDate,
+    #eventTime,
+    #eventLocation,
+    #eventDesc,
+    #rescheduleDate,
+    #rescheduleTime {
+        background-color: #0f172a !important;
+        color: #ffffff !important;
+        border: 1.5px solid #475569 !important;
+        border-radius: 8px !important;
+    }
+
+    #taskTitle::placeholder, 
+    #taskDesc::placeholder {
+        color: #64748b !important;
+    }
+
+    /* 5. Buttons inside Modal */
+    #saveTaskBtn, #saveEventBtn, #confirmRescheduleBtn {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+        border: 1px solid #ffffff !important;
+        font-weight: 800 !important;
+    }
+
+    #cancelTaskBtn, #cancelEventBtn, #cancelPromptBtn {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+
+    /* Close Button (X) */
+    #closeModal, #closeEventModal, #closeRescheduleModal {
+        color: #ffffff !important;
+        background-color: #ef4444 !important; /* Red background for visibility */
+        border-radius: 50% !important;
+        width: 35px !important;
+        height: 35px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+    }
+
+    /* 6. Fix for Status Prompts (Did you complete event?) */
+    #promptContent p {
+        color: #ffffff !important;
+    }
+
+    #eventToPromptTitle {
+        color: #fbbf24 !important; /* Amber for urgency */
+    }
+}
 
 </style>
 
