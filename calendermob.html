@@ -2160,20 +2160,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <style>
-    /* --- SAVIG CONSOLIDATED DARK MODE SYSTEM --- */
+/* --- SAVIG ULTIMATE DEFINITIVE DARK MODE --- */
 [data-theme='dark'] {
-    /* 1. Theme Variables */
-    --bg-color: #0f172a;        /* Deep Navy */
-    --modal-bg: #020617;        /* Near Black */
-    --card-bg: #1e293b;         /* Slate 800 */
+    /* 1. Universal Variables */
+    --bg-color: #0f172a;        /* Deep Navy Main Background */
+    --modal-bg: #020617;        /* Near Black for Modals */
+    --card-bg: #1e293b;         /* Slate 800 for Cells/Cards */
     --text-main: #ffffff;       /* Pure White */
-    --text-muted: #cbd5e1;      /* Slate 300 */
-    --white-border: #ffffff;    /* High Contrast Border */
+    --white-border: #ffffff;    /* High Contrast White Border */
     --active-blue: #3b82f6;
     --active-indigo: #818cf8;
 }
 
-/* 2. Global Base Styling */
+/* 2. Global Base & Background Overrides */
 [data-theme='dark'] body, 
 [data-theme='dark'] main,
 [data-theme='dark'] .search-overlay-background,
@@ -2183,10 +2182,12 @@ document.addEventListener('DOMContentLoaded', () => {
     color: var(--text-main) !important;
 }
 
-/* 3. Search Interface & Results */
+/* 3. Search Interface (Spacing & Visibility Fixes) */
 [data-theme='dark'] .search-container {
     background-color: var(--bg-color) !important;
-    margin-bottom: -1px !important;
+    /* User Requested: Reduce margin below search bar by 30px */
+    margin-bottom: -30px !important; 
+    padding-bottom: 0 !important;
     border-bottom: 1px solid #334155;
 }
 
@@ -2194,18 +2195,20 @@ document.addEventListener('DOMContentLoaded', () => {
     background-color: #020617 !important;
     color: #ffffff !important;
     border: 2px solid var(--white-border) !important;
-    margin-bottom: 16px !important;
+    margin-bottom: 2px !important;
 }
 
+/* Search Results Panel Visibility */
 [data-theme='dark'] #searchResults {
-    margin-top: -2px !important;
+    /* User Requested: Reduce gap between bar and results */
+    margin-top: -30px !important; 
     background-color: var(--bg-color) !important;
 }
 
 [data-theme='dark'] .search-result-item {
     background-color: #1e293b !important;
     border: 1.5px solid var(--white-border) !important;
-    border-left-width: 6px !important;
+    border-left: 6px solid var(--active-indigo) !important; /* Thick indicator */
     margin-bottom: 8px !important;
     padding: 15px !important;
     border-radius: 12px !important;
@@ -2213,20 +2216,33 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 [data-theme='dark'] .search-result-item strong {
-    color: #ffffff !important;
+    color: #ffffff !important; /* High Visibility Titles */
     font-weight: 800 !important;
     font-size: 1.1rem !important;
-    display: block;
-    margin-bottom: 2px;
 }
 
 [data-theme='dark'] .search-result-item p,
 [data-theme='dark'] .search-result-item div,
+[data-theme='dark'] .search-result-item span,
 [data-theme='dark'] .search-result-item .text-gray-600 {
-    color: #f1f5f9 !important; /* High Visibility Text */
+    color: #f1f5f9 !important; /* High contrast white-gray */
+    font-weight: 500 !important;
 }
 
-/* 4. Calendar Headers & Controls */
+/* 4. Calendar Header (Mon, Tue, etc.) Visibility */
+[data-theme='dark'] .calendar-header div {
+    /* User Requested: Proper visible color for Mon, Tue... */
+    color: #fbbf24 !important; /* Bright Amber Yellow */
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+[data-theme='dark'] .calendar-header .text-red-500 {
+    color: #fb7185 !important; /* Bright Rose for weekends */
+}
+
+/* Month Navigation Controls */
 [data-theme='dark'] #monthYear {
     color: #ffffff !important;
     font-weight: 800 !important;
@@ -2238,30 +2254,29 @@ document.addEventListener('DOMContentLoaded', () => {
     border: 1.5px solid var(--white-border) !important;
 }
 
-[data-theme='dark'] .calendar-header div {
-    color: #fbbf24 !important; /* Amber for Mon-Sun */
-    font-weight: 900 !important;
-}
-
-[data-theme='dark'] .calendar-header .text-red-500 {
-    color: #fb7185 !important; /* Bright Rose for weekends */
-}
-
-/* 5. Calendar Cells */
+/* 5. Calendar Cells (White Borders & Spacing) */
 [data-theme='dark'] .calendar-cell {
     background-color: var(--card-bg) !important;
-    border: 1.5px solid var(--white-border) !important;
-    margin-bottom: 5px !important;
+    /* User Requested: White border */
+    border: 1.5px solid var(--white-border) !important; 
+    /* User Requested: Margin bottom to every cell */
+    margin-bottom: 12px !important; 
     border-radius: 12px !important;
 }
 
 [data-theme='dark'] .calendar-cell span.text-sm {
-    color: #ffffff !important;
+    color: #ffffff !important; /* Date numbers */
     font-weight: 800 !important;
 }
 
+[data-theme='dark'] #calendar {
+    /* User Requested: Reduce bottom margin by 2px */
+    margin-bottom: -2px !important;
+    padding-bottom: 100px !important; /* Space for Bottom Nav */
+}
+
 [data-theme='dark'] .sunday-cell {
-    background-color: #450a0a !important;
+    background-color: #450a0a !important; /* Dark Red */
     border-color: #fecaca !important;
 }
 
@@ -2270,28 +2285,31 @@ document.addEventListener('DOMContentLoaded', () => {
     background-color: #1e3a8a !important;
 }
 
-/* 6. Tasks Inside Cells */
+/* 6. Task/Event Strips (Inside Calendar Cells) */
 [data-theme='dark'] [id^="tasks-"] div {
-    background-color: #312e81 !important;
+    background-color: #312e81 !important; /* Dark Indigo strip */
     color: #ffffff !important;
     border-left: 3px solid var(--active-indigo) !important;
     font-weight: 700 !important;
+    margin-bottom: 3px !important;
+    border-radius: 4px !important;
 }
 
 [data-theme='dark'] [id^="tasks-"] div.bg-emerald-50 {
-    background-color: #064e3b !important;
+    background-color: #064e3b !important; /* Dark Emerald strip */
     border-left: 3px solid #10b981 !important;
 }
 
-/* 7. Modals (Task & Event) */
+/* 7. Inner Date Modals (Task & Event Popups) */
 [data-theme='dark'] #taskModal, 
 [data-theme='dark'] #eventModal,
 [data-theme='dark'] #statusPromptModal,
 [data-theme='dark'] #rescheduleModal {
-    background-color: var(--modal-bg) !important;
+    background-color: var(--modal-bg) !important; /* Near Black */
     border: 2px solid var(--white-border) !important;
     color: #ffffff !important;
-    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.9) !important; /* Dims background */
+    /* User Requested: Full page dark when modal opens */
+    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.9) !important; 
 }
 
 [data-theme='dark'] #modalDate {
@@ -2300,11 +2318,12 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 [data-theme='dark'] #existingTasks {
-    background-color: #000000 !important; /* Deep black list background */
+    background-color: #000000 !important; /* Deep black list well */
     border: 1px solid #334155 !important;
     border-radius: 12px !important;
 }
 
+/* Individual Task Cards inside the Modal */
 [data-theme='dark'] #existingTasks div.bg-white,
 [data-theme='dark'] #existingTasks .grid {
     background-color: #1e293b !important;
@@ -2312,7 +2331,7 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #ffffff !important;
 }
 
-/* Form Fields inside Modal */
+/* Modal Form Inputs */
 [data-theme='dark'] input, 
 [data-theme='dark'] textarea,
 [data-theme='dark'] select {
@@ -2332,6 +2351,10 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #ffffff !important;
 }
 
+[data-theme='dark'] .nav-link i {
+    -webkit-text-stroke: 0.5px #ffffff !important;
+}
+
 [data-theme='dark'] #saveTaskBtn, [data-theme='dark'] #saveEventBtn {
     background-color: #4f46e5 !important;
     color: #ffffff !important;
@@ -2341,7 +2364,7 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme='dark'] #closeModal, [data-theme='dark'] #closeEventModal {
     background-color: #ef4444 !important;
     color: #ffffff !important;
-    border-radius: 50%;
+    border-radius: 50% !important;
 }
 </style>
 
