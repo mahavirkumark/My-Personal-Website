@@ -2268,127 +2268,141 @@ document.addEventListener('DOMContentLoaded', () => {
     transform: translateY(-2px);
     background: var(--hover-bg);
 }
-
-
-
-
-
-
-
-
-/* --- UNIVERSAL DARK MODE OVERRIDES --- */
+/* --- SAVIG COMPLETE DARK MODE ARCHITECTURE --- */
 [data-theme='dark'] {
-    --bg-color: #0f172a;        /* Deep Navy Background */
-    --text-main: #ffffff;       /* Pure White for Headings */
-    --text-muted: #94a3b8;      /* Slate 400 for secondary text */
-    --card-bg: #1e293b;         /* Slate 800 for Cells/Cards */
-    --border-color: #334155;    /* Slate 700 for Borders */
-    --nav-bg: #0f172a;
-    --active-color: #60a5fa;    /* Bright Blue for visibility */
-    --input-bg: #020617;        /* Very dark for input contrast */
+    --bg-color: #0f172a;        /* Deep Slate/Navy */
+    --card-bg: #1e293b;         /* Slate 800 */
+    --text-main: #ffffff;       /* Pure White */
+    --text-muted: #94a3b8;      /* Slate 400 */
+    --border-color: #334155;    /* Slate 700 */
+    --active-blue: #3b82f6;
+    --active-indigo: #818cf8;
+    --input-bg: #020617;        /* Near Black */
 }
 
-/* 1. Global Visibility */
+/* 1. Global Visibility & Base Elements */
 [data-theme='dark'] body {
     background-color: var(--bg-color) !important;
     color: var(--text-main) !important;
 }
 
-/* 2. Calendar Grid & Cell Adjustments */
+/* 2. Calendar Grid & Cells (Fixed Border & Margin) */
 [data-theme='dark'] .calendar-cell {
     background-color: var(--card-bg) !important;
-    border-color: var(--border-color) !important;
+    /* Proper 2px border for definition */
+    border: 2px solid var(--border-color) !important; 
+    border-radius: 12px !important;
     color: #ffffff !important;
-    /* Added margin-bottom to prevent cells looking squashed on mobile */
-    margin-bottom: 8px !important; 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+    /* Spacing between rows on mobile */
+    margin-bottom: 10px !important; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
 }
 
 [data-theme='dark'] .calendar-cell:hover {
+    border-color: var(--active-indigo) !important;
     background-color: #2d3a4f !important;
 }
 
-/* Ensure the calendar doesn't hide behind the bottom nav */
-[data-theme='dark'] #calendar {
-    padding-bottom: 100px !important; 
+[data-theme='dark'] .sunday-cell {
+    background-color: #450a0a !important; /* Muted Dark Red */
+    border-color: #991b1b !important;
 }
 
-/* 3. Task Visibility Inside Calendar Cells */
+[data-theme='dark'] .today {
+    border: 3px solid var(--active-blue) !important;
+    background-color: #172554 !important; /* Darker Blue */
+}
+
+/* Tasks Inside Calendar Cells (High Contrast Strips) */
 [data-theme='dark'] [id^="tasks-"] div {
-    /* General Task Strip (the blue ones) */
-    background-color: #312e81 !important; /* Dark Indigo */
-    color: #e0e7ff !important;           /* Light Indigo Text */
-    border-left: 3px solid #6366f1 !important;
-    font-weight: 600 !important;
+    background-color: #312e81 !important; /* Indigo strip */
+    color: #ffffff !important;
+    border-left: 3px solid var(--active-indigo) !important;
+    padding: 2px 6px !important;
+    margin-bottom: 3px !important;
+    border-radius: 4px !important;
 }
 
 [data-theme='dark'] [id^="tasks-"] div.bg-emerald-50 {
-    /* Event Strip (the green ones) */
-    background-color: #064e3b !important; /* Dark Emerald */
-    color: #d1fae5 !important;           /* Light Emerald Text */
+    background-color: #064e3b !important; /* Emerald strip */
     border-left: 3px solid #10b981 !important;
+    color: #d1fae5 !important;
 }
 
-/* 4. Modals & Task List Visibility */
+/* 3. Search Bar & Background (Specific Overrides) */
+[data-theme='dark'] #searchInput {
+    background-color: var(--input-bg) !important;
+    color: #ffffff !important;
+    border: 2px solid var(--border-color) !important;
+    /* 2px margin bottom for spacing from results */
+    margin-bottom: 2px !important; 
+}
+
+/* Background when search is active */
+[data-theme='dark'] body.search-mode-active,
+[data-theme='dark'] #searchResults.active-view,
+[data-theme='dark'] .search-container {
+    background-color: var(--bg-color) !important;
+}
+
+[data-theme='dark'] .search-overlay-background {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* 4. Search Results Visibility */
+[data-theme='dark'] .search-result-item {
+    background-color: var(--card-bg) !important;
+    border: 2px solid var(--border-color) !important;
+    border-left-width: 5px !important; /* Thicker indicator */
+    padding: 16px !important;
+    margin-bottom: 12px !important;
+    border-radius: 12px !important;
+}
+
+[data-theme='dark'] .search-result-item strong {
+    color: #ffffff !important; /* High contrast titles */
+    font-size: 1.1rem !important;
+}
+
+[data-theme='dark'] .search-result-item .text-gray-500,
+[data-theme='dark'] .search-result-item .text-gray-600 {
+    color: #cbd5e1 !important; /* Light Slate for descriptions */
+}
+
+[data-theme='dark'] .search-result-item span.text-xs {
+    color: var(--active-blue) !important;
+}
+
+/* 5. Modals & Task Lists */
 [data-theme='dark'] #taskModal, 
 [data-theme='dark'] #eventModal, 
-[data-theme='dark'] #statusPromptModal, 
-[data-theme='dark'] #eventTrackingSection,
+[data-theme='dark'] #statusPromptModal,
 [data-theme='dark'] #rescheduleModal {
-    background-color: #111827 !important; /* Slightly darker than cells */
+    background-color: #111827 !important;
+    border: 2px solid var(--border-color) !important;
     color: #ffffff !important;
-    border: 1px solid var(--border-color) !important;
 }
 
 [data-theme='dark'] #existingTasks {
-    background-color: #020617 !important; /* High contrast well for task list */
+    background-color: var(--input-bg) !important;
     border: 1px solid var(--border-color) !important;
 }
 
 [data-theme='dark'] #existingTasks .bg-white {
-    background-color: #1e293b !important; /* Card background */
-    border: 1px solid #334155 !important;
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
 }
 
 [data-theme='dark'] #existingTasks strong {
-    color: #ffffff !important; /* Bold task titles */
-}
-
-[data-theme='dark'] #existingTasks .text-slate-700 {
-    color: #94a3b8 !important; /* Sub-text/Description */
-}
-
-/* 5. Input & Selection Clarity */
-[data-theme='dark'] input, 
-[data-theme='dark'] textarea, 
-[data-theme='dark'] select {
-    background-color: #0f172a !important;
-    border-color: #475569 !important;
     color: #ffffff !important;
 }
 
-[data-theme='dark'] input::placeholder,
-[data-theme='dark'] textarea::placeholder {
-    color: #64748b !important;
+/* 6. Navigation (Bottom Bar) */
+[data-theme='dark'] #universal-bottom-nav {
+    background-color: #0f172a !important;
+    border-top: 2px solid var(--border-color) !important;
 }
 
-/* 6. Typography Fixes */
-[data-theme='dark'] .text-indigo-700,
-[data-theme='dark'] #modalDate {
-    color: #818cf8 !important; /* Lightened Indigo for contrast */
-}
-
-[data-theme='dark'] .text-gray-800,
-[data-theme='dark'] .text-gray-700 {
-    color: #f1f5f9 !important;
-}
-
-[data-theme='dark'] .text-gray-500,
-[data-theme='dark'] .text-gray-600 {
-    color: #94a3b8 !important;
-}
-
-/* 7. Bottom Navigation Link Color */
 [data-theme='dark'] .nav-link {
     color: #ffffff !important;
 }
@@ -2396,70 +2410,18 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme='dark'] .nav-link i {
     -webkit-text-stroke: 0.5px #ffffff !important;
 }
-    /* --- SEARCH RESULTS DARK MODE FIX --- */
-[data-theme='dark'] #searchResults {
-    background-color: #0f172a !important; /* Deep Navy background for the whole panel */
-}
 
-/* Individual Search Result Card */
-[data-theme='dark'] .search-result-item {
-    background-color: #1e293b !important; /* Slate 800 for the card */
-    border: 1px solid #334155 !important;
-    border-left-width: 4px !important; /* Keep the color-coded border */
-    color: #ffffff !important;
-    margin-bottom: 8px !important;
-    padding: 12px !important;
-    border-radius: 8px !important;
-    transition: background-color 0.2s ease;
-}
+/* Typography Overrides */
+[data-theme='dark'] .text-indigo-700 { color: var(--active-indigo) !important; }
+[data-theme='dark'] .text-gray-800 { color: #f1f5f9 !important; }
+[data-theme='dark'] .text-gray-600 { color: #94a3b8 !important; }
 
-/* Hover state for results */
-[data-theme='dark'] .search-result-item:hover {
-    background-color: #2d3a4f !important; /* Slightly lighter on hover */
-}
 
-/* Result Title */
-[data-theme='dark'] .search-result-item strong {
-    color: #ffffff !important; 
-    font-size: 1.1rem !important;
-    display: block !important;
-    margin-bottom: 4px !important;
-}
 
-/* Result Icons inside Title */
-[data-theme='dark'] .search-result-item i {
-    opacity: 0.9 !important;
-}
 
-/* Result Date Text */
-[data-theme='dark'] .search-result-item span.text-gray-600 {
-    color: #94a3b8 !important; /* Slate 400 for dates */
-    font-size: 0.85rem !important;
-}
 
-/* Result Description/Snippet */
-[data-theme='dark'] .search-result-item .text-gray-500,
-[data-theme='dark'] .search-result-item div.truncate {
-    color: #cbd5e1 !important; /* Slate 300 for readable descriptions */
-    font-size: 0.95rem !important;
-    line-height: 1.4 !important;
-}
 
-/* Search Results Overlay Header (Mobile) */
-[data-theme='dark'] .search-results-panel h3 {
-    color: #818cf8 !important; /* Light Indigo */
-}
 
-[data-theme='dark'] .search-results-panel {
-    border-color: #334155 !important;
-}
-
-/* No Results Found Text */
-[data-theme='dark'] .bg-yellow-50 {
-    background-color: #422006 !important; /* Dark Brown/Yellow */
-    color: #fde68a !important;           /* Pale Yellow text */
-    border: 1px solid #78350f !important;
-}
 </style>
 
 
