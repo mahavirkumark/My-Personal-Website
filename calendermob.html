@@ -2366,6 +2366,134 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #ffffff !important;
     border-radius: 50% !important;
 }
+    /* --- SAVIG NUCLEAR DARK MODE (FINAL FIXED VERSION) --- */
+[data-theme='dark'] {
+    --bg-color: #020617;        /* Deepest Navy/Black */
+    --card-bg: #1e293b;         /* Slate 800 */
+    --text-main: #ffffff;       /* Pure White */
+    --white-border: #ffffff;    /* High Contrast Border */
+    --active-indigo: #818cf8;
+}
+
+/* 1. FORCE ENTIRE PAGE DARK */
+[data-theme='dark'], 
+[data-theme='dark'] body, 
+[data-theme='dark'] main,
+[data-theme='dark'] .search-overlay-background,
+[data-theme='dark'] body.search-mode-active,
+[data-theme='dark'] #searchResults.active-view {
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* 2. TASK MODAL - FULL PAGE DARK & TEXT FIX */
+[data-theme='dark'] #taskModal, 
+[data-theme='dark'] #eventModal,
+[data-theme='dark'] #statusPromptModal,
+[data-theme='dark'] #rescheduleModal {
+    background-color: var(--bg-color) !important;
+    border: 2px solid var(--white-border) !important;
+    color: #ffffff !important;
+    /* Dims the rest of the page completely */
+    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.95) !important; 
+}
+
+/* Ensure all text inside modal is white */
+[data-theme='dark'] #taskModal *, 
+[data-theme='dark'] #eventModal * {
+    color: #ffffff !important;
+}
+
+/* Task Inner List Background */
+[data-theme='dark'] #existingTasks {
+    background-color: #000000 !important;
+    border: 1px solid #334155 !important;
+    padding: 10px !important;
+}
+
+/* Task Cards inside Modal */
+[data-theme='dark'] #existingTasks div.bg-white,
+[data-theme='dark'] #existingTasks .grid {
+    background-color: #1e293b !important;
+    border: 1.5px solid #475569 !important;
+}
+
+/* 3. SEARCH RESULT BACKGROUND & TEXT */
+[data-theme='dark'] #searchResults {
+    background-color: var(--bg-color) !important;
+    margin-top: -30px !important;
+}
+
+[data-theme='dark'] .search-result-item {
+    background-color: #1e293b !important;
+    border: 2px solid var(--white-border) !important;
+    border-left: 8px solid var(--active-indigo) !important;
+    margin-bottom: 12px !important;
+    padding: 20px !important;
+}
+
+[data-theme='dark'] .search-result-item strong,
+[data-theme='dark'] .search-result-item p,
+[data-theme='dark'] .search-result-item div,
+[data-theme='dark'] .search-result-item span {
+    color: #ffffff !important; /* Force all search text to white */
+    opacity: 1 !important;
+}
+
+/* 4. CALENDAR CELLS & MARGINS */
+[data-theme='dark'] .calendar-cell {
+    background-color: var(--card-bg) !important;
+    border: 2px solid var(--white-border) !important;
+    border-radius: 12px !important;
+    /* User Requested: Margin to cells */
+    margin-bottom: 15px !important; 
+}
+
+/* Specifically target the LAST cell to ensure margin is applied */
+[data-theme='dark'] .calendar-cell:last-child {
+    margin-bottom: 120px !important; 
+}
+
+[data-theme='dark'] #calendar {
+    padding-bottom: 100px !important;
+}
+
+/* 5. CALENDAR HEADERS (Mon-Sun) */
+[data-theme='dark'] .calendar-header div {
+    color: #fbbf24 !important; /* Amber Yellow */
+    font-weight: 900 !important;
+}
+
+[data-theme='dark'] #monthYear {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+/* 6. BOTTOM NAV & INPUTS */
+[data-theme='dark'] #universal-bottom-nav {
+    background-color: #000000 !important;
+    border-top: 2px solid var(--white-border) !important;
+}
+
+[data-theme='dark'] .nav-link {
+    color: #ffffff !important;
+}
+
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea, 
+[data-theme='dark'] select {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #475569 !important;
+}
+
+/* 7. CLOSE BUTTONS */
+[data-theme='dark'] #closeModal, 
+[data-theme='dark'] #closeEventModal {
+    background-color: #ef4444 !important; /* Red */
+    color: #ffffff !important;
+    border: 2px solid white !important;
+}
 </style>
 
 
