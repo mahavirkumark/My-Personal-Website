@@ -2273,8 +2273,9 @@ document.addEventListener('DOMContentLoaded', () => {
     --bg-color: #0f172a;        /* Deep Slate/Navy */
     --card-bg: #1e293b;         /* Slate 800 */
     --text-main: #ffffff;       /* Pure White */
-    --text-muted: #94a3b8;      /* Slate 400 */
+    --text-muted: #cbd5e1;      /* Slate 300 for high visibility */
     --border-color: #334155;    /* Slate 700 */
+    --white-border: #ffffff;    /* Pure White Border */
     --active-blue: #3b82f6;
     --active-indigo: #818cf8;
     --input-bg: #020617;        /* Near Black */
@@ -2286,139 +2287,123 @@ document.addEventListener('DOMContentLoaded', () => {
     color: var(--text-main) !important;
 }
 
-/* 2. Calendar Grid & Cells (Fixed Border & Margin) */
+/* 2. Calendar Grid & Cells */
 [data-theme='dark'] .calendar-cell {
     background-color: var(--card-bg) !important;
-    /* Proper 2px border for definition */
-    border: 2px solid var(--border-color) !important; 
+    /* User Requested: White border for cells in dark mode */
+    border: 1.5px solid var(--white-border) !important; 
     border-radius: 12px !important;
     color: #ffffff !important;
-    /* Spacing between rows on mobile */
-    margin-bottom: 10px !important; 
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+    /* User Requested: Margin bottom to ALL cells including the last row */
+    margin-bottom: 12px !important; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5) !important;
 }
 
-[data-theme='dark'] .calendar-cell:hover {
-    border-color: var(--active-indigo) !important;
-    background-color: #2d3a4f !important;
+[data-theme='dark'] #calendar {
+    /* User Requested: Reduce calendar bottom margin by 2px */
+    margin-bottom: -2px !important; 
+    /* Padding to ensure last row is clickable above nav */
+    padding-bottom: 90px !important; 
 }
 
 [data-theme='dark'] .sunday-cell {
-    background-color: #450a0a !important; /* Muted Dark Red */
-    border-color: #991b1b !important;
+    background-color: #450a0a !important;
+    border-color: #fca5a5 !important; /* Light red/white border for Sunday */
 }
 
 [data-theme='dark'] .today {
     border: 3px solid var(--active-blue) !important;
-    background-color: #172554 !important; /* Darker Blue */
+    background-color: #172554 !important;
 }
 
-/* Tasks Inside Calendar Cells (High Contrast Strips) */
-[data-theme='dark'] [id^="tasks-"] div {
-    background-color: #312e81 !important; /* Indigo strip */
-    color: #ffffff !important;
-    border-left: 3px solid var(--active-indigo) !important;
-    padding: 2px 6px !important;
-    margin-bottom: 3px !important;
-    border-radius: 4px !important;
-}
-
-[data-theme='dark'] [id^="tasks-"] div.bg-emerald-50 {
-    background-color: #064e3b !important; /* Emerald strip */
-    border-left: 3px solid #10b981 !important;
-    color: #d1fae5 !important;
-}
-
-/* 3. Search Bar & Background (Specific Overrides) */
+/* 3. Search Bar & Background */
 [data-theme='dark'] #searchInput {
     background-color: var(--input-bg) !important;
     color: #ffffff !important;
-    border: 2px solid var(--border-color) !important;
-    /* 2px margin bottom for spacing from results */
+    border: 2px solid var(--white-border) !important;
     margin-bottom: 2px !important; 
 }
 
-/* Background when search is active */
+/* Fix: Background when search is active */
 [data-theme='dark'] body.search-mode-active,
 [data-theme='dark'] #searchResults.active-view,
 [data-theme='dark'] .search-container {
     background-color: var(--bg-color) !important;
 }
 
-[data-theme='dark'] .search-overlay-background {
-    background-color: rgba(0, 0, 0, 0.8) !important;
+/* 4. Search Results Visibility (CRITICAL FIX) */
+[data-theme='dark'] #searchResults {
+    background-color: var(--bg-color) !important;
 }
 
-/* 4. Search Results Visibility */
 [data-theme='dark'] .search-result-item {
-    background-color: var(--card-bg) !important;
-    border: 2px solid var(--border-color) !important;
-    border-left-width: 5px !important; /* Thicker indicator */
+    background-color: #1e293b !important; /* Lighter slate for contrast */
+    border: 1px solid var(--white-border) !important;
+    border-left-width: 6px !important; /* Thick indicator */
     padding: 16px !important;
     margin-bottom: 12px !important;
     border-radius: 12px !important;
+    display: block !important;
 }
 
-[data-theme='dark'] .search-result-item strong {
-    color: #ffffff !important; /* High contrast titles */
+/* User Requested: Search result text visibility */
+[data-theme='dark'] .search-result-item strong,
+[data-theme='dark'] .search-result-item b {
+    color: #ffffff !important; /* Pure White Titles */
     font-size: 1.1rem !important;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
 }
 
+[data-theme='dark'] .search-result-item p,
+[data-theme='dark'] .search-result-item div,
 [data-theme='dark'] .search-result-item .text-gray-500,
 [data-theme='dark'] .search-result-item .text-gray-600 {
-    color: #cbd5e1 !important; /* Light Slate for descriptions */
+    color: #e2e8f0 !important; /* Slate 200 - Very high contrast */
+    opacity: 1 !important;
+    font-weight: 500 !important;
 }
 
-[data-theme='dark'] .search-result-item span.text-xs {
-    color: var(--active-blue) !important;
+[data-theme='dark'] .search-result-item span {
+    color: var(--active-blue) !important; /* Blue for dates/tags */
+    font-weight: bold !important;
 }
 
 /* 5. Modals & Task Lists */
 [data-theme='dark'] #taskModal, 
-[data-theme='dark'] #eventModal, 
-[data-theme='dark'] #statusPromptModal,
-[data-theme='dark'] #rescheduleModal {
+[data-theme='dark'] #eventModal {
     background-color: #111827 !important;
-    border: 2px solid var(--border-color) !important;
+    border: 2px solid var(--white-border) !important;
     color: #ffffff !important;
 }
 
 [data-theme='dark'] #existingTasks {
     background-color: var(--input-bg) !important;
-    border: 1px solid var(--border-color) !important;
 }
 
 [data-theme='dark'] #existingTasks .bg-white {
-    background-color: var(--card-bg) !important;
+    background-color: #1e293b !important;
     border: 1px solid var(--border-color) !important;
-}
-
-[data-theme='dark'] #existingTasks strong {
     color: #ffffff !important;
 }
 
-/* 6. Navigation (Bottom Bar) */
+/* 6. Tasks Inside Calendar Cells */
+[data-theme='dark'] [id^="tasks-"] div {
+    background-color: #312e81 !important;
+    color: #ffffff !important;
+    border-left: 3px solid #818cf8 !important;
+    margin-bottom: 4px !important;
+    font-weight: bold !important;
+}
+
+/* 7. Bottom Navigation */
 [data-theme='dark'] #universal-bottom-nav {
     background-color: #0f172a !important;
-    border-top: 2px solid var(--border-color) !important;
+    border-top: 1.5px solid var(--white-border) !important;
 }
 
 [data-theme='dark'] .nav-link {
     color: #ffffff !important;
 }
-
-[data-theme='dark'] .nav-link i {
-    -webkit-text-stroke: 0.5px #ffffff !important;
-}
-
-/* Typography Overrides */
-[data-theme='dark'] .text-indigo-700 { color: var(--active-indigo) !important; }
-[data-theme='dark'] .text-gray-800 { color: #f1f5f9 !important; }
-[data-theme='dark'] .text-gray-600 { color: #94a3b8 !important; }
-
-
-
-
 
 
 
