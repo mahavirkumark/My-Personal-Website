@@ -2160,105 +2160,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 <style>
-/* 1. Theme Variables & Reset */
-:root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
-}
-
+    /* --- SAVIG CONSOLIDATED DARK MODE SYSTEM --- */
 [data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 14px;
-}
-
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 40px;
-}
-
-.nav-link i {
-    font-size: 25px;
-    margin-bottom: 4px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
-}
-
-.nav-link div {
-    font-size: 11px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 5px;
-}
-
-.nav-link.active {
-    color: var(--active-color) !important;
-}
-
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
-}
-
-/* --- SAVIG ULTIMATE COMPLETE DARK MODE --- */
-[data-theme='dark'] {
+    /* 1. Theme Variables */
     --bg-color: #0f172a;        /* Deep Navy */
     --modal-bg: #020617;        /* Near Black */
     --card-bg: #1e293b;         /* Slate 800 */
     --text-main: #ffffff;       /* Pure White */
-    --white-border: #ffffff;    /* White Border */
+    --text-muted: #cbd5e1;      /* Slate 300 */
+    --white-border: #ffffff;    /* High Contrast Border */
     --active-blue: #3b82f6;
     --active-indigo: #818cf8;
 }
 
-/* 1. Global & Full Page Search State */
+/* 2. Global Base Styling */
 [data-theme='dark'] body, 
 [data-theme='dark'] main,
 [data-theme='dark'] .search-overlay-background,
@@ -2268,10 +2183,10 @@ document.addEventListener('DOMContentLoaded', () => {
     color: var(--text-main) !important;
 }
 
-/* 2. Search Bar & Results Visibility */
+/* 3. Search Interface & Results */
 [data-theme='dark'] .search-container {
     background-color: var(--bg-color) !important;
-    margin-bottom: -30px !important;
+    margin-bottom: -1px !important;
     border-bottom: 1px solid #334155;
 }
 
@@ -2279,11 +2194,11 @@ document.addEventListener('DOMContentLoaded', () => {
     background-color: #020617 !important;
     color: #ffffff !important;
     border: 2px solid var(--white-border) !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 16px !important;
 }
 
 [data-theme='dark'] #searchResults {
-    margin-top: -30px !important;
+    margin-top: -2px !important;
     background-color: var(--bg-color) !important;
 }
 
@@ -2291,25 +2206,30 @@ document.addEventListener('DOMContentLoaded', () => {
     background-color: #1e293b !important;
     border: 1.5px solid var(--white-border) !important;
     border-left-width: 6px !important;
-    margin-bottom: 10px !important;
+    margin-bottom: 8px !important;
     padding: 15px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
 }
 
 [data-theme='dark'] .search-result-item strong {
     color: #ffffff !important;
     font-weight: 800 !important;
+    font-size: 1.1rem !important;
+    display: block;
+    margin-bottom: 2px;
 }
 
 [data-theme='dark'] .search-result-item p,
 [data-theme='dark'] .search-result-item div,
 [data-theme='dark'] .search-result-item .text-gray-600 {
-    color: #f1f5f9 !important;
+    color: #f1f5f9 !important; /* High Visibility Text */
 }
 
-/* 3. Calendar Controls & Month Header */
+/* 4. Calendar Headers & Controls */
 [data-theme='dark'] #monthYear {
     color: #ffffff !important;
-    font-weight: 900 !important;
+    font-weight: 800 !important;
 }
 
 [data-theme='dark'] #calendar-controls button {
@@ -2319,15 +2239,19 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 [data-theme='dark'] .calendar-header div {
-    color: #fbbf24 !important; /* Bright Amber for Mon-Sun */
+    color: #fbbf24 !important; /* Amber for Mon-Sun */
     font-weight: 900 !important;
 }
 
-/* 4. Calendar Cells & Spacing */
+[data-theme='dark'] .calendar-header .text-red-500 {
+    color: #fb7185 !important; /* Bright Rose for weekends */
+}
+
+/* 5. Calendar Cells */
 [data-theme='dark'] .calendar-cell {
     background-color: var(--card-bg) !important;
     border: 1.5px solid var(--white-border) !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 5px !important;
     border-radius: 12px !important;
 }
 
@@ -2336,51 +2260,17 @@ document.addEventListener('DOMContentLoaded', () => {
     font-weight: 800 !important;
 }
 
-[data-theme='dark'] #calendar {
-    margin-bottom: -2px !important;
-    padding-bottom: 100px !important;
+[data-theme='dark'] .sunday-cell {
+    background-color: #450a0a !important;
+    border-color: #fecaca !important;
 }
 
-/* 5. Complete Page Dark for Task & Event Modals */
-[data-theme='dark'] #taskModal, 
-[data-theme='dark'] #eventModal,
-[data-theme='dark'] #statusPromptModal,
-[data-theme='dark'] #rescheduleModal,
-[data-theme='dark'] #eventTrackingSection {
-    background-color: var(--modal-bg) !important;
-    border: 2px solid var(--white-border) !important;
-    color: #ffffff !important;
+[data-theme='dark'] .today {
+    border: 3px solid var(--active-blue) !important;
+    background-color: #1e3a8a !important;
 }
 
-/* Modal Internal Layout */
-[data-theme='dark'] #modalDate {
-    color: var(--active-indigo) !important;
-    font-weight: 900 !important;
-}
-
-[data-theme='dark'] #existingTasks {
-    background-color: #000000 !important;
-    border: 1.5px solid #334155 !important;
-}
-
-[data-theme='dark'] #existingTasks div.bg-white,
-[data-theme='dark'] #existingTasks .grid,
-[data-theme='dark'] #existingTasks .border-l-indigo-500 {
-    background-color: #1e293b !important;
-    border: 1px solid #475569 !important;
-    color: #ffffff !important;
-}
-
-/* Inputs & Form Elements in Modals */
-[data-theme='dark'] input, 
-[data-theme='dark'] textarea,
-[data-theme='dark'] select {
-    background-color: #0f172a !important;
-    color: #ffffff !important;
-    border: 1.5px solid #475569 !important;
-}
-
-/* 6. Calendar Task/Event Strips */
+/* 6. Tasks Inside Cells */
 [data-theme='dark'] [id^="tasks-"] div {
     background-color: #312e81 !important;
     color: #ffffff !important;
@@ -2393,7 +2283,46 @@ document.addEventListener('DOMContentLoaded', () => {
     border-left: 3px solid #10b981 !important;
 }
 
-/* 7. Bottom Navigation Bar */
+/* 7. Modals (Task & Event) */
+[data-theme='dark'] #taskModal, 
+[data-theme='dark'] #eventModal,
+[data-theme='dark'] #statusPromptModal,
+[data-theme='dark'] #rescheduleModal {
+    background-color: var(--modal-bg) !important;
+    border: 2px solid var(--white-border) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.9) !important; /* Dims background */
+}
+
+[data-theme='dark'] #modalDate {
+    color: var(--active-indigo) !important;
+    font-weight: 900 !important;
+}
+
+[data-theme='dark'] #existingTasks {
+    background-color: #000000 !important; /* Deep black list background */
+    border: 1px solid #334155 !important;
+    border-radius: 12px !important;
+}
+
+[data-theme='dark'] #existingTasks div.bg-white,
+[data-theme='dark'] #existingTasks .grid {
+    background-color: #1e293b !important;
+    border: 1.5px solid #475569 !important;
+    color: #ffffff !important;
+}
+
+/* Form Fields inside Modal */
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea,
+[data-theme='dark'] select {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border: 1.5px solid #475569 !important;
+    border-radius: 8px !important;
+}
+
+/* 8. Navigation & Buttons */
 [data-theme='dark'] #universal-bottom-nav {
     background-color: #020617 !important;
     border-top: 2px solid var(--white-border) !important;
@@ -2403,448 +2332,16 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #ffffff !important;
 }
 
-[data-theme='dark'] .nav-link i {
-    -webkit-text-stroke: 0.5px #ffffff !important;
-}
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
-}
-
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
-/* --- SAVIG DEFINITIVE DARK MODE --- */
-[data-theme='dark'] {
-    --bg-color: #0f172a;        /* Deep Navy */
-    --card-bg: #1e293b;         /* Slate 800 */
-    --text-main: #ffffff;       /* Pure White */
-    --white-border: #ffffff;    /* Pure White Border */
-    --active-blue: #3b82f6;
-    --active-indigo: #818cf8;
-}
-
-/* 1. Global & Search Active Backgrounds */
-[data-theme='dark'] body, 
-[data-theme='dark'] body.search-mode-active,
-[data-theme='dark'] .search-overlay-background,
-[data-theme='dark'] #searchResults.active-view {
-    background-color: var(--bg-color) !important;
-}
-
-/* 2. Search Container & Spacing Fixes */
-[data-theme='dark'] .search-container {
-    background-color: var(--bg-color) !important;
-    /* User Requested: Reduce margin below search bar by 30px */
-    margin-bottom: -1px !important; 
-    padding-bottom: 0 !important;
-}
-
-[data-theme='dark'] #searchInput {
-    background-color: #020617 !important;
+[data-theme='dark'] #saveTaskBtn, [data-theme='dark'] #saveEventBtn {
+    background-color: #4f46e5 !important;
     color: #ffffff !important;
-    border: 2px solid var(--white-border) !important;
-    margin-bottom: 16px !important;
+    border: 1px solid #ffffff !important;
 }
 
-/* 3. Search Results Visibility & Spacing */
-[data-theme='dark'] #searchResults {
-    /* Reduce gap between bar and results */
-    margin-top: -2px !important; 
-    background-color: var(--bg-color) !important;
-}
-
-[data-theme='dark'] .search-result-item {
-    background-color: #1e293b !important;
-    border: 1.5px solid var(--white-border) !important;
-    border-left-width: 6px !important;
-    margin-bottom: 6px !important;
-    padding: 15px !important;
-    border-radius: 12px !important;
-}
-
-/* High Visibility Result Text */
-[data-theme='dark'] .search-result-item strong {
-    color: #ffffff !important; 
-    font-weight: 800 !important;
-    font-size: 1.1rem !important;
-}
-
-[data-theme='dark'] .search-result-item p, 
-[data-theme='dark'] .search-result-item div,
-[data-theme='dark'] .search-result-item .text-gray-600,
-[data-theme='dark'] .search-result-item .text-gray-500 {
-    color: #f1f5f9 !important; /* Slate 50 for max visibility */
-    font-weight: 500 !important;
-}
-
-/* 4. Calendar Header (Mon, Tue, etc.) Visibility */
-[data-theme='dark'] .calendar-header div {
-    /* User Requested: Proper visible color for Mon, Tue... */
-    color: #fbbf24 !important; /* Bright Amber */
-    font-weight: 900 !important;
-    text-transform: uppercase;
-}
-
-[data-theme='dark'] .calendar-header .text-red-500 {
-    color: #fb7185 !important; /* Bright Rose for weekends */
-}
-
-/* 5. Calendar Cells (White Borders & Margins) */
-[data-theme='dark'] .calendar-cell {
-    background-color: var(--card-bg) !important;
-    /* User Requested: White border */
-    border: 1.5px solid var(--white-border) !important; 
-    /* User Requested: Margin bottom to every cell */
-    margin-bottom: 5px !important; 
-    border-radius: 12px !important;
-}
-
-[data-theme='dark'] .calendar-cell span.text-sm {
-    color: #ffffff !important; /* Date numbers */
-    font-weight: 800 !important;
-}
-
-[data-theme='dark'] #calendar {
-    /* User Requested: Reduce bottom margin by 2px */
-    margin-bottom: 5px !important; 
-    padding-bottom: 100px !important; /* Prevents overlap with Nav */
-}
-
-[data-theme='dark'] .sunday-cell {
-    background-color: #450a0a !important;
-    border-color: #fecaca !important; /* Pale red border */
-}
-
-[data-theme='dark'] .today {
-    border: 3px solid var(--active-blue) !important;
-    background-color: #1e3a8a !important;
-}
-
-/* 6. Task/Event Strips Inside Cells */
-[data-theme='dark'] [id^="tasks-"] div {
-    background-color: #312e81 !important; /* Indigo strip */
+[data-theme='dark'] #closeModal, [data-theme='dark'] #closeEventModal {
+    background-color: #ef4444 !important;
     color: #ffffff !important;
-    border-left: 3px solid var(--active-indigo) !important;
-    font-weight: 700 !important;
-    margin-bottom: 3px !important;
-}
-
-[data-theme='dark'] [id^="tasks-"] div.bg-emerald-50 {
-    background-color: #064e3b !important; /* Emerald strip */
-    border-left: 3px solid #10b981 !important;
-}
-
-/* 7. Modals & Task Lists */
-[data-theme='dark'] #taskModal, 
-[data-theme='dark'] #eventModal, 
-[data-theme='dark'] #statusPromptModal {
-    background-color: #111827 !important;
-    border: 2px solid var(--white-border) !important;
-}
-
-[data-theme='dark'] #existingTasks {
-    background-color: #020617 !important;
-}
-
-[data-theme='dark'] #existingTasks .bg-white {
-    background-color: #1e293b !important;
-    border: 1px solid var(--border-color) !important;
-    color: #ffffff !important;
-}
-
-/* 8. Bottom Navigation */
-[data-theme='dark'] #universal-bottom-nav {
-    background-color: #0f172a !important;
-    border-top: 1.5px solid var(--white-border) !important;
-}
-
-[data-theme='dark'] .nav-link {
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] .nav-link i {
-    -webkit-text-stroke: 0.5px #ffffff !important;
-}
-/* --- SAVIG MODAL & NAVIGATION DARK MODE FIXES --- */
-
-[data-theme='dark'] {
-    /* 1. Task Modal Inner Container (When clicking a date) */
-    #taskModal {
-        background-color: #111827 !important; /* Very dark navy */
-        border: 2px solid #ffffff !important; /* White border as requested */
-        color: #ffffff !important;
-    }
-
-    /* Modal Header & Date Text */
-    #modalDate {
-        color: #818cf8 !important; /* Bright Indigo */
-        font-weight: 800 !important;
-    }
-
-    /* The "No tasks yet" or Task List area inside the modal */
-    #existingTasks {
-        background-color: #020617 !important; /* Near black background */
-        border: 1px solid #334155 !important;
-    }
-
-    /* Individual Task Cards inside the Modal */
-    #existingTasks div.bg-white, 
-    #existingTasks .row-inner > div {
-        background-color: #1e293b !important; /* Slate 800 */
-        border: 1px solid #475569 !important;
-        color: #ffffff !important;
-    }
-
-    /* Text colors inside the modal cards */
-    #existingTasks strong {
-        color: #ffffff !important;
-    }
-    #existingTasks .text-slate-700, 
-    #existingTasks .text-slate-600 {
-        color: #cbd5e1 !important; /* Light Slate */
-    }
-
-    /* 2. Month Navigation (Prev/Next Buttons) */
-    #calendar-controls button {
-        background-color: #1e293b !important;
-        color: #ffffff !important;
-        border: 1.5px solid #ffffff !important; /* White border for buttons */
-        transition: all 0.2s ease;
-    }
-
-    #calendar-controls button:hover {
-        background-color: #334155 !important;
-        border-color: #818cf8 !important;
-        color: #818cf8 !important;
-    }
-
-    /* Month and Year Text (e.g., "April 2026") */
-    #monthYear {
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* 3. Modal Input Fields & Buttons */
-    #taskTitle, #taskDesc {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-        border: 1px solid #475569 !important;
-    }
-
-    #taskTitle::placeholder, #taskDesc::placeholder {
-        color: #64748b !important;
-    }
-
-    /* Save/Cancel Buttons inside Modal */
-    #saveTaskBtn {
-        background-color: #4f46e5 !important; /* Indigo 600 */
-        color: #ffffff !important;
-    }
-    
-    #cancelTaskBtn {
-        background-color: #334155 !important;
-        color: #ffffff !important;
-    }
-
-    /* Close (X) button in modals */
-    #closeModal, #closeEventModal {
-        color: #ef4444 !important; /* Bright Red */
-        background-color: transparent !important;
-    }
-    
-    #closeModal:hover, #closeEventModal:hover {
-        background-color: #ef4444 !important;
-        color: white !important;
-    }
-}
-/* --- SAVIG FULL-PAGE DARK MODAL OVERRIDE --- */
-[data-theme='dark'] {
-    /* 1. Modal Background - Force Full Dark */
-    #taskModal, 
-    #eventModal,
-    #statusPromptModal,
-    #rescheduleModal {
-        background-color: #020617 !important; /* Near Black */
-        border: 2px solid #ffffff !important; /* High Contrast White Border */
-        color: #ffffff !important;
-        box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.9) !important; /* Dims the entire background page */
-    }
-
-    /* 2. Inner Containers Visibility */
-    #existingTasks {
-        background-color: #000000 !important; /* Pure Black Inner Well */
-        border: 1px solid #334155 !important;
-        border-radius: 12px !important;
-    }
-
-    /* Task/Event Cards inside the Modal */
-    #existingTasks .grid,
-    #existingTasks div.bg-white,
-    .calendar-cell-modal-item {
-        background-color: #1e293b !important; /* Slate 800 Card */
-        border: 1.5px solid #475569 !important;
-        color: #ffffff !important;
-        margin-bottom: 8px !important;
-    }
-
-    /* 3. Text & Headers inside Modal */
-    #modalDate, 
-    #eventModalTitle,
-    #rescheduleEventTitle {
-        color: #818cf8 !important; /* Bright Indigo */
-        font-weight: 900 !important;
-        text-transform: uppercase;
-    }
-
-    #existingTasks strong {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-
-    #existingTasks .text-slate-700,
-    #existingTasks .text-slate-600,
-    #existingTasks .text-gray-600 {
-        color: #cbd5e1 !important; /* Light Slate for descriptions */
-    }
-
-    /* 4. Form Inputs inside Modal */
-    #taskTitle, 
-    #taskDesc,
-    #eventTitle,
-    #eventDate,
-    #eventTime,
-    #eventLocation,
-    #eventDesc,
-    #rescheduleDate,
-    #rescheduleTime {
-        background-color: #0f172a !important;
-        color: #ffffff !important;
-        border: 1.5px solid #475569 !important;
-        border-radius: 8px !important;
-    }
-
-    #taskTitle::placeholder, 
-    #taskDesc::placeholder {
-        color: #64748b !important;
-    }
-
-    /* 5. Buttons inside Modal */
-    #saveTaskBtn, #saveEventBtn, #confirmRescheduleBtn {
-        background-color: #4f46e5 !important;
-        color: #ffffff !important;
-        border: 1px solid #ffffff !important;
-        font-weight: 800 !important;
-    }
-
-    #cancelTaskBtn, #cancelEventBtn, #cancelPromptBtn {
-        background-color: #334155 !important;
-        color: #ffffff !important;
-    }
-
-    /* Close Button (X) */
-    #closeModal, #closeEventModal, #closeRescheduleModal {
-        color: #ffffff !important;
-        background-color: #ef4444 !important; /* Red background for visibility */
-        border-radius: 50% !important;
-        width: 35px !important;
-        height: 35px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 24px !important;
-    }
-
-    /* 6. Fix for Status Prompts (Did you complete event?) */
-    #promptContent p {
-        color: #ffffff !important;
-    }
-
-    #eventToPromptTitle {
-        color: #fbbf24 !important; /* Amber for urgency */
-    }
-}
-/* --- SAVIG SEARCH RESULTS DARK MODE FIX --- */
-[data-theme='dark'] {
-    /* 1. Force the entire Search Results Container to be Dark */
-    #searchResults,
-    .search-results-panel,
-    body.search-mode-active #searchResults.active-view {
-        background-color: #0f172a !important; /* Deep Navy Background */
-        color: #ffffff !important;
-    }
-
-    /* 2. Individual Search Result Item Card */
-    .search-result-item {
-        background-color: #1e293b !important; /* Slate 800 Card */
-        border: 1.5px solid #ffffff !important; /* High Visibility White Border */
-        border-left-width: 6px !important;     /* Thick indicator stripe */
-        border-radius: 12px !important;
-        margin-bottom: 12px !important;
-        padding: 16px !important;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    /* Hover effect for result items */
-    .search-result-item:hover {
-        background-color: #2d3a4f !important;
-        border-color: #818cf8 !important; /* Indigo glow on hover */
-    }
-
-    /* 3. Search Result Text Visibility */
-    .search-result-item strong {
-        color: #ffffff !important; /* Pure White Title */
-        font-weight: 800 !important;
-        font-size: 1.1rem !important;
-        display: block !important;
-        margin-bottom: 4px !important;
-    }
-
-    /* Description / Snippet Text */
-    .search-result-item p,
-    .search-result-item div,
-    .search-result-item .text-gray-600,
-    .search-result-item .text-gray-500 {
-        color: #f1f5f9 !important; /* High contrast Off-White */
-        font-weight: 500 !important;
-        opacity: 1 !important;
-    }
-
-    /* Date and Icons inside Search Result */
-    .search-result-item span,
-    .search-result-item .text-xs {
-        color: #60a5fa !important; /* Bright Sky Blue for dates */
-        font-weight: bold !important;
-    }
-
-    .search-result-item i {
-        color: inherit !important; /* Match the icon to its context */
-        margin-right: 8px !important;
-    }
-
-    /* 4. Empty State (No Results Found) */
-    .search-results-panel .bg-yellow-50,
-    .search-results-panel p.text-yellow-700 {
-        background-color: #422006 !important; /* Dark Amber background */
-        color: #fde68a !important;           /* Light Gold text */
-        border: 1px solid #78350f !important;
-        border-radius: 8px !important;
-        padding: 15px !important;
-    }
+    border-radius: 50%;
 }
 </style>
 
