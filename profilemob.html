@@ -260,13 +260,20 @@
             }
         });
 
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('theme', target);
-            if (navigator.vibrate) navigator.vibrate(10);
-        }
+function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const target = current === 'light' ? 'dark' : 'light';
+    
+    // Apply to current page
+    html.setAttribute('data-theme', target);
+    
+    // Save for ALL other pages
+    localStorage.setItem('theme', target);
+    
+    // Mobile haptic feedback
+    if (navigator.vibrate) navigator.vibrate(10);
+}
 
         function handleLogout() {
             firebase.auth().signOut().then(() => window.location.replace("indexmob.html"));
