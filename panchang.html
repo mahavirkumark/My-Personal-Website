@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savig</title>
+    <script>
+    // 1. Apply theme before page renders
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // 2. Listen for theme changes in other open tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+            document.documentElement.setAttribute('data-theme', event.newValue);
+        }
+    });
+</script>
     <style>
         :root { 
             --maroon: #800000; --saffron: #FF9933; --gold: #FFD700; 
