@@ -7,6 +7,22 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <meta name="mobile-web-app-capable" content="yes">
+
+<script>
+    // 1. Apply theme before page renders
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // 2. Listen for theme changes in other open tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+            document.documentElement.setAttribute('data-theme', event.newValue);
+        }
+    });
+</script>
+    
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
