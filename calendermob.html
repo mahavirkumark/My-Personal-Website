@@ -2323,6 +2323,129 @@ document.addEventListener('DOMContentLoaded', () => {
 .universal-bottom-nav:hover{
     color: #2563eb;
 }
+/* --- UNIVERSAL DARK MODE OVERRIDES --- */
+
+[data-theme='dark'] {
+    /* Core Background & Text */
+    --bg-color: #0f172a;        /* Deep Navy */
+    --text-main: #f1f5f9;       /* Slate 100 */
+    --text-muted: #94a3b8;      /* Slate 400 */
+    --card-bg: #1e293b;         /* Slate 800 */
+    --border-color: #334155;    /* Slate 700 */
+    
+    /* Nav & Interactive */
+    --nav-bg: #0f172a;
+    --nav-text: #ffffff;
+    --active-color: #60a5fa;    /* Sky Blue */
+    --input-bg: #1e293b;
+}
+
+/* Apply Body Background */
+[data-theme='dark'] body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* --- Calendar Specifics --- */
+[data-theme='dark'] .calendar-cell {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+[data-theme='dark'] .calendar-cell:hover {
+    background-color: #2d3a4f !important;
+}
+
+[data-theme='dark'] .sunday-cell {
+    background-color: #451a1a !important; /* Muted Dark Red */
+    border-color: #7f1d1d !important;
+}
+
+[data-theme='dark'] .today {
+    background-color: #1e3a8a !important; /* Dark Blue */
+    border-color: var(--active-color) !important;
+}
+
+/* --- Modals & Popups --- */
+[data-theme='dark'] #taskModal, 
+[data-theme='dark'] #eventModal, 
+[data-theme='dark'] #statusPromptModal, 
+[data-theme='dark'] #eventTrackingSection,
+[data-theme='dark'] #rescheduleModal {
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Inputs & Textareas */
+[data-theme='dark'] input, 
+[data-theme='dark'] textarea, 
+[data-theme='dark'] select {
+    background-color: #0f172a !important;
+    border-color: var(--border-color) !important;
+    color: white !important;
+}
+
+/* --- Task Items in List --- */
+[data-theme='dark'] #existingTasks {
+    background-color: #0f172a !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] #existingTasks .bg-white {
+    background-color: #1e293b !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] #existingTasks strong {
+    color: white !important;
+}
+
+[data-theme='dark'] #existingTasks .text-slate-700 {
+    color: var(--text-muted) !important;
+}
+
+/* --- Search Results --- */
+[data-theme='dark'] #searchResults .bg-white {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme='dark'] #searchResults strong {
+    color: white !important;
+}
+
+/* --- Navigation & Controls --- */
+[data-theme='dark'] #universal-bottom-nav {
+    background-color: var(--nav-bg) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+
+[data-theme='dark'] button.border-gray-300 {
+    border-color: var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* Specific text colors that were indigo/black in light mode */
+[data-theme='dark'] .text-indigo-700, 
+[data-theme='dark'] .text-gray-800 {
+    color: var(--active-color) !important;
+}
+
+[data-theme='dark'] .text-gray-500, 
+[data-theme='dark'] .text-gray-600 {
+    color: var(--text-muted) !important;
+}
+
+/* Fix for sticky headers in tables */
+[data-theme='dark'] thead th {
+    background-color: #334155 !important;
+    color: white !important;
+}
+
+    
 </style>
 
 
