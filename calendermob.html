@@ -2396,7 +2396,70 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme='dark'] .nav-link i {
     -webkit-text-stroke: 0.5px #ffffff !important;
 }
-    
+    /* --- SEARCH RESULTS DARK MODE FIX --- */
+[data-theme='dark'] #searchResults {
+    background-color: #0f172a !important; /* Deep Navy background for the whole panel */
+}
+
+/* Individual Search Result Card */
+[data-theme='dark'] .search-result-item {
+    background-color: #1e293b !important; /* Slate 800 for the card */
+    border: 1px solid #334155 !important;
+    border-left-width: 4px !important; /* Keep the color-coded border */
+    color: #ffffff !important;
+    margin-bottom: 8px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover state for results */
+[data-theme='dark'] .search-result-item:hover {
+    background-color: #2d3a4f !important; /* Slightly lighter on hover */
+}
+
+/* Result Title */
+[data-theme='dark'] .search-result-item strong {
+    color: #ffffff !important; 
+    font-size: 1.1rem !important;
+    display: block !important;
+    margin-bottom: 4px !important;
+}
+
+/* Result Icons inside Title */
+[data-theme='dark'] .search-result-item i {
+    opacity: 0.9 !important;
+}
+
+/* Result Date Text */
+[data-theme='dark'] .search-result-item span.text-gray-600 {
+    color: #94a3b8 !important; /* Slate 400 for dates */
+    font-size: 0.85rem !important;
+}
+
+/* Result Description/Snippet */
+[data-theme='dark'] .search-result-item .text-gray-500,
+[data-theme='dark'] .search-result-item div.truncate {
+    color: #cbd5e1 !important; /* Slate 300 for readable descriptions */
+    font-size: 0.95rem !important;
+    line-height: 1.4 !important;
+}
+
+/* Search Results Overlay Header (Mobile) */
+[data-theme='dark'] .search-results-panel h3 {
+    color: #818cf8 !important; /* Light Indigo */
+}
+
+[data-theme='dark'] .search-results-panel {
+    border-color: #334155 !important;
+}
+
+/* No Results Found Text */
+[data-theme='dark'] .bg-yellow-50 {
+    background-color: #422006 !important; /* Dark Brown/Yellow */
+    color: #fde68a !important;           /* Pale Yellow text */
+    border: 1px solid #78350f !important;
+}
 </style>
 
 
