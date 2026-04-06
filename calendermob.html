@@ -2276,175 +2276,126 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
-}
-
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-
-
-
-/* 1. Reset Body and Layout Logic */
-
-/* 3. Fix the Grid Columns for Mobile */
-
-
-/* 4. Positioning the Profile Box back to the top right */
-
-
-/* 5. Data Visibility and Contrast */
-
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
 /* --- UNIVERSAL DARK MODE OVERRIDES --- */
-
 [data-theme='dark'] {
-    /* Core Background & Text */
-    --bg-color: #0f172a;        /* Deep Navy */
-    --text-main: #f1f5f9;       /* Slate 100 */
-    --text-muted: #94a3b8;      /* Slate 400 */
-    --card-bg: #1e293b;         /* Slate 800 */
-    --border-color: #334155;    /* Slate 700 */
-    
-    /* Nav & Interactive */
+    --bg-color: #0f172a;        /* Deep Navy Background */
+    --text-main: #ffffff;       /* Pure White for Headings */
+    --text-muted: #94a3b8;      /* Slate 400 for secondary text */
+    --card-bg: #1e293b;         /* Slate 800 for Cells/Cards */
+    --border-color: #334155;    /* Slate 700 for Borders */
     --nav-bg: #0f172a;
-    --nav-text: #ffffff;
-    --active-color: #60a5fa;    /* Sky Blue */
-    --input-bg: #1e293b;
+    --active-color: #60a5fa;    /* Bright Blue for visibility */
+    --input-bg: #020617;        /* Very dark for input contrast */
 }
 
-/* Apply Body Background */
+/* 1. Global Visibility */
 [data-theme='dark'] body {
     background-color: var(--bg-color) !important;
     color: var(--text-main) !important;
 }
 
-/* --- Calendar Specifics --- */
+/* 2. Calendar Grid & Cell Adjustments */
 [data-theme='dark'] .calendar-cell {
     background-color: var(--card-bg) !important;
     border-color: var(--border-color) !important;
-    color: var(--text-main) !important;
+    color: #ffffff !important;
+    /* Added margin-bottom to prevent cells looking squashed on mobile */
+    margin-bottom: 8px !important; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
 }
 
 [data-theme='dark'] .calendar-cell:hover {
     background-color: #2d3a4f !important;
 }
 
-[data-theme='dark'] .sunday-cell {
-    background-color: #451a1a !important; /* Muted Dark Red */
-    border-color: #7f1d1d !important;
+/* Ensure the calendar doesn't hide behind the bottom nav */
+[data-theme='dark'] #calendar {
+    padding-bottom: 100px !important; 
 }
 
-[data-theme='dark'] .today {
-    background-color: #1e3a8a !important; /* Dark Blue */
-    border-color: var(--active-color) !important;
+/* 3. Task Visibility Inside Calendar Cells */
+[data-theme='dark'] [id^="tasks-"] div {
+    /* General Task Strip (the blue ones) */
+    background-color: #312e81 !important; /* Dark Indigo */
+    color: #e0e7ff !important;           /* Light Indigo Text */
+    border-left: 3px solid #6366f1 !important;
+    font-weight: 600 !important;
 }
 
-/* --- Modals & Popups --- */
+[data-theme='dark'] [id^="tasks-"] div.bg-emerald-50 {
+    /* Event Strip (the green ones) */
+    background-color: #064e3b !important; /* Dark Emerald */
+    color: #d1fae5 !important;           /* Light Emerald Text */
+    border-left: 3px solid #10b981 !important;
+}
+
+/* 4. Modals & Task List Visibility */
 [data-theme='dark'] #taskModal, 
 [data-theme='dark'] #eventModal, 
 [data-theme='dark'] #statusPromptModal, 
 [data-theme='dark'] #eventTrackingSection,
 [data-theme='dark'] #rescheduleModal {
-    background-color: var(--card-bg) !important;
-    color: var(--text-main) !important;
+    background-color: #111827 !important; /* Slightly darker than cells */
+    color: #ffffff !important;
     border: 1px solid var(--border-color) !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Inputs & Textareas */
+[data-theme='dark'] #existingTasks {
+    background-color: #020617 !important; /* High contrast well for task list */
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme='dark'] #existingTasks .bg-white {
+    background-color: #1e293b !important; /* Card background */
+    border: 1px solid #334155 !important;
+}
+
+[data-theme='dark'] #existingTasks strong {
+    color: #ffffff !important; /* Bold task titles */
+}
+
+[data-theme='dark'] #existingTasks .text-slate-700 {
+    color: #94a3b8 !important; /* Sub-text/Description */
+}
+
+/* 5. Input & Selection Clarity */
 [data-theme='dark'] input, 
 [data-theme='dark'] textarea, 
 [data-theme='dark'] select {
     background-color: #0f172a !important;
-    border-color: var(--border-color) !important;
-    color: white !important;
+    border-color: #475569 !important;
+    color: #ffffff !important;
 }
 
-/* --- Task Items in List --- */
-[data-theme='dark'] #existingTasks {
-    background-color: #0f172a !important;
-    border-color: var(--border-color) !important;
+[data-theme='dark'] input::placeholder,
+[data-theme='dark'] textarea::placeholder {
+    color: #64748b !important;
 }
 
-[data-theme='dark'] #existingTasks .bg-white {
-    background-color: #1e293b !important;
-    border-color: var(--border-color) !important;
+/* 6. Typography Fixes */
+[data-theme='dark'] .text-indigo-700,
+[data-theme='dark'] #modalDate {
+    color: #818cf8 !important; /* Lightened Indigo for contrast */
 }
 
-[data-theme='dark'] #existingTasks strong {
-    color: white !important;
+[data-theme='dark'] .text-gray-800,
+[data-theme='dark'] .text-gray-700 {
+    color: #f1f5f9 !important;
 }
 
-[data-theme='dark'] #existingTasks .text-slate-700 {
-    color: var(--text-muted) !important;
-}
-
-/* --- Search Results --- */
-[data-theme='dark'] #searchResults .bg-white {
-    background-color: var(--card-bg) !important;
-    border-color: var(--border-color) !important;
-}
-
-[data-theme='dark'] #searchResults strong {
-    color: white !important;
-}
-
-/* --- Navigation & Controls --- */
-[data-theme='dark'] #universal-bottom-nav {
-    background-color: var(--nav-bg) !important;
-    border-top: 1px solid var(--border-color) !important;
-}
-
-[data-theme='dark'] button.border-gray-300 {
-    border-color: var(--border-color) !important;
-    color: var(--text-main) !important;
-}
-
-/* Specific text colors that were indigo/black in light mode */
-[data-theme='dark'] .text-indigo-700, 
-[data-theme='dark'] .text-gray-800 {
-    color: var(--active-color) !important;
-}
-
-[data-theme='dark'] .text-gray-500, 
+[data-theme='dark'] .text-gray-500,
 [data-theme='dark'] .text-gray-600 {
-    color: var(--text-muted) !important;
+    color: #94a3b8 !important;
 }
 
-/* Fix for sticky headers in tables */
-[data-theme='dark'] thead th {
-    background-color: #334155 !important;
-    color: white !important;
+/* 7. Bottom Navigation Link Color */
+[data-theme='dark'] .nav-link {
+    color: #ffffff !important;
 }
 
+[data-theme='dark'] .nav-link i {
+    -webkit-text-stroke: 0.5px #ffffff !important;
+}
     
 </style>
 
