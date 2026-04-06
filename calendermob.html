@@ -2352,41 +2352,7 @@ document.addEventListener('DOMContentLoaded', () => {
     font-weight: 700 !important;
 }
         /* --- CRITICAL MODAL DARK MODE FIX --- */
-[data-theme='dark'] #taskModal, 
-[data-theme='dark'] #eventModal,
-[data-theme='dark'] body.focus-active #taskModal {
-    background-color: #020617 !important; /* Forces deep dark background */
-    color: #ffffff !important;
-    border: 2px solid #ffffff !important;
-}
 
-
-/* This fixes the 'well' inside the modal where tasks are listed */
-[data-theme='dark'] #existingTasks {
-    background-color: #000000 !important; /* Pure black inside the modal */
-    border: 1px solid #334155 !important;
-}
-
-/* This fixes the individual task cards that appear after clicking a date */
-[data-theme='dark'] #existingTasks div.bg-white,
-[data-theme='dark'] #existingTasks .grid,
-[data-theme='dark'] .calendar-cell-modal-item {
-    background-color: #1e293b !important; /* Slate 800 */
-    border: 1.5px solid #475569 !important;
-    color: #ffffff !important;
-}
-
-/* Fix for the Date Text in the modal header */
-[data-theme='dark'] #modalDate {
-    color: #818cf8 !important; /* Indigo text */
-    background-color: transparent !important;
-}
-
-/* Force the overlay/background to stay dark when modal is open */
-[data-theme='dark'] #overlay {
-    background-color: rgba(0, 0, 0, 0.9) !important;
-    display: flex !important; /* Ensures it shows up if triggered */
-}
 </style>
 
 
