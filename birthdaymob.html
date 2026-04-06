@@ -13,6 +13,20 @@
      <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+    // 1. Apply theme before page renders
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // 2. Listen for theme changes in other open tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+            document.documentElement.setAttribute('data-theme', event.newValue);
+        }
+    });
+</script>
     <style>
         body { 
             font-family: Arial, sans-serif; 
