@@ -10,6 +10,20 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script>
+    // 1. Apply theme before page renders
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // 2. Listen for theme changes in other open tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+            document.documentElement.setAttribute('data-theme', event.newValue);
+        }
+    });
+</script>
     <style>
         :root {
             --primary: #f43f5e;
