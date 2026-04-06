@@ -725,6 +725,65 @@ auth.onAuthStateChanged(user => {
         console.log("No user signed in. Displaying placeholder UI.");
     }
 });
+// This goes in your global <script> or app.js
+let notificationCheckInterval;
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // Request permission once on any page
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+        
+        // Start the 60-second timer globally
+        startGlobalChecks(user);
+    } else {
+        clearInterval(notificationCheckInterval);
+    }
+});
+
+function startGlobalChecks(user) {
+    if (notificationCheckInterval) clearInterval(notificationCheckInterval);
+    
+    // Check immediately on page load
+    checkEvents(user);
+    
+    // Check every 1 minute while any Savig page is open
+    notificationCheckInterval = setInterval(() => {
+        checkEvents(user);
+    }, 60000);
+}
+
+async function checkEvents(user) {
+    const now = Date.now();
+    const tolerance = 12 * 3600000; // 12 hours
+
+    const snapshot = await db.ref(`users/${user.uid}/events`).once("value");
+    const allEvents = snapshot.val();
+    if (!allEvents) return;
+
+    Object.entries(allEvents).forEach(([date, dayEvents]) => {
+        Object.entries(dayEvents).forEach(([id, event]) => {
+            if (event.status === 'pending') {
+                const eventTime = event.timestamp;
+                // If event time is reached (within the last 12 hours)
+                if (eventTime > (now - tolerance) && eventTime <= now) {
+                    showSystemNotification(event);
+                }
+            }
+        });
+    });
+}
+
+function showSystemNotification(event) {
+    const title = event.title.toUpperCase();
+    new Notification(title, {
+        body: `⏰ ${event.time}\n📍 ${event.location || 'No Location'}\n${event.desc || ''}`,
+        icon: '/favicon.ico' // Or your logo
+    });
+}
+
+    
 </script>
     
 
