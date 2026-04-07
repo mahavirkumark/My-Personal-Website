@@ -2193,7 +2193,96 @@ function showSuccessNotification(reg) {
     color: #2563eb;
 }
 </style>
+<script>
+    // 1. Register the Service Worker (For background capability)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker Registered!', reg.scope))
+                .catch(err => console.log('Service Worker failed:', err));
+        });
+    }
 
+    // 2. Setup Background Notifications (FCM)
+    async function initializeFCM() {
+        const messaging = firebase.messaging();
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+                const currentToken = await messaging.getToken({
+                    vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0'
+                });
+
+                if (currentToken) {
+                    const userId = firebase.auth().currentUser.uid;
+                    await firebase.database().ref('users/' + userId + '/fcmToken').set(currentToken);
+                    console.log("FCM Token Updated in DB.");
+                }
+            }
+        } catch (err) {
+            console.log('FCM Setup Error:', err);
+        }
+    }
+
+    // 3. Check for Public Holidays
+    function checkPublicHolidays() {
+        const now = new Date();
+        const todayID = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; 
+
+        const lastHoliday = localStorage.getItem('lastHolidayDate');
+        if (lastHoliday === todayID) return;
+
+        firebase.database().ref('holidays/' + todayID).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    new Notification("🚩 Savig Holiday Alert", {
+                        body: `Today is ${data.name}. Enjoy your holiday!`,
+                        icon: "/icon-192.jpg"
+                    });
+                    localStorage.setItem('lastHolidayDate', todayID);
+                }
+            });
+    }
+
+    // 4. Check for Personal Calendar Events
+    function checkPersonalEvents() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const todayISO = `${year}-${month}-${day}`; 
+        
+        const userId = firebase.auth().currentUser.uid;
+        const lastEvent = localStorage.getItem('lastEventDate');
+        if (lastEvent === todayISO) return;
+
+        firebase.database().ref(`users/${userId}/events/${todayISO}`).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const events = snapshot.val();
+                    // Loops through all events scheduled for today
+                    Object.values(events).forEach(event => {
+                        new Notification("📅 Savig Event: " + event.title, {
+                            body: `${event.time || ''} - ${event.desc || ''}`,
+                            icon: "/icon-192.jpg"
+                        });
+                    });
+                    localStorage.setItem('lastEventDate', todayISO);
+                }
+            });
+    }
+
+    // 5. Auth Listener: Starts everything when you log in
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            console.log("User logged in, checking notifications...");
+            initializeFCM();        // Prepares background token
+            checkPublicHolidays();   // Checks 'holidays/' node
+            checkPersonalEvents();   // Checks 'users/uid/events/' node
+        }
+    });
+</script>
 </body>
 
 </html>
