@@ -954,103 +954,77 @@ firebase.auth().onAuthStateChanged(user => {
 
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
-    <script>
-    window.addEventListener('load', async () => {
-    // 1. Check if the browser even supports notifications
-    if (!("Notification" in window)) {
-        console.log("Browser does not support notifications.");
-        return;
-    }
-
-    // 2. Only ask if the status is 'default' (meaning we haven't asked yet)
-    if (Notification.permission === "default") {
-        try {
-            const permission = await Notification.requestPermission();
-            
-            if (permission === "granted") {
-                console.log("Permission granted!");
-                new Notification("Notifications Enabled", {
-                    body: "You will now receive updates from us."
-                });
-            }
-        } catch (error) {
-            console.error("Error requesting permission:", error);
-        }
-    } else {
-        console.log("Permission status is already:", Notification.permission);
-    }
-});
-// This version works with the script tags you already have (v8.10.1)
-function checkFirebaseHolidayAndNotify() {
-    // 1. Check Permission
-    if (Notification.permission !== "granted") {
-        console.log("Notification permission not granted.");
-        return;
-    }
-
-    const now = new Date();
-    const tD = String(now.getDate()).padStart(2, '0');
-    const tM = String(now.getMonth() + 1).padStart(2, '0');
-    const todayID = `${tM}-${tD}`; 
-
-    // 2. Prevent duplicate alerts
-    const lastNotified = localStorage.getItem('lastNotificationDate');
-    if (lastNotified === todayID) return;
-
-    // 3. Use Firebase v8 Database (Matching your existing scripts)
-    // Note: I am checking the Realtime Database since you have it linked
-    firebase.database().ref('holidays/' + todayID).once('value')
-        .then((snapshot) => {
-            if (snapshot.exists()) {
-                const holidayData = snapshot.val();
-                
-                new Notification("🚩 आज सुट्टी आहे!", {
-                    body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
-                    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png"
-                });
-
-                localStorage.setItem('lastNotificationDate', todayID);
-            }
-        })
-        .catch((error) => {
-            console.error("Firebase Read Error:", error);
+   <script>
+    // 1. Register the Service Worker (Crucial for closed-browser notifications)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker Registered!', reg.scope))
+                .catch(err => console.log('Service Worker failed:', err));
         });
-}
-
-// Ensure this runs ONLY after the user is logged in
-firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-        checkFirebaseHolidayAndNotify();
     }
-});
-        
-</script>
-    <script>
+
+    // 2. Request Permission and Handle Notifications
     window.addEventListener('load', async () => {
-    // 1. Check if the browser even supports notifications
-    if (!("Notification" in window)) {
-        console.log("Browser does not support notifications.");
-        return;
+        if (!("Notification" in window)) {
+            console.log("Browser does not support notifications.");
+            return;
+        }
+
+        if (Notification.permission === "default") {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                    console.log("Permission granted!");
+                    new Notification("Savig: Notifications Enabled", {
+                        body: "You will now receive holiday and expense alerts."
+                    });
+                }
+            } catch (error) {
+                console.error("Error requesting permission:", error);
+            }
+        }
+    });
+
+    // 3. Holiday Check Logic (Runs only when user is logged in)
+    function checkFirebaseHolidayAndNotify() {
+        if (Notification.permission !== "granted") return;
+
+        const now = new Date();
+        const tD = String(now.getDate()).padStart(2, '0');
+        const tM = String(now.getMonth() + 1).padStart(2, '0');
+        const todayID = `${tM}-${tD}`; 
+
+        const lastNotified = localStorage.getItem('lastNotificationDate');
+        if (lastNotified === todayID) return;
+
+        // Using your existing Firebase v8 syntax
+        firebase.database().ref('holidays/' + todayID).once('value')
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const holidayData = snapshot.val();
+                    
+                    // This shows a notification if the tab is currently OPEN
+                    new Notification("🚩 आज सुट्टी आहे!", {
+                        body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
+                        icon: "/icon-192.jpg"
+                    });
+
+                    localStorage.setItem('lastNotificationDate', todayID);
+                }
+            })
+            .catch((error) => console.error("Firebase Read Error:", error));
     }
 
-    // 2. Only ask if the status is 'default' (meaning we haven't asked yet)
-    if (Notification.permission === "default") {
-        try {
-            const permission = await Notification.requestPermission();
+    // Auth Listener
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            checkFirebaseHolidayAndNotify();
             
-            if (permission === "granted") {
-                console.log("Permission granted!");
-                new Notification("Notifications Enabled", {
-                    body: "You will now receive updates from us."
-                });
-            }
-        } catch (error) {
-            console.error("Error requesting permission:", error);
+            // OPTIONAL: Get FCM Token for background notifications
+            // messaging.getToken({ vapidKey: 'YOUR_KEY_HERE' }).then(...)
         }
-    } else {
-        console.log("Permission status is already:", Notification.permission);
-    }
-});
+    });
 </script>
 
 </body>
