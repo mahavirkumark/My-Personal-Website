@@ -954,8 +954,8 @@ firebase.auth().onAuthStateChanged(user => {
 
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
-   <script>
-    // 1. Register the Service Worker (Crucial for closed-browser notifications)
+<script>
+    // 1. Register the Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
@@ -964,29 +964,39 @@ firebase.auth().onAuthStateChanged(user => {
         });
     }
 
-    // 2. Request Permission and Handle Notifications
-    window.addEventListener('load', async () => {
-        if (!("Notification" in window)) {
-            console.log("Browser does not support notifications.");
-            return;
-        }
+    // 2. Main Notification & FCM Logic
+    async function initializeFCM() {
+        const messaging = firebase.messaging();
+        
+        try {
+            // Request permission first
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                // Get the Token using your specific VAPID key
+                const currentToken = await messaging.getToken({
+                    vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0'
+                });
 
-        if (Notification.permission === "default") {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === "granted") {
-                    console.log("Permission granted!");
-                    new Notification("Savig: Notifications Enabled", {
-                        body: "You will now receive holiday and expense alerts."
-                    });
+                if (currentToken) {
+                    console.log("Your Device Token:", currentToken);
+                    
+                    // Save token to your database under the user's profile
+                    const userId = firebase.auth().currentUser.uid;
+                    await firebase.database().ref('users/' + userId + '/fcmToken').set(currentToken);
+                    
+                } else {
+                    console.log('No registration token available.');
                 }
-            } catch (error) {
-                console.error("Error requesting permission:", error);
+            } else {
+                console.log("Permission denied by user.");
             }
+        } catch (err) {
+            console.log('FCM Error:', err);
         }
-    });
+    }
 
-    // 3. Holiday Check Logic (Runs only when user is logged in)
+    // 3. Holiday Check Logic (For when the app is OPEN)
     function checkFirebaseHolidayAndNotify() {
         if (Notification.permission !== "granted") return;
 
@@ -998,31 +1008,24 @@ firebase.auth().onAuthStateChanged(user => {
         const lastNotified = localStorage.getItem('lastNotificationDate');
         if (lastNotified === todayID) return;
 
-        // Using your existing Firebase v8 syntax
         firebase.database().ref('holidays/' + todayID).once('value')
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     const holidayData = snapshot.val();
-                    
-                    // This shows a notification if the tab is currently OPEN
                     new Notification("🚩 आज सुट्टी आहे!", {
                         body: `आज ${holidayData.name} निमित्त सरकारी सुट्टी आहे.`,
                         icon: "/icon-192.jpg"
                     });
-
                     localStorage.setItem('lastNotificationDate', todayID);
                 }
-            })
-            .catch((error) => console.error("Firebase Read Error:", error));
+            });
     }
 
-    // Auth Listener
+    // Auth Listener to trigger everything
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             checkFirebaseHolidayAndNotify();
-            
-            // OPTIONAL: Get FCM Token for background notifications
-            // messaging.getToken({ vapidKey: 'YOUR_KEY_HERE' }).then(...)
+            initializeFCM(); // This sets up the background capability
         }
     });
 </script>
