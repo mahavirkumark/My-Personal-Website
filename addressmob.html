@@ -309,6 +309,20 @@ body {
         --nav-bg: #1f2937;
         --nav-text: #ffffff;
     }
+    /* Target the icon inside the back button */
+#backBtn i {
+    font-size: 24px !important; /* Increase this number to make it bigger */
+    font-weight: 900;           /* Makes the arrow thicker */
+    color: #4f46e5;            /* Optional: Matches your indigo theme */
+}
+
+/* Optional: Increase the clickable area around the arrow */
+#backBtn {
+    padding: 12px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 </style>
 <nav id="universal-bottom-nav">
    <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
