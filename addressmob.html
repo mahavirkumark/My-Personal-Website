@@ -26,234 +26,159 @@
         }
     });
 </script>
-   <style>
-    /* --- 1. BASE STYLES & ANIMATIONS --- */
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    .spinner {
-        animation: spin 1s linear infinite;
-    }
+ <style>
+  /* --- SPINNER ANIMATION --- */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f8fafc; /* Tailwind gray-50 */
-        padding-top: 5rem; /* Standard space for fixed nav */
-        transition: padding 0.3s ease;
-    }
+.spinner {
+    display: inline-block; /* Required for transform to work */
+    animation: spin 1s linear infinite;
+    transform-origin: center;
+}
 
-    /* --- 2. ADDRESS LIST & EDITING STATES --- */
-    .address-item {
-        transition: all 0.3s ease;
-    }
+/* Optional: Smooth fade-in for the loading area */
+#loadingIndicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    transition: opacity 0.3s ease;
+}
 
-    /* Dim other items when editing one */
-    #addressList.editing .address-item {
-        opacity: 0.3;
-        pointer-events: none;
+[data-theme="dark"] .spinner {
+    color: #818cf8 !important; /* Lighter indigo for dark mode visibility */
+}
+    /* --- 1. THEME & BASE --- */
+    :root {
+        --bg-body: #f8fafc;
+        --border: #e2e8f0;
     }
-
-    #addressList.editing .address-item.is-editing {
-        opacity: 1;
-        pointer-events: auto;
-        transform: scale(1.02);
-        border-color: greenyellow;
-        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
-    }
-
-    /* Prevent iOS zoom on input focus */
-    input, textarea {
-        font-size: 16px !important;
+    [data-theme="dark"] {
+        --bg-body: #0f172a;
+        --border: #334155;
     }
 
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8fafc;
+    padding-top: 0 !important; /* Change from 5rem to 0 */
+    transition: padding 0.3s ease;
+}
 
-    /* --- 3. MOBILE STYLES (Below 768px) --- */
+/* If you have a fixed header/branding strip, adjust this instead */
+.nav-spacer {
+    height: 0px !important; /* Collapse the spacer */
+    display: none;
+}
+    /* --- 2. MODERN PAGE HEADING --- */
+    .page-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.025em;
+        margin-bottom: 0.5rem;
+    }
+    [data-theme="dark"] .page-title { color: #f8fafc; }
+
+    /* --- 3. PILL SEARCH BAR (450% Rounded) --- */
+    #searchWrapper {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #searchInput {
+        border-radius: 9999px !important; /* The 'Pill' shape */
+        border: 2px solid transparent;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        font-size: 16px !important; /* Prevents iOS Zoom */
+    }
+
+    #searchInput:focus {
+        border-color: #6366f1;
+        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
+    }
+
+    /* --- 4. RESPONSIVE FIXES --- */
     @media (max-width: 767px) {
-        /* Mobile Search Overlay Logic */
-        body.search-active {
-            overflow: hidden; /* Prevent background from scrolling */
-            padding-top: 0;
+        body.search-active { overflow: hidden; }
+        
+        /* Hide Heading and Sidebar when searching on mobile */
+        body.search-active .left-container, 
+        body.search-active .page-header-box,
+        body.search-active footer { 
+            display: none !important; 
         }
 
-        /* HIDE UI ELEMENTS IN SEARCH MODE */
-        body.search-active .left-container,
-        body.search-active .right-container h2,
-        body.search-active footer {
-            display: none !important;
-        }
-
-        /* PIN SEARCH BAR EXACTLY BELOW NAV (56px is standard height) */
         body.search-active #searchWrapper {
             position: fixed;
-            top: 56px; 
-            left: 0;
-            width: 100%;
+            top: 0; left: 0; width: 100%;
             z-index: 100;
-            background: white;
-            padding: 10px 16px;
-            margin: 0 !important;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex !important;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            background: var(--bg-body);
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
         }
 
-        /* SCROLLABLE RESULTS AREA */
         body.search-active .right-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: #f8fafc;
-            z-index: 40;
-            /* Pushes list down: Nav (56px) + Search (approx 60px) + Buffer */
-            padding-top: 65px !important; 
+            top: 0; left: 0; width: 100%; height: 100vh;
+            padding-top: 80px !important;
+            z-index: 90;
             overflow-y: auto;
-        }
-
-        /* Improved readability for mobile address details */
-        .address-item p.text-sm {
-            font-size: 15px;
-            line-height: 1.5;
+            background: var(--bg-body);
         }
     }
 
-    /* --- 4. DESKTOP STYLES (768px and up) --- */
     @media (min-width: 768px) {
-        /* Desktop Search remains in flow, no fixed positioning */
-        #searchWrapper {
-            position: relative;
-            top: auto;
-        }
-
-        #addressList {
-            height: 450px; /* Fixed height for scrollable container */
-            overflow-y: auto;
-            padding-right: 8px;
-        }
-
-        /* Custom Scrollbar */
-        #addressList::-webkit-scrollbar {
-            width: 6px;
-        }
-        #addressList::-webkit-scrollbar-thumb {
-            background-color: #e2e8f0;
-            border-radius: 10px;
-        }
-
-        /* Increased detail font size for desktop */
-        .right-container .address-item .text-sm {
-            font-size: 18px; 
-            color: #036f09; /* gray-600 */
-        }
-
-        /* Sidebar Form Sticky Position */
-        .left-container {
-            position: sticky;
-            top: 6rem;
-        }
+        .left-container { position: sticky; top: 6rem; }
+        #addressList { height: 500px; overflow-y: auto; }
     }
-/* --- LAPTOP OPTIMIZATIONS --- */
-@media (min-width: 768px) {
-    /* Set the best professional background */
-    body {
-        background-color: #f8fafc; /* bg-slate-50 */
-    }
-
-    /* Professional Desktop detail size */
-    .right-container .address-item .text-sm {
-        font-size: 18px !important;
-        color: #334155; /* Slate 700 */
-    }
-
-    /* Button Hover Depth */
-    .address-item button:hover, .address-item a:hover {
-        transform: translateY(-1px);
-        filter: brightness(90%);
-    }
-    a[href*="google.com/maps"] {
-        border-color: #e2e8f0;
-        color: #475569; /* slate-600 */
-    }
-    
-    a[href*="google.com/maps"]:hover {
-        background-color: #f1f5f9; /* slate-100 */
-        border-color: #cbd5e1;
-    }
-}
-@media (max-width: 767px) {
-    /* ... your existing search-active styles ... */
-
-    /* Hide the footer entirely when mobile search is focused */
-    body.search-active footer {
-        display: none !important;
-    }
-}
 </style>
 </head>
+
+
 <body class="bg-gray-100 font-sans antialiased">
+<div class="pt-0 px-1"> 
+    <div class="max-w-4xl mx-auto mb-1"> 
+        <h1 class="text-2xl md:text-4xl p-3 font-extrabold text-gray-900 tracking-tight">
+            Address <span class="text-indigo-600">Directory</span>
+        </h1>
+       
+    </div>
 
-    <nav class="bg-white shadow-lg fixed w-full top-0 z-20">
-        <div class="container mx-auto flex justify-between items-center p-2 md:px-4">
-            <div class="flex items-center gap-2 text-lg md:text-xl font-bold text-gray-800 -ml-[4px]">
-                <i class="fas fa-user-circle text-indigo-500 text-3xl md:text-3xl"></i>
-                <span class="text-xl md:text-2xl">Savig</span>
-            </div>
-
-            <div class="hidden md:flex space-x-6 text-gray-700 font-medium">
-                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-house"></i> Home</a>
-                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-key"></i> Passwords</a>
-                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-wallet"></i> Income</a>
-                <a href="links.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-link"></i> Links</a>
-                <a href="calendar.html" class="flex items-center gap-2 hover:text-indigo-600 transition duration-300 hover:-translate-y-0.5 text-lg"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            </div>
-
-            <div class="hidden md:flex items-center gap-4">
-                <div class="text-right">
-                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
-                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
-                    <p id="userId" class="hidden"></p>
-                </div>
-                <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500">
-                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm">Logout</button>
-            </div>
-            
-            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
-        </div>
-        
-        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-house"></i> Home</a>
-            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
-            <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-link"></i> Links</a>
-            <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <div class="border-t border-gray-300 mt-2 pt-2">
-                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="pt-2 md:pt-4">
-        
-        <div class="md:hidden px-4 mb-[10px]">
-            <div id="searchWrapper" class="flex items-center gap-2">
-                <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
+    
+</div>
+        <div class="max-w-4xl mx-auto mb-1">
+            <div id="searchWrapper" class="relative flex items-center w-full transition-all">
+                <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden mr-2 text-gray-600 p-2 hover:bg-gray-200 rounded-full">
                     <i class="fas fa-arrow-left"></i>
                 </button>
-                <input type="text" id="searchInput" placeholder="Search place or landmark..." 
-                       class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition shadow-sm text-lg"
-                       oninput="filterAddresses()" 
-                       onfocus="toggleMobileSearchFocus(true)" />
+                
+                <div class="relative flex-grow">
+                    <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <input type="text" id="searchInput" 
+                           placeholder="Search by name, landmark, or city..." 
+                           class="w-full pl-14 pr-14 py-5 bg-white shadow-2xl border-none focus:ring-4 focus:ring-indigo-100 outline-none text-lg"
+                           style="border-radius: 9999px;" 
+                           oninput="handleSearchInput(this)" 
+                           onfocus="toggleMobileSearchFocus(true)">
+
+                    <button onclick="startVoiceSearch()" id="micBtn" class="absolute right-6 top-1/2 -translate-y-1/2 text-indigo-600">
+                        <i class="fas fa-microphone text-xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
-
         <div class="max-w-7xl mx-auto px-4 py-[14px] md:px-[30px] md:py-[30px] grid md:grid-cols-2 gap-8">
 
-            <div class="bg-white p-6 rounded-xl shadow-lg h-fit md:sticky md:top-24 left-container">
-                <div class="flex justify-between items-center cursor-pointer border-b pb-2" onclick="document.getElementById('addressFormContent').classList.toggle('hidden')">
-                    <h2 class="text-2xl font-bold text-indigo-700">➕ Save New Address</h2>
+            <div class="bg-white p-3 rounded-xl shadow-lg h-fit md:sticky md:top-14 left-container">
+                <div class="flex justify-between items-center cursor-pointer border-b pb-1" onclick="document.getElementById('addressFormContent').classList.toggle('hidden')">
+                    <h2 class="text-xl font-bold text-indigo-700">➕ Save New Address</h2>
                     <i class="fas fa-chevron-down md:hidden text-indigo-700"></i>
                 </div>
                 
@@ -287,14 +212,14 @@
     <i class="fas fa-location-crosshairs"></i>
     Get Accurate GPS Location
 </button>
-                    <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center shadow-md">
+                    <button id="saveAddressBtn" class="w-full bg-indigo-600 text-white font-semibold py-1 rounded-lg hover:bg-indigo-700 transition duration-300 flex items-center justify-center shadow-md">
                         <i class="fas fa-save mr-2"></i> Save Address
                     </button>
                 </div>
             </div>
 
             <div class="right-container">
-                <h2 class="text-2xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
+                <h2 class="text-xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
                 
                 <div id="searchWrapper" class="hidden md:flex items-center gap-2 mb-[17px]">
                     <button id="backBtn" onclick="toggleMobileSearchFocus(false)" class="hidden text-gray-600 text-xl p-2 hover:bg-gray-100 rounded-full transition">
@@ -310,7 +235,7 @@
                      <div id="loadingIndicator" class="text-center p-10 text-gray-500">
                         <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
                         <div class="text-center p-10 text-gray-400">
-                            <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                            <i class="fas fa-map-marked-alt fa-3x mb-23"></i>
                             <p>Your saved locations will appear here.</p>
                         </div>
                     </div>
@@ -318,10 +243,30 @@
             </div>
         </div>
     </div>
+
 </body>
 <style>
-    /* Desktop Check */
-    @media only screen and (min-width: 768px) {
+  
+@media (max-width: 767px) {
+    /* Ensure the main container can scroll */
+    body {
+        overflow-y: auto !important;
+        height: auto !important;
+    }
+
+    .right-container {
+        /* Add a large padding at the bottom so the last item 
+           is visible above the Bottom Nav bar */
+        padding-bottom: 120px !important; 
+        min-height: 100vh;
+        display: block !important;
+    }
+
+    #addressList {
+        height: auto !important; /* Remove the fixed 450px height on mobile */
+        overflow-y: visible !important; /* Let the body/container handle the scroll */
+    }
+}   @media only screen and (min-width: 768px) {
         #universal-bottom-nav, .nav-spacer { display: none !important; }
     }
 
@@ -604,27 +549,25 @@
         }
         // ==============================
         
-        // --- UI EVENT LISTENERS ---
-        document.getElementById("saveAddressBtn").addEventListener("click", saveAddress);
-        
-        menuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+ 
 
         // --- AUTHENTICATION STATE & UI UPDATE ---
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                document.getElementById("userName").innerText = user.displayName || "My Account";
-                document.getElementById("userEmail").innerText = user.email;
-                document.getElementById("userPhoto").src = user.photoURL || "https://via.placeholder.com/40";
-                document.getElementById("mobileUserName").innerText = user.displayName || "My Account";
-                document.getElementById("mobileUserEmail").innerText = user.email;
-                
-                loadAddresses(user.uid);
-            } else {
-                window.location.href = "index.html";
-            }
-        });
+     firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+        // Safety check: Only update if the ID exists on this page
+        const nameEl = document.getElementById("userName");
+        const emailEl = document.getElementById("userEmail");
+        const photoEl = document.getElementById("userPhoto");
+
+        if (nameEl) nameEl.innerText = user.displayName || "My Account";
+        if (emailEl) emailEl.innerText = user.email;
+        if (photoEl) photoEl.src = user.photoURL || "https://via.placeholder.com/40";
+        
+        loadAddresses(user.uid);
+    } else {
+        window.location.href = "index.html";
+    }
+});
         
         function logout() {
             firebase.auth().signOut().then(() => window.location.href = "index.html");
@@ -867,78 +810,148 @@ const mapButtonHTML = data.mapLink ? `
         addressListEl.appendChild(div);
     });
 }
+function filterAddresses() {
+    if (!addressListEl.classList.contains('editing')) {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        
+        // Instant Capitalization (Spelling/Format correction)
+        const correctedQuery = query.replace(/\b\w/g, l => l.toUpperCase());
+        
+        const filtered = allAddresses.filter(item =>
+            item.place.toLowerCase().includes(query) || 
+            item.landmark.toLowerCase().includes(query)
+        );
+        
+        displayFilteredAddresses(filtered);
 
-  function filterAddresses() {
-            if (!addressListEl.classList.contains('editing')) {
-                const query = document.getElementById("searchInput").value.toLowerCase();
-                const filtered = allAddresses.filter(item =>
-                    item.place.toLowerCase().includes(query) || item.landmark.toLowerCase().includes(query)
-                );
-                displayFilteredAddresses(filtered);
-            }
+        // --- SCROLL FIX: Add a spacer to the end of the list ---
+        if (window.innerWidth < 768 && filtered.length > 0) {
+            const spacer = document.createElement("div");
+            spacer.style.height = "150px"; // Enough space to clear bottom nav
+            spacer.style.width = "100%";
+            addressListEl.appendChild(spacer);
         }
-function toggleMobileSearchFocus(isFocused) {
-    const searchWrapper = document.getElementById("searchWrapper");
-    const backBtn = document.getElementById("backBtn");
-    const leftContainer = document.querySelector(".left-container");
-    const rightHeader = document.querySelector(".right-container h2");
-    const navBar = document.querySelector("nav");
+    }
+}
 
+function toggleMobileSearchFocus(isFocused) {
     if (window.innerWidth < 768) {
         if (isFocused) {
-            // 1. Hide everything else
-            leftContainer.classList.add("hidden");
-            rightHeader.classList.add("hidden");
-            navBar.classList.add("hidden");
-            
-            // 2. Move Search to the very top
-            searchWrapper.classList.add("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
-            backBtn.classList.remove("hidden");
-            
-            // 3. Add padding to list so it's not hidden under fixed search
-            addressListEl.style.marginTop = "10px";
+            document.body.classList.add('search-active');
+            document.getElementById("backBtn").classList.remove("hidden");
+            // Scroll to top when starting search
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            // Restore everything
-            leftContainer.classList.remove("hidden");
-            rightHeader.classList.remove("hidden");
-            navBar.classList.remove("hidden");
-            
-            searchWrapper.classList.remove("fixed", "top-0", "left-0", "w-full", "bg-white", "z-50", "p-4", "shadow-md");
-            backBtn.classList.add("hidden");
-            
-            addressListEl.style.marginTop = "0px";
-            searchInputEl.value = ""; // Clear search on back
+            document.body.classList.remove('search-active');
+            document.getElementById("backBtn").classList.add("hidden");
+            document.getElementById("searchInput").value = "";
             filterAddresses();
         }
     }
 }
+
+// --- VOICE SEARCH (MIC) ---
+function startVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Mic not supported in this browser.");
+
+    const recognition = new SpeechRecognition();
+    const micIcon = document.querySelector('#micBtn i');
+
+    recognition.onstart = () => {
+        micIcon.className = 'fas fa-circle-notch fa-spin text-red-500';
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        const input = document.getElementById('searchInput');
+        input.value = transcript;
+        // Trigger formatting and filter
+        handleSearchInput(input); 
+    };
+
+    recognition.onend = () => {
+        micIcon.className = 'fas fa-microphone text-xl text-indigo-600';
+    };
+
+    recognition.start();
+}
+
+function handleSearchInput(inputEl) {
+    // Auto-correct spelling (Proper Case)
+    inputEl.value = inputEl.value.replace(/\b\w/g, l => l.toUpperCase());
+    filterAddresses();
+}
+// --- 1. VOICE SEARCH (MIC) LOGIC ---
+function startVoiceSearch() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+        alert("Voice Search is not supported in this browser. Please try Chrome.");
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    const micBtn = document.getElementById('micBtn');
+    const micIcon = micBtn.querySelector('i');
+    const searchInput = document.getElementById('searchInput');
+
+    recognition.onstart = () => {
+        // Visual feedback: Change icon and add pulse
+        micIcon.classList.replace('fa-microphone', 'fa-circle-dot');
+        micIcon.classList.add('text-red-500', 'animate-pulse');
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        searchInput.value = transcript;
+        
+        // Trigger the correction and filter logic
+        handleSearchInput(searchInput);
+    };
+
+    recognition.onerror = (err) => {
+        console.error("Speech Recognition Error:", err);
+        stopMicUI();
+    };
+
+    recognition.onend = () => {
+        stopMicUI();
+    };
+
+    function stopMicUI() {
+        micIcon.classList.replace('fa-circle-dot', 'fa-microphone');
+        micIcon.classList.remove('text-red-500', 'animate-pulse');
+    }
+
+    recognition.start();
+}
+
+// --- 2. INSTANT SPELLING & CASE CORRECTION ---
+function handleSearchInput(inputEl) {
+    let val = inputEl.value;
+
+    // spelling/formatting correction: 
+    // 1. Capitalize every word (Proper Case)
+    // 2. Remove accidental double spaces
+    if (val.length > 0) {
+        val = val.toLowerCase()
+                 .replace(/\b\w/g, char => char.toUpperCase())
+                 .replace(/\s\s+/g, ' ');
+    }
+    
+    // Maintain cursor position while auto-correcting to prevent jumping
+    const pos = inputEl.selectionStart;
+    inputEl.value = val;
+    inputEl.setSelectionRange(pos, pos);
+
+    // Call your existing filter function
+    filterAddresses();
+}
     </script>
     
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
 // --- 1. SMART GPS FUNCTION (Fixes Timeout) ---
 function fetchGPS() {
     const btn = document.getElementById("gpsBtn");
@@ -977,29 +990,7 @@ function fetchGPS() {
     navigator.geolocation.getCurrentPosition(success, error, options);
 }
 
-// --- 2. THEME TOGGLE FIX (Fixes line 948 error) ---
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    // Safety check: Only update icon if it exists in HTML
-    if (icon) {
-        icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-    }
 
-    if (btn) {
-        btn.addEventListener('click', () => {
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            if (icon) icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-        });
-    }
-});
 </script>
   
 <style>
@@ -1117,7 +1108,34 @@ document.addEventListener('DOMContentLoaded', () => {
         justify-content: center;
         font-size: 1.5rem;
     }
+/* Ensure the Pill bar doesn't look squashed on small screens */
+@media (max-width: 640px) {
+    #searchInput {
+        font-size: 16px !important;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    /* When search is focused on mobile, make it sit at the very top */
+    body.search-active header {
+        display: none !important;
+    }
+    
+    body.search-active .pt-20 {
+        padding-top: 0 !important;
+    }
+}
 
+/* 450% Rounded "Pill" effect */
+#searchInput {
+    border-radius: 9999px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* Theme Toggle Positioning Fix */
+#theme-toggle-btn {
+    bottom: 85px !important; /* Move it slightly up to clear the bottom nav */
+}
     #theme-toggle-btn:active { transform: scale(0.9); }
 </style>
 </body>
