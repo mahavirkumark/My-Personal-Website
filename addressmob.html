@@ -12,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
 <script>
     // 1. Apply theme before page renders
     (function() {
@@ -136,6 +137,40 @@ body {
         #addressList { height: 500px; overflow-y: auto; }
     }
 </style>
+    <style>
+            /* --- BACK BUTTON & ARROW SIZE FIX --- */
+#backBtn {
+    /* Increase the clickable area and force visibility of size */
+    width: 55px !important;
+    height: 55px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-right: 0.5rem !important;
+}
+
+#backBtn i {
+    /* Make the actual arrow much larger and thicker */
+    font-size: 28px !important; 
+    font-weight: 900 !important;
+    pointer-events: none; /* Ensures the click registers on the button */
+}
+
+/* Ensure the Search Pill and Arrow are perfectly leveled */
+#searchWrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Fix for mobile overlay mode to keep the big arrow visible */
+@media (max-width: 767px) {
+    body.search-active #backBtn {
+        display: flex !important;
+        color: #4f46e5 !important; /* Indigo color for better visibility */
+    }
+}
+        </style>
 </head>
 
 
