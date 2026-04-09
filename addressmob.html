@@ -136,41 +136,29 @@ body {
         .left-container { position: sticky; top: 6rem; }
         #addressList { height: 500px; overflow-y: auto; }
     }
-</style>
-    <style>
-            /* --- BACK BUTTON & ARROW SIZE FIX --- */
+      /* Hide back button by default */
 #backBtn {
-    /* Increase the clickable area and force visibility of size */
-    width: 55px !important;
-    height: 55px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    margin-right: 0.5rem !important;
+    display: none !important;
 }
 
-#backBtn i {
-    /* Make the actual arrow much larger and thicker */
-    font-size: 28px !important; 
-    font-weight: 900 !important;
-    pointer-events: none; /* Ensures the click registers on the button */
-}
-
-/* Ensure the Search Pill and Arrow are perfectly leveled */
-#searchWrapper {
+/* Show back button ONLY when search is active */
+body.search-active #backBtn {
     display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
+    animation: fadeIn 0.3s ease;
 }
 
-/* Fix for mobile overlay mode to keep the big arrow visible */
-@media (max-width: 767px) {
-    body.search-active #backBtn {
-        display: flex !important;
-        color: #4f46e5 !important; /* Indigo color for better visibility */
-    }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
 }
-        </style>
+
+/* Ensure the big arrow style we created earlier stays applied */
+#backBtn i {
+    font-size: 28px !important;
+    font-weight: 900 !important;
+}
+</style>
+
 </head>
 
 
