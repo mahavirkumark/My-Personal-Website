@@ -99,23 +99,23 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-[-10]">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 mt-[-10]">
             
       <div id="formColumn" class="lg:col-span-1 space-y-4">
     <div class="glass-card rounded-3xl shadow-sm bg-white border border-slate-200 overflow-hidden transition-all duration-300">
         
         <button onclick="window.toggleForm()" class="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
             <h2 id="formTitle" class="text-lg font-bold flex items-center gap-2">
-                <span class="w-2 h-6 bg-blue-600 rounded-full"></span> 
+                <span class="w-2 h-3 bg-blue-600 rounded-full"></span> 
                 <span id="formHeaderText">New Visit Log</span>
             </h2>
-            <div id="toggleIcon" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center transition-transform duration-300">
+            <div id="toggleIcon" class="w-6 h-6 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center transition-transform duration-300">
                 <i class="fa-solid fa-plus"></i>
             </div>
         </button>
 
         <div id="collapsibleForm" class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out opacity-0 px-6">
-            <form id="visitForm" class="space-y-4 pb-6">
+            <form id="visitForm" class="space-y-4 pb-2">
                 <input type="hidden" id="editId">
                 
                 <div>
@@ -123,10 +123,10 @@
                     <input type="text" id="visitorName" placeholder="Enter name" required class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Location</label>
-                        <select id="visitLocation" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none">
+                        <select id="visitLocation" class="w-full p-2 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none">
                             <option value="Home" selected>🏠 Home</option>
                             <option value="Bank">🏦 Bank</option>
                             <option value="Office">🏢 Office</option>
@@ -139,9 +139,9 @@
                     </div>
                 </div>
 
-                <div class="space-y-6 pt-4 border-t border-slate-100">
+                <div class="space-y-6 pt-2 border-t border-slate-100">
                     <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Timeline</label>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-1">
                         <div class="relative flex-1">
                             <span class="text-[9px] text-slate-400 font-bold uppercase block mb-1">Arrival</span>
                             <input type="time" id="timeIn" class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
@@ -153,8 +153,8 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Transport</label>
-                        <select id="travelMode" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Transport</label>
+                        <select id="travelMode" class="w-full p-2 rounded-xl border border-slate-200 bg-white text-sm">
                             <option value="" selected>-- Select Transport --</option>
                             <option value="🚗 Personal Car">Private Car</option>
                             <option value="🏍️ Two Wheeler">Two Wheeler</option>
@@ -164,25 +164,25 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Purpose</label>
-                        <input type="text" id="visitReason" placeholder="Purpose (Optional)" class="w-full p-3 text-slate-700 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase mb-1 tracking-widest">Purpose</label>
+                        <input type="text" id="visitReason" placeholder="Purpose (Optional)" class="w-full p-2 text-slate-700 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
                     </div>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-2xl shadow-xl transition-all mt-4">
+                <button type="submit" id="submitBtn" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-2xl shadow-xl transition-all mt-2">
                     Save Visit Record
                 </button>
             </form>
-            <div id="status" class="mb-4 text-center text-xs font-bold"></div>
+            <div id="status" class="mb-2 text-center text-xs font-bold"></div>
         </div>
     </div>
 </div>
 
-<div id="historyColumn" class="lg:col-span-2 mb-20">
+<div id="historyColumn" class="lg:col-span-2 mb-5">
     <div class="glass-card rounded-3xl shadow-sm overflow-hidden flex flex-col h-[calc(330px-220px)] md:h-[calc(400px-140px)] relative bg-white">
         
         <div class="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
-            <div class="flex items-center gap-2 flex-grow">
+            <div class="flex items-center gap-1 flex-grow">
                 <select id="shareOption" class="text-xs font-bold p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm outline-none">
                     <option value="all">Export: All Records</option>
                     <option value="today">Today's Log</option>
@@ -191,21 +191,21 @@
                     <i class="fa-solid fa-share-nodes"></i>
                 </button>
             </div>
-            <span id="recordCount" class="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg uppercase">0 Records</span>
+            <span id="recordCount" class="text-[9px] font-black bg-blue-100 text-blue-700 px-2 py-1.5 rounded-lg uppercase">0 Records</span>
         </div>
 
         <div class="flex-grow overflow-y-auto custom-scrollbar"> 
             <table class="w-full text-left border-collapse">
                 <thead class="sticky top-0 z-30 shadow-sm">
                     <tr class="bg-white text-slate-700 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
-                        <th class="px-4 py-4 bg-white">Visitor & Timeline</th>
-                        <th class="px-2 py-4 text-center bg-white">Location</th>
-                        <th class="px-4 py-4 text-right bg-white">Actions</th>
+                        <th class="px-2 py-2 bg-white">Visitor & Timeline</th>
+                        <th class="px-2 py-2 text-center bg-white">Location</th>
+                        <th class="px-2 py-2 text-right bg-white">Actions</th>
                     </tr>
                 </thead>
                 <tbody id="visitTableBody" class="divide-y divide-slate-50"></tbody>
             </table>
-            <div id="loadingMessage" class="py-20 text-center text-slate-400 italic">Syncing Savig...</div>
+            <div id="loadingMessage" class="py-12 text-center text-slate-400 italic">Syncing Savig...</div>
         </div>
     </div>
 </div>
