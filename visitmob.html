@@ -56,7 +56,7 @@
 
             /* Push history list down */
             body.search-active #historyColumn {
-                margin-top: 80px !important;
+                margin-top: 10px !important;
             }
 
             /* Keep export bar visible */
@@ -68,16 +68,7 @@
 </head>
 <body class="p-4 md:p-8">
  <div id="loginSection" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full animate__animated animate__zoomIn">
-            <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold mb-2 text-slate-800">Savig HomeLog</h2>
-            <p class="text-gray-500 mb-6 text-sm">Log visits to Home, Bank, Office, and more.</p>
-            <button id="googleLoginBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-200">Login with Google</button>
-        </div>
+        
     </div>
 
    
@@ -86,10 +77,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 animate__animated animate__fadeIn relative z-30">
             <div id="headerBranding">
                 <h1 class="text-xl font-black tracking-tight text-slate-900">Daily Visit <span class="text-blue-600">Registry</span></h1>
-                <div class="flex items-center gap-2 mt-2 bg-white px-3 py-1 rounded-full border border-slate-200 w-fit shadow-sm">
-                    <img id="userImg" class="w-5 h-5 rounded-full" alt="profile">
-                    <span id="userName" class="text-xs font-bold text-slate-600">User</span>
-                    <button id="logoutBtn" class="text-[10px] text-red-500 ml-2 font-bold uppercase">Logout</button>
+          
                 </div>
             </div>
 
@@ -111,115 +99,117 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-[-10]">
             
-            <div id="formColumn" class="lg:col-span-1 space-y-4">
-                <div class="glass-card p-6 rounded-3xl shadow-sm">
-                    <h2 id="formTitle" class="text-lg font-bold mb-4 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-blue-600 rounded-full"></span> New Visit Log
-                    </h2>
-                    
-                    <form id="visitForm" class="space-y-4">
-                        <input type="hidden" id="editId">
-                        
-                        <div>
-                            <label class="block text-[12px] font-black text-slate-700 uppercase mb-1 tracking-widest">Visitor Name</label>
-                            <input type="text" id="visitorName" placeholder="Enter name" required class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-[12px] font-black text-slate-700 uppercase mb-1 tracking-widest">Location</label>
-                                <select id="visitLocation" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm">
-                                    <option value="Home" selected>🏠 Home</option>
-                                    <option value="Bank">🏦 Bank</option>
-                                    <option value="Office">🏢 Office</option>
-                                    <option value="Friends Home">🤝 Friend's Home</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[12px] font-black text-slate-700 uppercase mb-1 tracking-widest">Date</label>
-                                <input type="date" id="visitDate" required class="w-full p-3 rounded-xl border border-slate-200 text-sm">
-                            </div>
-                        </div>
-
-                        <div class="space-y-6 pt-[-2] border-t border-slate-100">
-                            <label class="block text-[12px] font-black text-slate-700 uppercase tracking-widest">Timeline (Optional)</label>
-                            <div class="flex items-center gap-2">
-                                <div class="relative flex-1">
-                                    <input type="time" id="timeIn" class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50 focus:ring-2 focus:ring-blue-500">
-                                    <span class="text-[12px] absolute -top-5 left-2 bg-white px-1 text-slate-400 font-bold uppercase p-[-9]">Arrival</span>
-                                </div>
-                                <div class="relative flex-1">
-                                    <input type="time" id="timeOut" class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50 focus:ring-2 focus:ring-blue-500">
-                                    <span class="text-[12px] absolute -top-5 left-2 bg-white px-1 text-slate-400 font-bold uppercase p-[-9]">Departure</span>
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-[12px] font-black text-slate-700 uppercase mb-1 tracking-widest">Mode of Transport</label>
-                                <select id="travelMode" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm focus:ring-2 focus:ring-blue-500">
-                                    <option value="" selected>-- Select Transport --</option>
-                                    <option value="🚗 Private Car">Private Car</option>
-                                    <option value="🚌 Public Bus">Public Bus</option>
-                                    <option value="🚂 Railway/Train">Railway / Train</option>
-                                    <option value="🛺 Auto Rickshaw">Auto Rickshaw</option>
-                                    <option value="🏍️ Two Wheeler">Two Wheeler</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-[12px] font-black text-slate-700 uppercase mb-1 tracking-widest">Purpose of Visit</label>
-                                <input type="text" id="visitReason" placeholder="Purpose (Optional)" class="w-full p-3 text-slate-700 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
-                            </div>
-                        </div>
-
-                        <button type="submit" id="submitBtn" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-2xl shadow-xl transition-all mt-4">
-                            Save Visit Record
-                        </button>
-                    </form>
-                    
-                    <div id="status" class="mt-4 text-center text-xs font-bold"></div>
-                </div>
-            </div>
-<div id="historyColumn" class="lg:col-span-2 space-y-4 mb-20">
-    <div class="glass-card rounded-3xl shadow-sm overflow-hidden flex flex-col" style="height: 600px;">
+      <div id="formColumn" class="lg:col-span-1 space-y-4">
+    <div class="glass-card rounded-3xl shadow-sm bg-white border border-slate-200 overflow-hidden transition-all duration-300">
         
-        <div class="p-4 bg-slate-50/80 border-b border-slate-100 flex flex-col sm:flex-row gap-3 items-center shrink-0">
-            <div class="flex items-center gap-2 flex-grow w-full">
-                <select id="shareOption" class="w-full sm:w-auto text-xs font-bold p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <option value="all">Export: All Records</option>
-                    <option value="week_all">Export: Last 7 Days</option>
-                    <option value="month_all">Export: Last 30 Days</option>
-                    <option value="today">Export: Today's Log</option>
-                </select>
-                <button id="shareBtn" class="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-xl shadow-lg active:scale-90">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-                </button>
+        <button onclick="window.toggleForm()" class="w-full p-6 flex items-center justify-between hover:bg-slate-50 transition-colors focus:outline-none">
+            <h2 id="formTitle" class="text-lg font-bold flex items-center gap-2">
+                <span class="w-2 h-6 bg-blue-600 rounded-full"></span> 
+                <span id="formHeaderText">New Visit Log</span>
+            </h2>
+            <div id="toggleIcon" class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center transition-transform duration-300">
+                <i class="fa-solid fa-plus"></i>
             </div>
-            <span id="recordCount" class="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg uppercase whitespace-nowrap">0 Records</span>
-        </div>
+        </button>
 
-        <div class="flex-grow overflow-y-auto pb-20 custom-scrollbar"> 
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-white sticky top-0 z-20 shadow-sm">
-                    <tr class="text-slate-700 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
-                        <th class="px-4 py-4 bg-white">Visitor & Timeline</th>
-                        <th class="px-2 py-4 text-center bg-white">Location & Travel</th>
-                        <th class="px-4 py-4 text-right bg-white">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="visitTableBody" class="divide-y divide-slate-50">
-                    </tbody>
-            </table>
-            <div id="loadingMessage" class="py-20 text-center text-slate-500 text-sm italic">Syncing Savig...</div>
+        <div id="collapsibleForm" class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out opacity-0 px-6">
+            <form id="visitForm" class="space-y-4 pb-6">
+                <input type="hidden" id="editId">
+                
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Visitor Name</label>
+                    <input type="text" id="visitorName" placeholder="Enter name" required class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Location</label>
+                        <select id="visitLocation" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none">
+                            <option value="Home" selected>🏠 Home</option>
+                            <option value="Bank">🏦 Bank</option>
+                            <option value="Office">🏢 Office</option>
+                            <option value="Friends Home">🤝 Friend's Home</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Date</label>
+                        <input type="date" id="visitDate" required class="w-full p-3 rounded-xl border border-slate-200 text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-6 pt-4 border-t border-slate-100">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Timeline</label>
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block mb-1">Arrival</span>
+                            <input type="time" id="timeIn" class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
+                        </div>
+                        <div class="relative flex-1">
+                            <span class="text-[9px] text-slate-400 font-bold uppercase block mb-1">Departure</span>
+                            <input type="time" id="timeOut" class="w-full p-3 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Transport</label>
+                        <select id="travelMode" class="w-full p-3 rounded-xl border border-slate-200 bg-white text-sm">
+                            <option value="" selected>-- Select Transport --</option>
+                            <option value="🚗 Personal Car">Private Car</option>
+                            <option value="🏍️ Two Wheeler">Two Wheeler</option>
+                            <option value="🚌 Public Bus">Public Bus</option>
+                            <option value="🚶 Walking">Walking</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-1 tracking-widest">Purpose</label>
+                        <input type="text" id="visitReason" placeholder="Purpose (Optional)" class="w-full p-3 text-slate-700 rounded-xl border border-slate-200 text-sm bg-slate-50/50">
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full bg-blue-900 hover:bg-blue-800 text-white font-bold py-3 rounded-2xl shadow-xl transition-all mt-4">
+                    Save Visit Record
+                </button>
+            </form>
+            <div id="status" class="mb-4 text-center text-xs font-bold"></div>
         </div>
     </div>
 </div>
+
+<div id="historyColumn" class="lg:col-span-2 mb-20">
+    <div class="glass-card rounded-3xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-220px)] md:h-[calc(100vh-140px)] relative bg-white">
+        
+        <div class="p-4 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2 flex-grow">
+                <select id="shareOption" class="text-xs font-bold p-2.5 rounded-xl border border-slate-200 bg-white shadow-sm outline-none">
+                    <option value="all">Export: All Records</option>
+                    <option value="today">Today's Log</option>
+                </select>
+                <button id="shareBtn" class="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-xl shadow-lg active:scale-90 transition-all">
+                    <i class="fa-solid fa-share-nodes"></i>
+                </button>
+            </div>
+            <span id="recordCount" class="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg uppercase">0 Records</span>
+        </div>
+
+        <div class="flex-grow overflow-y-auto custom-scrollbar"> 
+            <table class="w-full text-left border-collapse">
+                <thead class="sticky top-0 z-30 shadow-sm">
+                    <tr class="bg-white text-slate-700 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
+                        <th class="px-4 py-4 bg-white">Visitor & Timeline</th>
+                        <th class="px-2 py-4 text-center bg-white">Location</th>
+                        <th class="px-4 py-4 text-right bg-white">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="visitTableBody" class="divide-y divide-slate-50"></tbody>
+            </table>
+            <div id="loadingMessage" class="py-20 text-center text-slate-400 italic">Syncing Savig...</div>
         </div>
     </div>
+</div>
 </body>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, set } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -253,29 +243,55 @@
     const headerBranding = document.getElementById('headerBranding');
     const formColumn = document.getElementById('formColumn');
 
+    // --- DATE & TIME DEFAULT FUNCTION ---
+    const setDateTimeDefaults = () => {
+        try {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            
+            const dateInput = document.getElementById('visitDate');
+            if (dateInput) dateInput.value = `${year}-${month}-${day}`;
+
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeInInput = document.getElementById('timeIn');
+            if (timeInInput) timeInInput.value = `${hours}:${minutes}`;
+            
+            const future = new Date(now.getTime() + (60 * 60 * 1000));
+            const fHours = String(future.getHours()).padStart(2, '0');
+            const fMinutes = String(future.getMinutes()).padStart(2, '0');
+            const timeOutInput = document.getElementById('timeOut');
+            if (timeOutInput) timeOutInput.value = `${fHours}:${fMinutes}`;
+        } catch (err) {
+            console.error("Savig: Error setting defaults", err);
+        }
+    };
+
     // --- SEARCH FOCUS MODE HELPERS ---
     const exitSearchFocus = () => {
         document.body.classList.remove('search-active');
-        headerBranding.classList.remove('hidden');
-        formColumn.classList.remove('hidden');
-        backArrow.classList.add('hidden');
+        if(headerBranding) headerBranding.classList.remove('hidden');
+        if(formColumn) formColumn.classList.remove('hidden');
+        if(backArrow) backArrow.classList.add('hidden');
         searchInput.value = "";
-        recordCountBadge.classList.remove('hidden');
+        if(recordCountBadge) recordCountBadge.classList.remove('hidden');
         renderTable(allVisits);
     };
 
     const enterSearchFocus = () => {
         if (window.innerWidth < 768) {
             document.body.classList.add('search-active');
-            headerBranding.classList.add('hidden');
-            formColumn.classList.add('hidden');
-            backArrow.classList.remove('hidden');
-            recordCountBadge.classList.add('hidden');
+            if(headerBranding) headerBranding.classList.add('hidden');
+            if(formColumn) formColumn.classList.add('hidden');
+            if(backArrow) backArrow.classList.remove('hidden');
+            if(recordCountBadge) recordCountBadge.classList.add('hidden');
         }
     };
 
-    searchInput.addEventListener('focus', enterSearchFocus);
-    backArrow.addEventListener('click', exitSearchFocus);
+    if(searchInput) searchInput.addEventListener('focus', enterSearchFocus);
+    if(backArrow) backArrow.addEventListener('click', exitSearchFocus);
 
     // --- AUTHENTICATION ---
     onAuthStateChanged(auth, (user) => {
@@ -283,8 +299,10 @@
             currentUid = user.uid;
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('mainContent').classList.remove('hidden');
-            document.getElementById('userName').innerText = user.displayName;
-            document.getElementById('userImg').src = user.photoURL;
+            const nameEl = document.getElementById('userName');
+            const imgEl = document.getElementById('userImg');
+            if (nameEl) nameEl.innerText = user.displayName;
+            if (imgEl) imgEl.src = user.photoURL;
             loadData(user.uid);
         } else {
             document.getElementById('loginSection').classList.remove('hidden');
@@ -292,8 +310,11 @@
         }
     });
 
-    document.getElementById('googleLoginBtn').onclick = () => signInWithPopup(auth, provider);
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    const googleBtn = document.getElementById('googleLoginBtn');
+    if (googleBtn) googleBtn.onclick = () => signInWithPopup(auth, provider);
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.onclick = () => signOut(auth);
 
     // --- DATA HANDLING ---
     function loadData(uid) {
@@ -305,166 +326,194 @@
             }
             allVisits.sort((a, b) => b.createdAt - a.createdAt);
             renderTable(allVisits);
-            document.getElementById('loadingMessage').style.display = 'none';
-            recordCountBadge.innerText = `${allVisits.length} Records`;
+            const loadingMsg = document.getElementById('loadingMessage');
+            if(loadingMsg) loadingMsg.style.display = 'none';
+            if(recordCountBadge) recordCountBadge.innerText = `${allVisits.length} Records`;
         });
     }
 
-   function renderTable(data) {
-    const tableBody = document.getElementById('visitTableBody');
-    if (data.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No records found.</td></tr>`;
-        return;
-    }
-    tableBody.innerHTML = data.map((v) => `
-        <tr class="hover:bg-slate-50 transition-all border-b border-slate-50">
-            <td class="px-2 py-2">
-                <div class="font-bold text-slate-900">${v.name}</div>
-                <div class="flex flex-wrap items-center mt-1">
-                    <span class="text-[10px] text-slate-500 font-medium">📅 ${v.date}</span>
-                    ${(v.timeIn || v.timeOut) ? `
-                        <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-bold border border-blue-100">
-                            🕒 ${v.timeIn || '--'} to ${v.timeOut || '--'}
-                        </span>
-                    ` : ''}
-                </div>
-                ${v.reason ? `<div class="text-[10px] text-slate-400 mt-1 italic">"${v.reason}"</div>` : ''}
-            </td>
-            <td class="px-6 py-4 text-center">
-                <div class="text-[10px] px-1 py-1 rounded-lg border border-slate-200 bg-white font-black text-slate-600 uppercase tracking-tighter inline-block mb-1">${v.location}</div>
-                ${v.travel ? `<div class="text-[11px] mt-1">${v.travel}</div>` : ''}
-            </td>
-            <td class="px-2 py-2 text-right flex justify-end ">
-                <button onclick="initEdit('${v.id}')" class="p-1 text-green-600 hover:bg-green-50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
-                <button onclick="deleteLog('${v.id}')" class="p-1 text-red-600 hover:bg-red-50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
-            </td>
-        </tr>`).join('');
-}
 
-    // --- SEARCH LOGIC (NAME + LOCATION) ---
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase().trim();
+// Auto-open function for when you click EDIT
+const originalInitEdit = window.initEdit;
+window.initEdit = (id) => {
+    // Open the form automatically if it's closed
+    const content = document.getElementById('collapsibleForm');
+    if (!content.style.maxHeight) toggleForm();
+    
+    // Original edit logic runs after
+    originalInitEdit(id);
+};
+    function renderTable(data) {
         const tableBody = document.getElementById('visitTableBody');
-
-        // AUTO-CLOSE: Return to main view if search is cleared
-        if (term === "" && window.innerWidth < 768) {
-            exitSearchFocus();
+        if (!tableBody) return;
+        if (data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No records found.</td></tr>`;
             return;
         }
+        tableBody.innerHTML = data.map((v) => `
+            <tr class="hover:bg-slate-50 transition-all border-b border-slate-50">
+                <td class="px-2 py-2">
+                    <div class="font-bold text-slate-900">${v.name}</div>
+                    <div class="flex flex-wrap items-center mt-1">
+                        <span class="text-[10px] text-slate-500 font-medium">📅 ${v.date}</span>
+                        ${(v.timeIn || v.timeOut) ? `
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md font-bold border border-blue-100">
+                                🕒 ${v.timeIn || '--'} to ${v.timeOut || '--'}
+                            </span>
+                        ` : ''}
+                    </div>
+                    ${v.reason ? `<div class="text-[10px] text-slate-400 mt-1 italic">"${v.reason}"</div>` : ''}
+                </td>
+                <td class="px-6 py-4 text-center">
+                    <div class="text-[10px] px-1 py-1 rounded-lg border border-slate-200 bg-white font-black text-slate-600 uppercase tracking-tighter inline-block mb-1">${v.location}</div>
+                    ${v.travel ? `<div class="text-[11px] mt-1">${v.travel}</div>` : ''}
+                </td>
+                <td class="px-2 py-2 text-right flex justify-end ">
+                    <button onclick="initEdit('${v.id}')" class="p-1 text-green-600 hover:bg-green-50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg></button>
+                    <button onclick="deleteLog('${v.id}')" class="p-1 text-red-600 hover:bg-red-50 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                </td>
+            </tr>`).join('');
+    }
 
-        const filtered = allVisits.filter(v => 
-            v.name.toLowerCase().includes(term) || 
-            v.location.toLowerCase().includes(term)
-        );
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const tableBody = document.getElementById('visitTableBody');
+            if (term === "" && window.innerWidth < 768) {
+                exitSearchFocus();
+                return;
+            }
+            const filtered = allVisits.filter(v => v.name.toLowerCase().includes(term) || v.location.toLowerCase().includes(term));
+            if (filtered.length > 0) renderTable(filtered);
+            else if(tableBody) tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No matches found for "${term}"</td></tr>`;
+        });
+    }
 
-        if (filtered.length > 0) renderTable(filtered);
-        else tableBody.innerHTML = `<tr><td colspan="3" class="py-20 text-center text-slate-400 italic">No matches found for "${term}"</td></tr>`;
-    });
+    // --- SAVE & EDIT LOGIC ---
+    if(visitForm) {
+        visitForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const editIdVal = document.getElementById('editId').value;
+            submitBtn.disabled = true;
 
-// --- SAVE & EDIT LOGIC ---
-visitForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const editIdVal = document.getElementById('editId').value;
-    submitBtn.disabled = true;
+            const payload = {
+                name: document.getElementById('visitorName').value,
+                location: document.getElementById('visitLocation').value,
+                date: document.getElementById('visitDate').value,
+                timeIn: document.getElementById('timeIn').value || "",
+                timeOut: document.getElementById('timeOut').value || "",
+                travel: document.getElementById('travelMode').value || "",
+                reason: document.getElementById('visitReason').value || "",
+                createdAt: isEditing ? allVisits.find(v => v.id === editIdVal).createdAt : Date.now()
+            };
 
-    const payload = {
-        name: document.getElementById('visitorName').value,
-        location: document.getElementById('visitLocation').value,
-        date: document.getElementById('visitDate').value,
-        timeIn: document.getElementById('timeIn').value || "",
-        timeOut: document.getElementById('timeOut').value || "",
-        travel: document.getElementById('travelMode').value || "",
-        reason: document.getElementById('visitReason').value || "",
-        createdAt: isEditing ? allVisits.find(v => v.id === editIdVal).createdAt : Date.now()
+            try {
+                if (isEditing) {
+                    await set(ref(db, `visits/${currentUid}/${editIdVal}`), payload);
+                    isEditing = false;
+                    submitBtn.innerText = "Save Visit Record";
+                    submitBtn.classList.replace("bg-orange-500", "bg-blue-900");
+                    const formTitle = document.getElementById('formTitle');
+                    if(formTitle) formTitle.innerText = "New Visit Log";
+                } else {
+                    await push(ref(db, `visits/${currentUid}`), payload);
+                }
+
+                visitForm.reset(); 
+                document.getElementById('editId').value = "";
+                
+                // FIXED: Call the function instead of typing hardcoded times
+                setDateTimeDefaults(); 
+                
+                const status = document.getElementById('status');
+                if(status) status.innerHTML = "<span class='text-green-500 font-bold'>✔ Data Secured</span>";
+            } catch (err) { 
+                alert("Error: " + err.message); 
+            } finally { 
+                submitBtn.disabled = false; 
+                setTimeout(() => { if(status) status.innerHTML = ""; }, 3000); 
+            }
+        });
+    }
+
+    // --- EDIT FUNCTION ---
+    window.initEdit = (id) => {
+        const item = allVisits.find(v => v.id === id);
+        if (!item) return;
+        isEditing = true;
+        document.getElementById('editId').value = id;
+        document.getElementById('visitorName').value = item.name;
+        document.getElementById('visitLocation').value = item.location;
+        document.getElementById('visitDate').value = item.date;
+        document.getElementById('timeIn').value = item.timeIn;
+        document.getElementById('timeOut').value = item.timeOut;
+        document.getElementById('travelMode').value = item.travel || "";
+        document.getElementById('visitReason').value = item.reason || "";
+        
+        const formTitle = document.getElementById('formTitle');
+        if(formTitle) formTitle.innerText = "Edit Visit Log";
+        submitBtn.innerText = "Update Record";
+        submitBtn.classList.replace("bg-blue-900", "bg-orange-500");
+        window.scrollTo({top: 0, behavior: 'smooth'});
     };
 
-    try {
-        if (isEditing) {
-            await set(ref(db, `visits/${currentUid}/${editIdVal}`), payload);
-            isEditing = false;
-            submitBtn.innerText = "Save Visit Record";
-            submitBtn.classList.replace("bg-orange-500", "bg-blue-900");
-            document.getElementById('formTitle').innerText = "New Visit Log";
-        } else {
-            await push(ref(db, `visits/${currentUid}`), payload);
-        }
+    window.deleteLog = (id) => { 
+        if(confirm("Permanently delete this entry?")) remove(ref(db, `visits/${currentUid}/${id}`)); 
+    };
 
-        // --- SUCCESS RESET (Always shows 9am/5pm) ---
-        visitForm.reset(); 
-        document.getElementById('editId').value = "";
-        document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('timeIn').value = "09:00";
-        document.getElementById('timeOut').value = "17:00";
-        
-        document.getElementById('status').innerHTML = "<span class='text-green-500 font-bold'>✔ Data Secured</span>";
-    } catch (err) { 
-        alert("Error: " + err.message); 
-    } finally { 
-        submitBtn.disabled = false; 
-        setTimeout(() => document.getElementById('status').innerHTML = "", 3000); 
+    const shareBtn = document.getElementById('shareBtn');
+    if(shareBtn) {
+        shareBtn.onclick = () => {
+            const option = document.getElementById('shareOption').value;
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            let list = [...allVisits];
+            if (option === 'today') list = list.filter(v => v.date === todayStr);
+            if (list.length === 0) return alert("No records found.");
+            let text = `📋 *SAVIG VISIT REGISTRY*\n\n`;
+            list.forEach((v, i) => {
+                text += `${i+1}. ${v.name.toUpperCase()}\n📍 ${v.location} | 📅 ${v.date}\n`;
+                if(v.timeIn || v.timeOut) text += `🕒 ${v.timeIn} - ${v.timeOut}\n`;
+                if(v.travel) text += `🚗 ${v.travel}\n`;
+                if(v.reason) text += `💡 ${v.reason}\n--------------------------\n`;
+            });
+            if (navigator.share) navigator.share({ title: 'Savig Export', text: text });
+            else { navigator.clipboard.writeText(text); alert("Registry copied to clipboard!"); }
+        };
     }
-});
 
-// --- EDIT FUNCTION ---
-window.initEdit = (id) => {
-    const item = allVisits.find(v => v.id === id);
-    if (!item) return;
-    isEditing = true;
-    document.getElementById('editId').value = id;
-    document.getElementById('visitorName').value = item.name;
-    document.getElementById('visitLocation').value = item.location;
-    document.getElementById('visitDate').value = item.date;
-    document.getElementById('timeIn').value = item.timeIn || "09:00";
-    document.getElementById('timeOut').value = item.timeOut || "17:00";
-    document.getElementById('travelMode').value = item.travel || "";
-    document.getElementById('visitReason').value = item.reason || "";
+    // Initial load
+    setDateTimeDefaults();
+    function toggleForm() {
+    const content = document.getElementById('collapsibleForm');
+    const icon = document.getElementById('toggleIcon');
     
-    document.getElementById('formTitle').innerText = "Edit Visit Log";
-    submitBtn.innerText = "Update Record";
-    submitBtn.classList.replace("bg-blue-900", "bg-orange-500");
-    window.scrollTo({top: 0, behavior: 'smooth'});
-};
-
-// --- DELETE FUNCTION ---
-window.deleteLog = (id) => { 
-    if(confirm("Permanently delete this entry?")) remove(ref(db, `visits/${currentUid}/${id}`)); 
-};
-
-// --- SHARE/EXPORT LOGIC ---
-document.getElementById('shareBtn').onclick = () => {
-    const option = document.getElementById('shareOption').value;
-    const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    let list = [...allVisits];
-
-    // Filter logic (Week/Month/Today)
-    if (option === 'today') list = list.filter(v => v.date === todayStr);
-    // ... (add other filters if needed)
-
-    if (list.length === 0) return alert("No records found.");
-
-    let text = `📋 *SAVIG VISIT REGISTRY*\n\n`;
-    list.forEach((v, i) => {
-        text += `${i+1}. ${v.name.toUpperCase()}\n`;
-        text += `📍 ${v.location} | 📅 ${v.date}\n`;
-        if(v.timeIn || v.timeOut) text += `🕒 ${v.timeIn} - ${v.timeOut}\n`;
-        if(v.travel) text += `🚗 ${v.travel}\n`;
-        if(v.reason) text += `💡 ${v.reason}\n`;
-        text += `--------------------------\n`;
-    });
-
-    if (navigator.share) {
-        navigator.share({ title: 'Savig Export', text: text });
+    if (content.style.maxHeight) {
+        // CLOSE
+        content.style.maxHeight = null;
+        content.style.opacity = "0";
+        icon.style.transform = "rotate(0deg)";
     } else {
-        navigator.clipboard.writeText(text);
-        alert("Registry copied to clipboard!");
+        // OPEN
+        content.style.maxHeight = content.scrollHeight + "px";
+        content.style.opacity = "1";
+        icon.style.transform = "rotate(45deg)"; // Rotates Plus to an X
+    }
+}
+// Export toggle to window for HTML button
+window.toggleForm = () => {
+    const content = document.getElementById('collapsibleForm');
+    const icon = document.getElementById('toggleIcon');
+    if (content.style.maxHeight && content.style.maxHeight !== "0px") {
+        content.style.maxHeight = "0px";
+        content.style.opacity = "0";
+        icon.style.transform = "rotate(0deg)";
+    } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        content.style.opacity = "1";
+        icon.style.transform = "rotate(45deg)";
     }
 };
-
-// --- INITIAL PAGE LOAD DEFAULTS ---
-document.getElementById('visitDate').value = new Date().toISOString().split('T')[0];
-document.getElementById('timeIn').value = "09:00";
-document.getElementById('timeOut').value = "17:00";
 </script>
    <nav id="universal-bottom-nav">
    <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
@@ -558,7 +607,7 @@ document.getElementById('timeOut').value = "17:00";
 
 .nav-link i {
     font-size: 25px;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     color: inherit;
     /* Cleaned up stroke for better legibility */
     -webkit-text-stroke: 0.5px var(--nav-text); 
@@ -566,12 +615,12 @@ document.getElementById('timeOut').value = "17:00";
 }
 
 .nav-link div {
-    font-size: 11px;
+    font-size: 9px;
     font-weight: 800; /* 900 can be too chunky on some screens */
     text-transform: uppercase;
     color: inherit;
     letter-spacing: 0.02em;
-    gap: 5px;
+    gap: 2px;
 }
 
 .nav-link.active {
@@ -669,7 +718,7 @@ thead th {
 
 /* Adjust main content to not be hidden by bottom nav */
 #mainContent {
-    padding-bottom: 100px;
+    padding-bottom: 30px;
 }
 
 /* 1. Reset Body and Layout Logic */
@@ -696,7 +745,110 @@ thead th {
 .universal-bottom-nav:hover{
     color: #2563eb;
 }
-</style>
+/* 1. Make the History Column expand to fill available height */
+#historyColumn {
+    height: calc(100vh - 160px); /* Adjust based on your header height */
+    display: flex;
+    flex-direction: column;
+}
 
+#historyColumn .glass-card {
+    flex-grow: 1; /* Makes the card fill the column height */
+    height: 100% !important; 
+    display: flex;
+    flex-direction: column;
+}
+
+/* 2. Professional Slim Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e8f0; /* Soft slate color */
+    border-radius: 20px;
+    transition: all 0.3s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1; /* Slightly darker on hover */
+}
+/* Sticky Header Background Fix */
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background-color: white !important;
+}
+
+/* Dark Mode Sticky Header */
+[data-theme='dark'] thead th {
+    background-color: #1e293b !important;
+    color: #94a3b8;
+    border-bottom: 1px solid #334155;
+}
+
+/* Professional Slim Scroller */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    border: 2px solid transparent; /* Gives it some padding */
+    background-clip: padding-box;
+}
+
+[data-theme='dark'] .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+    background-clip: padding-box;
+}
+/* 3. Ensure the table header stays truly sticky with a background */
+[data-theme='light'] thead th {
+    background-color: #ffffff !important;
+}
+
+[data-theme='dark'] thead th {
+    background-color: #1e293b !important;
+    color: #94a3b8;
+}
+
+/* 4. Remove forced heights that might break the 'Complete Page' feel */
+#tableContainer {
+    max-height: none !important; 
+}
+</style>
+<script>
+    (function() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const root = document.documentElement;
+
+        const applyTheme = (theme) => {
+            root.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            themeIcon.textContent = (theme === 'dark') ? '☀️' : '🌙';
+        };
+
+        const savedTheme = localStorage.getItem('theme') || 
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+
+        themeBtn.addEventListener('click', () => {
+            const current = root.getAttribute('data-theme');
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        });
+    })();
+</script>
 </body>
 </html>
+
