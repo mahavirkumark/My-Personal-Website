@@ -1959,220 +1959,101 @@ document.addEventListener('DOMContentLoaded', () => {
     <span id="theme-icon">🌙</span>
 </button>
 <style>
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
-    :root {
-        --bg-body: #f9fafb;
-        --bg-card: #ffffff;
-        --text-main: #1f2937;   /* Deep Gray 800 */
-        --text-bold: #000000;   /* Pure Black */
-        --border: #e5e7eb;
-        
-        /* BOTTOM NAV COLORS (LIGHT) */
-        --nav-bg: #ffffff;
-        --nav-text: #000000;    /* Pure Black for text and icons */
-        --nav-height: 65px;
-    }
-
-    [data-theme="dark"] {
-        --bg-body: #0f172a;     /* Deep Navy/Black */
-        --bg-card: #1e293b;     /* Slate 800 */
-        --text-main: #cbd5e1;   /* Slate 300 */
-        --text-bold: #f8fafc;   /* Slate 50 */
-        --border: #334155;      /* Slate 700 */
-        
-        /* BOTTOM NAV COLORS (DARK) */
-        --nav-bg: #0f172a;
-        --nav-text: #ffffff;    /* Pure White */
-    }
-
-    /* --- 2. GLOBAL OVERRIDES --- */
-    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
-    
-    /* Ensure all text classes inside containers adapt */
-    h1, h2, h3, h4, .font-bold, .font-semibold, 
-    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
-        color: var(--text-bold) !important; 
-    }
-
-    p, li, span, .text-gray-700, .text-gray-600 { 
-        color: var(--text-main) !important; 
-    }
-
-    /* Component Surfaces */
-    .bg-white, header, aside, main, #mobile-menu, footer {
-        background-color: var(--bg-card) !important;
-        border-color: var(--border) !important;
-    }
-
-    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
-    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
-        background-color: var(--bg-card) !important;
-    }
-    
-    /* Muted Sidebar links in dark mode */
-    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
-    [data-theme="dark"] .sidebar-nav-internal a:hover,
-    [data-theme="dark"] .sidebar-nav-internal a.active {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
-    }
-
-    /* Core Features Overview Boxes */
-    [data-theme="dark"] .bg-gray-100, 
-    [data-theme="dark"] .bg-yellow-50,
-    [data-theme="dark"] .bg-blue-50,
-    [data-theme="dark"] .bg-green-50 {
-        background-color: #334155 !important;
-        border-color: var(--border) !important;
-    }
-
-    /* Brighter borders for boxes in dark mode */
-    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
-        border-color: #4f46e5 !important; 
-    }
-
-    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
-    #universal-bottom-nav {
-        background-color: var(--nav-bg) !important;
-        border-top: 1px solid var(--border) !important;
-        height: var(--nav-height);
-    }
-
-    /* This targets the icon specifically */
-    .nav-link i { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Makes icons look thicker/bolder */
-        font-size: 20px !important;  /* Slightly larger for visibility */
-        transition: transform 0.2s;
-    }
-
-    /* This targets the text label specifically */
-    .nav-link div { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Thickest weight for labels */
-        font-size: 11px !important;
-        margin-top: 2px;
-    }
-
-    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
-    #theme-toggle-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        z-index: 1000;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: none;
-        background: #2563eb; /* Blue in Light Mode */
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    #theme-toggle-btn:active { transform: scale(0.9); }
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
-/* --- 1. THEME VARIABLES --- */
-/* --- 1. THEME VARIABLES --- */
 /* =============================================
-   SAVIG DARK MODE OVERRIDES (Isolated)
+   SAVIG DARK MODE - COMPLETE OVERRIDES
    ============================================= */
 
+[data-theme="dark"] {
+    --bg-body: #0f172a;      /* Deep Navy */
+    --bg-card: #1e293b;      /* Slate 800 */
+    --bg-modal: #1e293b;     /* Slate 800 */
+    --bg-input: #0f172a;     /* Deep Navy for contrast */
+}
 
-
-/* --- 2. Calendar Grid & Cells --- */
+/* 1. CALENDAR GRID: White Borders & Pure White Text */
 [data-theme="dark"] .calendar-cell {
     background-color: var(--bg-card) !important;
-    border: 1px solid var(--border-white) !important; /* Crisp White Border */
+    border: 1.5px solid #ffffff !important; /* Forces visible white borders */
 }
 
-[data-theme="dark"] .calendar-cell:hover {
-    background-color: #2d3748 !important;
-    border-color: #818cf8 !important; /* Indigo hover feedback */
-}
-
-/* Event text snippets inside small calendar boxes */
+/* Forces all text inside main page calendar day boxes to Pure White */
+[data-theme="dark"] .calendar-cell span,
+[data-theme="dark"] .calendar-cell div,
 [data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-    border-left: 2px solid #ffffff !important;
-    margin-bottom: 2px;
-    padding-left: 4px;
+    color: #ffffff !important; 
+    opacity: 1 !important; 
 }
 
-/* --- 3. The Date Modal (Existing Tasks & Events List) --- */
+/* 2. DATE MODAL: Saved Tasks & Events (Click on Date View) */
 [data-theme="dark"] #taskModal, 
 [data-theme="dark"] #eventModal, 
-[data-theme="dark"] #statusPromptModal, 
+[data-theme="dark"] #statusPromptModal,
 [data-theme="dark"] #eventTrackingSection,
-[data-theme="dark"] #rescheduleModal {
-    background-color: var(--bg-modal) !important;
-
-}
-
-/* Inner list container for saved tasks */
-[data-theme="dark"] #existingTasks {
-    background-color: var(--bg-input) !important;
- 
-}
-
-/* Individual Task/Event Cards inside the Modal */
 [data-theme="dark"] #existingTasks .flex-col {
-    background-color: #1e293b !important;
-   
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    background-color: var(--bg-card) !important;
+    border: 1.5px solid #ffffff !important; /* White border for each saved item */
 }
 
-/* --- 4. Event Status Highlights (High Contrast) --- */
-/* INCOMPLETE: Dark Maroon with light border */
+/* Force all text inside the date modal list to White */
+[data-theme="dark"] #existingTasks strong,
+[data-theme="dark"] #existingTasks div,
+[data-theme="dark"] .task-desc,
+[data-theme="dark"] #modalDate {
+    color: #ffffff !important;
+}
+
+/* 3. STATUS COLORS: Incomplete (Maroon) & Completed (Forest) */
 [data-theme="dark"] .bg-rose-50, 
-[data-theme="dark"] .bg-red-50,
-[data-theme="dark"] .incomplete-event-style {
-    background-color: #7f1d1d !important; 
-
+[data-theme="dark"] .bg-red-50 {
+    background-color: #7f1d1d !important; /* Dark Maroon for contrast */
+    border: 1.5px solid #ffffff !important;
 }
 
-/* COMPLETED: Dark Forest Green */
 [data-theme="dark"] .bg-green-50, 
-[data-theme="dark"] .bg-emerald-50,
-[data-theme="dark"] .completed-event-style {
-    background-color: #064e3b !important;
-
+[data-theme="dark"] .bg-emerald-50 {
+    background-color: #064e3b !important; /* Dark Forest Green */
+    border: 1.5px solid #ffffff !important;
 }
 
-/* --- 5. Form Elements & Search --- */
+/* 4. LOGO & BRAND PROTECTION: Keep original colors */
+[data-theme="dark"] .fa-shield {
+    color: #2563eb !important; /* Shield stays Blue-600 */
+}
+
+[data-theme="dark"] span.text-gray-900 {
+    color: #ffffff !important; /* 'Savig' text forced to white */
+}
+
+/* 5. FORM INPUTS & SEARCH VISIBILITY */
 [data-theme="dark"] input, 
-[data-theme="dark"] textarea, 
+[data-theme="dark"] textarea,
 [data-theme="dark"] select,
 [data-theme="dark"] .modern-input-group {
     background-color: var(--bg-input) !important;
     color: #ffffff !important;
-
+    border: 1.5px solid #ffffff !important;
 }
 
 [data-theme="dark"] input::placeholder, 
 [data-theme="dark"] textarea::placeholder {
-    color: #94a3b8 !important;
+    color: #cbd5e1 !important;
+    opacity: 0.8;
 }
 
-/* --- 6. Navigation & Search Results --- */
-[data-theme="dark"] nav,
+/* 6. NAVIGATION & SEARCH RESULTS */
+[data-theme="dark"] nav, 
 [data-theme="dark"] #mobileMenu,
 [data-theme="dark"] .search-results-panel, 
 [data-theme="dark"] .search-result-item {
     background-color: var(--bg-card) !important;
-
+    border: 1px solid #ffffff !important;
 }
 
-/* --- 7. UI Finishing Touches --- */
+/* 7. UI FINISHING TOUCHES */
 [data-theme="dark"] hr, 
 [data-theme="dark"] .border-b, 
 [data-theme="dark"] .border-t {
-    border-color: var(--border-white) !important;
+    border-color: #ffffff !important;
 }
 
 [data-theme="dark"] .custom-scroll::-webkit-scrollbar-thumb {
@@ -2180,28 +2061,13 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 [data-theme="dark"] #theme-toggle-btn {
-  
+    border: 2px solid #ffffff !important;
 }
 
-/* Ensures icons remain visible */
-/* --- Fix for Main Page Calendar Text --- */
-[data-theme="dark"] .calendar-cell span,
-[data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
-    color: #ffffff !important; /* Forces the small task snippets to white */
-    font-weight: 500;
+/* Ensure all icons remain white except the logo shield */
+[data-theme="dark"] i:not(.fa-shield) {
+    color: #ffffff !important;
 }
-
-/* --- White Borders for Calendar Cells --- */
-
-/* Forces the text inside main page calendar day boxes to White */
-[data-theme="dark"] .calendar-cell span,
-[data-theme="dark"] .calendar-cell div,
-[data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
-    color: #ffffff !important; 
-    opacity: 1 !important; 
-    font-weight:700 ;
-}
-
 </style>
 
 
