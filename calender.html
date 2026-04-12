@@ -2076,152 +2076,163 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     #theme-toggle-btn:active { transform: scale(0.9); }
     /* --- 1. THEME VARIABLE DEFINITIONS --- */
+/* --- 1. THEME VARIABLES --- */
 :root {
     --bg-body: #f8fafc;
     --bg-card: #ffffff;
     --bg-modal: #ffffff;
     --bg-input: #ffffff;
-    --text-main: #334155;    /* Slate 700 */
-    --text-bold: #0f172a;    /* Slate 900 */
-    --border: #e2e8f0;       /* Slate 200 */
-    --shadow: rgba(0, 0, 0, 0.1);
+    --text-main: #334155;
+    --text-bold: #0f172a;
+    --border: #e2e8f0;
+    --accent-indigo: #4f46e5;
+    --accent-emerald: #10b981;
 }
 
 [data-theme="dark"] {
-    --bg-body: #0f172a;      /* Deep Navy/Black */
-    --bg-card: #1e293b;      /* Slate 800 (Cards & Cells) */
+    --bg-body: #0f172a;      /* Deep Navy */
+    --bg-card: #1e293b;      /* Slate 800 */
     --bg-modal: #1e293b;     /* Slate 800 */
-    --bg-input: #0f172a;     /* Deep Navy (Inputs) */
+    --bg-input: #0f172a;     /* Deep Navy (Contrast for inputs) */
     --text-main: #94a3b8;    /* Slate 400 */
-    --text-bold: #f8fafc;    /* Slate 50 */
-    --border: #334155;       /* Slate 700 */
-    --shadow: rgba(0, 0, 0, 0.4);
+    --text-bold: #f8fafc;    /* Pure White/Slate 50 */
+    --border: #475569;       /* Lighter Slate for visibility */
+    --accent-indigo: #818cf8;
+    --accent-emerald: #34d399;
 }
 
-/* --- 2. GLOBAL ELEMENTS --- */
+/* --- 2. CORE LAYOUT --- */
 body { 
     background-color: var(--bg-body) !important; 
     color: var(--text-main) !important; 
+    transition: background 0.3s ease;
 }
 
-/* Headings and Bold Text */
-h2, h3, strong, b, .font-bold, .font-extrabold { 
-    color: var(--text-bold) !important; 
-}
-
-/* Navigation and Navbar */
-nav, .bg-white { 
+nav, .bg-white, footer { 
     background-color: var(--bg-card) !important; 
     border-color: var(--border) !important;
 }
 
-#mobileMenu {
-    background-color: var(--bg-card) !important;
+h1, h2, h3, h4, h5, h6, strong, b, .font-bold { 
+    color: var(--text-bold) !important; 
 }
 
-/* --- 3. CALENDAR SPECIFIC DARK MODE --- */
+/* --- 3. CALENDAR SYSTEM --- */
 .calendar-cell {
     background-color: var(--bg-card) !important;
-    border-color: var(--border) !important;
+    border: 1.5px solid var(--border) !important; /* Thicker for visibility */
 }
 
 .calendar-cell:hover {
+    border-color: var(--accent-indigo) !important;
     background-color: var(--bg-input) !important;
+    transform: translateY(-2px);
 }
 
-/* Text inside calendar cells */
-.calendar-cell span, .calendar-cell div {
-    color: var(--text-main);
-}
-
-.calendar-cell strong, .calendar-cell .text-xl {
-    color: var(--text-bold) !important;
-}
-
-/* Today and Sunday logic for Dark Mode */
 [data-theme="dark"] .today {
-    background-color: #1e3a8a !important; /* Deep Blue */
-    border-color: #60a5fa !important;
+    background-color: rgba(79, 70, 229, 0.2) !important;
+    border: 2px solid var(--accent-indigo) !important;
 }
 
 [data-theme="dark"] .sunday-cell {
-    background-color: #452a2a !important; /* Muted Red/Brown */
-    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border: 2px solid #ef4444 !important;
+}
+
+/* Task items inside cells */
+.calendar-cell div[id^="tasks-"] div {
+    color: var(--text-bold) !important;
 }
 
 /* --- 4. MODALS & FORMS --- */
 #taskModal, #eventModal, #statusPromptModal, #eventTrackingSection, #rescheduleModal {
     background-color: var(--bg-modal) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Inputs and Textareas */
+/* Input Fields */
 input, textarea, select {
     background-color: var(--bg-input) !important;
     color: var(--text-bold) !important;
-    border-color: var(--border) !important;
+    border: 1.5px solid var(--border) !important;
 }
 
-input::placeholder, textarea::placeholder {
-    color: #64748b !important; /* Muted placeholder */
+input:focus, textarea:focus {
+    border-color: var(--accent-indigo) !important;
+    outline: none;
 }
 
-/* Modern Input Groups in Dark Mode */
+/* Modern Input Groups */
 .modern-input-group {
     background-color: var(--bg-input) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
 }
 
-/* Existing Tasks list items */
-#existingTasks {
-    background-color: var(--bg-input) !important;
-    border-color: var(--border) !important;
+.modern-input-group i {
+    color: var(--text-main) !important;
 }
 
-#existingTasks .bg-white {
-    background-color: var(--bg-card) !important;
-}
-
-/* --- 5. SEARCH SYSTEM DARK MODE --- */
+/* --- 5. SEARCH SYSTEM --- */
 .search-overlay-background {
-    background-color: rgba(15, 23, 42, 0.95) !important; /* Darker transparent overlay */
+    background-color: rgba(15, 23, 42, 0.9) !important;
 }
 
 .search-active .search-container {
     background-color: var(--bg-card) !important;
-    border-bottom: 1px solid var(--border) !important;
+    border-bottom: 2px solid var(--border) !important;
 }
 
 .search-results-panel {
     background-color: var(--bg-card) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
 }
 
 .search-result-item {
     background-color: var(--bg-card) !important;
-    border-color: var(--border) !important;
+    border: 1px solid var(--border) !important;
 }
 
 .search-result-item:hover {
     background-color: var(--bg-input) !important;
 }
 
-/* --- 6. SCROLLBARS --- */
-.custom-scroll::-webkit-scrollbar {
-    background-color: var(--bg-input);
+/* --- 6. TASK LISTS (INSIDE MODALS) --- */
+#existingTasks {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border) !important;
+}
+
+#existingTasks .flex-col {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+}
+
+/* Descriptions and sub-text */
+.text-gray-500, .text-gray-600, #userEmail, .task-desc {
+    color: var(--text-main) !important;
+}
+
+/* --- 7. BUTTONS & UI ELEMENTS --- */
+#theme-toggle-btn {
+    background: var(--accent-indigo) !important;
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+    background: var(--bg-input);
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-    background-color: var(--border);
+    background: var(--border);
     border-radius: 10px;
 }
 
-/* --- 7. FOOTER --- */
-footer {
-    background-color: var(--bg-card) !important;
-    border-top: 1px solid var(--border) !important;
-    color: var(--text-main) !important;
+/* Divider Lines */
+.border-b, .border-t, hr {
+    border-color: var(--border) !important;
 }
+
 </style>
 
 
