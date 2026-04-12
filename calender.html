@@ -1960,7 +1960,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </button>
 <style>
 /* =============================================
-   SAVIG DARK MODE - HIGH CONTRAST CALENDAR
+   SAVIG DARK MODE OVERRIDES (Isolated)
    ============================================= */
 
 [data-theme="dark"] {
@@ -1969,69 +1969,87 @@ document.addEventListener('DOMContentLoaded', () => {
     --bg-modal: #1e293b;     /* Slate 800 */
     --bg-input: #0f172a;     /* Pure Black/Navy for contrast */
     --text-main: #ffffff;    /* Forced White */
+    --text-bold: #ffffff;    /* Forced White */
     --border-white: #ffffff; /* High Contrast Border */
 }
 
-/* --- 1. Main Calendar Grid & Cells --- */
-[data-theme="dark"] .calendar-cell {
-    background-color: var(--bg-card) !important;
-    border: 1px solid var(--border-white) !important; /* White Border */
-}
-
-/* FORCED WHITE TEXT: Tasks & Events inside the main page calendar cells */
-[data-theme="dark"] .calendar-cell span,
-[data-theme="dark"] .calendar-cell div,
-[data-theme="dark"] .calendar-cell div[id^="tasks-"],
-[data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
+/* --- 1. Global Text Visibility (Forces all text to White) --- */
+[data-theme="dark"] body, 
+[data-theme="dark"] p, 
+[data-theme="dark"] span, 
+[data-theme="dark"] div, 
+[data-theme="dark"] strong, 
+[data-theme="dark"] b,
+[data-theme="dark"] .text-gray-600, 
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .task-desc,
+[data-theme="dark"] #userName,
+[data-theme="dark"] #userEmail,
+[data-theme="dark"] .modal-date-text {
     color: #ffffff !important;
 }
 
-/* Style for the mini task/event snippets on the main page grid */
+/* --- 2. Calendar Grid & Cells --- */
+[data-theme="dark"] .calendar-cell {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-white) !important; /* Crisp White Border */
+}
+
+[data-theme="dark"] .calendar-cell:hover {
+    background-color: #2d3748 !important;
+    border-color: #818cf8 !important; /* Indigo hover feedback */
+}
+
+/* Event text snippets inside small calendar boxes */
 [data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
     background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
     border-left: 2px solid #ffffff !important;
     margin-bottom: 2px;
     padding-left: 4px;
-    font-weight: 500;
 }
 
-/* --- 2. Date Modal & Saved Items (Click on Date View) --- */
+/* --- 3. The Date Modal (Existing Tasks & Events List) --- */
 [data-theme="dark"] #taskModal, 
 [data-theme="dark"] #eventModal, 
 [data-theme="dark"] #statusPromptModal, 
-[data-theme="dark"] #eventTrackingSection {
+[data-theme="dark"] #eventTrackingSection,
+[data-theme="dark"] #rescheduleModal {
     background-color: var(--bg-modal) !important;
     border: 2px solid var(--border-white) !important;
 }
 
-/* Forced White Text inside the lists in the modal */
-[data-theme="dark"] #existingTasks,
-[data-theme="dark"] #existingTasks .flex-col,
-[data-theme="dark"] #existingTasks strong,
-[data-theme="dark"] #existingTasks div,
-[data-theme="dark"] .task-desc {
-    color: #ffffff !important;
+/* Inner list container for saved tasks */
+[data-theme="dark"] #existingTasks {
+    background-color: var(--bg-input) !important;
+    border: 1px solid var(--border-white) !important;
 }
 
+/* Individual Task/Event Cards inside the Modal */
 [data-theme="dark"] #existingTasks .flex-col {
     background-color: #1e293b !important;
     border: 1.5px solid var(--border-white) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 3. Status Highlights (Incomplete/Complete) --- */
+/* --- 4. Event Status Highlights (High Contrast) --- */
+/* INCOMPLETE: Dark Maroon with light border */
 [data-theme="dark"] .bg-rose-50, 
-[data-theme="dark"] .bg-red-50 {
-    background-color: #7f1d1d !important; /* Dark Maroon */
+[data-theme="dark"] .bg-red-50,
+[data-theme="dark"] .incomplete-event-style {
+    background-color: #7f1d1d !important; 
     border: 1.5px solid #fca5a5 !important;
 }
 
+/* COMPLETED: Dark Forest Green */
 [data-theme="dark"] .bg-green-50, 
-[data-theme="dark"] .bg-emerald-50 {
-    background-color: #064e3b !important; /* Dark Forest Green */
+[data-theme="dark"] .bg-emerald-50,
+[data-theme="dark"] .completed-event-style {
+    background-color: #064e3b !important;
     border: 1.5px solid #6ee7b7 !important;
 }
 
-/* --- 4. Form Elements --- */
+/* --- 5. Form Elements & Search --- */
 [data-theme="dark"] input, 
 [data-theme="dark"] textarea, 
 [data-theme="dark"] select,
@@ -2041,21 +2059,38 @@ document.addEventListener('DOMContentLoaded', () => {
     border: 1.5px solid var(--border-white) !important;
 }
 
-/* --- 5. Navigation & UI (Light Mode Protection) --- */
-[data-theme="dark"] nav, 
-[data-theme="dark"] #mobileMenu {
-    background-color: var(--bg-card) !important;
-    border-bottom: 1px solid var(--border-white) !important;
+[data-theme="dark"] input::placeholder, 
+[data-theme="dark"] textarea::placeholder {
+    color: #94a3b8 !important;
 }
 
-/* Theme Toggle Button */
+/* --- 6. Navigation & Search Results --- */
+[data-theme="dark"] nav,
+[data-theme="dark"] #mobileMenu,
+[data-theme="dark"] .search-results-panel, 
+[data-theme="dark"] .search-result-item {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-white) !important;
+}
+
+/* --- 7. UI Finishing Touches --- */
+[data-theme="dark"] hr, 
+[data-theme="dark"] .border-b, 
+[data-theme="dark"] .border-t {
+    border-color: var(--border-white) !important;
+}
+
+[data-theme="dark"] .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #ffffff !important;
+}
+
 [data-theme="dark"] #theme-toggle-btn {
     border: 2px solid #ffffff !important;
 }
 
-/* Custom Scrollbar */
-[data-theme="dark"] .custom-scroll::-webkit-scrollbar-thumb {
-    background-color: #ffffff !important;
+/* Ensures icons remain visible */
+[data-theme="dark"] i {
+    color: #ffffff !important;
 }
 </style>
 
