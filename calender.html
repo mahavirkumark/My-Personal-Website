@@ -2075,6 +2075,153 @@ document.addEventListener('DOMContentLoaded', () => {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     #theme-toggle-btn:active { transform: scale(0.9); }
+    /* --- 1. THEME VARIABLE DEFINITIONS --- */
+:root {
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --bg-modal: #ffffff;
+    --bg-input: #ffffff;
+    --text-main: #334155;    /* Slate 700 */
+    --text-bold: #0f172a;    /* Slate 900 */
+    --border: #e2e8f0;       /* Slate 200 */
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg-body: #0f172a;      /* Deep Navy/Black */
+    --bg-card: #1e293b;      /* Slate 800 (Cards & Cells) */
+    --bg-modal: #1e293b;     /* Slate 800 */
+    --bg-input: #0f172a;     /* Deep Navy (Inputs) */
+    --text-main: #94a3b8;    /* Slate 400 */
+    --text-bold: #f8fafc;    /* Slate 50 */
+    --border: #334155;       /* Slate 700 */
+    --shadow: rgba(0, 0, 0, 0.4);
+}
+
+/* --- 2. GLOBAL ELEMENTS --- */
+body { 
+    background-color: var(--bg-body) !important; 
+    color: var(--text-main) !important; 
+}
+
+/* Headings and Bold Text */
+h2, h3, strong, b, .font-bold, .font-extrabold { 
+    color: var(--text-bold) !important; 
+}
+
+/* Navigation and Navbar */
+nav, .bg-white { 
+    background-color: var(--bg-card) !important; 
+    border-color: var(--border) !important;
+}
+
+#mobileMenu {
+    background-color: var(--bg-card) !important;
+}
+
+/* --- 3. CALENDAR SPECIFIC DARK MODE --- */
+.calendar-cell {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.calendar-cell:hover {
+    background-color: var(--bg-input) !important;
+}
+
+/* Text inside calendar cells */
+.calendar-cell span, .calendar-cell div {
+    color: var(--text-main);
+}
+
+.calendar-cell strong, .calendar-cell .text-xl {
+    color: var(--text-bold) !important;
+}
+
+/* Today and Sunday logic for Dark Mode */
+[data-theme="dark"] .today {
+    background-color: #1e3a8a !important; /* Deep Blue */
+    border-color: #60a5fa !important;
+}
+
+[data-theme="dark"] .sunday-cell {
+    background-color: #452a2a !important; /* Muted Red/Brown */
+    border-color: #ef4444 !important;
+}
+
+/* --- 4. MODALS & FORMS --- */
+#taskModal, #eventModal, #statusPromptModal, #eventTrackingSection, #rescheduleModal {
+    background-color: var(--bg-modal) !important;
+    border-color: var(--border) !important;
+}
+
+/* Inputs and Textareas */
+input, textarea, select {
+    background-color: var(--bg-input) !important;
+    color: var(--text-bold) !important;
+    border-color: var(--border) !important;
+}
+
+input::placeholder, textarea::placeholder {
+    color: #64748b !important; /* Muted placeholder */
+}
+
+/* Modern Input Groups in Dark Mode */
+.modern-input-group {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border) !important;
+}
+
+/* Existing Tasks list items */
+#existingTasks {
+    background-color: var(--bg-input) !important;
+    border-color: var(--border) !important;
+}
+
+#existingTasks .bg-white {
+    background-color: var(--bg-card) !important;
+}
+
+/* --- 5. SEARCH SYSTEM DARK MODE --- */
+.search-overlay-background {
+    background-color: rgba(15, 23, 42, 0.95) !important; /* Darker transparent overlay */
+}
+
+.search-active .search-container {
+    background-color: var(--bg-card) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.search-results-panel {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.search-result-item {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+.search-result-item:hover {
+    background-color: var(--bg-input) !important;
+}
+
+/* --- 6. SCROLLBARS --- */
+.custom-scroll::-webkit-scrollbar {
+    background-color: var(--bg-input);
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 10px;
+}
+
+/* --- 7. FOOTER --- */
+footer {
+    background-color: var(--bg-card) !important;
+    border-top: 1px solid var(--border) !important;
+    color: var(--text-main) !important;
+}
 </style>
 
 
