@@ -2208,7 +2208,24 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 /* Ensures icons remain visible */
+/* --- Fix for Main Page Calendar Text --- */
+[data-theme="dark"] .calendar-cell span,
+[data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
+    color: #ffffff !important; /* Forces the small task snippets to white */
+    font-weight: 500;
+}
 
+/* --- White Borders for Calendar Cells --- */
+[data-theme="dark"] .calendar-cell {
+    border: 1px solid #ffffff !important; 
+}
+
+/* --- Fix for Incomplete Event Text inside the Modal --- */
+[data-theme="dark"] .bg-rose-50, 
+[data-theme="dark"] .bg-red-50 {
+    background-color: #7f1d1d !important; /* Dark Maroon background */
+    border: 1.5px solid #ffffff !important; /* White border for high contrast */
+}
 
 </style>
 
