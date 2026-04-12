@@ -1958,105 +1958,114 @@ document.addEventListener('DOMContentLoaded', () => {
       <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
 </button>
-<style>
+    <style>
 /* =============================================
-   SAVIG DARK MODE OVERRIDES (Isolated)
+   SAVIG COMPLETE DARK MODE CSS
    ============================================= */
 
 [data-theme="dark"] {
     --bg-body: #0f172a;      /* Deep Navy */
     --bg-card: #1e293b;      /* Slate 800 */
     --bg-modal: #1e293b;     /* Slate 800 */
-    --bg-input: #0f172a;     /* Pure Black/Navy for contrast */
-    --text-main: #ffffff;    /* Forced White */
-    --text-bold: #ffffff;    /* Forced White */
-    --border-white: #ffffff; /* High Contrast Border */
+    --bg-input: #0f172a;     /* Deep Navy for contrast */
 }
 
-/* --- 1. Global Text Visibility (Forces all text to White) --- */
-[data-theme="dark"] body, 
+/* 1. GLOBAL LAYOUT & TEXT */
+[data-theme="dark"] body {
+    background-color: var(--bg-body) !important;
+    color: #ffffff !important;
+}
+
+/* Force all text elements to pure white in Dark Mode */
 [data-theme="dark"] p, 
 [data-theme="dark"] span, 
 [data-theme="dark"] div, 
 [data-theme="dark"] strong, 
 [data-theme="dark"] b,
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3,
 [data-theme="dark"] .text-gray-600, 
 [data-theme="dark"] .text-gray-500,
-[data-theme="dark"] .task-desc,
-[data-theme="dark"] #userName,
-[data-theme="dark"] #userEmail,
-[data-theme="dark"] .modal-date-text {
+[data-theme="dark"] .task-desc {
     color: #ffffff !important;
+    opacity: 1 !important;
 }
 
-/* --- 2. Calendar Grid & Cells --- */
+/* 2. LOGO & BRAND PROTECTION (Keeps Shield Blue) */
+[data-theme="dark"] .fa-shield {
+    color: #2563eb !important; /* Blue-600 stays Blue */
+}
+
+[data-theme="dark"] span.text-gray-900 {
+    color: #ffffff !important; /* 'Savig' text turns White */
+}
+
+/* 3. CALENDAR GRID (Main Page) */
 [data-theme="dark"] .calendar-cell {
     background-color: var(--bg-card) !important;
-    border: 1px solid var(--border-white) !important; /* Crisp White Border */
+    border: 1.5px solid #ffffff !important; /* Crisp White Borders */
 }
 
 [data-theme="dark"] .calendar-cell:hover {
     background-color: #2d3748 !important;
-    border-color: #818cf8 !important; /* Indigo hover feedback */
+    border-color: #818cf8 !important;
 }
 
-/* Event text snippets inside small calendar boxes */
+/* Task snippets inside the main calendar boxes */
 [data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
     border-left: 2px solid #ffffff !important;
-    margin-bottom: 2px;
     padding-left: 4px;
+    margin-bottom: 2px;
 }
 
-/* --- 3. The Date Modal (Existing Tasks & Events List) --- */
+/* 4. MODALS & SAVED ITEMS (Click on Date View) */
 [data-theme="dark"] #taskModal, 
 [data-theme="dark"] #eventModal, 
-[data-theme="dark"] #statusPromptModal, 
+[data-theme="dark"] #statusPromptModal,
 [data-theme="dark"] #eventTrackingSection,
 [data-theme="dark"] #rescheduleModal {
     background-color: var(--bg-modal) !important;
-    border: 2px solid var(--border-white) !important;
+    border: 2px solid #ffffff !important;
 }
 
-/* Inner list container for saved tasks */
+/* Inner card list in the modal */
 [data-theme="dark"] #existingTasks {
     background-color: var(--bg-input) !important;
-    border: 1px solid var(--border-white) !important;
+    border: 1px solid #ffffff !important;
 }
 
-/* Individual Task/Event Cards inside the Modal */
 [data-theme="dark"] #existingTasks .flex-col {
-    background-color: #1e293b !important;
-    border: 1.5px solid var(--border-white) !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    background-color: var(--bg-card) !important;
+    border: 1.5px solid #ffffff !important;
+    margin-bottom: 15px;
 }
 
-/* --- 4. Event Status Highlights (High Contrast) --- */
-/* INCOMPLETE: Dark Maroon with light border */
+/* 5. EVENT STATUS COLORS */
+/* Incomplete: Dark Maroon with high-contrast text */
 [data-theme="dark"] .bg-rose-50, 
-[data-theme="dark"] .bg-red-50,
-[data-theme="dark"] .incomplete-event-style {
+[data-theme="dark"] .bg-red-50 {
     background-color: #7f1d1d !important; 
-    border: 1.5px solid #fca5a5 !important;
+    border: 1.5px solid #ffffff !important;
 }
 
-/* COMPLETED: Dark Forest Green */
+/* Completed: Dark Forest Green */
 [data-theme="dark"] .bg-green-50, 
-[data-theme="dark"] .bg-emerald-50,
-[data-theme="dark"] .completed-event-style {
+[data-theme="dark"] .bg-emerald-50 {
     background-color: #064e3b !important;
-    border: 1.5px solid #6ee7b7 !important;
+    border: 1.5px solid #ffffff !important;
 }
 
-/* --- 5. Form Elements & Search --- */
+/* 6. FORM INPUTS & SEARCH */
 [data-theme="dark"] input, 
-[data-theme="dark"] textarea, 
+[data-theme="dark"] textarea,
 [data-theme="dark"] select,
 [data-theme="dark"] .modern-input-group {
     background-color: var(--bg-input) !important;
     color: #ffffff !important;
-    border: 1.5px solid var(--border-white) !important;
+    border: 1.5px solid #ffffff !important;
 }
 
 [data-theme="dark"] input::placeholder, 
@@ -2064,20 +2073,18 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #94a3b8 !important;
 }
 
-/* --- 6. Navigation & Search Results --- */
-[data-theme="dark"] nav,
+/* 7. NAVIGATION & UI EXTRAS */
+[data-theme="dark"] nav, 
 [data-theme="dark"] #mobileMenu,
-[data-theme="dark"] .search-results-panel, 
-[data-theme="dark"] .search-result-item {
+[data-theme="dark"] footer {
     background-color: var(--bg-card) !important;
-    border: 1px solid var(--border-white) !important;
+    border-bottom: 1px solid #ffffff !important;
 }
 
-/* --- 7. UI Finishing Touches --- */
 [data-theme="dark"] hr, 
 [data-theme="dark"] .border-b, 
 [data-theme="dark"] .border-t {
-    border-color: var(--border-white) !important;
+    border-color: #ffffff !important;
 }
 
 [data-theme="dark"] .custom-scroll::-webkit-scrollbar-thumb {
@@ -2087,14 +2094,7 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme="dark"] #theme-toggle-btn {
     border: 2px solid #ffffff !important;
 }
-
-/* Ensures icons remain visible */
-[data-theme="dark"] i {
-    color: #ffffff !important;
-}
 </style>
-
-
 
 
 
