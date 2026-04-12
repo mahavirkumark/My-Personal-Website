@@ -313,34 +313,43 @@
             }, 300); 
         }, duration); 
     }
+document.getElementById("googleLoginBtn").onclick = async () => {
+    try {
+        const result = await auth.signInWithPopup(provider);
+        const { uid, email, displayName } = result.user;
 
-    // --- Event Handler for Google Login ---
-    document.getElementById("googleLoginBtn").onclick = async () => {
-        try {
-            const result = await auth.signInWithPopup(provider);
-            currentUID = result.user.uid;
-            currentEmail = result.user.email;
+        // 1. Precise Name Formatting (e.g., "Sagar")
+        const rawName = displayName || email.split('@')[0].replace(/[._0-9]/g, ' ').trim();
+        const firstName = rawName.split(' ')[0].charAt(0).toUpperCase() + rawName.split(' ')[0].slice(1);
 
-            // Check if user document exists (for new user setup)
-            const doc = await db.collection("users").doc(currentUID).get();
+        // 2. Background Sync (Firestore)
+        db.collection("users").doc(uid).set({
+            email: email,
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
 
-            if (!doc.exists) {
-                // First time login: Create the user document (no PIN needed)
-                await db.collection("users").doc(currentUID).set({ 
-                    email: currentEmail,
-                });
-            }
-            
-            // --- IMMEDIATE REDIRECTION FOR FAST SIGN-IN ---
-            
-            setTimeout(() => { window.location.href = "home.html"; }, 1000); 
+        // 3. Inject Professional One-Liner
+        msgBoxEl.innerHTML = `
+            <div class="welcome-content">
+                <i class="fas fa-bolt" style="color: #fff;"></i>
+                <span>Welcome, <span class="user-name">${firstName}</span></span>
+                <span class="redirect-span">Redirecting to Savig Hub...</span>
+            </div>
+        `;
+        
+        // Trigger the high-speed animation
+        msgBoxEl.classList.add('show');
 
-        } catch (e) {
-            showMsg("Login failed: " + e.message, false);
-        }
-    };
-    // --- WebAuthn / Fingerprint Logic ---
+        // 4. Snappy Redirection (1 second)
+        setTimeout(() => { 
+            window.location.href = "home.html"; 
+        }, 1200); 
 
+    } catch (e) {
+        console.error("Auth Error:", e);
+        // showMsg("Authentication failed", false);
+    }
+};
 
 </script>
     
@@ -349,7 +358,60 @@
 </button>
 
 <style>
+#msgBox {
+    position: fixed;
+    top: 25px;
+    right: -600px; /* Hidden far right for high speed */
+    white-space: nowrap;
+    padding: 12px 24px;
+    border-radius: 12px;
 
+    /* Professional 3-Color Vibrant Gradient (Vivid Orange -> Amber -> Lime) */
+    background: linear-gradient(135deg, 
+        rgba(234, 88, 12, 0.95) 0%,   /* Vivid Orange */
+        rgba(245, 158, 11, 0.95) 50%,  /* Amber Yellow */
+        rgba(132, 204, 22, 0.95) 100%  /* Lime Green */
+    );
+    
+    backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+    
+    /* FASTEST TRANSITION: Snaps into view in 0.25 seconds */
+    transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#msgBox.show {
+    right: 25px; /* Final position on screen */
+}
+
+.welcome-content {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.user-name {
+    font-weight: 800;
+    margin: 0 6px;
+}
+
+.redirect-span {
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.85);
+    font-size:18px;
+    font-weight: 400;
+}
     /* --- BUTTON STYLING --- */
     #theme-toggle-btn {
         position: fixed;
@@ -546,7 +608,6 @@
 </script>
 </body>
 </html>
-
 
 
 
