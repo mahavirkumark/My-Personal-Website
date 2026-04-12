@@ -481,9 +481,11 @@ body {
     </div>
 
 <div class="flex items-center gap-2">
-    <button id="open-search" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group animate-pop focus:outline-none" style="--d: 5.5">
-        <i class="fas fa-search text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
-    </button>
+  <button id="open-search" 
+    onclick="const ov = document.getElementById('search-overlay'); ov.classList.remove('hidden'); ov.style.display='flex'; document.getElementById('search-input').focus();"
+    class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group animate-pop focus:outline-none" style="--d: 5.5">
+    <i class="fas fa-search text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+</button>
 
     <button class="theme-toggle text-xl text-yellow-400" id="theme-btn">
         <i class="fa-solid fa-sun"></i>
@@ -1424,6 +1426,7 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 });
 
+
 /**
  * Professional Time-Based Greeting Logic
  * Sets message based on current hour
@@ -1458,26 +1461,19 @@ function updateTimeGreeting() {
 
 // Call the function
 updateTimeGreeting();
+
+// --- 1. THE SEARCH LOGIC ---
 const initializeSavigSearch = () => {
     const input = document.getElementById('search-input');
     const resultsArea = document.getElementById('cred-list-mobile-overlay');
-    const openBtn = document.getElementById('open-search');
     const closeBtn = document.getElementById('close-search');
     const overlay = document.getElementById('search-overlay');
 
-    if (!input || !resultsArea || !openBtn) return;
-
-    // UI Toggle Logic
-    openBtn.onclick = () => {
-        overlay.classList.remove('hidden');
-        overlay.classList.add('flex');
-        input.focus();
-        document.body.style.overflow = 'hidden';
-    };
+    if (!input || !overlay) return;
 
     closeBtn.onclick = () => {
         overlay.classList.add('hidden');
-        overlay.classList.remove('flex');
+        overlay.style.display = 'none';
         document.body.style.overflow = 'auto';
     };
 
@@ -1485,100 +1481,120 @@ const initializeSavigSearch = () => {
     input.addEventListener('input', () => {
         clearTimeout(searchTimeout);
         const query = input.value.toLowerCase().trim();
-
+        
         if (query.length < 2) {
-            resultsArea.innerHTML = '<p class="p-4 text-gray-400">Type at least 2 letters...</p>';
+            resultsArea.innerHTML = '<p class="p-4 text-gray-500 text-xs font-bold uppercase text-center mt-10 tracking-widest">Type at least 2 letters...</p>';
             return;
         }
 
         searchTimeout = setTimeout(async () => {
-            resultsArea.innerHTML = '<div class="p-4 text-blue-600 font-bold"><i class="fas fa-spinner fa-spin mr-2"></i>Searching Savig Vault...</div>';
-            
             const user = firebase.auth().currentUser;
             if (!user) return;
-            const uid = user.uid;
+            
+            resultsArea.innerHTML = '<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>';
 
-            // Define all possible paths
+            // Define your exact Firebase paths
             const paths = [
-                { path: `addresses/${uid}`, mod: 'address' },
-                { path: `users/${uid}/contacts`, mod: 'contact' },
-                { path: `users/${uid}/birthdays`, mod: 'birthday' },
-                { path: `users/${uid}/links`, mod: 'link' },
-                { path: `users/${uid}/income`, mod: 'income' },
-                { path: `users/${uid}/expenses`, mod: 'finance' },
-                { path: `users/${uid}/events`, mod: 'calendar' },
-                { path: `users/${uid}/tasks`, mod: 'calendar' },
-                { path: `users/${uid}/grocery`, mod: 'grocery' },
-                { path: `users/${uid}/asset`, mod: 'asset' },
-                { path: `principles/${uid}`, mod: 'principle' }
+                { path: `addresses/${user.uid}`, mod: 'address' },
+                { path: `users/${user.uid}/contacts`, mod: 'contact' },
+                { path: `users/${user.uid}/events`, mod: 'calendar' },
+                { path: `users/${user.uid}/birthdays`, mod: 'birthday' },
+                { path: `users/${user.uid}/expenses`, mod: 'finance' }
             ];
-
+            
             try {
                 const snapshots = await Promise.all(paths.map(p => firebase.database().ref(p.path).once('value')));
                 let results = [];
 
                 snapshots.forEach((snap, idx) => {
                     const data = snap.val();
-                    const modType = paths[idx].mod;
                     if (!data) return;
-
+                    
                     Object.entries(data).forEach(([key, val]) => {
-                        // Deep search for nested items (Finance/Calendar/etc)
-                        if (typeof val === 'object' && val !== null) {
-                            const stringified = JSON.stringify(val).toLowerCase();
-                            if (stringified.includes(query)) {
-                                // If it's nested (like expenses sorted by month), we check one level deeper
-                                if (modType === 'finance' || modType === 'calendar') {
-                                     Object.entries(val).forEach(([subKey, subVal]) => {
-                                        if (JSON.stringify(subVal).toLowerCase().includes(query)) {
-                                            results.push({ id: subKey, mod: modType, data: subVal, parent: key });
-                                        }
-                                     });
-                                } else {
-                                    results.push({ id: key, mod: modType, data: val });
-                                }
+                        const stringified = JSON.stringify(val).toLowerCase();
+                        if (stringified.includes(query)) {
+                            // Deep search for nested dates in Calendar/Finance
+                            if (paths[idx].mod === 'calendar' || paths[idx].mod === 'finance') {
+                                Object.entries(val).forEach(([subKey, subVal]) => {
+                                    if (JSON.stringify(subVal).toLowerCase().includes(query)) {
+                                        results.push({ id: subKey, mod: paths[idx].mod, data: subVal, parent: key });
+                                    }
+                                });
+                            } else {
+                                results.push({ id: key, mod: paths[idx].mod, data: val });
                             }
                         }
                     });
                 });
-
                 renderSearchCards(results);
-            } catch (err) {
-                console.error("Search error:", err);
-                resultsArea.innerHTML = '<p class="p-4 text-red-500">Error: Database Busy</p>';
+            } catch (e) { 
+                console.error(e);
+                resultsArea.innerHTML = '<p class="text-red-500 text-center">Search Error.</p>';
             }
         }, 300);
     });
 };
+
+// --- 2. THE RENDER LOGIC ---
 const renderSearchCards = (results) => {
     const resultsArea = document.getElementById('cred-list-mobile-overlay');
     if (!resultsArea) return;
     
     const uniqueResults = Array.from(new Map(results.map(item => [item.id, item])).values());
-    resultsArea.innerHTML = uniqueResults.length ? '' : '<p class="p-4 text-gray-500">No matches found.</p>';
+    resultsArea.innerHTML = uniqueResults.length ? '' : '<p class="p-10 text-center opacity-50 font-bold uppercase text-xs">No matches found</p>';
 
     uniqueResults.forEach((res, index) => {
         const d = res.data;
         const mod = res.mod;
+        const name = d.name || d.title || d.itemName || d.place || 'Record';
         
-        const name = d.name || d.title || d.itemName || 'Record';
-        
-        // --- NEW: CALENDAR SPECIFIC DATA ---
-        // Checks if it's a calendar/event and pulls the date/desc
+        let actionHtml = '';
         let displayDetail = "";
+
+        // --- 1. DETAILED CALENDAR LOGIC ---
         if (mod === 'calendar' || mod === 'event') {
-            const eventDate = d.date || res.parent || "No Date"; 
+            const eventDate = d.date || res.parent || "Date TBD";
             const eventDesc = d.desc || d.description || "";
+            const eventTime = d.time ? ` | <i class="fas fa-clock"></i> ${d.time}` : "";
+            
             displayDetail = `
-                <div class="mt-1 flex items-center gap-2 text-blue-500 font-bold text-[10px]">
-                    <i class="fas fa-calendar-day"></i> ${eventDate}
+                <div class="mt-1 flex items-center gap-2 text-blue-500 font-bold text-[11px]">
+                    <i class="fas fa-calendar-day"></i> ${eventDate} ${eventTime}
                 </div>
-                ${eventDesc ? `<p class="mt-2 text-[11px] text-[var(--text-muted)] italic leading-relaxed bg-slate-50 dark:bg-white/5 p-2 rounded-lg border-l-2 border-blue-400">${eventDesc}</p>` : ''}
+                ${eventDesc ? `
+                <div class="mt-2 text-[12px] text-[var(--text-main)] bg-slate-50 dark:bg-white/5 p-3 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                    <span class="block font-bold text-[10px] uppercase opacity-50 mb-1">Description</span>
+                    ${eventDesc}
+                </div>` : ''}
             `;
-        } else {
-            // Default detail for other modules
-            const simpleDetail = d.landmark || d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<p class="text-[10px] text-[var(--text-muted)] font-bold uppercase truncate mt-0.5">${mod} • ${simpleDetail}</p>`;
+        } 
+        // --- 2. DETAILED ADDRESS LOGIC ---
+        else if (mod === 'address') {
+            const landmark = d.landmark ? `<span class="block">📍 <b>Landmark:</b> ${d.landmark}</span>` : "";
+            const area = d.area || d.address || "";
+            const pincode = d.pincode ? ` - ${d.pincode}` : "";
+            
+            displayDetail = `
+                <div class="mt-2 text-[12px] text-[var(--text-main)] space-y-1 bg-green-50 dark:bg-green-900/10 p-3 rounded-xl border border-green-200/50">
+                    <span class="block font-bold text-[10px] uppercase text-green-600 mb-1">Full Address</span>
+                    <span class="block">${area}${pincode}</span>
+                    ${landmark}
+                </div>
+            `;
+            
+            // Add Navigation Action
+            const locQuery = encodeURIComponent(`${name} ${area}`);
+            actionHtml += `<a href="https://www.google.com/maps/search/?api=1&query=${locQuery}" target="_blank" class="px-3 py-1 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-location-arrow"></i> Navigate</a>`;
+        } 
+        // --- 3. OTHER MODULES (Contact, Finance, etc.) ---
+        else {
+            const simpleDetail = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
+            displayDetail = `<p class="text-[10px] text-[var(--text-muted)] font-bold uppercase truncate mt-1">${mod} • ${simpleDetail}</p>`;
+            
+            if (mod === 'contact' || d.mobile) {
+                actionHtml += `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-user-plus"></i> Save</button>`;
+                actionHtml += `<button onclick="window.shareData('${name}', '${d.mobile}')" class="px-3 py-1 bg-slate-200 dark:bg-white/10 text-[var(--text-main)] rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-share"></i> Share</button>`;
+            }
         }
 
         const card = document.createElement('div');
@@ -1586,8 +1602,8 @@ const renderSearchCards = (results) => {
         card.style.animationDelay = `${index * 0.05}s`;
 
         card.innerHTML = `
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
                     <i class="${getIcon(mod)} text-lg"></i>
                 </div>
                 <div class="flex-grow overflow-hidden">
@@ -1598,72 +1614,86 @@ const renderSearchCards = (results) => {
                     <i class="fas fa-arrow-right text-[10px]"></i>
                 </button>
             </div>
+            ${actionHtml ? `<div class="flex flex-wrap gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-white/5">${actionHtml}</div>` : ''}
         `;
-        
         resultsArea.appendChild(card);
     });
 };
 
+// --- 3. VOICE SEARCH LOGIC ---
+const setupVoiceSearch = () => {
+    const micBtn = document.querySelector('.fa-microphone').parentElement;
+    const input = document.getElementById('search-input');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-// Call this inside your DOMContentLoaded listener
-setupVoiceSearch();
-// --- HELPER FUNCTIONS ---
+    if (!SpeechRecognition || !micBtn) return;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+
+    micBtn.onclick = () => recognition.start();
+    recognition.onstart = () => { micBtn.classList.add('animate-pulse', 'text-red-500'); input.placeholder = "Listening..."; };
+    recognition.onend = () => { micBtn.classList.remove('animate-pulse', 'text-red-500'); input.placeholder = "Search vault..."; };
+    recognition.onresult = (e) => {
+        input.value = e.results[0][0].transcript;
+        input.dispatchEvent(new Event('input'));
+    };
+};
+
+// --- Helper Funcs ---
 const getIcon = (m) => {
-    const icons = { address: 'fas fa-location-dot', contact: 'fas fa-user', birthday: 'fas fa-cake-candles', link: 'fas fa-link', finance: 'fas fa-indian-rupee-sign', calendar: 'fas fa-calendar', grocery: 'fas fa-basket-shopping', asset: 'fas fa-vault', principle: 'fas fa-lightbulb' };
+    const icons = { address: 'fas fa-location-dot', contact: 'fas fa-user', birthday: 'fas fa-cake-candles', finance: 'fas fa-indian-rupee-sign', calendar: 'fas fa-calendar' };
     return icons[m] || 'fas fa-database';
 };
 
-window.shareData = (name, mob) => {
-    const text = `Contact: ${name}\nMobile: ${mob}`;
-    if (navigator.share) navigator.share({ title: name, text: text });
-    else { navigator.clipboard.writeText(text); alert("Copied to clipboard"); }
+window.downloadVCard = (name, mobile) => {
+    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${mobile}\nEND:VCARD`;
+    const blob = new Blob([vcard], { type: 'text/vcard' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${name}.vcf`;
+    link.click();
 };
 
 window.handleRedirect = (mod, id) => {
-    const pages = { address: 'addressmob.html', contact: 'contactmob.html', birthday: 'birthdaymob.html', link: 'linksmob.html', finance: 'incomemob.html', calendar: 'cr.html', grocerymob: 'grocery.html', asset: 'assetmob.html', principle: 'principlemob.html' };
+    const pages = { address: 'addressmob.html', contact: 'contactmob.html', birthday: 'birthdaymob.html', finance: 'incomemob.html', calendar: 'cr.html' };
     window.location.href = `${pages[mod] || 'homemob.html'}?searchId=${id}`;
 };
 
-// Initialize on Load
-document.addEventListener('DOMContentLoaded', initializeSavigSearch);
-firebase.auth().onAuthStateChanged(initializeSavigSearch);
-// This is the finalized function for your HTML file
-async function setupNotifications() {
-    const messaging = getMessaging();
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            // I've pasted your new VAPID Key here for you
-            const token = await getToken(messaging, { 
-                vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0' 
-            });
-            
-            if (token) {
-                console.log("FCM Token Generated:", token);
-                
-                // Saving to your Firebase Realtime Database
-                const user = firebase.auth().currentUser;
-                if(user) {
-                   await firebase.database().ref(`users/${user.uid}/fcmToken`).set(token);
-                   console.log("Success: Token saved to Database!");
-                }
-            }
-        } else {
-            console.warn("Notification permission denied.");
-        }
-    } catch (err) {
-        console.error("FCM Token Error:", err);
-    }
-}
- // 1. Register the Service Worker (For background capability)
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('Service Worker Registered!', reg.scope))
-                .catch(err => console.log('Service Worker failed:', err));
-        });
-    }
+// --- START EVERYTHING ---
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSavigSearch();
+    setupVoiceSearch();
+});
 
+firebase.auth().onAuthStateChanged(user => {
+    if (user) initializeSavigSearch();
+});
+
+
+// --- 2. RENDER SEARCH RESULTS (WITH DATE, DESC, NAV & SAVE) ---
+
+
+
+// --- 4. GLOBAL HELPERS & INITIALIZATION ---
+window.downloadVCard = (name, mobile) => {
+    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${mobile}\nEND:VCARD`;
+    const blob = new Blob([vcard], { type: 'text/vcard' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${name}.vcf`;
+    link.click();
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSavigSearch();
+    setupVoiceSearch();
+});
+
+firebase.auth().onAuthStateChanged(user => {
+    if (user) initializeSavigSearch();
+});
     // 2. Setup Background Notifications (FCM)
     async function initializeFCM() {
         const messaging = firebase.messaging();
@@ -2365,11 +2395,20 @@ function showSuccessNotification(reg) {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(10px);
 }
+.mesh-bg {
+    pointer-events: none !important; /* This allows clicks to pass through the background blobs */
+}
+
+#search-overlay {
+    z-index: 999999 !important; /* Ensure overlay is above everything */
+}
 </style>
 
 </body>
 
 </html>
+
+
 
 
 
