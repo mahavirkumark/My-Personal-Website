@@ -1548,66 +1548,50 @@ const renderSearchCards = (results) => {
         const mod = res.mod;
         const name = d.name || d.title || d.itemName || d.place || 'Record';
         
-        let actionHtml = '';
         let displayDetail = "";
+        let actionBtn = "";
 
-        // --- 1. COMPACT CALENDAR (One-Line Date/Time) ---
+        // --- Data Extraction ---
         if (mod === 'calendar' || mod === 'event') {
-            const eventDate = d.date || res.parent || "";
-            const eventTime = d.time ? ` @ ${d.time}` : "";
-            const eventDesc = d.desc || d.description || "";
-            
-            displayDetail = `
-                <div class="flex items-center gap-2 text-[10px] leading-none text-blue-500 font-bold">
-                    <span>${eventDate}${eventTime}</span>
-                    ${eventDesc ? `<span class="text-[var(--text-muted)] font-normal truncate max-w-[150px] opacity-80 border-l pl-2 border-slate-300 dark:border-white/10">${eventDesc}</span>` : ''}
-                </div>
-            `;
+            const dateStr = d.date || res.parent || "";
+            const descStr = d.desc || d.description || "";
+            displayDetail = `<span class="text-blue-500 font-bold mr-1">${dateStr}</span> <span class="opacity-80">${descStr}</span>`;
         } 
-        // --- 2. COMPACT ADDRESS (Inline Flow) ---
         else if (mod === 'address') {
-            const area = d.area || d.address || "";
-            const landmark = d.landmark ? ` • Near: ${d.landmark}` : "";
-            
-            displayDetail = `
-                <p class="text-[10px] text-[var(--text-muted)] font-medium truncate leading-none mt-1">
-                    <i class="fas fa-location-dot text-[8px] mr-1 opacity-50"></i>${area}${landmark}
-                </p>
-            `;
-            
-            const locQuery = encodeURIComponent(`${name} ${area}`);
-            actionHtml += `<a href="https://www.google.com/maps/search/?api=1&query=${locQuery}" target="_blank" class="px-2 py-0.5 bg-green-600 text-white rounded-md text-[9px] font-bold uppercase">Navigate</a>`;
+            const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
+            displayDetail = fullAddr;
+            actionBtn = `<a href="http://googleusercontent.com/maps.google.com/4{encodeURIComponent(fullAddr)}" target="_blank" class="text-green-600 font-black text-[9px] uppercase border border-green-600/30 px-1 rounded">Nav</a>`;
         } 
-        // --- 3. COMPACT OTHERS ---
         else {
-            const simpleDetail = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<p class="text-[10px] text-[var(--text-muted)] font-bold truncate mt-0.5 uppercase tracking-tighter opacity-80">${mod} • ${simpleDetail}</p>`;
-            
-            if (mod === 'contact' || d.mobile) {
-                actionHtml += `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" class="px-2 py-0.5 bg-blue-600 text-white rounded-md text-[9px] font-bold uppercase">Save</button>`;
-            }
+            const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
+            displayDetail = extra;
+            if (d.mobile) actionBtn = `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" class="text-blue-600 font-black text-[9px] uppercase border border-blue-600/30 px-1 rounded">Save</button>`;
         }
 
         const card = document.createElement('div');
-        card.className = `search-result-card px-3 py-2 mb-2 rounded-xl border transition-all animate-pop`;
+        // px-1 reduces side waste, border-b creates a clean list look
+        card.className = `search-result-card px-1 py-2 mb-0 border-b border-slate-100 dark:border-white/5 animate-pop`;
         card.style.animationDelay = `${index * 0.03}s`;
 
         card.innerHTML = `
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0">
-                    <i class="${getIcon(mod)} text-sm"></i>
+            <div class="flex items-center w-full gap-2">
+                <div class="w-7 h-7 rounded bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                    <i class="${getIcon(mod)} text-xs"></i>
                 </div>
                 
-                <div class="flex-grow overflow-hidden min-w-0">
-                    <h4 class="font-black text-[var(--text-main)] text-[13px] leading-tight truncate tracking-tight">${name}</h4>
-                    ${displayDetail}
-                </div>
-
-                <div class="flex items-center gap-2 flex-shrink-0">
-                    ${actionHtml}
-                    <button onclick="window.handleRedirect('${mod}', '${res.id}')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 text-[var(--text-muted)] flex items-center justify-center active:scale-90">
-                        <i class="fas fa-arrow-right text-[9px]"></i>
-                    </button>
+                <div class="flex-grow min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="font-black text-[var(--text-main)] text-[13px] truncate tracking-tighter leading-none">${name}</h4>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                             ${actionBtn}
+                             <button onclick="window.handleRedirect('${mod}', '${res.id}')" class="active:scale-90 transition-transform">
+                                <i class="fas fa-chevron-right text-[10px] text-slate-300"></i>
+                             </button>
+                        </div>
+                    </div>
+                    <div class="text-[11px] text-[var(--text-muted)] truncate tracking-tight mt-1 opacity-90">
+                        ${displayDetail}
+                    </div>
                 </div>
             </div>
         `;
@@ -2396,6 +2380,31 @@ function showSuccessNotification(reg) {
 
 #search-overlay {
     z-index: 999999 !important; /* Ensure overlay is above everything */
+}
+    /* Remove container padding to let text breathe */
+#cred-list-mobile-overlay {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+
+/* Force the name and data to use every available pixel */
+.search-result-card h4, 
+.search-result-card div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Make icons slightly smaller to save horizontal space */
+.search-result-card .w-7 {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+/* Tighten the vertical spacing between rows */
+.search-result-card {
+    border-radius: 0 !important;
+    background: transparent !important;
 }
 </style>
 
