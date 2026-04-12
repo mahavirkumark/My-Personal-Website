@@ -1541,7 +1541,7 @@ const renderSearchCards = (results) => {
     if (!resultsArea) return;
     
     const uniqueResults = Array.from(new Map(results.map(item => [item.id, item])).values());
-    resultsArea.innerHTML = uniqueResults.length ? '' : '<p class="p-10 text-center opacity-50 font-bold uppercase text-xs">No matches found</p>';
+    resultsArea.innerHTML = uniqueResults.length ? '' : '<p class="p-10 text-center opacity-50 font-bold uppercase text-[10px]">No matches</p>';
 
     uniqueResults.forEach((res, index) => {
         const d = res.data;
@@ -1551,70 +1551,65 @@ const renderSearchCards = (results) => {
         let actionHtml = '';
         let displayDetail = "";
 
-        // --- 1. DETAILED CALENDAR LOGIC ---
+        // --- 1. COMPACT CALENDAR (One-Line Date/Time) ---
         if (mod === 'calendar' || mod === 'event') {
-            const eventDate = d.date || res.parent || "Date TBD";
+            const eventDate = d.date || res.parent || "";
+            const eventTime = d.time ? ` @ ${d.time}` : "";
             const eventDesc = d.desc || d.description || "";
-            const eventTime = d.time ? ` | <i class="fas fa-clock"></i> ${d.time}` : "";
             
             displayDetail = `
-                <div class="mt-1 flex items-center gap-2 text-blue-500 font-bold text-[11px]">
-                    <i class="fas fa-calendar-day"></i> ${eventDate} ${eventTime}
+                <div class="flex items-center gap-2 text-[10px] leading-none text-blue-500 font-bold">
+                    <span>${eventDate}${eventTime}</span>
+                    ${eventDesc ? `<span class="text-[var(--text-muted)] font-normal truncate max-w-[150px] opacity-80 border-l pl-2 border-slate-300 dark:border-white/10">${eventDesc}</span>` : ''}
                 </div>
-                ${eventDesc ? `
-                <div class="mt-2 text-[12px] text-[var(--text-main)] bg-slate-50 dark:bg-white/5 p-3 rounded-xl border-l-4 border-blue-500 shadow-sm">
-                    <span class="block font-bold text-[10px] uppercase opacity-50 mb-1">Description</span>
-                    ${eventDesc}
-                </div>` : ''}
             `;
         } 
-        // --- 2. DETAILED ADDRESS LOGIC ---
+        // --- 2. COMPACT ADDRESS (Inline Flow) ---
         else if (mod === 'address') {
-            const landmark = d.landmark ? `<span class="block">📍 <b>Landmark:</b> ${d.landmark}</span>` : "";
             const area = d.area || d.address || "";
-            const pincode = d.pincode ? ` - ${d.pincode}` : "";
+            const landmark = d.landmark ? ` • Near: ${d.landmark}` : "";
             
             displayDetail = `
-                <div class="mt-2 text-[12px] text-[var(--text-main)] space-y-1 bg-green-50 dark:bg-green-900/10 p-1 rounded-xl border border-green-200/50">
-                    <span class="block font-bold text-[10px] uppercase text-green-600 mb-1">Full Address</span>
-                    <span class="block">${area}${pincode}</span>
-                    ${landmark}
-                </div>
+                <p class="text-[10px] text-[var(--text-muted)] font-medium truncate leading-none mt-1">
+                    <i class="fas fa-location-dot text-[8px] mr-1 opacity-50"></i>${area}${landmark}
+                </p>
             `;
             
-            // Add Navigation Action
             const locQuery = encodeURIComponent(`${name} ${area}`);
-            actionHtml += `<a href="https://www.google.com/maps/search/?api=1&query=${locQuery}" target="_blank" class="px-1 py-1 bg-green-600 text-white rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-location-arrow"></i> Navigate</a>`;
+            actionHtml += `<a href="https://www.google.com/maps/search/?api=1&query=${locQuery}" target="_blank" class="px-2 py-0.5 bg-green-600 text-white rounded-md text-[9px] font-bold uppercase">Navigate</a>`;
         } 
-        // --- 3. OTHER MODULES (Contact, Finance, etc.) ---
+        // --- 3. COMPACT OTHERS ---
         else {
             const simpleDetail = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<p class="text-[10px] text-[var(--text-muted)] font-bold uppercase truncate mt-1">${mod} • ${simpleDetail}</p>`;
+            displayDetail = `<p class="text-[10px] text-[var(--text-muted)] font-bold truncate mt-0.5 uppercase tracking-tighter opacity-80">${mod} • ${simpleDetail}</p>`;
             
             if (mod === 'contact' || d.mobile) {
-                actionHtml += `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-user-plus"></i> Save</button>`;
-                actionHtml += `<button onclick="window.shareData('${name}', '${d.mobile}')" class="px-3 py-1 bg-slate-200 dark:bg-white/10 text-[var(--text-main)] rounded-lg text-[10px] font-bold uppercase flex items-center gap-1"><i class="fas fa-share"></i> Share</button>`;
+                actionHtml += `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" class="px-2 py-0.5 bg-blue-600 text-white rounded-md text-[9px] font-bold uppercase">Save</button>`;
             }
         }
 
         const card = document.createElement('div');
-        card.className = `search-result-card p-4 mb-3 rounded-2xl border transition-all animate-pop`;
-        card.style.animationDelay = `${index * 0.05}s`;
+        card.className = `search-result-card px-3 py-2 mb-2 rounded-xl border transition-all animate-pop`;
+        card.style.animationDelay = `${index * 0.03}s`;
 
         card.innerHTML = `
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
-                    <i class="${getIcon(mod)} text-lg"></i>
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 flex-shrink-0">
+                    <i class="${getIcon(mod)} text-sm"></i>
                 </div>
-                <div class="flex-grow overflow-hidden">
-                    <h4 class="font-extrabold text-[var(--text-main)] text-sm leading-tight">${name}</h4>
+                
+                <div class="flex-grow overflow-hidden min-w-0">
+                    <h4 class="font-black text-[var(--text-main)] text-[13px] leading-tight truncate tracking-tight">${name}</h4>
                     ${displayDetail}
                 </div>
-                <button onclick="window.handleRedirect('${mod}', '${res.id}')" class="w-8 h-8 rounded-full bg-blue-600 text-white flex-shrink-0 active:scale-90 transition-transform flex items-center justify-center">
-                    <i class="fas fa-arrow-right text-[10px]"></i>
-                </button>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${actionHtml}
+                    <button onclick="window.handleRedirect('${mod}', '${res.id}')" class="w-7 h-7 rounded-full bg-slate-100 dark:bg-white/5 text-[var(--text-muted)] flex items-center justify-center active:scale-90">
+                        <i class="fas fa-arrow-right text-[9px]"></i>
+                    </button>
+                </div>
             </div>
-            ${actionHtml ? `<div class="flex flex-wrap gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-white/5">${actionHtml}</div>` : ''}
         `;
         resultsArea.appendChild(card);
     });
