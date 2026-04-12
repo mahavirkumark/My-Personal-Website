@@ -2078,27 +2078,21 @@ document.addEventListener('DOMContentLoaded', () => {
     /* --- 1. THEME VARIABLE DEFINITIONS --- */
 /* --- 1. THEME VARIABLES --- */
 /* --- 1. THEME VARIABLES --- */
-:root {
-    --bg-body: #f8fafc;
-    --bg-card: #ffffff;
-    --bg-modal: #ffffff;
-    --bg-input: #ffffff;
-    --text-main: #334155;
-    --text-bold: #0f172a;
-    --border: #e2e8f0;
-}
+/* =============================================
+   SAVIG DARK MODE OVERRIDES (Isolated)
+   ============================================= */
 
 [data-theme="dark"] {
     --bg-body: #0f172a;      /* Deep Navy */
     --bg-card: #1e293b;      /* Slate 800 */
     --bg-modal: #1e293b;     /* Slate 800 */
     --bg-input: #0f172a;     /* Pure Black/Navy for contrast */
-    --text-main: #ffffff;    /* Force All White */
-    --text-bold: #ffffff;    /* Force All White */
-    --border: #ffffff;       /* Pure White Borders */
+    --text-main: #ffffff;    /* Forced White */
+    --text-bold: #ffffff;    /* Forced White */
+    --border-white: #ffffff; /* High Contrast Border */
 }
 
-/* --- 2. GLOBAL DARK MODE TEXT OVERRIDES --- */
+/* --- 1. Global Text Visibility (Forces all text to White) --- */
 [data-theme="dark"] body, 
 [data-theme="dark"] p, 
 [data-theme="dark"] span, 
@@ -2107,104 +2101,115 @@ document.addEventListener('DOMContentLoaded', () => {
 [data-theme="dark"] b,
 [data-theme="dark"] .text-gray-600, 
 [data-theme="dark"] .text-gray-500,
-[data-theme="dark"] .task-desc {
+[data-theme="dark"] .task-desc,
+[data-theme="dark"] #userName,
+[data-theme="dark"] #userEmail,
+[data-theme="dark"] .modal-date-text {
     color: #ffffff !important;
 }
 
-/* --- 3. CALENDAR CELLS --- */
-.calendar-cell {
+/* --- 2. Calendar Grid & Cells --- */
+[data-theme="dark"] .calendar-cell {
     background-color: var(--bg-card) !important;
-    border: 1px solid var(--border) !important; /* Visible White Border */
-    transition: all 0.2s ease;
+    border: 1px solid var(--border-white) !important; /* Crisp White Border */
 }
 
 [data-theme="dark"] .calendar-cell:hover {
     background-color: #2d3748 !important;
-    border-color: #818cf8 !important; /* Indigo hover */
+    border-color: #818cf8 !important; /* Indigo hover feedback */
 }
 
-/* Event lines inside the small calendar boxes */
+/* Event text snippets inside small calendar boxes */
 [data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
-    border-radius: 4px;
-    padding: 2px 4px;
+    border-left: 2px solid #ffffff !important;
+    margin-bottom: 2px;
+    padding-left: 4px;
 }
 
-/* --- 4. MODAL & SAVED ITEMS (The "Click on Date" View) --- */
-#taskModal, #eventModal, #statusPromptModal, #eventTrackingSection {
+/* --- 3. The Date Modal (Existing Tasks & Events List) --- */
+[data-theme="dark"] #taskModal, 
+[data-theme="dark"] #eventModal, 
+[data-theme="dark"] #statusPromptModal, 
+[data-theme="dark"] #eventTrackingSection,
+[data-theme="dark"] #rescheduleModal {
     background-color: var(--bg-modal) !important;
-    border: 2px solid #ffffff !important;
+    border: 2px solid var(--border-white) !important;
 }
 
-/* Container for the saved tasks/events list */
-#existingTasks {
+/* Inner list container for saved tasks */
+[data-theme="dark"] #existingTasks {
     background-color: var(--bg-input) !important;
-    border: 1px solid #ffffff !important;
-    padding: 10px;
+    border: 1px solid var(--border-white) !important;
 }
 
-/* Individual Card Items for Tasks/Events */
+/* Individual Task/Event Cards inside the Modal */
 [data-theme="dark"] #existingTasks .flex-col {
     background-color: #1e293b !important;
-    border: 1.5px solid #ffffff !important;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    border: 1.5px solid var(--border-white) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* STATUS COLORS: Incomplete and Completed Events */
+/* --- 4. Event Status Highlights (High Contrast) --- */
+/* INCOMPLETE: Dark Maroon with light border */
 [data-theme="dark"] .bg-rose-50, 
-[data-theme="dark"] .bg-red-50 {
-    background-color: #7f1d1d !important; /* Dark Maroon */
+[data-theme="dark"] .bg-red-50,
+[data-theme="dark"] .incomplete-event-style {
+    background-color: #7f1d1d !important; 
     border: 1.5px solid #fca5a5 !important;
 }
 
+/* COMPLETED: Dark Forest Green */
 [data-theme="dark"] .bg-green-50, 
-[data-theme="dark"] .bg-emerald-50 {
-    background-color: #064e3b !important; /* Dark Forest Green */
+[data-theme="dark"] .bg-emerald-50,
+[data-theme="dark"] .completed-event-style {
+    background-color: #064e3b !important;
     border: 1.5px solid #6ee7b7 !important;
 }
 
-/* --- 5. INPUTS & SEARCH --- */
-input, textarea, select {
+/* --- 5. Form Elements & Search --- */
+[data-theme="dark"] input, 
+[data-theme="dark"] textarea, 
+[data-theme="dark"] select,
+[data-theme="dark"] .modern-input-group {
     background-color: var(--bg-input) !important;
     color: #ffffff !important;
-    border: 1px solid #ffffff !important;
+    border: 1.5px solid var(--border-white) !important;
 }
 
-input::placeholder, textarea::placeholder {
-    color: #cbd5e1 !important;
-    opacity: 0.7;
+[data-theme="dark"] input::placeholder, 
+[data-theme="dark"] textarea::placeholder {
+    color: #94a3b8 !important;
 }
 
-/* Modern Input Groups */
-.modern-input-group {
-    background-color: var(--bg-input) !important;
-    border: 1px solid #ffffff !important;
-}
-
-/* --- 6. NAVIGATION & SEARCH OVERLAY --- */
-nav, .search-results-panel, .search-result-item {
+/* --- 6. Navigation & Search Results --- */
+[data-theme="dark"] nav,
+[data-theme="dark"] #mobileMenu,
+[data-theme="dark"] .search-results-panel, 
+[data-theme="dark"] .search-result-item {
     background-color: var(--bg-card) !important;
-    border: 1px solid #ffffff !important;
+    border: 1px solid var(--border-white) !important;
 }
 
-.search-overlay-background {
-    background-color: rgba(0, 0, 0, 0.9) !important;
+/* --- 7. UI Finishing Touches --- */
+[data-theme="dark"] hr, 
+[data-theme="dark"] .border-b, 
+[data-theme="dark"] .border-t {
+    border-color: var(--border-white) !important;
 }
 
-/* --- 7. UI EXTRAS --- */
-#theme-toggle-btn {
+[data-theme="dark"] .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #ffffff !important;
+}
+
+[data-theme="dark"] #theme-toggle-btn {
     border: 2px solid #ffffff !important;
 }
 
-.custom-scroll::-webkit-scrollbar-thumb {
-    background-color: #ffffff !important;
-    border-radius: 10px;
-}
-
-hr, .border-b, .border-t {
-    border-color: #ffffff !important;
+/* Ensures icons remain visible */
+[data-theme="dark"] i {
+    color: #ffffff !important;
 }
 
 </style>
