@@ -2077,6 +2077,7 @@ document.addEventListener('DOMContentLoaded', () => {
     #theme-toggle-btn:active { transform: scale(0.9); }
     /* --- 1. THEME VARIABLE DEFINITIONS --- */
 /* --- 1. THEME VARIABLES --- */
+/* --- 1. THEME VARIABLES --- */
 :root {
     --bg-body: #f8fafc;
     --bg-card: #ffffff;
@@ -2085,152 +2086,125 @@ document.addEventListener('DOMContentLoaded', () => {
     --text-main: #334155;
     --text-bold: #0f172a;
     --border: #e2e8f0;
-    --accent-indigo: #4f46e5;
-    --accent-emerald: #10b981;
 }
 
 [data-theme="dark"] {
     --bg-body: #0f172a;      /* Deep Navy */
     --bg-card: #1e293b;      /* Slate 800 */
     --bg-modal: #1e293b;     /* Slate 800 */
-    --bg-input: #0f172a;     /* Deep Navy (Contrast for inputs) */
-    --text-main: #94a3b8;    /* Slate 400 */
-    --text-bold: #f8fafc;    /* Pure White/Slate 50 */
-    --border: #475569;       /* Lighter Slate for visibility */
-    --accent-indigo: #818cf8;
-    --accent-emerald: #34d399;
+    --bg-input: #0f172a;     /* Pure Black/Navy for contrast */
+    --text-main: #ffffff;    /* Force All White */
+    --text-bold: #ffffff;    /* Force All White */
+    --border: #ffffff;       /* Pure White Borders */
 }
 
-/* --- 2. CORE LAYOUT --- */
-body { 
-    background-color: var(--bg-body) !important; 
-    color: var(--text-main) !important; 
-    transition: background 0.3s ease;
+/* --- 2. GLOBAL DARK MODE TEXT OVERRIDES --- */
+[data-theme="dark"] body, 
+[data-theme="dark"] p, 
+[data-theme="dark"] span, 
+[data-theme="dark"] div, 
+[data-theme="dark"] strong, 
+[data-theme="dark"] b,
+[data-theme="dark"] .text-gray-600, 
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .task-desc {
+    color: #ffffff !important;
 }
 
-nav, .bg-white, footer { 
-    background-color: var(--bg-card) !important; 
-    border-color: var(--border) !important;
-}
-
-h1, h2, h3, h4, h5, h6, strong, b, .font-bold { 
-    color: var(--text-bold) !important; 
-}
-
-/* --- 3. CALENDAR SYSTEM --- */
+/* --- 3. CALENDAR CELLS --- */
 .calendar-cell {
     background-color: var(--bg-card) !important;
-    border: 1.5px solid var(--border) !important; /* Thicker for visibility */
+    border: 1px solid var(--border) !important; /* Visible White Border */
+    transition: all 0.2s ease;
 }
 
-.calendar-cell:hover {
-    border-color: var(--accent-indigo) !important;
-    background-color: var(--bg-input) !important;
-    transform: translateY(-2px);
+[data-theme="dark"] .calendar-cell:hover {
+    background-color: #2d3748 !important;
+    border-color: #818cf8 !important; /* Indigo hover */
 }
 
-[data-theme="dark"] .today {
-    background-color: rgba(79, 70, 229, 0.2) !important;
-    border: 2px solid var(--accent-indigo) !important;
+/* Event lines inside the small calendar boxes */
+[data-theme="dark"] .calendar-cell div[id^="tasks-"] div {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff !important;
+    border-radius: 4px;
+    padding: 2px 4px;
 }
 
-[data-theme="dark"] .sunday-cell {
-    background-color: rgba(239, 68, 68, 0.1) !important;
-    border: 2px solid #ef4444 !important;
-}
-
-/* Task items inside cells */
-.calendar-cell div[id^="tasks-"] div {
-    color: var(--text-bold) !important;
-}
-
-/* --- 4. MODALS & FORMS --- */
-#taskModal, #eventModal, #statusPromptModal, #eventTrackingSection, #rescheduleModal {
+/* --- 4. MODAL & SAVED ITEMS (The "Click on Date" View) --- */
+#taskModal, #eventModal, #statusPromptModal, #eventTrackingSection {
     background-color: var(--bg-modal) !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    border: 2px solid #ffffff !important;
 }
 
-/* Input Fields */
+/* Container for the saved tasks/events list */
+#existingTasks {
+    background-color: var(--bg-input) !important;
+    border: 1px solid #ffffff !important;
+    padding: 10px;
+}
+
+/* Individual Card Items for Tasks/Events */
+[data-theme="dark"] #existingTasks .flex-col {
+    background-color: #1e293b !important;
+    border: 1.5px solid #ffffff !important;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+/* STATUS COLORS: Incomplete and Completed Events */
+[data-theme="dark"] .bg-rose-50, 
+[data-theme="dark"] .bg-red-50 {
+    background-color: #7f1d1d !important; /* Dark Maroon */
+    border: 1.5px solid #fca5a5 !important;
+}
+
+[data-theme="dark"] .bg-green-50, 
+[data-theme="dark"] .bg-emerald-50 {
+    background-color: #064e3b !important; /* Dark Forest Green */
+    border: 1.5px solid #6ee7b7 !important;
+}
+
+/* --- 5. INPUTS & SEARCH --- */
 input, textarea, select {
     background-color: var(--bg-input) !important;
-    color: var(--text-bold) !important;
-    border: 1.5px solid var(--border) !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff !important;
 }
 
-input:focus, textarea:focus {
-    border-color: var(--accent-indigo) !important;
-    outline: none;
+input::placeholder, textarea::placeholder {
+    color: #cbd5e1 !important;
+    opacity: 0.7;
 }
 
 /* Modern Input Groups */
 .modern-input-group {
     background-color: var(--bg-input) !important;
-    border: 1px solid var(--border) !important;
+    border: 1px solid #ffffff !important;
 }
 
-.modern-input-group i {
-    color: var(--text-main) !important;
+/* --- 6. NAVIGATION & SEARCH OVERLAY --- */
+nav, .search-results-panel, .search-result-item {
+    background-color: var(--bg-card) !important;
+    border: 1px solid #ffffff !important;
 }
 
-/* --- 5. SEARCH SYSTEM --- */
 .search-overlay-background {
-    background-color: rgba(15, 23, 42, 0.9) !important;
+    background-color: rgba(0, 0, 0, 0.9) !important;
 }
 
-.search-active .search-container {
-    background-color: var(--bg-card) !important;
-    border-bottom: 2px solid var(--border) !important;
-}
-
-.search-results-panel {
-    background-color: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-}
-
-.search-result-item {
-    background-color: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-}
-
-.search-result-item:hover {
-    background-color: var(--bg-input) !important;
-}
-
-/* --- 6. TASK LISTS (INSIDE MODALS) --- */
-#existingTasks {
-    background-color: var(--bg-input) !important;
-    border: 1px solid var(--border) !important;
-}
-
-#existingTasks .flex-col {
-    background-color: var(--bg-card) !important;
-    border: 1px solid var(--border) !important;
-}
-
-/* Descriptions and sub-text */
-.text-gray-500, .text-gray-600, #userEmail, .task-desc {
-    color: var(--text-main) !important;
-}
-
-/* --- 7. BUTTONS & UI ELEMENTS --- */
+/* --- 7. UI EXTRAS --- */
 #theme-toggle-btn {
-    background: var(--accent-indigo) !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.custom-scroll::-webkit-scrollbar-track {
-    background: var(--bg-input);
+    border: 2px solid #ffffff !important;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-    background: var(--border);
+    background-color: #ffffff !important;
     border-radius: 10px;
 }
 
-/* Divider Lines */
-.border-b, .border-t, hr {
-    border-color: var(--border) !important;
+hr, .border-b, .border-t {
+    border-color: #ffffff !important;
 }
 
 </style>
