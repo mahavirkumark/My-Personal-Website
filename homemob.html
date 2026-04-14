@@ -1559,66 +1559,58 @@ const renderSearchCards = (results) => {
         let displayDetail = "";
         let actionBtn = "";
 
-        // --- Logic for Full Detail Visibility ---
         if (mod === 'calendar' || mod === 'event') {
             const dateStr = d.date || res.parent || "";
             const descStr = d.desc || d.description || "";
-            // We use a block layout here to allow the text to wrap
             displayDetail = `
-                <div class="mt-1">
-                    <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
-                    <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
-                        ${descStr || 'No description available'}
+                <div class="flex flex-col gap-1 mt-1">
+                    <span class="text-blue-500 dark:text-blue-400 font-bold text-[11px] bg-blue-500/10 w-fit px-2 py-0.5 rounded">${dateStr}</span>
+                    <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed break-words font-medium">
+                        ${descStr}
                     </p>
                 </div>`;
         } 
         else if (mod === 'address') {
             const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
-            // Removed truncate/nowrap to allow the full address to wrap
-            displayDetail = `<p class="text-[12px] text-[var(--text-muted)] leading-relaxed break-words mt-1">${fullAddr}</p>`;
-            
+            displayDetail = `<p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed break-words mt-1 font-medium">${fullAddr}</p>`;
             actionBtn = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
-                class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
+                class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[11px] uppercase px-3 py-2 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
                 <i class="fas fa-location-arrow"></i> Map
             </a>`;
         } 
         else {
             const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<span class="text-[12px] opacity-80">${extra}</span>`;
+            displayDetail = `<span class="text-[13px] text-slate-500 dark:text-slate-400 font-medium">${extra}</span>`;
             if (d.mobile) {
                 actionBtn = `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" 
-                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
+                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-[11px] uppercase px-3 py-2 rounded-full border border-blue-500/20 active:scale-95 transition-all">
                     <i class="fas fa-download"></i> Save
                 </button>`;
             }
         }
 
         const card = document.createElement('div');
-        // Removed global 'truncate' from the container
-        card.className = `search-result-card px-3 py-4 border-b border-slate-100 dark:border-white/5 animate-pop`;
+        // Removed fixed height; using py-4 and min-h-fit
+        card.className = `search-result-card w-full px-4 py-5 border-b border-slate-100 dark:border-white/5 animate-pop flex flex-col gap-3`;
         card.style.animationDelay = `${index * 0.03}s`;
 
         card.innerHTML = `
-            <div class="flex items-start w-full gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                    <i class="${getIcon(mod)} text-base"></i>
-                </div>
-                
-                <div class="flex-grow min-w-0">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
-                            ${displayDetail}
-                        </div>
-                        
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                             ${actionBtn}
-                             <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
-                                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
-                                <i class="fas fa-chevron-right text-[10px]"></i>
-                             </button>
-                        </div>
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3 flex-grow min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                        <i class="${getIcon(mod)} text-base"></i>
                     </div>
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-[16px] leading-tight break-words">${name}</h4>
+                        ${displayDetail}
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    ${actionBtn}
+                    <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
+                        class="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-300 active:scale-90">
+                        <i class="fas fa-chevron-right text-[12px]"></i>
+                    </button>
                 </div>
             </div>
         `;
