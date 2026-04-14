@@ -1572,7 +1572,7 @@ const renderSearchCards = (results) => {
         } 
         else if (mod === 'address') {
             const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
-            displayDetail = `<p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed break-words mt-1 font-medium">${fullAddr}</p>`;
+            displayDetail = `<p class="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed break-words mt-0.5 font-medium">${fullAddr}</p>`;
             
             // Map Button + Share Button for Addresses
             actionBtn = `
