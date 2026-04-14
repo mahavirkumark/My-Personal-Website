@@ -2443,6 +2443,36 @@ function showSuccessNotification(reg) {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+    /* Ensure result area allows vertical growth */
+#cred-list-mobile-overlay {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    overflow-y: auto;
+}
+
+/* Professional Dark Mode Text & Wrap */
+[data-theme='dark'] .search-result-card h4 {
+    color: #ffffff !important;
+}
+
+[data-theme='dark'] .search-result-card p {
+    color: #cbd5e1 !important; /* Lighter Slate-300 for readability */
+}
+
+/* Force removal of all truncation for search results */
+.search-result-card * {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-height: none !important;
+}
+
+/* Subtle hover for professionalism */
+.search-result-card:hover {
+    background-color: rgba(59, 130, 246, 0.03);
+}
 </style>
 
 </body>
