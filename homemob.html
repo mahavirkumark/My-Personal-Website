@@ -1591,17 +1591,17 @@ const renderSearchCards = (results) => {
 
         const card = document.createElement('div');
         // Removed fixed height; using py-4 and min-h-fit
-        card.className = `search-result-card w-full px-4 py-5 border-b border-slate-100 dark:border-white/5 animate-pop flex flex-col gap-3`;
+        card.className = `search-result-card w-full px-4 py-5 border-b border-slate-100 dark:border-white/5 animate-pop flex flex-col gap-2`;
         card.style.animationDelay = `${index * 0.03}s`;
 
       card.innerHTML = `
-    <div class="flex items-start justify-between gap-3">
-        <div class="flex items-start gap-3 flex-grow min-w-0">
-            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+    <div class="flex items-start justify-between gap-2">
+        <div class="flex items-start gap-2 flex-grow min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
                 <i class="${getIcon(mod)} text-base"></i>
             </div>
             <div class="flex-grow min-w-0">
-                <h4 class="font-bold text-slate-900 dark:text-white text-[16px] leading-tight break-words">${name}</h4>
+                <h4 class="font-bold text-slate-900 dark:text-white text-[14px] leading-tight break-words">${name}</h4>
                 ${displayDetail}
             </div>
         </div>
@@ -1609,7 +1609,7 @@ const renderSearchCards = (results) => {
         <div class="flex flex-col items-end gap-2 flex-shrink-0">
             ${actionBtn}
             <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
-                class="w-9 h-9 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-300 active:scale-90 transition-transform">
+                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-300 active:scale-90 transition-transform">
                 <i class="fas fa-chevron-right text-[12px]"></i>
             </button>
         </div>
