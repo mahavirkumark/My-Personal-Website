@@ -2051,7 +2051,7 @@ window.shareData = (name, mob) => {
         try {
             // Your query looks good for Marathi news
             const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
-            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=30&category=top`;
+            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
 
             const response = await fetch(url);
             
