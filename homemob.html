@@ -497,11 +497,11 @@ body {
 </div>
       </div>
 <div id="search-overlay" class="fixed inset-0 bg-[var(--bg)] z-[9999] hidden flex-col duration-300">
-    <div class="flex items-center px-2 py-2 border-b border-[var(--border)]">
+    <div class="flex items-center px-4 py-3 border-b border-[var(--border)]">
         <button id="close-search" 
-            class="w-9 h-9 flex items-center justify-center rounded-full text-[var(--text-muted)] 
+            class="w-10 h-10 flex items-center justify-center rounded-full text-[var(--text-muted)] 
                    hover:bg-slate-100 dark:hover:bg-white/10 hover:text-blue-500 
-                   active:scale-90 transition-all duration-200 mr-1">
+                   active:scale-90 transition-all duration-200 mr-2">
             <i class="fas fa-arrow-left text-xl"></i>
         </button>
         
@@ -527,7 +527,7 @@ body {
         </div>
     </div>
 </div>
-    <div class="flex overflow-x-auto no-scrollbar gap-2 md:grid md:grid-cols-5 md:overflow-visible px-3 py-1">
+    <div class="flex overflow-x-auto no-scrollbar gap-3 md:grid md:grid-cols-5 md:overflow-visible px-4 py-1">
 
 
   <a href="https://mjpwms.in/viewpay.aspx" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 9">
@@ -1559,80 +1559,73 @@ const renderSearchCards = (results) => {
         let displayDetail = "";
         let actionBtn = "";
 
+        // --- Logic for Full Detail Visibility ---
         if (mod === 'calendar' || mod === 'event') {
             const dateStr = d.date || res.parent || "";
             const descStr = d.desc || d.description || "";
+            // We use a block layout here to allow the text to wrap
             displayDetail = `
-                <div class="flex flex-col gap-1 mt-1">
-                    <span class="text-blue-500 dark:text-blue-400 font-bold text-[11px] bg-blue-500/10 w-fit px-1 py-0.5 rounded">${dateStr}</span>
-                    <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed break-words font-medium">
-                        ${descStr}
+                <div class="mt-1">
+                    <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
+                    <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
+                        ${descStr || 'No description available'}
                     </p>
                 </div>`;
         } 
         else if (mod === 'address') {
             const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
-            displayDetail = `<p class="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed break-words mt-0.5 font-medium">${fullAddr}</p>`;
+            // Removed truncate/nowrap to allow the full address to wrap
+            displayDetail = `<p class="text-[12px] text-[var(--text-muted)] leading-relaxed break-words mt-1">${fullAddr}</p>`;
             
-            // Map Button + Share Button for Addresses
-            actionBtn = `
-                <div class="flex flex-col gap-3">
-                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
-                        class="flex items-center justify-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[12px] uppercase px-1 py-1 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
-                        <i class="fas fa-location-arrow"></i> Map
-                    </a>
-                    <button onclick="navigator.share({title: '${name}', text: '${fullAddr}', url: window.location.href})"
-                        class="flex items-center justify-center gap-1 bg-slate-500/10 text-slate-600 dark:text-slate-400 font-bold text-[12px] uppercase px-1 py-1 rounded-full border border-slate-500/20 active:scale-95 transition-all">
-                        <i class="fas fa-share-alt"></i> Share
-                    </button>
-                </div>`;
+            actionBtn = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
+                class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
+                <i class="fas fa-location-arrow"></i> Map
+            </a>`;
         } 
         else {
             const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<span class="text-[13px] text-slate-500 dark:text-slate-400 font-medium">${extra}</span>`;
-            
+            displayDetail = `<span class="text-[12px] opacity-80">${extra}</span>`;
             if (d.mobile) {
                 actionBtn = `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" 
-                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-[11px] uppercase px-3 py-2 rounded-full border border-blue-500/20 active:scale-95 transition-all">
+                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
                     <i class="fas fa-download"></i> Save
                 </button>`;
             }
         }
 
         const card = document.createElement('div');
-        card.className = `search-result-card w-full px-4 py-5 border-b border-slate-100 dark:border-white/5 animate-pop flex flex-col gap-2`;
+        // Removed global 'truncate' from the container
+        card.className = `search-result-card px-3 py-4 border-b border-slate-100 dark:border-white/5 animate-pop`;
         card.style.animationDelay = `${index * 0.03}s`;
 
-        // Logic: Hide arrow if it's a contact (mobile) or address
-        const hideArrow = (d.mobile || mod === 'address');
-
         card.innerHTML = `
-            <div class="flex items-start justify-between gap-2">
-                <div class="flex items-start gap-2 flex-grow min-w-0">
-                    <div class="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                        <i class="${getIcon(mod)} text-base"></i>
-                    </div>
-                    <div class="flex-grow min-w-0">
-                        <h4 class="font-bold text-slate-900 dark:text-white text-[13px] leading-tight break-words">${name}</h4>
-                        ${displayDetail}
-                    </div>
+            <div class="flex items-start w-full gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                    <i class="${getIcon(mod)} text-base"></i>
                 </div>
-
-                <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                    ${actionBtn}
-                    ${!hideArrow ? `
-                        <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
-                            class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-300 active:scale-90 transition-transform">
-                            <i class="fas fa-chevron-right text-[12px]"></i>
-                        </button>
-                    ` : ''}
+                
+                <div class="flex-grow min-w-0">
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
+                            ${displayDetail}
+                        </div>
+                        
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                             ${actionBtn}
+                             <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
+                                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
+                                <i class="fas fa-chevron-right text-[10px]"></i>
+                             </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
-        
         resultsArea.appendChild(card);
     });
 };
+
 // --- 3. VOICE SEARCH LOGIC ---
 const setupVoiceSearch = () => {
     const micBtn = document.querySelector('.fa-microphone').parentElement;
@@ -2021,21 +2014,24 @@ window.shareData = (name, mob) => {
 </body>
 </html>
  
-<script>
+
+ <script>
     // Global references
     const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
-    let isFetching = false; 
-    let hasFetched = false; 
+    let isFetching = false; // Prevents multiple simultaneous clicks
+    let hasFetched = false; // Tracks if we already have data
 
     window.toggleWidget = function() {
         const widget = document.getElementById('newsWidget');
         if (!widget) return;
 
+        // Simplified display check
         const isHidden = window.getComputedStyle(widget).display === 'none';
         
         if (isHidden) {
             widget.style.display = 'flex';
             document.body.style.overflow = 'hidden';
+            // Only fetch if we haven't already and aren't currently fetching
             if (!hasFetched && !isFetching) {
                 fetchNews();
             }
@@ -2050,30 +2046,27 @@ window.shareData = (name, mob) => {
         if (!newsList) return;
 
         isFetching = true;
-        newsList.innerHTML = '<div class="loader">ताज्या बातम्या शोधत आहे...</div>'; 
+        newsList.innerHTML = '<div class="loader">बातमी शोधत आहे...</div>'; // Marathi Loading text
 
         try {
-            /* STRATEGY:
-               1. Increased 'size' to 30.
-               2. Broadened query to include cricket, celebrity (मनोरंजन), and war (युद्ध).
-               3. Added specific focus on Vidarbha and Maharashtra.
-            */
-            const query = encodeURIComponent('महाराष्ट्र OR विदर्भ OR नागपूर OR वर्धा OR मोदी OR क्रिकेट OR मनोरंजन OR युद्ध OR योजना');
-            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=30`;
+            // Your query looks good for Marathi news
+            const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
+            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
 
             const response = await fetch(url);
+            
             if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
 
             if (data.status === "success" && data.results && data.results.length > 0) {
-                newsList.innerHTML = ''; 
+                newsList.innerHTML = ''; // Clear loader
                 
-                // Sort or filter can be done here if you want to ensure the 7 local news priority
                 data.results.forEach(article => {
                     const item = document.createElement('div');
                     item.className = 'news-item';
                     
+                    // Fallback for missing description
                     const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
 
                     item.innerHTML = `
@@ -2087,6 +2080,7 @@ window.shareData = (name, mob) => {
                         </div>
                     `;
 
+                    // Better Event Listener approach than inline onclick
                     item.querySelector('.news-header-row').addEventListener('click', () => {
                         item.classList.toggle('active');
                     });
@@ -2105,6 +2099,8 @@ window.shareData = (name, mob) => {
         }
     }
 </script>
+
+
 
 <script type="module">
     import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
@@ -2419,7 +2415,33 @@ function showSuccessNotification(reg) {
 }
 
 /* Force the name and data to use every available pixel */
+.search-result-card h4, 
+.search-result-card div {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
+/* Make icons slightly smaller to save horizontal space */
+.search-result-card .w-7 {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+/* Tighten the vertical spacing between rows */
+.search-result-card {
+    border-radius: 0 !important;
+    background: transparent !important;
+}
+/* Fix: Allow text to wrap in search results */
+.search-result-card h4, 
+.search-result-card p,
+.search-result-card div {
+    white-space: normal !important; /* Forces text to wrap to the next line */
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
 
 /* Optional: Limit the calendar description so it doesn't take the whole screen */
 .search-result-card p {
@@ -2429,159 +2451,11 @@ function showSuccessNotification(reg) {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-    /* Ensure result area allows vertical growth */
-#cred-list-mobile-overlay {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-}
-
-/* Professional Dark Mode Text & Wrap */
-[data-theme='dark'] .search-result-card h4 {
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] .search-result-card p {
-    color: #cbd5e1 !important; /* Lighter Slate-300 for readability */
-}
-
-/* Force removal of all truncation for search results */
-.search-result-card * {
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-height: none !important;
-}
-
-/* Subtle hover for professionalism */
-.search-result-card:hover {
-    background-color: rgba(59, 130, 246, 0.03);
-}
-    /* Ensure result area allows vertical growth */
-#cred-list-mobile-overlay {
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    overflow-y: auto;
-}
-
-/* Professional Dark Mode Text & Wrap */
-[data-theme='dark'] .search-result-card h4 {
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] .search-result-card p {
-    color: #cbd5e1 !important; /* Lighter Slate-300 for readability */
-}
-
-/* Force removal of all truncation for search results */
-.search-result-card * {
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-height: none !important;
-}
-
-/* Subtle hover for professionalism */
-.search-result-card:hover {
-    background-color: rgba(59, 130, 246, 0.03);
-}
 </style>
 
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
