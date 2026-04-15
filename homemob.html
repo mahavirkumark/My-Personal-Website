@@ -2021,24 +2021,21 @@ window.shareData = (name, mob) => {
 </body>
 </html>
  
-
- <script>
+<script>
     // Global references
     const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
-    let isFetching = false; // Prevents multiple simultaneous clicks
-    let hasFetched = false; // Tracks if we already have data
+    let isFetching = false; 
+    let hasFetched = false; 
 
     window.toggleWidget = function() {
         const widget = document.getElementById('newsWidget');
         if (!widget) return;
 
-        // Simplified display check
         const isHidden = window.getComputedStyle(widget).display === 'none';
         
         if (isHidden) {
             widget.style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            // Only fetch if we haven't already and aren't currently fetching
             if (!hasFetched && !isFetching) {
                 fetchNews();
             }
@@ -2053,27 +2050,30 @@ window.shareData = (name, mob) => {
         if (!newsList) return;
 
         isFetching = true;
-        newsList.innerHTML = '<div class="loader">बातमी शोधत आहे...</div>'; // Marathi Loading text
+        newsList.innerHTML = '<div class="loader">ताज्या बातम्या शोधत आहे...</div>'; 
 
         try {
-            // Your query looks good for Marathi news
-            const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
-            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
+            /* STRATEGY:
+               1. Increased 'size' to 30.
+               2. Broadened query to include cricket, celebrity (मनोरंजन), and war (युद्ध).
+               3. Added specific focus on Vidarbha and Maharashtra.
+            */
+            const query = encodeURIComponent('महाराष्ट्र OR विदर्भ OR नागपूर OR वर्धा OR मोदी OR क्रिकेट OR मनोरंजन OR युद्ध OR योजना');
+            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=30`;
 
             const response = await fetch(url);
-            
             if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
 
             if (data.status === "success" && data.results && data.results.length > 0) {
-                newsList.innerHTML = ''; // Clear loader
+                newsList.innerHTML = ''; 
                 
+                // Sort or filter can be done here if you want to ensure the 7 local news priority
                 data.results.forEach(article => {
                     const item = document.createElement('div');
                     item.className = 'news-item';
                     
-                    // Fallback for missing description
                     const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
 
                     item.innerHTML = `
@@ -2087,7 +2087,6 @@ window.shareData = (name, mob) => {
                         </div>
                     `;
 
-                    // Better Event Listener approach than inline onclick
                     item.querySelector('.news-header-row').addEventListener('click', () => {
                         item.classList.toggle('active');
                     });
@@ -2106,8 +2105,6 @@ window.shareData = (name, mob) => {
         }
     }
 </script>
-
-
 
 <script type="module">
     import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
