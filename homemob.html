@@ -2119,42 +2119,36 @@ window.shareData = (name, mob) => {
 </script>
 
 
-
 <script type="module">
-    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+    // Unified Savig Core Logic
+    firebase.auth().onAuthStateChanged(async (user) => {
+        if (!user) {
+            console.log("Unauthorized. Redirecting...");
+            window.location.replace("indexmob.html");
+            return;
+        }
 
-    const btn = document.getElementById('token-btn');
-    const output = document.getElementById('token-output');
-    const status = document.getElementById('token-status');
+        // 1. OneSignal Integration
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.login(user.uid); // Link OneSignal to your Firebase User
+        });
 
-    if (btn) {
-        btn.onclick = async () => {
-            status.innerText = "Permission विनंती करत आहे...";
-            try {
-                const permission = await Notification.requestPermission();
-                
-                if (permission === 'granted') {
-                    const messaging = getMessaging();
-                    // Replace 'YOUR_VAPID_KEY_HERE' with your actual key from Firebase Settings
-                    const token = await getToken(messaging, { 
-                        vapidKey: 'YOUR_VAPID_KEY_HERE' 
-                    });
-                    
-                    if (token) {
-                        if (output) output.value = token;
-                        status.innerText = "यशस्वी! टोकन कॉपी करा:";
-                    } else {
-                        status.innerText = "टोकन मिळाले नाही. स्व-तपासणी करा.";
-                    }
-                } else {
-                    status.innerText = "परवानगी नाकारली.";
-                }
-            } catch (err) {
-                status.innerText = "Error: " + err.message;
-                console.error("Firebase Token Error:", err);
-            }
-        };
-    }
+        // 2. UI Updates (Name & Greeting)
+        const nameElement = document.getElementById('user-display-name');
+        const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
+        const userData = snapshot.val();
+        
+        if (nameElement) {
+            nameElement.innerText = (userData && userData.name) || user.displayName || "Safar";
+        }
+        updateTimeGreeting();
+
+        // 3. Initialize Dashboards
+        if (typeof loadAnalytics === "function") loadAnalytics();
+        if (typeof loadTodaysDashboard === "function") loadTodaysDashboard();
+        if (typeof fetchAndShowTodaysEvents === "function") fetchAndShowTodaysEvents();
+    });
 </script>
 
 
