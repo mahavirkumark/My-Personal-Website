@@ -1,6 +1,6 @@
 // public/sw.js
-importScripts('https://www.gstatic.com/firebasejs/9.1.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.1.0/firebase-messaging-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
 firebase.initializeApp({
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
@@ -11,14 +11,13 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// THIS IS THE KEY: This function runs when the browser tab is CLOSED
+// This MUST be here for "Anytime" notifications
 messaging.onBackgroundMessage((payload) => {
     console.log('Background Message:', payload);
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: '/icon-192.jpg', // Ensure this path is correct
-        image: payload.notification.image, // For Zomato-style big images
+        icon: '/icon-192.jpg', 
         badge: '/icon-192.jpg'
     };
 
