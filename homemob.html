@@ -41,54 +41,7 @@
     });
 </script>
     
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
-// 1. Initialize Firebase inside the module
-const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-    authDomain: "sk12-58e9e.firebaseapp.com",
-    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-    projectId: "sk12-58e9e",
-    storageBucket: "sk12-58e9e.appspot.com",
-    messagingSenderId: "470207874652",
-    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-};
-
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-
-async function setupNotifications() {
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            // 2. Use your REAL VAPID Key from Firebase Console -> Cloud Messaging
-            const token = await getToken(messaging, { 
-                vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0' 
-            });
-            
-            if (token) {
-                console.log("FCM Token Generated:", token);
-                
-                // 3. Save to database (using the global 'firebase' compat object)
-                const user = firebase.auth().currentUser;
-                if(user) {
-                   await firebase.database().ref(`users/${user.uid}/fcmToken`).set(token);
-                   console.log("Token saved to Database!");
-                }
-            }
-        }
-    } catch (err) {
-        console.error("FCM Setup Error:", err);
-    }
-}
-
-// Wait for user login then setup
-firebase.auth().onAuthStateChanged(user => {
-    if (user) setupNotifications();
-});
-</script>
    <style>
         /* 1. Theme Variables & Professional Reset */
         :root {
