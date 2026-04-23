@@ -21,6 +21,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "t.gif",
+      "sizes": "512x512",
+      "type": "image/gif",
+      "purpose": "any"
     }
   ]
 }
