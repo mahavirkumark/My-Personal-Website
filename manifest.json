@@ -16,9 +16,9 @@
       "purpose": "any"
     },
     {
-      "src": "t.gif",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/gif",
+      "type": "image/png",
       "purpose": "maskable"
     },
     {
