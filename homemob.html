@@ -1475,13 +1475,14 @@ const initializeSavigSearch = () => {
             resultsArea.innerHTML = '<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>';
 
             // Define your exact Firebase paths
-            const paths = [
-                { path: `addresses/${user.uid}`, mod: 'address' },
-                { path: `users/${user.uid}/contacts`, mod: 'contact' },
-                { path: `users/${user.uid}/events`, mod: 'calendar' },
-                { path: `users/${user.uid}/birthdays`, mod: 'birthday' },
-                { path: `users/${user.uid}/expenses`, mod: 'finance' }
-            ];
+         const paths = [
+    { path: `addresses/${user.uid}`, mod: 'address' },
+    { path: `users/${user.uid}/contacts`, mod: 'contact' },
+    { path: `users/${user.uid}/tasks`, mod: 'calendar' },   // Fixed: added 's'
+    { path: `users/${user.uid}/events`, mod: 'calendar' },  // Added: fetch events too
+    { path: `users/${user.uid}/birthdays`, mod: 'birthday' },
+    { path: `users/${user.uid}/expenses`, mod: 'finance' }
+];
             
             try {
                 const snapshots = await Promise.all(paths.map(p => firebase.database().ref(p.path).once('value')));
@@ -2388,7 +2389,6 @@ window.shareData = (name, mob) => {
 </body>
 
 </html>
-
 
 
 
