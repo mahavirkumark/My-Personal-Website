@@ -658,40 +658,100 @@
             }).join('');
         }
         
-        window.shareVehiclePDF = async () => {
-            if (!currentVehicleFilter) { alert("Please select a vehicle from dropdown first"); return; }
-            const vehicle = currentVehicleFilter;
-            const entries = allEntries.filter(e => e.name === vehicle).sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
-            if(entries.length === 0) { alert("No data to export"); return; }
-            let total = entries.reduce((s,e)=> s+e.cost,0);
-            let petrolTotal = entries.filter(e=>e.category==='Petrol').reduce((s,e)=> s+e.cost,0);
-            let partTotal = entries.filter(e=>e.category==='Part Replacement').reduce((s,e)=> s+e.cost,0);
-            let servTotal = entries.filter(e=>e.category==='Servicing').reduce((s,e)=> s+e.cost,0);
-            let modTotal = entries.filter(e=>e.category==='Modification').reduce((s,e)=> s+e.cost,0);
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFont("helvetica");
-            doc.setFontSize(20); doc.setTextColor(218,165,32); doc.text(`SAVIG - ${vehicle}`, 14, 22);
-            doc.setFontSize(11); doc.setTextColor(80);
-            doc.text(`Report: ${formatIndianDate(Date.now())}`, 14, 32);
-            doc.setFontSize(11);
-            doc.text(`TOTAL EXPENDITURE: ₹${total.toLocaleString('en-IN')}`, 14, 44);
-            doc.text(`⛽ Petrol: ₹${petrolTotal.toLocaleString('en-IN')}   🔧 Parts: ₹${partTotal.toLocaleString('en-IN')}`, 14, 54);
-            doc.text(`🛠️ Servicing: ₹${servTotal.toLocaleString('en-IN')}   ✨ Mods: ₹${modTotal.toLocaleString('en-IN')}`, 14, 64);
-            let y = 78;
-            doc.setFontSize(9);
-            doc.text("Date | Category | Amount | Details", 14, y); y+=6;
-            entries.slice(0, 45).forEach(e => {
-                let line = `${e.date || formatIndianDate(e.timestamp)} | ${e.category} | ₹${e.cost} | ${e.details || '-'}`;
-                doc.text(line.substring(0, 78), 14, y);
-                y+=5.5;
-                if(y>280) { doc.addPage(); y=20; }
-            });
-            doc.save(`${vehicle}_expenses.pdf`);
-            showToast("PDF Generated!");
-        };
-        window.onclick = (e) => { if(e.target === document.getElementById('historyModal')) closeHistoryModal(); };
+      window.shareVehiclePDF = async () => {
+    if (!currentVehicleFilter) { 
+        alert("Please select a vehicle from dropdown first"); 
+        return; 
+    }
+
+    const vehicle = currentVehicleFilter;
+    const entries = allEntries
+        .filter(e => e.name === vehicle)
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (entries.length === 0) { 
+        alert("No data to export"); 
+        return; 
+    }
+
+    // --- Data Aggregation ---
+    const total = entries.reduce((s, e) => s + e.cost, 0);
+    const summary = {
+        'Petrol': entries.filter(e => e.category === 'Petrol').reduce((s, e) => s + e.cost, 0),
+        'Parts': entries.filter(e => e.category === 'Part Replacement').reduce((s, e) => s + e.cost, 0),
+        'Servicing': entries.filter(e => e.category === 'Servicing').reduce((s, e) => s + e.cost, 0),
+        'Mods': entries.filter(e => e.category === 'Modification').reduce((s, e) => s + e.cost, 0)
+    };
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // --- Header Section ---
+    doc.setFillColor(40, 40, 40); // Dark background for header
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(218, 165, 32); // Gold color
+    doc.text("VEHICLE EXPENSE REPORT", 14, 20);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Vehicle: ${vehicle.toUpperCase()}`, 14, 30);
+    doc.text(`Generated on: ${formatIndianDate(Date.now())}`, 160, 30, { align: 'right' });
+
+    // --- Summary Cards ---
+    doc.setTextColor(40);
+    doc.setFontSize(14);
+    doc.text("Financial Summary", 14, 55);
+    
+    // Draw a light grey box for the summary
+    doc.setDrawColor(200);
+    doc.setLineHeightFactor(1.5);
+    doc.roundedRect(14, 60, 182, 30, 3, 3, 'S');
+
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    const summaryText = [
+        `Total Expenditure: RS ${total.toLocaleString('en-IN')}`,
+        `Petrol: RS ${summary.Petrol.toLocaleString('en-IN')}  |  Parts: RS ${summary.Parts.toLocaleString('en-IN')}`,
+        `Service: RS ${summary.Servicing.toLocaleString('en-IN')}  |  Mods: RS ${summary.Mods.toLocaleString('en-IN')}`
+    ];
+    doc.text(summaryText, 20, 70);
+
+    
+    const tableRows = entries.map(e => [
+        e.date || formatIndianDate(e.timestamp),
+        e.category,
+        `RS ${e.cost.toLocaleString('en-IN')}`,
+        e.details || '-'
+    ]);
+
+    doc.autoTable({
+        startY: 100,
+        head: [['Date', 'Category', 'Amount', 'Description']],
+        body: tableRows,
+        theme: 'striped',
+        headStyles: { fillColor: [218, 165, 32], textColor: [255, 255, 255], fontStyle: 'bold' },
+        columnStyles: {
+            2: { halign: 'right', fontStyle: 'bold' }, // Amount column
+        },
+        styles: { fontSize: 9, cellPadding: 3 },
+        margin: { left: 14, right: 14 }
+    });
+
+    // --- Footer ---
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`Page ${i} of ${pageCount} - SAVIG Expense Manager`, 105, 290, { align: 'center' });
+    }
+
+    doc.save(`${vehicle}_Report.pdf`);
+    showToast("Professional PDF Generated!");
+};
     </script>
 </body>
 </html>
