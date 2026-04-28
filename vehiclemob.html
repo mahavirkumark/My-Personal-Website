@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>SAVIG CORE | VEHICLE EXPENSE TRACKER</title>
+    
+    <!-- Tailwind + Fonts + jsPDF -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 'sans': ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: { gold: '#DAA520', 'onyx': '#0A0A0C' }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: #F8F9FA; color: #1A1A1A; }
+        .glass-panel {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border-radius: 24px;
+        }
+        .modern-input {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 12px 14px;
+            transition: all 0.2s ease;
+            color: #1A1A1A;
+            font-weight: 500;
+            width: 100%;
+            font-size: 15px;
+        }
+        @media (max-width: 640px) {
+            .modern-input { font-size: 14px; padding: 10px 12px; }
+            .input-label { font-size: 0.7rem; }
+            .entry-card { padding: 0.9rem; }
+        }
+        .modern-input:focus {
+            border-color: #DAA520;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+        }
+        .modern-input::placeholder { font-size: 13px; color: #9CA3AF; font-weight: 400; }
+        @media (max-width: 640px) {
+            .modern-input::placeholder { font-size: 12px; }
+        }
+        .input-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #DAA520;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .entry-card {
+            background: #FFFFFF;
+            border: 1px solid #F0F0F0;
+            border-radius: 20px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+            animation: fadeIn 0.3s ease;
+        }
+        .entry-card:hover { transform: translateY(-2px); border-color: #DAA520; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
+        .expense-option { transition: all 0.2s ease; cursor: pointer; border: 2px solid transparent; }
+        .expense-option.selected { border-color: #DAA520; background: rgba(218, 165, 32, 0.08); }
+        .filter-chip { transition: all 0.2s ease; cursor: pointer; font-size: 0.75rem; }
+        @media (max-width: 640px) {
+            .filter-chip { font-size: 0.7rem; padding: 6px 12px !important; }
+        }
+        .filter-chip.active { background: #DAA520 !important; color: white !important; }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-content {
+            max-width: 780px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #FFFFFF;
+            border-radius: 32px;
+            animation: slideUp 0.25s ease;
+        }
+        @media (max-width: 640px) {
+            .modal-content { border-radius: 24px; max-height: 88vh; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .history-stat-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .history-stat-card.active { border-color: #DAA520; background: rgba(218, 165, 32, 0.08); }
+        .dark body {
+            background: #0A0A0C;
+            color: #FFFFFF;
+        }
+        .dark .glass-panel { background: #121216; border-color: #202024; }
+        .dark .modern-input { background: #1A1A1E; border-color: #2A2A30; color: #FFFFFF; }
+        .dark .entry-card { background: #121216; border-color: #202024; }
+        .dark .expense-option.selected { background: rgba(218, 165, 32, 0.12); }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            left: auto;
+            background: #10B981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        @media (max-width: 640px) {
+            .toast { left: 20px; right: 20px; text-align: center; font-size: 13px; }
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        button:active { transform: scale(0.97); }
+        .total-exp-card {
+            background: linear-gradient(135deg, rgba(218,165,32,0.1), rgba(218,165,32,0.02));
+            border-radius: 20px;
+            padding: 0.9rem 1.2rem;
+            margin-bottom: 1rem;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #F3F4F6; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #DAA520; border-radius: 10px; }
+        
+        @media (max-width: 768px) {
+            .grid-cols-2 { gap: 0.5rem; }
+            .expense-option { padding: 0.75rem !important; }
+            .expense-option i { font-size: 1.25rem !important; }
+            .expense-option span { font-size: 0.7rem !important; }
+        }
+        
+        /* Collapsible form styles for mobile */
+        .form-collapsible-header {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .form-collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .form-collapsible-content.open {
+            max-height: 2000px;
+        }
+        .rotate-icon {
+            transition: transform 0.3s ease;
+        }
+        .rotate-icon.open {
+            transform: rotate(180deg);
+        }
+        @media (min-width: 1024px) {
+            .form-collapsible-content {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            .form-collapsible-header {
+                cursor: default;
+            }
+            .mobile-collapse-icon {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-10 pt-5 pb-16">
+        <!-- Header -->
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gold/10 flex items-center justify-center">
+                    <i class="fa fa-car text-gold text-xl sm:text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">SAVIG<span class="text-gold">.</span></h1>
+                    <p class="text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">VEHICLE EXPENSE LOG</p>
+                </div>
+            </div>
+            <button onclick="toggleTheme()" class="glass-panel w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center">
+                <i id="themeIcon" class="fa fa-moon text-gold text-base sm:text-lg"></i>
+            </button>
+        </div>
+        
+        <!-- VIEW DATA FOR Container - Just below SAVIG page name (mobile and desktop) -->
+        <div class="glass-panel p-4 sm:p-5 mb-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div class="w-full sm:w-auto flex-1">
+                    <label class="input-label text-xs"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
+                    <select id="historyVehicleSelect" class="modern-input font-medium">
+                        <option value="">—— SELECT VEHICLE ——</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button onclick="shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none">
+                        <i class="fa fa-file-pdf"></i> <span class="hidden xs:inline">SHARE PDF</span><span class="inline xs:hidden">PDF</span>
+                    </button>
+                    <button onclick="openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs sm:text-sm flex-1 sm:flex-none">
+                        <i class="fa fa-chart-simple"></i> <span class="hidden xs:inline">HISTORY</span><span class="inline xs:hidden">HIST</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-7">
+            <!-- LEFT FORM - Collapsible on mobile, always closed by default -->
+            <div class="lg:col-span-5">
+                <div class="glass-panel p-4 sm:p-5 md:p-6">
+                    <!-- Collapsible header - only shows on mobile -->
+                    <div class="form-collapsible-header flex justify-between items-center lg:cursor-default" onclick="toggleMobileForm()">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1 h-5 bg-gold rounded-full"></div>
+                            <h2 class="text-xs sm:text-sm font-black tracking-wide uppercase text-gray-500">Record Expense</h2>
+                        </div>
+                        <i id="collapseIcon" class="fa fa-chevron-down text-gold text-sm mobile-collapse-icon lg:hidden transition-transform duration-300"></i>
+                    </div>
+                    <div id="mobileFormContent" class="form-collapsible-content mt-3 lg:!max-h-none lg:!overflow-visible">
+                        <form id="expenseForm" class="space-y-4">
+                            <input type="hidden" id="editId" value="">
+                            <div>
+                                <label class="input-label"><i class="fa-regular fa-id-card mr-1"></i> Vehicle <span class="text-[10px] bg-amber-50 px-1.5 py-0.5 rounded-full ml-1 text-gold font-bold">*</span></label>
+                                <select id="vehicleList" class="modern-input font-medium">
+                                    <option value="">—— SELECT VEHICLE ——</option>
+                                </select>
+                                <div id="newVehicleWrapper" class="hidden mt-2">
+                                    <input type="text" id="newVehicleName" placeholder="New vehicle name" class="modern-input">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="input-label"><i class="fa-solid fa-indian-rupee-sign"></i> Amount (₹) <span class="text-[10px] font-bold text-gold">*</span></label>
+                                <div class="relative">
+                                    <span class="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-lg sm:text-xl font-black text-gold">₹</span>
+                                    <input type="number" id="cost" placeholder="0" class="modern-input pl-7 sm:pl-10 text-xl sm:text-2xl font-black text-gold" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="input-label"><i class="fa-solid fa-tag"></i> Expense Type <span class="text-[10px] font-bold text-gold">*</span></label>
+                                <div class="grid grid-cols-2 gap-2 sm:gap-3">
+                                    <div data-cat="Petrol" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-gas-pump text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">⛽ PETROL</span></div>
+                                    <div data-cat="Part Replacement" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-microchip text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">🔧 PART</span></div>
+                                    <div data-cat="Servicing" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-wrench text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">🛠️ SERVICE</span></div>
+                                    <div data-cat="Modification" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-microphone text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">✨ MOD</span></div>
+                                </div>
+                                <input type="hidden" id="category" value="">
+                            </div>
+                            <div id="conditionalFields" class="space-y-3"></div>
+                            <div>
+                                <label class="input-label">Description <span class="text-[9px] bg-gray-100 px-1.5 rounded-full">OPT</span></label>
+                                <input type="text" id="details" placeholder="Extra info..." class="modern-input">
+                            </div>
+                            <div>
+                                <label class="input-label">Private Notes</label>
+                                <textarea id="privateNotes" rows="1" placeholder="Notes..." class="modern-input resize-none"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-3 sm:py-3.5 rounded-xl transition text-xs sm:text-sm uppercase tracking-wide shadow-md flex items-center justify-center gap-2">
+                                <i class="fa fa-cloud-arrow-up"></i> <span>Save Entry</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL - Expenses List -->
+            <div class="lg:col-span-7 space-y-4">
+                <!-- TOTAL EXPENDITURE CARD -->
+                <div id="totalExpenditureCard" class="glass-panel total-exp-card hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[9px] sm:text-[10px] uppercase font-bold text-gold tracking-wide">Total Expenditure</p>
+                            <p id="totalExpenditureAmount" class="text-2xl sm:text-3xl font-black gradient-gold-text">₹0</p>
+                        </div>
+                        <i class="fa fa-chart-line text-gold/40 text-2xl sm:text-3xl"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-3 sm:p-4">
+                    <label class="input-label text-xs">FILTER</label>
+                    <div class="flex flex-wrap gap-2 sm:gap-3">
+                        <button data-filter="all" class="filter-chip active px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gold text-white">ALL</button>
+                        <button data-filter="Petrol" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 dark:bg-gray-800">⛽ PETROL</button>
+                        <button data-filter="Part Replacement" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">🔧 PART</button>
+                        <button data-filter="Servicing" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">🛠️ SERVICE</button>
+                        <button data-filter="Modification" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">✨ MOD</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-3 sm:p-4 flex items-center gap-2 flex-wrap">
+                    <i class="fa fa-search text-gray-400 text-sm sm:text-base"></i>
+                    <input type="text" id="searchBar" onkeyup="filterEntries()" placeholder="SEARCH vehicle, notes..." class="flex-1 outline-none text-sm sm:text-base bg-transparent min-w-[120px]">
+                    <button onclick="startVoiceSearch()" class="bg-gold/10 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center"><i class="fa fa-microphone text-gold text-xs sm:text-sm"></i></button>
+                    <div class="text-[10px] sm:text-[11px] font-bold text-gray-400" id="logCounter">0</div>
+                </div>
+
+                <div id="logsContainer" class="space-y-3 custom-scrollbar overflow-y-auto max-h-[50vh] sm:max-h-[52vh] pr-1">
+                    <div class="glass-panel p-6 sm:p-8 text-center"><i class="fa fa-database text-gray-300 text-2xl sm:text-3xl"></i><p class="text-xs sm:text-sm text-gray-400 mt-2">Loading...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY MODAL -->
+    <div id="historyModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-panel p-4 sm:p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg sm:text-xl font-black flex gap-2 items-center"><i class="fa fa-chart-pie text-gold"></i><span id="modalVehicleName" class="truncate">History</span></h2>
+                <button onclick="closeHistoryModal()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center"><i class="fa fa-times text-gray-500 text-sm"></i></button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
+                <div onclick="filterHistoryByCategory('all')" id="historyAllCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer border-2 border-transparent active">
+                    <i class="fa fa-database text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold uppercase mt-1">Total</p><p id="historyTotalAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyTotalCount" class="text-[8px] sm:text-[10px] text-gray-400">0</p>
+                </div>
+                <div onclick="filterHistoryByCategory('Petrol')" id="historyPetrolCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer">
+                    <i class="fa fa-gas-pump text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold">Petrol</p><p id="historyPetrolAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyPetrolCount" class="text-[8px] sm:text-[10px]">0</p>
+                </div>
+                <div onclick="filterHistoryByCategory('Part Replacement')" id="historyPartCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer">
+                    <i class="fa fa-microchip text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold">Part</p><p id="historyPartAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyPartCount" class="text-[8px] sm:text-[10px]">0</p>
+                </div>
+                <div onclick="filterHistoryByCategory('Servicing')" id="historyServicingCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer">
+                    <i class="fa fa-wrench text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold">Service</p><p id="historyServicingAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyServicingCount" class="text-[8px] sm:text-[10px]">0</p>
+                </div>
+            </div>
+            <div class="border-t pt-3"><h3 class="text-[10px] sm:text-xs font-bold uppercase text-gray-500 mb-3">📋 Transactions</h3><div id="historyEntriesList" class="space-y-2 max-h-[350px] overflow-y-auto custom-scrollbar pr-1"></div></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, query, orderByChild, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+            authDomain: "sk12-58e9e.firebaseapp.com",
+            databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+            projectId: "sk12-58e9e",
+            storageBucket: "sk12-58e9e.appspot.com",
+            messagingSenderId: "470207874652",
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const expensesRef = ref(db, 'vehicleExpenses');
+        
+        let allEntries = [];
+        let currentVehicleFilter = '';
+        let currentCategoryFilter = 'all';
+        let currentSearchTerm = '';
+        let historyCurrentVehicle = '';
+        let historyCurrentCategory = 'all';
+
+        signInAnonymously(auth).catch(e => console.warn(e));
+        
+        // Mobile form collapse functionality - default closed on mobile
+        let isFormOpen = false;
+        window.toggleMobileForm = () => {
+            const isDesktop = window.innerWidth >= 1024;
+            if (isDesktop) return;
+            const content = document.getElementById('mobileFormContent');
+            const icon = document.getElementById('collapseIcon');
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+                isFormOpen = false;
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+                isFormOpen = true;
+            }
+        };
+        
+        // On window resize, ensure desktop view always shows form
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.add('open');
+                if (icon) icon.classList.add('open');
+            } else if (!isFormOpen) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.remove('open');
+                if (icon) icon.classList.remove('open');
+            }
+        });
+        
+        // Initialize: on mobile form closed, on desktop open
+        setTimeout(() => {
+            if (window.innerWidth >= 1024) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.add('open');
+                if (icon) icon.classList.add('open');
+            } else {
+                const content = document.getElementById('mobileFormContent');
+                if (content) content.classList.remove('open');
+                isFormOpen = false;
+            }
+        }, 100);
+        
+        window.toggleTheme = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? "fa fa-sun text-gold" : "fa fa-moon text-gold";
+        };
+        if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('themeIcon').className = "fa fa-sun text-gold"; }
+
+        let selectedCategory = '';
+        function updateConditionalFields(cat) {
+            const container = document.getElementById('conditionalFields');
+            if (cat === 'Petrol') container.innerHTML = `<div><label class="input-label text-[10px] sm:text-[11px]">Fuel Volume (L)</label><input type="number" step="any" id="fuelVolume" placeholder="Liters" class="modern-input"></div>`;
+            else if (cat === 'Part Replacement') container.innerHTML = `<div class="space-y-3"><input type="text" id="partName" placeholder="Part name" class="modern-input"><div class="grid grid-cols-2 gap-2 sm:gap-3"><input type="date" id="warrantyFrom" class="modern-input"><input type="date" id="warrantyEnd" class="modern-input"></div><input type="text" id="brandName" placeholder="Brand" class="modern-input"><input type="text" id="shopName" placeholder="Shop" class="modern-input"></div>`;
+            else if (cat === 'Servicing') container.innerHTML = `<div class="space-y-3"><input type="text" id="serviceType" placeholder="Service type" class="modern-input"><input type="text" id="serviceCenter" placeholder="Center" class="modern-input"><div class="grid grid-cols-2 gap-2 sm:gap-3"><input type="date" id="serviceDate" class="modern-input"><input type="number" id="odometer" placeholder="Odometer km" class="modern-input"></div></div>`;
+            else if (cat === 'Modification') container.innerHTML = `<div class="space-y-3"><input type="text" id="modPart" placeholder="Part name" class="modern-input"><input type="text" id="modBrand" placeholder="Brand" class="modern-input"><input type="text" id="installerShop" placeholder="Installer" class="modern-input"><input type="text" id="warrantyPeriod" placeholder="Warranty" class="modern-input"></div>`;
+            else container.innerHTML = `<div class="text-xs sm:text-sm text-gray-400 italic p-3 bg-gray-50 rounded-xl">Select expense type</div>`;
+        }
+        
+        document.querySelectorAll('.expense-option').forEach(opt => opt.addEventListener('click', function() {
+            document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedCategory = this.getAttribute('data-cat');
+            document.getElementById('category').value = selectedCategory;
+            updateConditionalFields(selectedCategory);
+        }));
+        
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => { c.classList.remove('active', 'bg-gold', 'text-white'); c.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-700'); });
+            this.classList.add('active', 'bg-gold', 'text-white');
+            currentCategoryFilter = this.getAttribute('data-filter');
+            renderFilteredEntries();
+        }));
+        
+        document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { 
+            currentVehicleFilter = e.target.value; 
+            renderFilteredEntries();
+            updateTotalExpenditureCard();
+        });
+        window.checkNewVehicle = (val) => { document.getElementById('newVehicleWrapper').classList.toggle('hidden', val !== 'NEW'); };
+        document.getElementById('vehicleList').addEventListener('change', (e) => window.checkNewVehicle(e.target.value));
+        
+        function showToast(msg) { let t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa fa-check-circle mr-1"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+        
+        function formatIndianDate(timestamp) {
+            let d = timestamp ? new Date(timestamp) : new Date();
+            return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        
+        function updateTotalExpenditureCard() {
+            const card = document.getElementById('totalExpenditureCard');
+            if (!currentVehicleFilter) { card.classList.add('hidden'); return; }
+            const vehicleEntries = allEntries.filter(e => e.name === currentVehicleFilter);
+            const total = vehicleEntries.reduce((sum, e) => sum + e.cost, 0);
+            document.getElementById('totalExpenditureAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
+            card.classList.remove('hidden');
+        }
+        
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('editId').value;
+            let selectedVehicle = document.getElementById('vehicleList').value;
+            if (selectedVehicle === 'NEW') {
+                let newName = document.getElementById('newVehicleName').value.trim();
+                if (!newName) { alert("Enter vehicle name"); return; }
+                selectedVehicle = newName.toUpperCase();
+            }
+            if (!selectedVehicle) { alert("Vehicle required"); return; }
+            const rawCost = parseFloat(document.getElementById('cost').value);
+            if (isNaN(rawCost) || rawCost <= 0) { alert("Valid amount required"); return; }
+            const category = document.getElementById('category').value;
+            if (!category) { alert("Select expense type"); return; }
+            
+            const entryData = {
+                name: selectedVehicle.toUpperCase(),
+                cost: rawCost,
+                category: category,
+                date: formatIndianDate(Date.now()),
+                timestamp: Date.now(),
+                details: document.getElementById('details').value || null,
+                privateNotes: document.getElementById('privateNotes').value || null
+            };
+            if (category === 'Petrol' && document.getElementById('fuelVolume')?.value) entryData.fuelVolume = parseFloat(document.getElementById('fuelVolume').value);
+            if (category === 'Part Replacement') {
+                if(document.getElementById('partName')?.value) entryData.partName = document.getElementById('partName').value;
+                if(document.getElementById('warrantyFrom')?.value) entryData.warrantyFrom = document.getElementById('warrantyFrom').value;
+                if(document.getElementById('warrantyEnd')?.value) entryData.warrantyEnd = document.getElementById('warrantyEnd').value;
+                if(document.getElementById('brandName')?.value) entryData.brandName = document.getElementById('brandName').value;
+                if(document.getElementById('shopName')?.value) entryData.shopName = document.getElementById('shopName').value;
+            }
+            if (category === 'Servicing') {
+                if(document.getElementById('serviceType')?.value) entryData.serviceType = document.getElementById('serviceType').value;
+                if(document.getElementById('serviceCenter')?.value) entryData.serviceCenter = document.getElementById('serviceCenter').value;
+                if(document.getElementById('serviceDate')?.value) entryData.serviceDate = document.getElementById('serviceDate').value;
+                if(document.getElementById('odometer')?.value) entryData.odometer = parseFloat(document.getElementById('odometer').value);
+            }
+            if (category === 'Modification') {
+                if(document.getElementById('modPart')?.value) entryData.modPart = document.getElementById('modPart').value;
+                if(document.getElementById('modBrand')?.value) entryData.modBrand = document.getElementById('modBrand').value;
+                if(document.getElementById('installerShop')?.value) entryData.installerShop = document.getElementById('installerShop').value;
+                if(document.getElementById('warrantyPeriod')?.value) entryData.warrantyPeriod = document.getElementById('warrantyPeriod').value;
+            }
+            try {
+                if (editId) { await update(ref(db, `vehicleExpenses/${editId}`), entryData); showToast("Updated ✓"); }
+                else { await push(expensesRef, entryData); showToast("Saved ✓"); }
+                document.getElementById('expenseForm').reset(); document.getElementById('editId').value = ''; document.getElementById('newVehicleWrapper').classList.add('hidden');
+                document.getElementById('category').value = ''; selectedCategory = '';
+                document.querySelectorAll('.expense-option').forEach(opt => opt.classList.remove('selected'));
+                document.getElementById('conditionalFields').innerHTML = '<div class="text-xs sm:text-sm text-gray-400 italic p-3 bg-gray-50 rounded-xl">Select expense type</div>';
+                // On mobile, keep form closed after submit if preferred - but we leave as is
+            } catch(err) { alert("Error"); }
+        });
+        
+        const expensesQuery = query(ref(db, 'vehicleExpenses'), orderByChild('timestamp'));
+        onValue(expensesQuery, (snap) => {
+            const data = snap.val();
+            if (!data) { allEntries = []; renderFilteredEntries(); updateVehicleDropdowns([]); updateTotalExpenditureCard(); return; }
+            allEntries = Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+            renderFilteredEntries();
+            updateTotalExpenditureCard();
+            const uniqueVehicles = [...new Set(allEntries.map(e => e.name))];
+            updateVehicleDropdowns(uniqueVehicles);
+        });
+        
+        function updateVehicleDropdowns(vehicles) {
+            const dropdowns = ['vehicleList', 'historyVehicleSelect'];
+            dropdowns.forEach(id => {
+                let select = document.getElementById(id);
+                if (!select) return;
+                let html = '<option value="">—— SELECT VEHICLE ——</option>';
+                vehicles.sort().forEach(v => html += `<option value="${v.replace(/"/g, '&quot;')}">${v}</option>`);
+                html += '<option value="NEW" class="text-gold font-bold">+ ADD NEW VEHICLE</option>';
+                select.innerHTML = html;
+            });
+        }
+        
+        function renderFilteredEntries() {
+            let filtered = allEntries.filter(e => !currentVehicleFilter || e.name === currentVehicleFilter);
+            if (currentCategoryFilter !== 'all') filtered = filtered.filter(e => e.category === currentCategoryFilter);
+            if (currentSearchTerm) filtered = filtered.filter(e => JSON.stringify(e).toLowerCase().includes(currentSearchTerm));
+            document.getElementById('logCounter').innerText = `${filtered.length} rec`;
+            const container = document.getElementById('logsContainer');
+            if (!filtered.length) { container.innerHTML = `<div class="glass-panel p-6 sm:p-8 text-center"><i class="fa fa-receipt text-gray-300 text-2xl sm:text-3xl"></i><p class="text-xs sm:text-sm mt-2">No entries</p></div>`; return; }
+            container.innerHTML = filtered.map(d => {
+                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨'}[d.category]||'📄';
+                return `<div class="entry-card" data-id="${d.id}">
+                    <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
+                        <div class="flex-1 w-full"><div class="flex items-center gap-2 flex-wrap"><span class="text-[10px] sm:text-[11px] font-bold text-gold">${d.date || formatIndianDate(d.timestamp)}</span><span class="text-[9px] sm:text-[10px] bg-gold/10 px-2 py-0.5 rounded-full">${icon} ${d.category}</span></div>
+                        <h3 class="font-black text-sm sm:text-base mt-1 break-words">${escapeHtml(d.name)}</h3>
+                        ${d.details ? `<p class="text-xs sm:text-sm text-gray-500 mt-1 break-words">${escapeHtml(d.details)}</p>` : ''}
+                        ${d.partName ? `<p class="text-[10px] sm:text-xs text-gray-400">🔩 ${escapeHtml(d.partName)}</p>` : ''}
+                        ${d.privateNotes ? `<div class="text-[9px] sm:text-[10px] text-gray-400 mt-1 break-words">📝 ${escapeHtml(d.privateNotes)}</div>` : ''}</div>
+                        <div class="text-right shrink-0 w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end gap-2"><span class="text-base sm:text-lg font-black gradient-gold-text">₹${d.cost.toLocaleString('en-IN')}</span>
+                        <div class="flex gap-3"><button onclick='editEntry("${d.id}")' class="text-blue-500 hover:text-gold text-sm sm:text-base"><i class="fa-regular fa-pen-to-square"></i></button>
+                        <button onclick='deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 text-sm sm:text-base"><i class="fa-regular fa-trash-can"></i></button></div></div>
+                    </div></div>`;
+            }).join('');
+        }
+        
+        window.editEntry = async (id) => {
+            const entry = allEntries.find(e => e.id === id);
+            if (!entry) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('vehicleList').value = entry.name;
+            document.getElementById('cost').value = entry.cost;
+            document.getElementById('category').value = entry.category;
+            selectedCategory = entry.category;
+            updateConditionalFields(entry.category);
+            document.querySelectorAll('.expense-option').forEach(opt => opt.classList.toggle('selected', opt.getAttribute('data-cat') === entry.category));
+            document.getElementById('details').value = entry.details || '';
+            document.getElementById('privateNotes').value = entry.privateNotes || '';
+            if (entry.fuelVolume && document.getElementById('fuelVolume')) document.getElementById('fuelVolume').value = entry.fuelVolume;
+            if (entry.partName && document.getElementById('partName')) document.getElementById('partName').value = entry.partName;
+            if (entry.serviceCenter && document.getElementById('serviceCenter')) document.getElementById('serviceCenter').value = entry.serviceCenter;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // On mobile, auto expand form when editing
+            if (window.innerWidth < 1024 && !document.getElementById('mobileFormContent').classList.contains('open')) {
+                toggleMobileForm();
+            }
+        };
+        window.deleteEntry = async (id) => { if(confirm("Delete?")) { await remove(ref(db, `vehicleExpenses/${id}`)); showToast("Deleted"); } };
+        window.startVoiceSearch = () => { const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; if(!SpeechRecognition) return alert("Not supported"); const rec = new SpeechRecognition(); rec.lang='en-IN'; rec.start(); rec.onresult=(e)=>{ document.getElementById('searchBar').value=e.results[0][0].transcript; currentSearchTerm=e.results[0][0].transcript.toLowerCase(); renderFilteredEntries(); }; };
+        window.filterEntries = () => { currentSearchTerm = document.getElementById('searchBar').value.toLowerCase(); renderFilteredEntries(); };
+        function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, m=>({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
+        
+        window.openHistoryModal = () => {
+            if (!currentVehicleFilter) { alert("Select a vehicle from 'VIEW DATA FOR' first"); return; }
+            historyCurrentVehicle = currentVehicleFilter;
+            document.getElementById('modalVehicleName').innerHTML = `<i class="fa fa-car"></i> ${currentVehicleFilter}`;
+            updateHistoryModal(currentVehicleFilter, 'all');
+            document.getElementById('historyModal').style.display = 'flex';
+        };
+        window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; };
+        window.filterHistoryByCategory = (cat) => {
+            historyCurrentCategory = cat;
+            document.querySelectorAll('.history-stat-card').forEach(c => c.classList.remove('active', 'border-gold'));
+            if(cat === 'all') document.getElementById('historyAllCard').classList.add('active','border-gold');
+            else if(cat === 'Petrol') document.getElementById('historyPetrolCard').classList.add('active','border-gold');
+            else if(cat === 'Part Replacement') document.getElementById('historyPartCard').classList.add('active','border-gold');
+            else if(cat === 'Servicing') document.getElementById('historyServicingCard').classList.add('active','border-gold');
+            updateHistoryModal(historyCurrentVehicle, cat);
+        };
+        function updateHistoryModal(vehicle, category) {
+            const entries = allEntries.filter(e => e.name === vehicle);
+            let petrolTot=0,partTot=0,servTot=0,total=0, petrolCnt=0,partCnt=0,servCnt=0;
+            entries.forEach(e => {
+                total += e.cost;
+                if(e.category === 'Petrol') { petrolTot+=e.cost; petrolCnt++; }
+                else if(e.category === 'Part Replacement') { partTot+=e.cost; partCnt++; }
+                else if(e.category === 'Servicing') { servTot+=e.cost; servCnt++; }
+            });
+            document.getElementById('historyTotalAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
+            document.getElementById('historyTotalCount').innerText = `${entries.length} records`;
+            document.getElementById('historyPetrolAmount').innerHTML = `₹${petrolTot.toLocaleString('en-IN')}`;
+            document.getElementById('historyPetrolCount').innerText = `${petrolCnt}`;
+            document.getElementById('historyPartAmount').innerHTML = `₹${partTot.toLocaleString('en-IN')}`;
+            document.getElementById('historyPartCount').innerText = `${partCnt}`;
+            document.getElementById('historyServicingAmount').innerHTML = `₹${servTot.toLocaleString('en-IN')}`;
+            document.getElementById('historyServicingCount').innerText = `${servCnt}`;
+            
+            let filtered = entries;
+            if(category !== 'all') filtered = filtered.filter(e => e.category === category);
+            filtered.sort((a,b) => (b.timestamp||0)-(a.timestamp||0));
+            const container = document.getElementById('historyEntriesList');
+            if(!filtered.length) { container.innerHTML = '<div class="text-center text-gray-400 text-xs sm:text-sm py-5">No records</div>'; return; }
+            container.innerHTML = filtered.map(entry => {
+                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨'}[entry.category]||'📄';
+                return `<div class="glass-panel p-2.5 sm:p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"><div><div class="flex gap-2 items-center flex-wrap"><span class="text-[10px] sm:text-[11px] font-bold text-gold">${entry.date || formatIndianDate(entry.timestamp)}</span><span class="text-[8px] sm:text-[9px] bg-gold/10 px-2 rounded-full">${icon} ${entry.category}</span></div><p class="text-xs sm:text-sm font-medium mt-0.5 break-words">${entry.details || '—'}</p></div><span class="text-sm sm:text-base font-black text-gold">₹${entry.cost.toLocaleString('en-IN')}</span></div>`;
+            }).join('');
+        }
+        
+        window.shareVehiclePDF = async () => {
+            if (!currentVehicleFilter) { alert("Please select a vehicle from dropdown first"); return; }
+            const vehicle = currentVehicleFilter;
+            const entries = allEntries.filter(e => e.name === vehicle).sort((a,b)=> (b.timestamp||0)-(a.timestamp||0));
+            if(entries.length === 0) { alert("No data to export"); return; }
+            let total = entries.reduce((s,e)=> s+e.cost,0);
+            let petrolTotal = entries.filter(e=>e.category==='Petrol').reduce((s,e)=> s+e.cost,0);
+            let partTotal = entries.filter(e=>e.category==='Part Replacement').reduce((s,e)=> s+e.cost,0);
+            let servTotal = entries.filter(e=>e.category==='Servicing').reduce((s,e)=> s+e.cost,0);
+            let modTotal = entries.filter(e=>e.category==='Modification').reduce((s,e)=> s+e.cost,0);
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFont("helvetica");
+            doc.setFontSize(20); doc.setTextColor(218,165,32); doc.text(`SAVIG - ${vehicle}`, 14, 22);
+            doc.setFontSize(11); doc.setTextColor(80);
+            doc.text(`Report: ${formatIndianDate(Date.now())}`, 14, 32);
+            doc.setFontSize(11);
+            doc.text(`TOTAL EXPENDITURE: ₹${total.toLocaleString('en-IN')}`, 14, 44);
+            doc.text(`⛽ Petrol: ₹${petrolTotal.toLocaleString('en-IN')}   🔧 Parts: ₹${partTotal.toLocaleString('en-IN')}`, 14, 54);
+            doc.text(`🛠️ Servicing: ₹${servTotal.toLocaleString('en-IN')}   ✨ Mods: ₹${modTotal.toLocaleString('en-IN')}`, 14, 64);
+            let y = 78;
+            doc.setFontSize(9);
+            doc.text("Date | Category | Amount | Details", 14, y); y+=6;
+            entries.slice(0, 45).forEach(e => {
+                let line = `${e.date || formatIndianDate(e.timestamp)} | ${e.category} | ₹${e.cost} | ${e.details || '-'}`;
+                doc.text(line.substring(0, 78), 14, y);
+                y+=5.5;
+                if(y>280) { doc.addPage(); y=20; }
+            });
+            doc.save(`${vehicle}_expenses.pdf`);
+            showToast("PDF Generated!");
+        };
+        window.onclick = (e) => { if(e.target === document.getElementById('historyModal')) closeHistoryModal(); };
+    </script>
+</body>
+</html>
