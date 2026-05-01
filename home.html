@@ -1019,59 +1019,63 @@ firebase.auth().onAuthStateChanged(user => { if(user) initDashboard(); });
             checkPersonalEvents();   // Checks 'users/uid/events/' node
         }
     });
-// 1. Marathi Festival Data (Sample - Expand this as needed)
-const marathiFestivals = {
-    "01-01": "नवीन वर्षाच्या हार्दिक शुभेच्छा!",
-    "01-14": "मकर संक्रांत - तिळगुळ घ्या, गोड गोड बोला!",
-    "01-26": "प्रजासत्ताक दिन",
-    "02-19": "शिवजयंती - छत्रपती शिवाजी महाराज जयंती",
-    "05-01": "महाराष्ट्र दिन आणि कामगार दिन",
-    "08-15": "स्वातंत्र्य दिन",
-    "10-24": "दसऱ्याच्या हार्दिक शुभेच्छा",
-    "11-01": "दिवाळी - नरक चतुर्दशी",
-    // Format: "MM-DD"
+// 1. Festival Data for 2026 with Office Status
+const festivalData2026 = {
+    "01-14": { name: "मकर संक्रांत", bank: "Open", govt: "Open", icon: "🪁" },
+    "01-26": { name: "प्रजासत्ताक दिन", bank: "Closed", govt: "Closed", icon: "🇮🇳" },
+    "02-19": { name: "छत्रपती शिवाजी महाराज जयंती", bank: "Closed", govt: "Closed", icon: "🚩" },
+    "03-19": { name: "गुढीपाडवा", bank: "Closed", govt: "Closed", icon: "🎋" },
+    "05-01": { name: "महाराष्ट्र दिन", bank: "Closed", govt: "Closed", icon: "🗺️" },
+    "08-15": { name: "स्वातंत्र्य दिन", bank: "Closed", govt: "Closed", icon: "🇮🇳" },
+    "08-27": { name: "रक्षाबंधन", bank: "Open", govt: "Open", icon: "🧵" },
+    "09-14": { name: "गणेश चतुर्थी", bank: "Closed", govt: "Closed", icon: "🕉️" },
+    "10-21": { name: "दसरा (विजयादशमी)", bank: "Closed", govt: "Closed", icon: "🏹" },
+    "11-08": { name: "दिवाळी (लक्ष्मीपूजन)", bank: "Closed", govt: "Closed", icon: "🪔" }
+    // Add more dates as needed
 };
 
-// 2. Function to request permission and send notification
-function checkTodayFestival() {
-    // Check if the browser supports notifications
-    if (!("Notification" in window)) {
-        console.log("This browser does not support desktop notification");
-        return;
-    }
-
-    // Request permission if not granted
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                triggerCheck();
-            }
-        });
-    } else {
-        triggerCheck();
-    }
-}
-
-function triggerCheck() {
-    const today = new Date();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const dateKey = `${month}-${day}`;
-
-    if (marathiFestivals[dateKey]) {
-        const festivalName = marathiFestivals[dateKey];
-        
-        new Notification("आजचा सण/सुट्टी 🚩", {
-            body: festivalName,
-            icon: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png", // Custom icon
-            badge: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png"
-        });
-    }
-}
-
-// 3. Run the check when the page loads
-window.addEventListener('load', checkTodayFestival);
+async function requestNotificationPermission() {
+    if (!("Notification" in window)) return;
     
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        await Notification.requestPermission();
+    }
+    checkAndNotifyFestival();
+}
+
+function checkAndNotifyFestival() {
+    if (Notification.permission !== "granted") return;
+
+    const today = new Date();
+    const dateKey = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const festival = festivalData2026[dateKey];
+
+    if (festival) {
+        // Constructing the Marathi message
+        const title = `${festival.icon} आज ${festival.name} आहे!`;
+        
+        // Detailed Status
+        const bankStatus = festival.bank === "Closed" ? "🏦 बँक: बंद" : "🏦 बँक: सुरू";
+        const govtStatus = festival.govt === "Closed" ? "🏢 सरकारी कार्यालय: बंद" : "🏢 सरकारी कार्यालय: सुरू";
+        
+        const bodyText = `${bankStatus}\n${govtStatus}\n\nतुम्हाला व तुमच्या परिवारास हार्दिक शुभेच्छा!`;
+
+        const notification = new Notification(title, {
+            body: bodyText,
+            icon: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png", // Replace with your app logo
+            badge: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png",
+            vibrate: [200, 100, 200]
+        });
+
+        notification.onclick = () => {
+            window.focus();
+            window.location.href = "calendermob.html";
+        };
+    }
+}
+
+// Check on load
+window.addEventListener('DOMContentLoaded', requestNotificationPermission);
 </script>
     
 </script>
