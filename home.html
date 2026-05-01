@@ -1019,7 +1019,58 @@ firebase.auth().onAuthStateChanged(user => { if(user) initDashboard(); });
             checkPersonalEvents();   // Checks 'users/uid/events/' node
         }
     });
+// 1. Marathi Festival Data (Sample - Expand this as needed)
+const marathiFestivals = {
+    "01-01": "नवीन वर्षाच्या हार्दिक शुभेच्छा!",
+    "01-14": "मकर संक्रांत - तिळगुळ घ्या, गोड गोड बोला!",
+    "01-26": "प्रजासत्ताक दिन",
+    "02-19": "शिवजयंती - छत्रपती शिवाजी महाराज जयंती",
+    "05-01": "महाराष्ट्र दिन आणि कामगार दिन",
+    "08-15": "स्वातंत्र्य दिन",
+    "10-24": "दसऱ्याच्या हार्दिक शुभेच्छा",
+    "11-01": "दिवाळी - नरक चतुर्दशी",
+    // Format: "MM-DD"
+};
 
+// 2. Function to request permission and send notification
+function checkTodayFestival() {
+    // Check if the browser supports notifications
+    if (!("Notification" in window)) {
+        console.log("This browser does not support desktop notification");
+        return;
+    }
+
+    // Request permission if not granted
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                triggerCheck();
+            }
+        });
+    } else {
+        triggerCheck();
+    }
+}
+
+function triggerCheck() {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateKey = `${month}-${day}`;
+
+    if (marathiFestivals[dateKey]) {
+        const festivalName = marathiFestivals[dateKey];
+        
+        new Notification("आजचा सण/सुट्टी 🚩", {
+            body: festivalName,
+            icon: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png", // Custom icon
+            badge: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png"
+        });
+    }
+}
+
+// 3. Run the check when the page loads
+window.addEventListener('load', checkTodayFestival);
     
 </script>
     
