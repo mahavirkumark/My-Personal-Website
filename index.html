@@ -1,176 +1,153 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Savig</title>
-
+<script>    if (localStorage.getItem('savig_otp_verified') === 'true') {
+            // We check if a firebase user key exists in local storage to prevent 
+            // redirecting if they cleared their cookies but not local storage.
+            const sessionExists = Object.keys(localStorage).some(k => k.includes('firebase:authUser'));
+            if (sessṇionExists) {
+                window.location.replace("homemob.html");
+            }
+}</script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Essential for OTP functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-<link rel="manifest" href="manifest.json?v=2">
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#2196F3">
-
-<link rel="apple-touch-icon" href="icon-192.jpg">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <style>
-        /* --- RESTORED GLOBAL AND ANIMATION STYLES --- */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f0f4f8;
-            overflow-x: hidden;
-        }
-        @keyframes fadeInZoom {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        @keyframes slideInLeft {
-            0% { opacity: 0; transform: translateX(-50px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInRight {
-            0% { opacity: 0; transform: translateX(50px); }
-            100% { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInUp {
-            0% { opacity: 0; transform: translateY(50px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        .section-title {
-            font-size: 2rem; 
-            font-weight: 700;
-            text-align: center;
-            color: #1f2937;
-            margin-bottom: 2.5rem; 
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; overflow-x: hidden; }
+        @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes slideInLeft { 0% { opacity: 0; transform: translateX(-50px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { 0% { opacity: 0; transform: translateX(50px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 2rem; font-weight: 700; text-align: center; color: #1f2937; margin-bottom: 2.5rem; }
 
-        /* --- RESTORED MESSAGE BOX STYLES --- */
+        /* OTP Input Styling */
+        .otp-input-box { width: 40px; height: 50px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; font-size: 1.25rem; font-weight: 600; }
+        .otp-input-box:focus { outline: none; border-color: #2563eb; ring: 2px; ring-color: #3b82f6; }
+
         #msgBox {
-            /* Initial state for hidden/off-screen */
-            opacity: 0;
-            transform: translateX(100%);
-            /* Transition for smooth animation */
-            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-            /* Ensure it is block/flex for content */
-            display: flex;
-            align-items: center;
-            gap: 8px; 
+            position: fixed; top: 25px; right: -600px;
+            padding: 12px 24px; border-radius: 12px;
+            background: linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #84cc16 100%);
+            color: white; z-index: 10000; transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; align-items: center; gap: 12px; font-weight: 600;
         }
-        #msgBox.show {
-            /* End state for visible/on-screen */
-            opacity: 1;
-            transform: translateX(0);
-        }
-        #msgBox.success {
-            background-color: #d1fae5; /* Tailwind bg-green-100 */
-            color: #065f46; /* Tailwind text-green-800 */
-            border-color: #34d399; /* Tailwind border-green-400 */
-        }
-        #msgBox.error {
-            background-color: #fee2e2; /* Tailwind bg-red-100 */
-            color: #991b1b; /* Tailwind text-red-800 */
-            border-color: #f87171; /* Tailwind border-red-400 */
+        #msgBox.show { right: 25px; }
+
+        [data-theme="dark"] { background-color: #0f172a !important; color: #f1f5f9 !important; }
+        [data-theme="dark"] .bg-white, [data-theme="dark"] #loginCard, [data-theme="dark"] #pinCard { 
+            background-color: #1e293b !important; border: 1px solid #334155 !important; color: white !important;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
     <nav class="bg-white shadow-sm py-4">
-       <div class="container mx-auto px-2">
-        <div class="flex items-center gap-1">
+        <div class="container mx-auto px-6 flex items-center gap-2">
             <div class="relative flex items-center justify-center">
-                <i class="fas fa-shield  text-blue-600" style="font-size:27px;"></i>
-                <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; transform: translateY(-50%);"></i>
+                <i class="fas fa-shield text-blue-600" style="font-size:27px;"></i>
+                <i class="fas fa-database text-white absolute" style="font-size: 14px;"></i>
             </div>
             <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</span>
         </div>
-    </div>
     </nav>
-<div id="login-msg" style="display:none; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 12px; margin: 10px 0; border-radius: 4px; text-align: center; font-family: sans-serif;">
-    <strong>Security Timeout:</strong> Your session has expired. Please try to login again.
-</div>
-    <main class="flex-grow flex items-center justify-center p-6 lg:p-6 relative">
+
+    <main class="flex-grow flex items-center justify-center p-6 relative">
         <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 items-center max-w-7xl">
 
+            <!-- Left Features -->
             <div class="hidden lg:block space-y-6" style="animation: slideInLeft 1s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fas fa-chart-line text-2xl text-blue-600"></i>
                         <h3 class="text-lg font-bold text-gray-800">Financial Management</h3>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Track your income and expenses to gain a clear, real-time understanding of your cash flow. Set and monitor your savings goals with visual progress bars.
-                    </p>
+                    <p class="text-gray-600 text-sm">Track income, expenses, and savings goals with visual progress bars.</p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fas fa-address-book text-2xl text-blue-600"></i>
                         <h3 class="text-lg font-bold text-gray-800">Secure Contacts Manager</h3>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Keep all your contacts organized and secure. Easily add, edit, or delete contact information, including names, emails, and birthdays.
-                    </p>
+                    <p class="text-gray-600 text-sm">Organize and secure your contacts including emails and birthdays.</p>
                 </div>
             </div>
 
-            <div class="w-full flex justify-center items-center relative">
-                <div id="loginCard" class="bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
-                    <h2 class="text-2xl font-bold mb-4 text-gray-800">Login to Your Hub</h2>
-                    <p class="text-gray-600 mb-6 text-sm">Access your secure personal dashboard with your Google account .</p>
-                    <button id="googleLoginBtn" class="flex items-center justify-center gap-2 text-base font-semibold px-5 py-3 rounded-full bg-white text-gray-800 border-2 border-blue-600 shadow-md mx-auto hover:bg-blue-600 hover:text-white" style="transition: all 0.2s ease; transform: scale(1.0); " onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 8px 15px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='scale(1.0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
-                        <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 20px; height: 20px;"> Sign in with Google
-                    </button>
-          
-                </div>
-                
-                <div id="pinCard" class="hidden bg-white rounded-xl p-8 shadow-2xl w-full max-w-xs text-center">
-                    <h2 id="pinTitle" class="text-2xl font-bold mb-4 text-gray-800">Enter PIN</h2>
+            <!-- Central Card -->
+         <div class="w-full flex justify-center items-center relative">
+    <!-- Message Notification Box (Floating) -->
+    <div id="msgBox" class="fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 pointer-events-none"></div>
 
-                    <input id="pinInput" type="password" maxlength="6" placeholder="Enter 4-6 digit PIN" class="w-full p-3 border rounded-lg mb-3 text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
+    <!-- Login Step -->
+<div id="loginCard" class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Login to Your Hub</h2>
+    <p class="text-gray-600 dark:text-gray-400 mb-6 text-sm">Access your secure personal dashboard with your Google account.</p>
+    
+    <!-- Changed rounded-xl to rounded-full for 50% border radius -->
+    <button id="googleLoginBtn" class="flex items-center justify-center gap-3 w-full text-base font-semibold px-5 py-3 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-700 transition-all duration-300">
+        <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 20px;"> 
+        <span>Sign in with Google</span>
+    </button>
+</div>
 
-                    <div id="resetPinInputs" class="hidden flex flex-col gap-2 mb-3">
-                        <input id="currentPinInput" type="password" maxlength="6" placeholder="Current PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-                        <input id="newPinInput" type="password" maxlength="6" placeholder="New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-                        <input id="confirmNewPinInput" type="password" maxlength="6" placeholder="Confirm New PIN" class="w-full p-3 border rounded-lg text-center text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300"/>
-                    </div>
-                    
-                    <button id="pinActionBtn" 
-                        class="w-full py-3 rounded-lg bg-blue-600 text-white font-semibold shadow-md mb-2 text-base hover:bg-blue-700 transition duration-200 ease-in-out hover:scale-[1.01] hover:shadow-lg">
-                    </button>
-                    <p class="mt-2 text-sm text-blue-600 cursor-pointer hover:underline" id="forgotPinBtn">Forgot PIN?</p>
-                    <p class="mt-1 text-sm text-blue-600 cursor-pointer hover:underline" id="resetPinBtn">Reset PIN</p>
-                </div>
+    <!-- OTP/PIN Step -->
+    <div id="pinCard" class="hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-2 shadow-2xl w-full max-w-xs text-center">
+        <div class="mb-1 flex justify-center">
+            <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 border-radius:50%  text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  border-radius:50%  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
             </div>
+        </div>
+        <h2 class="text-xl font-bold mb-1 text-gray-800 dark:text-white">Verify Email</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            We sent a 6-digit code to <br>
+            <span id="userEmailDisplay" class="font-semibold text-gray-700 dark:text-gray-200">your email</span>
+        </p>
+        
+        <div id="otpBox" class="flex justify-between gap-2 mb-2">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+        </div>
 
+        <p id="timer" class="text-blue-600 font-mono text-lg font-bold mb-4">03:00</p>
+        <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
+    </div>
+</div>
+
+            <!-- Right Features -->
             <div class="hidden lg:block space-y-6" style="animation: slideInRight 1s ease-out forwards; opacity: 0; animation-delay: 0.6s;">
-                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fas fa-lock text-2xl text-blue-600"></i>
-                        <h3 class="text-lg font-bold text-gray-800">Advanced Password Vault</h3>
+                        <h3 class="text-lg font-bold text-gray-800">Password Vault</h3>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Secure all your online credentials in one place with military-grade encryption. Access them with your personal PIN for instant login.
-                    </p>
+                    <p class="text-gray-600 text-sm">Secure online credentials with military-grade encryption.</p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-lg" style="transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
                     <div class="flex items-center gap-3 mb-2">
                         <i class="fas fa-link text-2xl text-blue-600"></i>
                         <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        Stop losing important websites. Organize your bookmarks and digital resources in a centralized, categorized hub for easy access.
-                    </p>
+                    <p class="text-gray-600 text-sm">Organize your bookmarks and digital resources in one hub.</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <section class="py-12 md:py-16 bg-gray-50">
+      <section class="py-12 md:py-16 bg-gray-50">
         <div class="container mx-auto px-6">
             <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -262,97 +239,200 @@
 
 <div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
 
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+
+    <div id="msgBox"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
 <script>
-    // --- Firebase Configuration Using Your Provided ID ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-        authDomain: "sk12-58e9e.firebaseapp.com",
-        projectId: "sk12-58e9e",
-        storageBucket: "sk12-58e9e.appspot.com",
-        messagingSenderId: "470207874652",
-        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-    };
+    // --- CONFIGURATION & INITIALIZATION ---
+const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+};
 
-    if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
-        firebase.initializeApp(firebaseConfig);
-    }
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+emailjs.init("NbamX634Y_o570cNw");
 
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const provider = new firebase.auth.GoogleAuthProvider();
+// State Variables
+let generatedOTP = null;
+let otpExpiryTime = null;
+let timerInterval = null;
+let isSendingOTP = false;
 
-    let currentUID = null;
-    let currentEmail = null;
-
-    const msgBoxEl = document.getElementById("msgBox");
-    const loginCardEl = document.getElementById("loginCard");
+// --- 1. AUTH STATE LISTENER (CORE LOGIC) ---
+auth.onAuthStateChanged((user) => {
+    const isVerified = localStorage.getItem('savig_otp_verified');
     
-    // --- Helper Function for Toast Messages ---
-    function showMsg(msg, success = true, duration = 6000) {
-        // 1. Clear previous state and determine style class
-        msgBoxEl.className = ''; 
-        msgBoxEl.classList.add(success ? 'success' : 'error');
+    if (user && isVerified === 'true') {
+        // Already logged in and verified
+        window.location.replace("homemob.html");
+    } 
+    else if (user) {
+        // USER LOGGED IN BUT NEEDS OTP
         
-        // 2. Set Content
-        const iconClass = success ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
-        msgBoxEl.innerHTML = `<i class="${iconClass}"></i><span class="flex-grow">${msg}</span>`;
-        
-        // 3. Trigger Fade-in and Slide-in
-        requestAnimationFrame(() => {
-            msgBoxEl.classList.add('show');
-        });
+        // A. Check for 3-Hour Lockout
+        const lockTime = localStorage.getItem('savig_lockout_time');
+        if (lockTime && Date.now() < parseInt(lockTime)) {
+            const remainingMs = parseInt(lockTime) - Date.now();
+            const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
+            showMsg(`Security Lock: Try again in ${remainingHours} hours.`, false);
+            setTimeout(() => auth.signOut(), 3000); 
+            return;
+        }
 
-        // 4. Set Timeout to Hide
-        setTimeout(() => {
-            msgBoxEl.classList.remove('show');
-            setTimeout(() => {
-                msgBoxEl.className = '';
-            }, 300); 
-        }, duration); 
+        // B. Update UI to OTP Screen
+        document.getElementById('loginCard').classList.add('hidden');
+        document.getElementById('pinCard').classList.remove('hidden');
+        
+        // C. Show dynamic email address in the message
+        const emailDisplay = document.getElementById('userEmailDisplay');
+        if(emailDisplay) emailDisplay.innerText = user.email;
+
+        // D. Trigger OTP Send (Fixed: only once)
+        if (!generatedOTP && !isSendingOTP) {
+            sendOTP(user.email);
+        }
+    } 
+    else {
+        // USER LOGGED OUT
+        localStorage.removeItem('savig_otp_verified');
+        document.getElementById('loginCard').classList.remove('hidden');
+        document.getElementById('pinCard').classList.add('hidden');
+        resetOTPState();
     }
+});
+
+// --- 2. SIGN IN FUNCTION ---
 document.getElementById("googleLoginBtn").onclick = async () => {
-    try {
-        const result = await auth.signInWithPopup(provider);
-        const { uid, email, displayName } = result.user;
-
-        // 1. Precise Name Formatting (e.g., "Sagar")
-        const rawName = displayName || email.split('@')[0].replace(/[._0-9]/g, ' ').trim();
-        const firstName = rawName.split(' ')[0].charAt(0).toUpperCase() + rawName.split(' ')[0].slice(1);
-
-        // 2. Background Sync (Firestore)
-        db.collection("users").doc(uid).set({
-            email: email,
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // 3. Inject Professional One-Liner
-        msgBoxEl.innerHTML = `
-            <div class="welcome-content">
-                <i class="fas fa-bolt" style="color: #fff;"></i>
-                <span>Welcome, <span class="user-name">${firstName}</span></span>
-                <span class="redirect-span">Redirecting to Savig Hub...</span>
-            </div>
-        `;
-        
-        // Trigger the high-speed animation
-        msgBoxEl.classList.add('show');
-
-        // 4. Snappy Redirection (1 second)
-        setTimeout(() => { 
-            window.location.href = "home.html"; 
-        }, 1200); 
-
-    } catch (e) {
-        console.error("Auth Error:", e);
-        // showMsg("Authentication failed", false);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try { 
+        await auth.signInWithPopup(provider); 
+    } catch (e) { 
+        showMsg(e.message, false); 
     }
 };
 
-</script>
+// --- 3. SEND OTP FUNCTION (WITH LOCK) ---
+function sendOTP(email) {
+    if (isSendingOTP || generatedOTP) return; // Critical: Prevents double sending
+
+    isSendingOTP = true;
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    otpExpiryTime = Date.now() + (3 * 60000); // 3 minutes valid
+
+    emailjs.send('service_2ucolxw', 'template_iknmqfs', { 
+        user_email: email, 
+        passcode: generatedOTP 
+    }).then(() => {
+        showMsg(`OTP Sent to ${email}`, true);
+        startTimer(180);
+    }).catch((err) => {
+        showMsg("Service Error. Check connection.", false);
+        generatedOTP = null; 
+    }).finally(() => {
+        isSendingOTP = false;
+    });
+}
+
+// --- 4. OTP VERIFICATION & ATTEMPT LIMITER ---
+const otpInputs = document.querySelectorAll('.otp-input-box');
+otpInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+        // Auto-focus next box
+        if (e.target.value && index < 5) otpInputs[index + 1].focus();
+        
+        const code = Array.from(otpInputs).map(i => i.value).join('');
+        if (code.length === 6) {
+            verifyOTP(code);
+        }
+    });
+
+    // Handle Backspace
+    input.addEventListener('keydown', (e) => { 
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+});
+
+function verifyOTP(code) {
+    let attempts = parseInt(localStorage.getItem('savig_otp_attempts') || '0');
+
+    if (code === generatedOTP && Date.now() <= otpExpiryTime) {
+        // SUCCESS
+        localStorage.setItem('savig_otp_verified', 'true');
+        localStorage.setItem('savig_otp_attempts', '0'); // Reset attempts
+        showMsg("Access Granted!", true);
+        setTimeout(() => window.location.replace("homemob.html"), 800);
+    } 
+    else {
+        // FAILURE
+        attempts++;
+        localStorage.setItem('savig_otp_attempts', attempts.toString());
+
+        if (attempts >= 3) {
+            // LOCKOUT LOGIC: 3 Hours
+            const lockoutPeriod = Date.now() + (3 * 60 * 60 * 1000);
+            localStorage.setItem('savig_lockout_time', lockoutPeriod.toString());
+            showMsg("Too many attempts. Locked for 3 hours.", false);
+            setTimeout(() => auth.signOut(), 2500);
+        } else {
+            showMsg(`Invalid code. ${3 - attempts} attempts left.`, false);
+            // Clear inputs and focus first box
+            otpInputs.forEach(i => i.value = '');
+            otpInputs[0].focus();
+        }
+    }
+}
+
+// --- 5. HELPER UTILITIES ---
+function startTimer(s) {
+    clearInterval(timerInterval);
+    let t = s;
+    const timerEl = document.getElementById('timer');
+    timerInterval = setInterval(() => {
+        let mins = Math.floor(t / 60); 
+        let secs = t % 60;
+        if (timerEl) timerEl.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        
+        if (--t < 0) { 
+            clearInterval(timerInterval); 
+            generatedOTP = null; // Invalidate OTP
+            showMsg("OTP Expired. Please sign in again.", false); 
+        }
+    }, 1000);
+}
+
+function resetOTPState() {
+    generatedOTP = null;
+    otpExpiryTime = null;
+    isSendingOTP = false;
+    clearInterval(timerInterval);
+    otpInputs.forEach(i => i.value = '');
+}
+
+function showMsg(m, s) {
+    const b = document.getElementById('msgBox');
+    if(!b) return;
     
+    b.innerText = m; 
+    // Standardized classes for both Light and Dark mode
+    b.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 show ${s ? 'success' : 'error'}`;
+    
+    setTimeout(() => b.classList.remove('show'), 4000);
+}</script>
+        
 <button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
     <span id="theme-icon">🌙</span>
 </button>
@@ -537,6 +617,33 @@ document.getElementById("googleLoginBtn").onclick = async () => {
     left: 50%;
     transform: translate(-50%, -50%) !important;
 }
+
+    /* Message Box Styles */
+    #msgBox.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    #msgBox.success {
+        background-color: #10B981; /* Green-500 */
+        color: white;
+    }
+    #msgBox.error {
+        background-color: #EF4444; /* Red-500 */
+        color: white;
+    }
+
+    /* Animation */
+    @keyframes fadeInZoom {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Target Dark Mode manually if not using Tailwind's compiler */
+    @media (prefers-color-scheme: dark) {
+        body { background-color: #0f172a; }
+    }
+
 </style>
 
 <script>
@@ -577,58 +684,5 @@ document.getElementById("googleLoginBtn").onclick = async () => {
 </script>
     
 
-<script>
-    // Check if the user was redirected because of a timeout
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('reason') === 'timeout') {
-        document.getElementById('login-msg').style.display = 'block';
-    }
-</script>
-<script>
-  // 1. We push TWO states to ensure the 'Back' button is fully trapped
-  window.history.pushState({exit: true}, null, "");
-  window.history.pushState({exit: true}, null, "");
-
-  window.onpopstate = function (event) {
-    // 2. This triggers when 'Back' is pressed
-    if (confirm("Do you want to exit the Personal App?")) {
-      // 3. Try to close
-      window.close();
-      
-      // 4. If close is blocked, force a 'Deep Back' to the phone home screen
-      window.history.go(-2); 
-      
-      // 5. Ultimate fallback: Blank the app
-      setTimeout(() => { window.location.href = "about:blank"; }, 300);
-    } else {
-      // 6. If they stay, reset the double trap
-      window.history.pushState({exit: true}, null, "");
-    }
-  };
-</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
