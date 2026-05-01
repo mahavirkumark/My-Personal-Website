@@ -1019,7 +1019,7 @@ firebase.auth().onAuthStateChanged(user => { if(user) initDashboard(); });
             checkPersonalEvents();   // Checks 'users/uid/events/' node
         }
     });
-// 1. Festival Data for 2026 with Office Status
+// 1. Data Object for 2026
 const festivalData2026 = {
     "01-14": { name: "मकर संक्रांत", bank: "Open", govt: "Open", icon: "🪁" },
     "01-26": { name: "प्रजासत्ताक दिन", bank: "Closed", govt: "Closed", icon: "🇮🇳" },
@@ -1027,55 +1027,73 @@ const festivalData2026 = {
     "03-19": { name: "गुढीपाडवा", bank: "Closed", govt: "Closed", icon: "🎋" },
     "05-01": { name: "महाराष्ट्र दिन", bank: "Closed", govt: "Closed", icon: "🗺️" },
     "08-15": { name: "स्वातंत्र्य दिन", bank: "Closed", govt: "Closed", icon: "🇮🇳" },
-    "08-27": { name: "रक्षाबंधन", bank: "Open", govt: "Open", icon: "🧵" },
     "09-14": { name: "गणेश चतुर्थी", bank: "Closed", govt: "Closed", icon: "🕉️" },
     "10-21": { name: "दसरा (विजयादशमी)", bank: "Closed", govt: "Closed", icon: "🏹" },
     "11-08": { name: "दिवाळी (लक्ष्मीपूजन)", bank: "Closed", govt: "Closed", icon: "🪔" }
-    // Add more dates as needed
 };
 
-async function requestNotificationPermission() {
+async function initNotificationSystem() {
     if (!("Notification" in window)) return;
-    
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        await Notification.requestPermission();
+
+    // Check how many times we showed a notification today
+    const todayStr = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    let stats = JSON.parse(localStorage.getItem('notification_stats')) || { date: "", count: 0 };
+
+    // Reset count if it's a new day
+    if (stats.date !== todayStr) {
+        stats = { date: todayStr, count: 0 };
     }
-    checkAndNotifyFestival();
+
+    // Stop if we already sent 2 notifications today
+    if (stats.count >= 2) {
+        console.log("Daily limit reached (2/2). No more notifications today.");
+        return;
+    }
+
+    // Request permission if not already granted
+    if (Notification.permission === "granted") {
+        sendMarathiNotification(stats);
+    } else if (Notification.permission !== "denied") {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+            sendMarathiNotification(stats);
+        }
+    }
 }
 
-function checkAndNotifyFestival() {
-    if (Notification.permission !== "granted") return;
-
+function sendMarathiNotification(stats) {
     const today = new Date();
-    const dateKey = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const festival = festivalData2026[dateKey];
+    const monthDay = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const festival = festivalData2026[monthDay];
 
     if (festival) {
-        // Constructing the Marathi message
         const title = `${festival.icon} आज ${festival.name} आहे!`;
         
-        // Detailed Status
-        const bankStatus = festival.bank === "Closed" ? "🏦 बँक: बंद" : "🏦 बँक: सुरू";
-        const govtStatus = festival.govt === "Closed" ? "🏢 सरकारी कार्यालय: बंद" : "🏢 सरकारी कार्यालय: सुरू";
+        // Detailed Status Logic
+        const bankInfo = festival.bank === "Closed" ? "🏦 बँक: बंद (सुट्टी)" : "🏦 बँक: सुरू";
+        const govtInfo = festival.govt === "Closed" ? "🏢 सरकारी कार्यालय: बंद" : "🏢 सरकारी कार्यालय: सुरू";
         
-        const bodyText = `${bankStatus}\n${govtStatus}\n\nतुम्हाला व तुमच्या परिवारास हार्दिक शुभेच्छा!`;
+        const bodyText = `${bankInfo}\n${govtInfo}\n\nतुम्हाला व तुमच्या परिवारास शुभेच्छा!`;
 
-        const notification = new Notification(title, {
+        const notify = new Notification(title, {
             body: bodyText,
-            icon: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png", // Replace with your app logo
-            badge: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png",
+            icon: "https://cdn-icons-png.flaticon.com/512/1041/1041168.png", // Use your favicon/logo
             vibrate: [200, 100, 200]
         });
 
-        notification.onclick = () => {
+        // Update and save the count
+        stats.count += 1;
+        localStorage.setItem('notification_stats', JSON.stringify(stats));
+
+        notify.onclick = () => {
             window.focus();
             window.location.href = "panchang.html";
         };
     }
 }
 
-// Check on load
-window.addEventListener('DOMContentLoaded', requestNotificationPermission);
+// Run the check when the page is ready
+window.addEventListener('DOMContentLoaded', initNotificationSystem);
 </script>
     
 </script>
