@@ -374,7 +374,7 @@ function verifyOTP(code) {
         localStorage.setItem('savig_otp_verified', 'true');
         localStorage.setItem('savig_otp_attempts', '0'); // Reset attempts
         showMsg("Access Granted!", true);
-        setTimeout(() => window.location.replace("homemob.html"), 800);
+        setTimeout(() => window.location.replace("home.html"), 100);
     } 
     else {
         // FAILURE
