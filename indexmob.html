@@ -64,32 +64,229 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-    <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background:#ffe11b; z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+<div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0a0f1e 0%, #0d1b2a 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+    
+    <!-- Animated particles background -->
+    <canvas id="particles-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    
+    <!-- Animated glow orb background -->
+    <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,255,255,0.08) 0%, rgba(0,255,255,0) 70%); border-radius: 50%; animation: pulseGlow 4s ease-in-out infinite;"></div>
+    <div style="position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(108,99,255,0.08) 0%, rgba(108,99,255,0) 70%); border-radius: 50%; animation: pulseGlow 5s ease-in-out infinite reverse; top: 50%; left: 20%;"></div>
+    
+    <!-- Main icon container with floating animation - YOUR ORIGINAL ICON -->
+    <div style="position: relative; margin-bottom: 2rem; animation: float 3s ease-in-out infinite; z-index: 10;">
+        <!-- Outer rotating ring -->
+        <div style="position: absolute; top: -20px; left: -20px; width: 130px; height: 130px; border-radius: 50%; border: 2px solid rgba(0, 255, 255, 0.5); border-top-color: transparent; border-right-color: rgba(0, 255, 255, 0.1); animation: spin 2s linear infinite;"></div>
         
-        <div class="relative mb-8 flex items-center justify-center">
+        <!-- Middle rotating ring (reverse) -->
+        <div style="position: absolute; top: -10px; left: -10px; width: 110px; height: 110px; border-radius: 50%; border: 1.5px solid rgba(100, 255, 218, 0.3); border-bottom-color: transparent; border-left-color: rgba(100, 255, 218, 0.05); animation: spinReverse 4s linear infinite;"></div>
         
-            <div class="absolute rounded-full border-2 border-blue-600 border-t-transparent shadow-lg" style="width: 110px; height: 110px; animation: spin 1s linear infinite;"></div>
-            
-            <div class="relative flex items-center justify-center" style="animation: float 3s ease-in-out infinite;">
-                <i class="fas fa-shield text-blue-600" style="font-size: 70px; filter: drop-shadow(0 4px 6px rgba(37,99,235,0.2));"></i>
-                <i class="fas fa-database text-white absolute" style="font-size: 38px; top: 43%; left: 50%; transform: translate(-50%, -40%);"></i>
-            </div>
-        </div>
+        <!-- Inner pulse ring -->
+        <div style="position: absolute; top: 0px; left: 0px; width: 90px; height: 90px; border-radius: 50%; background: rgba(0,255,255,0.03); animation: ringPulse 2s ease-in-out infinite;"></div>
         
-        <div class="text-center mb-4 overflow-hidden">
-         
-            <p class="text-gray-400 text-[10px] uppercase tracking-[0.4em] mt-2 font-bold opacity-0" style="animation: fadeIn 1s forwards 0.5s;">Secure Personal Hub</p>
-        </div>
-        
-        <div class="h-10 flex flex-col items-center justify-center">
-            <div id="splash-text" class="text-blue-600 font-bold text-[11px] uppercase tracking-[0.2em] text-center transition-all duration-300">
-                Initializing Secure Environment
-            </div>
-        </div>
-
-       
+        <!-- YOUR EXACT ICON from nav -->
+        <div class="relative flex items-center justify-center" style="filter: drop-shadow(0 0 20px rgba(37,99,235,0.3));">
+            <i class="fas fa-shield text-blue-600" style="font-size: 70px; filter: drop-shadow(0 4px 6px rgba(37,99,235,0.2));"></i>
+            <i class="fas fa-database text-white absolute" style="font-size: 38px; top: 43%; left: 50%; transform: translate(-50%, -40%);"></i>
         </div>
     </div>
+    
+    <!-- Brand title - Savig with modern styling -->
+    <div style="text-align: center; margin-bottom: 0.5rem; z-index: 10;">
+        <h1 style="font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; font-size: 48px; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #0ff 50%, #6c63ff 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; margin: 0; text-shadow: 0 0 30px rgba(0,255,255,0.2);">Savig</h1>
+        <p style="color: rgba(0, 255, 255, 0.6); font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; margin-top: 10px; font-weight: 500; backdrop-filter: blur(4px);">SECURE PERSONAL HUB</p>
+    </div>
+    
+    <!-- Modern loading bar container -->
+    <div style="width: 260px; margin-top: 40px; margin-bottom: 24px; z-index: 10;">
+        <div style="height: 3px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; backdrop-filter: blur(2px);">
+            <div id="splash-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0ff, #6c63ff, #0ff); background-size: 200% auto; border-radius: 4px; transition: width 0.15s ease-out; animation: shimmer 1.5s linear infinite;"></div>
+        </div>
+    </div>
+    
+    <!-- Dynamic status text with modern styling -->
+    <div style="height: 50px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 10;">
+        <div id="splash-text" style="color: #aaffff; font-family: 'SF Mono', 'Courier New', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; text-align: center; background: rgba(0,255,255,0.06); padding: 8px 18px; border-radius: 40px; backdrop-filter: blur(8px); border: 1px solid rgba(0,255,255,0.15); transition: all 0.3s ease;">
+            🔐 establishing secure channel
+        </div>
+        <div id="splash-dots" style="color: rgba(0,255,255,0.4); font-size: 10px; letter-spacing: 4px; font-weight: 300;">✦ ✦ ✦</div>
+    </div>
+    
+    <!-- Version badge -->
+    <div style="position: absolute; bottom: 25px; left: 0; right: 0; text-align: center; font-size: 9px; color: rgba(0,255,255,0.25); font-family: monospace; z-index: 10; letter-spacing: 1px;">
+        v1.0 • zero-knowledge encrypted
+    </div>
+</div>
+
+<style>
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes spinReverse {
+        0% { transform: rotate(360deg); }
+        100% { transform: rotate(0deg); }
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes pulseGlow {
+        0% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.15); }
+        100% { opacity: 0.3; transform: scale(1); }
+    }
+    @keyframes ringPulse {
+        0% { opacity: 0; transform: scale(0.9); }
+        50% { opacity: 0.15; transform: scale(1); }
+        100% { opacity: 0; transform: scale(0.9); }
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .fade-out-splash {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    (function() {
+        // Particles animation for modern effect
+        const canvas = document.getElementById('particles-canvas');
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 1,
+                    alpha: Math.random() * 0.5,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3
+                });
+            }
+            
+            function animateParticles() {
+                if (!ctx || !canvas) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let p of particles) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 255, 255, ${p.alpha * 0.5})`;
+                    ctx.fill();
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            
+            animateParticles();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Only 3 status messages
+        const statusMessages = [
+            "🔐 establishing secure channel",
+            "📦 loading encrypted vault",
+            "🚀 launch sequence ready"
+        ];
+        
+        let currentStep = 0;
+        const splashTextEl = document.getElementById('splash-text');
+        const progressBar = document.getElementById('splash-progress-bar');
+        const splashScreen = document.getElementById('splash-screen');
+        const dotsEl = document.getElementById('splash-dots');
+        
+        let dotInterval;
+        function startDotsAnimation() {
+            let dotCount = 0;
+            dotInterval = setInterval(() => {
+                if (!dotsEl) return;
+                const dots = ['✦', '✦ ✦', '✦ ✦ ✦', '✦ ✦'];
+                dotCount = (dotCount + 1) % dots.length;
+                dotsEl.innerHTML = dots[dotCount];
+            }, 400);
+        }
+        
+        function updateProgress(percent, messageIndex = null) {
+            if (progressBar) {
+                progressBar.style.width = Math.min(100, percent) + '%';
+            }
+            if (messageIndex !== null && splashTextEl && statusMessages[messageIndex]) {
+                splashTextEl.innerHTML = statusMessages[messageIndex];
+            }
+        }
+        
+        // EXACTLY 5 SECONDS duration
+        let progress = 0;
+        const duration = 5000; // 5 seconds
+        const intervalTime = 50;
+        const steps = duration / intervalTime;
+        let stepCount = 0;
+        
+        const interval = setInterval(() => {
+            stepCount++;
+            progress = Math.min((stepCount / steps) * 100, 100);
+            updateProgress(progress);
+            
+            // update message at percentages
+            if (progress >= 33 && currentStep === 0) {
+                currentStep = 1;
+                if(splashTextEl) splashTextEl.innerHTML = statusMessages[1];
+            } else if (progress >= 66 && currentStep === 1) {
+                currentStep = 2;
+                if(splashTextEl) splashTextEl.innerHTML = statusMessages[2];
+            }
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                if(dotInterval) clearInterval(dotInterval);
+                if(splashTextEl) splashTextEl.innerHTML = "✅ ACCESS GRANTED";
+                if(progressBar) progressBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    if(splashScreen) {
+                        splashScreen.classList.add('fade-out-splash');
+                        setTimeout(() => {
+                            if(splashScreen && splashScreen.parentNode) {
+                                splashScreen.style.display = 'none';
+                            }
+                            window.dispatchEvent(new CustomEvent('splash-complete'));
+                        }, 800);
+                    }
+                }, 300);
+            }
+        }, intervalTime);
+        
+        startDotsAnimation();
+    })();
+</script>
+
+<!-- Font Awesome 6 (free CDN) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Font Awesome 6 (free CDN) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<!-- Font Awesome 6 (free CDN) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Font Awesome 6 (free CDN) - include if not already present -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <nav class="bg-white shadow-sm py-2" style="margin-bottom: 30px;">
     <div class="container mx-auto px-2">
         <div class="flex items-center gap-1">
@@ -435,7 +632,6 @@
 </script>
 </body>
 </html>
-
 
 
 
