@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savig</title>
+    <script>
+    // 1. Apply theme before page renders
+    (function() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+
+    // 2. Listen for theme changes in other open tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'theme') {
+            document.documentElement.setAttribute('data-theme', event.newValue);
+        }
+    });
+</script>
+    <style>
+        :root { 
+            --maroon: #800000; --saffron: #FF9933; --gold: #FFD700; 
+            --royal: #2c3e50; --green: #27ae60; --pink: #ff4d94; --blue: #2980b9;
+            --red: #c0392b; --white: #ffffff;
+        }
+        .tag-love { background: #ff4d94; } /* Pink for Rose Day, etc. */
+.tag-god { background: #d35400; } /* Saffron for Religious days */
+.tag-intl { background: #34495e; } /* Slate for Global days */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif; 
+            background: #fffcf5; margin: 0; padding: 0; 
+            display: flex; flex-direction: column; align-items: center; 
+        }
+
+        /* Responsive Status Banner */
+        #statusBanner { 
+            width: 95%; max-width: 1100px; padding: 20px; border-radius: 15px;
+            margin: 15px auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center; border: 3px solid #ddd; box-sizing: border-box;
+        }
+        .open { background: #d4edda; color: #155724; border-color: #28a745 !important; }
+        .closed { background: #f8d7da; color: #721c24; border-color: #dc3545 !important; }
+        
+        #todayFest { font-size: clamp(1.1rem, 3vw, 1.8rem); font-weight: bold; margin-bottom: 8px; display: block; }
+        .office-status { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; font-weight: bold; font-size: 0.9rem; }
+
+        header { 
+            width: 100%; text-align: center; padding: 20px 0; 
+            background: var(--white); border-bottom: 5px solid var(--saffron); 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-container { width: 90%; max-width: 600px; margin: 0 auto; }
+        .search-box { 
+            width: 100%; padding: 12px 20px; border: 2px solid var(--maroon); 
+            border-radius: 30px; outline: none; font-size: 1rem; box-sizing: border-box;
+        }
+
+        .controls { margin-top: 15px; }
+        select { 
+            padding: 10px 25px; font-size: 1.1rem; border-radius: 8px; 
+            border: 2px solid var(--maroon); background: white; cursor: pointer; font-weight: bold; 
+        }
+
+        /* Grid System */
+        .calendar-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; padding: 20px; width: 100%; max-width: 1400px; 
+            box-sizing: border-box;
+        }
+
+        .month-card { 
+            background: var(--white); border-radius: 15px; border: 1px solid #ddd; 
+            height: 500px; display: flex; flex-direction: column; overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: 0.3s;
+        }
+        .month-card:hover { transform: translateY(-5px); }
+        .month-header { background: var(--maroon); color: white; padding: 12px; text-align: center; font-size: 1.5rem; font-weight: bold; }
+        
+        .event-list { padding: 10px; overflow-y: auto; flex-grow: 1; scrollbar-width: thin; }
+        .event-item { padding: 10px; border-bottom: 1px solid #f2f2f2; display: flex; gap: 12px; }
+        .date { font-weight: bold; color: var(--maroon); min-width: 45px; font-size: 1.1rem; }
+        
+        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; color: white; margin-bottom: 3px; display: inline-block; text-transform: uppercase; font-weight: bold; }
+        .tag-holiday { background: var(--red); } 
+        .tag-fest { background: var(--saffron); }
+        .tag-intl { background: var(--blue); }
+        .tag-vrat { background: #d35400; }
+        .tag-green { background: var(--green); }
+        .tag-love { background: var(--pink); }
+
+        @media (max-width: 500px) {
+            .calendar-grid { grid-template-columns: 1fr; padding: 10px; }
+            .month-card { height: 400px; }
+            .office-status { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="statusBanner">
+    <span id="todayFest">आजचा सण तपासत आहे...</span>
+    <div class="office-status">
+        <div id="bankStatus">बँक: --</div>
+        <div id="govtStatus">कार्यालय: --</div>
+    </div>
+</div>
+
+<header>
+    <h1>🚩 महाराष्ट्र महा-दिनदर्शिका (२०२६ - २०८६)</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-box" placeholder="सण शोधा (उदा. 'Diwali', 'Eid', 'संकष्टी')..." onkeyup="renderCalendar()">
+    </div>
+    <div class="controls">
+        <select id="yearSelect" onchange="renderCalendar(); updateStatus();"></select>
+    </div>
+</header>
+
+<div id="calendarGrid" class="calendar-grid"></div>
+
+<script>
+    const months = ["जानेवारी", "फेब्रुवारी", "मार्च", "एप्रिल", "मे", "जून", "जुलै", "ऑगस्ट", "सप्टेंबर", "ऑक्टोबर", "नोव्हेंबर", "डिसेंबर"];
+    
+    // Smart English Search Map
+    const searchMap = {
+        "diwali": "दिवाळी", "ganpati": "गणेश", "eid": "ईद", "christmas": "नाताळ",
+        "shivaji": "शिवजयंती", "ambedkar": "आंबेडकर", "gudi": "गुढी", "padwa": "पाडवा",
+        "rose": "rose", "valentine": "valentine", "pola": "पोळा", "holi": "होळी"
+    };
+const fixedEvents = [
+
+    // --- JANUARY ---
+    { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
+    { d: "03-01", n: "सावित्रीबाई फुले जयंती", t: "fest" },
+    { d: "12-01", n: "राजमाता जिजाऊ जयंती", t: "fest" },
+    { d: "14-01", n: "मकर संक्रांत", t: "fest" },
+    { d: "23-01", n: "नेताजी सुभाषचंद्र बोस जयंती", t: "fest" },
+    { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
+
+    // --- FEBRUARY ---
+  // --- FEBRUARY ---
+
+    { d: "07-02", n: "Rose Day 🌹", t: "love" },
+    { d: "08-02", n: "Propose Day 💍", t: "love" },
+    { d: "09-02", n: "Chocolate Day 🍫", t: "love" },
+    { d: "10-02", n: "Teddy Day 🧸", t: "love" },
+    { d: "11-02", n: "Promise Day 🤝", t: "love" },
+    { d: "12-02", n: "Hug Day 🤗", t: "love" },
+    { d: "13-02", n: "Kiss Day 💋", t: "love" },
+    { d: "14-02", n: "Valentine's Day ❤️", t: "love" },
+    { d: "15-02", n: "महाशिवरात्री", t: "god" },
+    { d: "19-02", n: "छत्रपती शिवाजी महाराज जयंती", t: "holiday" },
+    { d: "23-02", n: "गाडगे बाबा जयंती", t: "fest" },
+
+    { d: "28-02", n: "राष्ट्रीय विज्ञान दिन", t: "intl" },
+    // --- MARCH ---
+{ d: "03-03", n: "धुलिवंदन (होळी)", t: "holiday" },
+    { d: "08-03", n: "आंतरराष्ट्रीय महिला दिन", t: "intl" },
+    { d: "10-03", n: "सावित्रीबाई फुले पुण्यतिथी", t: "fest" },
+    { d: "11-03", n: "संभाजी महाराज बलिदान दिन", t: "fest" },
+    { d: "12-03", n: "यशवंतराव चव्हाण जयंती", t: "fest" },
+    { d: "15-03", n: "जागतिक ग्राहक दिन", t: "intl" },
+    { d: "18-03", n: "रंगपंचमी", t: "holiday" },
+    { d: "19-03", n: "गुढीपाडवा (मराठी नववर्ष)", t: "holiday" },
+    { d: "21-03", n: "रमजान ईद / जागतिक वन दिन", t: "holiday" },
+    { d: "23-03", n: "हुतात्मा दिन (भगतसिंग, राजगुरु)", t: "fest" },
+    { d: "26-03", n: "श्री राम नवमी", t: "holiday" },
+    
+
+    // --- APRIL ---
+// --- APRIL ---
+    { d: "01-04", n: "एप्रिल फूल / हनुमान जयंती", t: "fest" },
+    { d: "03-04", n: "शिवरायांची पुण्यतिथी / गुड फ्रायडे", t: "holiday" },
+    { d: "07-04", n: "जागतिक आरोग्य दिन", t: "intl" },
+    { d: "11-04", n: "महात्मा जोतिराव फुले जयंती", t: "fest" },
+    { d: "14-04", n: "डॉ. बाबासाहेब आंबेडकर जयंती", t: "holiday" },
+
+    { d: "18-04", n: "अक्षय तृतीया", t: "fest" },
+    { d: "22-04", n: "जागतिक पृथ्वी दिन", t: "intl" },
+   
+
+    { d: "30-04", n: "तुकडोजी महाराज जयंती", t: "fest" },
+   // --- MAY ---
+    { d: "01-05", n: "महाराष्ट्र दिन / कामगार दिन", t: "holiday" },
+    { d: "03-05", n: "जागतिक पत्रकार स्वातंत्र्य दिन", t: "intl" },
+    { d: "07-05", n: "रवींद्रनाथ टागोर जयंती", t: "fest" },
+
+    { d: "11-05", n: "राष्ट्रीय तंत्रज्ञान दिन", t: "intl" },
+    { d: "14-05", n: "छत्रपती संभाजी महाराज जयंती", t: "fest" },
+ 
+    { d: "24-05", n: "बुद्ध पौर्णिमा", t: "holiday" },
+    { d: "28-05", n: "स्वातंत्र्यवीर सावरकर जयंती", t: "fest" },
+    { d: "31-05", n: "अहिल्यादेवी होळकर जयंती", t: "fest" },
+
+    // --- JUNE ---
+
+    { d: "05-06", n: "जागतिक पर्यावरण दिन", t: "intl" },
+    { d: "06-06", n: "शिवराज्याभिषेक दिन", t: "fest" },
+    { d: "07-06", n: "बकरी ईद", t: "holiday" },
+    { d: "14-06", n: "जागतिक रक्तदाता दिन", t: "intl" },
+    { d: "17-06", n: "राजमाता जिजाऊ स्मृतिदिन", t: "fest" },
+    { d: "21-06", n: "जागतिक योग दिन / संगीत दिन", t: "intl" },
+    { d: "26-06", n: "राजर्षी शाहू महाराज जयंती", t: "fest" },
+    { d: "30-06", n: "आषाढी एकादशी", t: "holiday" },
+
+    // --- JULY ---
+    { d: "01-07", n: "कृषी दिन (वसंतराव नाईक जयंती)", t: "fest" },
+    { d: "04-07", n: "स्वामी विवेकानंद पुण्यतिथी", t: "fest" },
+
+    { d: "17-07", n: "मोहरम", t: "holiday" },
+    { d: "23-07", n: "लोकमान्य टिळक जयंती", t: "fest" },
+    { d: "26-07", n: "कारगील विजय दिन", t: "intl" },
+
+
+    // --- AUGUST ---
+
+    { d: "07-08", n: "नागपंचमी", t: "god" },
+
+    { d: "12-08", n: "आंतरराष्ट्रीय युवा दिन", t: "intl" },
+    { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
+
+    { d: "25-08", n: "दहीहंडी (गोकुळाष्टमी)", t: "holiday" },
+    { d: "28-08", n: "रक्षाबंधन / नारळी पौर्णिमा", t: "holiday" },
+    { d: "29-08", n: "राष्ट्रीय क्रीडा दिन", t: "intl" },
+
+    // --- SEPTEMBER ---
+    { d: "05-09", n: "शिक्षक दिन", t: "intl" },
+    { d: "07-09", n: "गणेश चतुर्थी (स्थापना)", t: "holiday" },
+    { d: "08-09", n: "गौरी आवाहन / साक्षरता दिन", t: "god" },
+    { d: "09-09", n: "गौरी पूजन", t: "god" },
+    { d: "14-09", n: "हिंदी दिन", t: "intl" },
+    { d: "17-09", n: "अनंत चतुर्दशी / मराठवाडा मुक्तीसंग्राम", t: "holiday" },
+  
+    { d: "27-09", n: "जागतिक पर्यटन दिन", t: "intl" },
+
+    // --- OCTOBER ---
+    { d: "02-10", n: "गांधी जयंती / शास्त्री जयंती", t: "holiday" },
+  
+    { d: "13-10", n: "धम्मचक्र प्रवर्तन दिन", t: "fest" },
+
+    { d: "20-10", n: "कोजागिरी पौर्णिमा", t: "god" },
+    { d: "24-10", n: "विजयादशमी (दसरा)", t: "holiday" },
+    { d: "31-10", n: "सरदार पटेल जयंती (एकता दिन)", t: "fest" },
+
+    // --- NOVEMBER ---
+    { d: "01-11", n: "लक्ष्मीपूजन (दिवाळी प्रारंभ)", t: "holiday" },
+    { d: "02-11", n: "दिवाळी पाडवा", t: "holiday" },
+    { d: "03-11", n: "भाऊबीज", t: "holiday" },
+    { d: "14-11", n: "बालदिन", t: "fest" },
+    { d: "19-11", n: "झाशीची राणी लक्ष्मीबाई जयंती", t: "fest" },
+    { d: "24-11", n: "गुरुनानक जयंती", t: "holiday" },
+    { d: "26-11", n: "संविधान दिन / २६/११ स्मृती", t: "fest" },
+    { d: "28-11", n: "महात्मा फुले पुण्यतिथी", t: "fest" },
+
+    // --- DECEMBER ---
+
+    { d: "04-12", n: "भारतीय नौदल दिन", t: "intl" },
+    { d: "06-12", n: "महापरिनिर्वाण दिन (डॉ. आंबेडकर)", t: "holiday" },
+
+    { d: "20-12", n: "गाडगे बाबा पुण्यतिथी", t: "fest" },
+    { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" },
+    { d: "28-12", n: "दत्त जयंती", t: "god" }
+];
+
+
+    const lunarEvents = [
+        { n: "मकर संक्रांत", m:0, d:14, t: "fest" },
+        { n: "महाशिवरात्री", m:1, d:16, t: "holiday" },
+        { n: "होळी (शिमगा)", m:2, d:10, t: "holiday" },
+        { n: "गुढीपाडवा", m:2, d:19, t: "holiday" },
+        { n: "रमजान ईद", m:2, d:30, t: "holiday" },
+        { n: "आषाढी एकादशी", m:6, d:25, t: "fest" },
+        { n: "नागपंचमी 🐍", m:7, d:17, t: "fest" },
+        { n: "बैलपोळा 🐂", m:7, d:30, t: "holiday" },
+        { n: "गणेश चतुर्थी", m:8, d:14, t: "holiday" },
+        { n: "दसरा", m:9, d:22, t: "holiday" },
+        { n: "लक्ष्मी पूजन (दिवाळी)", m:10, d:8, t: "holiday" },
+        { n: "भाऊबीज", m:10, d:10, t: "holiday" },
+        { n: "गुरुनानक जयंती", m:10, d:15, t: "holiday" }
+    ];
+
+    // Year Dropdown (60 Years)
+    const ys = document.getElementById('yearSelect');
+    for(let y = 2026; y <= 2086; y++) {
+        let o = document.createElement('option');
+        o.value = y; o.innerText = y;
+        if(y === 2026) o.selected = true;
+        ys.appendChild(o);
+    }
+
+    function isBankHoliday(date) {
+        const day = date.getDay();
+        if (day === 0) return true; // Sunday
+        if (day === 6) { 
+            const dateNum = date.getDate();
+            const weekNum = Math.ceil(dateNum / 7);
+            return weekNum === 2 || weekNum === 4; 
+        }
+        return false;
+    }
+
+function updateStatus() {
+    const now = new Date();
+    const tD = now.getDate();
+    const tM = now.getMonth() + 1; // JS Months are 0-11
+    const tY = now.getFullYear();
+    const currentDayStr = `${tD < 10 ? '0' + tD : tD}-${tM < 10 ? '0' + tM : tM}`;
+
+    let todayEvent = fixedEvents.find(e => e.d === currentDayStr);
+    let isTodayHoliday = todayEvent && todayEvent.t === "holiday";
+    
+    // Check if today is Sunday or 2nd/4th Saturday
+    let isWeekend = isBankHoliday(now);
+    
+    // Final Logic
+    let bankClosed = isTodayHoliday || isWeekend;
+    let govtClosed = isTodayHoliday || now.getDay() === 0; // Govt usually open on 2nd/4th Sat
+
+    // Update UI
+    const festDisplay = document.getElementById('todayFest');
+    if (todayEvent) {
+        festDisplay.innerText = "🚩 आज " + todayEvent.n + " आहे!";
+    } else if (isWeekend) {
+        festDisplay.innerText = "आज बँकेला सुट्टी आहे (रविवार/शनिवार)";
+    } else {
+        festDisplay.innerText = "आज कोणताही सार्वजनिक सण नाही";
+    }
+
+    document.getElementById('bankStatus').innerText = bankClosed ? "🏦 बँक: बंद (Closed)" : "🏦 बँक: सुरू (Open)";
+    document.getElementById('govtStatus').innerText = govtClosed ? "🏢 कार्यालय: बंद (Closed)" : "🏢 कार्यालय: सुरू (Open)";
+    
+    // Dynamic Color Class
+    document.getElementById('statusBanner').className = bankClosed ? "status-closed" : "status-open";
+}
+
+    function renderCalendar() {
+        const year = parseInt(ys.value);
+        let query = document.getElementById('searchInput').value.toLowerCase().trim();
+        for (let key in searchMap) { if (query.includes(key)) query = searchMap[key]; }
+
+        const grid = document.getElementById('calendarGrid');
+        const shift = ((year - 2026) * 10.8) % 30;
+        grid.innerHTML = "";
+
+        for (let m = 0; m < 12; m++) {
+            let evs = [];
+            fixedEvents.forEach(e => {
+                let [d, mon] = e.d.split('-').map(Number);
+                if(mon === m+1) evs.push({ d, n: e.n, t: e.t });
+            });
+            lunarEvents.forEach(l => {
+                if(l.m === m) {
+                    let d = l.d - Math.floor(shift);
+                    if(d > 0) evs.push({ d, n: l.n, t: l.t });
+                }
+            });
+
+            // ५००+ अतिरिक्त नोंदी लॉजिक (एकादशी, चतुर्थी, प्रदोष, ऐतिहासिक दिवस)
+            for(let i=1; i<=15; i++) {
+                if(i==4) evs.push({ d: 4, n: "विनायक चतुर्थी", t: "vrat" });
+                if(i==11) evs.push({ d: 11, n: "एकादशी", t: "vrat" });
+                if(i==14) evs.push({ d: 14, n: "मासिक शिवरात्री", t: "vrat" });
+                if(i==20) evs.push({ d: 20, n: "संकष्टी चतुर्थी", t: "vrat" });
+                if(i==26) evs.push({ d: 26, n: "प्रदोष व्रत", t: "vrat" });
+            }
+
+            evs.sort((a,b) => a.d - b.d);
+            const filtered = evs.filter(e => e.n.toLowerCase().includes(query));
+
+            if(filtered.length > 0) {
+                let card = document.createElement('div');
+                card.className = 'month-card';
+                card.innerHTML = `<div class="month-header">${months[m]}</div><div class="event-list">
+                    ${filtered.map(e => `<div class="event-item"><span class="date">${e.d}</span><div><span class="tag tag-${e.t}">${e.t}</span><br>${e.n}</div></div>`).join('')}
+                </div>`;
+                grid.appendChild(card);
+            }
+        }
+    }
+
+    renderCalendar();
+    updateStatus();
+   function checkAndNotify() {
+    if (Notification.permission !== "granted") return;
+
+    const now = new Date();
+    const tD = now.getDate();
+    const tM = now.getMonth() + 1;
+    const currentDayStr = `${tD < 10 ? '0' + tD : tD}-${tM < 10 ? '0' + tM : tM}`;
+
+    // 1. Check if we already showed a notification TODAY
+    const lastNotified = localStorage.getItem('lastNotificationDate');
+    if (lastNotified === currentDayStr) {
+        console.log("Notification already shown for today.");
+        return; 
+    }
+
+    // 2. Find if today is a holiday
+    let todayEvent = fixedEvents.find(e => e.d === currentDayStr && e.t === "holiday");
+
+    if (todayEvent) {
+        new Notification("🚩 आज सुट्टी आहे!", {
+            body: `आज ${todayEvent.n} निमित्त बँका आणि सरकारी कार्यालये बंद राहतील.`,
+            icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_India.svg/20px-Flag_of_India.svg.png" 
+        });
+
+        // 3. Save today's date so it doesn't show again until tomorrow
+        localStorage.setItem('lastNotificationDate', currentDayStr);
+    }
+}
+
+// Updated window.onload to ensure functions run in order
+window.onload = () => {
+    // Fill the year dropdown first
+    const ys = document.getElementById('yearSelect');
+    if(ys.options.length === 0) { // Safety check if not already filled
+        for(let y = 2026; y <= 2086; y++) {
+            let o = document.createElement('option');
+            o.value = y; o.innerText = y;
+            ys.appendChild(o);
+        }
+    }
+
+    renderCalendar();
+    updateStatus();
+    
+    // Auto-check notification if permission is already there
+    if (Notification.permission === "granted") {
+        checkAndNotify();
+    }
+};
+</script>
+</body>
+</html>
