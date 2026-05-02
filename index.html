@@ -126,7 +126,154 @@
         <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
     </div>
 </div>
+<div id="page-loader" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center transition-all duration-700 ease-in-out"
+     style="background: radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%);">
+    
+    <!-- Loader Content Container (slight fade-in on load) -->
+    <div class="flex flex-col items-center gap-8 animate-[fadeIn_0.5s_ease-out_forwards] opacity-0">
+        
+        <!-- Modern Animated Icon Hub - Refined Professional -->
+        <div class="relative flex items-center justify-center w-24 h-24">
+            
+            <!-- 1. Subtle professional pulsing ring (executive feel) -->
+            <div class="absolute inset-0 rounded-full bg-indigo-50/70 animate-[ping_1.8s_cubic-bezier(0.2,0.9,0.4,1.1)_infinite]"></div>
+            
+            <!-- 2. Precision geometric spinner with gradient accent -->
+            <div class="absolute inset-0 rounded-full border-[2px] border-slate-100"></div>
+            <div class="absolute inset-0 rounded-full border-[2px] border-t-indigo-600 border-l-indigo-500 border-r-transparent border-b-transparent animate-spin" style="animation: spin 0.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;"></div>
+            
+            <!-- 3. Core brand mark - refined crystal shield concept -->
+            <div class="relative flex items-center justify-center w-14 h-14 bg-white rounded-2xl shadow-md shadow-indigo-100/50">
+                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+            </div>
+        </div>
 
+        <!-- Text and Progress Section - Executive Grade -->
+        <div class="text-center">
+            <!-- Modernized Typography with refined letter spacing -->
+            <span class="font-bold text-slate-900 tracking-[-0.02em] block mb-2" style="font-size: 32px; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
+                Savig
+            </span>
+            
+            <!-- Professional Dynamic Status Message -->
+            <p id="loader-status" class="text-sm text-slate-500 font-medium mb-5 transition-all duration-300">Verifying secure credentials...</p>
+            
+            <!-- Ultra-Sleek Progress Bar with glassmorphic touch -->
+            <div class="w-56 h-1.5 bg-slate-100 rounded-full overflow-hidden shadow-sm">
+                <div id="loader-progress" 
+                     class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 w-0 rounded-full transition-all duration-[1800ms] ease-[cubic-bezier(0.2,0.9,0.4,1.1)]"
+                     style="box-shadow: 0 0 6px rgba(79, 70, 229, 0.4);">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Essential CSS for Keyframe Animations & Professional Overrides -->
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Override default spin for buttery smoothness */
+    .animate-spin {
+        animation: spin 0.9s cubic-bezier(0.65, 0, 0.35, 1) infinite !important;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Professional dark mode handling (respects system or class) */
+    @media (prefers-color-scheme: dark) {
+        #page-loader {
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%) !important;
+        }
+        #page-loader .animate-pulse,
+        #page-loader #loader-status {
+            color: #94a3b8 !important;
+        }
+        #page-loader .bg-slate-100 {
+            background-color: #1e293b !important;
+        }
+        #page-loader .shadow-md {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+        }
+        #page-loader .bg-white {
+            background-color: #1e293b !important;
+        }
+        #page-loader .text-indigo-600 {
+            color: #818cf8 !important;
+        }
+        #page-loader .bg-indigo-50\/70 {
+            background-color: rgba(79, 70, 229, 0.15) !important;
+        }
+        #page-loader .text-slate-900 {
+            color: #f1f5f9 !important;
+        }
+        #page-loader .text-slate-500 {
+            color: #cbd5e1 !important;
+        }
+        #loader-progress {
+            background: linear-gradient(to right, #818cf8, #6366f1) !important;
+        }
+    }
+
+    /* Optional: subtle reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .animate-spin, .animate-[ping_1.8s...] {
+            animation-duration: 2s !important;
+        }
+    }
+</style>
+
+<!-- Simple script to simulate progress and dynamic status (keeps IDs untouched, adds professional simulation) -->
+<script>
+    (function() {
+        const progressBar = document.getElementById('loader-progress');
+        const statusEl = document.getElementById('loader-status');
+        if (!progressBar) return;
+        
+        // Professional status sequence
+        const statusMessages = [
+            "Verifying secure credentials...",
+            "Establishing encrypted channel...",
+            "Loading secure modules...",
+            "Finalizing environment..."
+        ];
+        
+        let step = 0;
+        
+        // Smooth progress animation
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+                if (statusEl) statusEl.textContent = "Ready.";
+                return;
+            }
+            
+            // Increment progress: accelerate slightly towards end for professional feel
+            if (width < 30) width += 2.2;
+            else if (width < 70) width += 1.8;
+            else width += 1.2;
+            
+            if (width > 100) width = 100;
+            progressBar.style.width = width + '%';
+            
+            // Update professional status message based on progress
+            if (statusEl) {
+                if (width >= 90) statusEl.textContent = statusMessages[3];
+                else if (width >= 60) statusEl.textContent = statusMessages[2];
+                else if (width >= 30) statusEl.textContent = statusMessages[1];
+                else statusEl.textContent = statusMessages[0];
+            }
+        }, 45);
+    })();
+</script>
             <!-- Right Features -->
             <div class="hidden lg:block space-y-6" style="animation: slideInRight 1s ease-out forwards; opacity: 0; animation-delay: 0.6s;">
                 <div class="p-5 bg-white rounded-xl shadow-lg">
@@ -430,8 +577,26 @@ function showMsg(m, s) {
     // Standardized classes for both Light and Dark mode
     b.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 show ${s ? 'success' : 'error'}`;
     
-    setTimeout(() => b.classList.remove('show'), 4000);
-}</script>
+    setTimeout(() => b.classList.remove('show'), 4000);}
+    
+    window.addEventListener('load', () => {
+    const loader = document.getElementById('page-loader');
+    const loaderBar = document.getElementById('loader-bar');
+    
+    // Start the loading bar animation immediately
+    if(loaderBar) loaderBar.style.width = '100%';
+
+    // Wait exactly 2 seconds before hiding
+    setTimeout(() => {
+        loader.classList.add('opacity-0'); // Fade out
+        
+        // Remove from DOM after fade animation so it doesn't block clicks
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500); 
+    }, 2000);
+});
+    </script>
         
 <button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
     <span id="theme-icon">🌙</span>
@@ -452,7 +617,16 @@ function showMsg(m, s) {
         rgba(245, 158, 11, 0.95) 50%,  /* Amber Yellow */
         rgba(132, 204, 22, 0.95) 100%  /* Lime Green */
     );
-    
+    /* Add this to your <style> block */
+#page-loader.opacity-0 {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Prevent scrolling while loading */
+body.loading {
+    overflow: hidden;
+}
     backdrop-filter: blur(10px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
