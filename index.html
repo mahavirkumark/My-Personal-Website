@@ -126,156 +126,198 @@
         <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
     </div>
 </div>
-<!-- Savig Wordmark Logo - Refined Executive Style -->
-<div class="flex items-center justify-center gap-2 mb-1">
-    <svg class="w-8 h-8 text-indigo-600" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 4L24 10L20 16L16 10L20 4Z" fill="currentColor" fill-opacity="0.9"/>
-        <path d="M28 12L34 20L28 28L22 20L28 12Z" fill="currentColor" fill-opacity="0.7"/>
-        <path d="M12 12L18 20L12 28L6 20L12 12Z" fill="currentColor" fill-opacity="0.7"/>
-        <rect x="18" y="22" width="4" height="14" rx="2" fill="currentColor" fill-opacity="0.8"/>
-    </svg>
-    <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white" 
-          style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
-        Savig
-    </span>
-</div>
-            <!-- Professional Dynamic Status Message -->
-            <p id="loader-status" class="text-sm text-slate-500 font-medium mb-5 transition-all duration-300">Verifying secure credentials...</p>
-            
-            <!-- Ultra-Sleek Progress Bar with glassmorphic touch -->
-            <div class="w-56 h-1.5 bg-slate-100 rounded-full overflow-hidden shadow-sm">
-                <div id="loader-progress" 
-                     class="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 w-0 rounded-full transition-all duration-[1800ms] ease-[cubic-bezier(0.2,0.9,0.4,1.1)]"
-                     style="box-shadow: 0 0 6px rgba(79, 70, 229, 0.4);">
-                </div>
-            </div>
+
+        <div id="savig-splash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 30% 20%, #0a0f2a, #030614); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);">
+    
+    <!-- Canvas Particles Background -->
+    <canvas id="splashCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    
+    <!-- Animated Glow Orbs -->
+    <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,255,255,0.07) 0%, transparent 70%); border-radius: 50%; animation: pulseOrb 4s ease-in-out infinite;"></div>
+    <div style="position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); border-radius: 50%; bottom: 10%; right: 5%; animation: pulseOrb 5s ease-in-out infinite reverse;"></div>
+    
+    <!-- Logo Container with Rings -->
+    <div style="position: relative; margin-bottom: 2rem; animation: floatLogo 3s ease-in-out infinite; z-index: 10;">
+        <!-- Outer spinning ring -->
+        <div style="position: absolute; top: -22px; left: -22px; width: 138px; height: 138px; border-radius: 50%; border: 2px solid rgba(0, 210, 255, 0.5); border-top-color: transparent; border-right-color: rgba(0, 210, 255, 0.15); animation: spinCw 2.2s linear infinite;"></div>
+        <!-- Middle reverse ring -->
+        <div style="position: absolute; top: -12px; left: -12px; width: 118px; height: 118px; border-radius: 50%; border: 1.5px solid rgba(59, 130, 246, 0.4); border-bottom-color: transparent; border-left-color: rgba(59, 130, 246, 0.1); animation: spinCcw 3.8s linear infinite;"></div>
+        <!-- Inner pulse ring -->
+        <div style="position: absolute; top: -2px; left: -2px; width: 98px; height: 98px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,255,0.05), transparent); animation: pulseRing 2.2s ease-in-out infinite;"></div>
+        
+        <!-- EXACT SHIELD + WHITE DATABASE LOGO -->
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));">
+            <i class="fas fa-shield" style="font-size: 82px; color: #3b82f6; filter: drop-shadow(0 6px 14px rgba(59,130,246,0.6));"></i>
+            <i class="fas fa-database" style="font-size: 42px; color: #ffffff !important; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -46%); text-shadow: 0 0 6px rgba(0,255,255,0.5);"></i>
         </div>
     </div>
+    
+    <!-- Brand Title -->
+    <h1 style="font-family: 'Inter', system-ui, sans-serif; font-size: 54px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #3b82f6, #0ff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; margin: 0; text-shadow: 0 0 20px rgba(59,130,246,0.3); z-index: 10;">Savig</h1>
+    <p style="color: rgba(59,130,246,0.7); font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 500; margin-top: 8px; z-index: 10;">SECURE PERSONAL HUB</p>
+    
+    <!-- Progress Bar -->
+    <div style="width: 280px; margin-top: 42px; margin-bottom: 28px; z-index: 10;">
+        <div style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
+            <div id="splashProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0ff, #3b82f6, #0ff); background-size: 200% auto; border-radius: 6px; transition: width 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1); animation: shimmerMove 1.4s linear infinite;"></div>
+        </div>
+    </div>
+    
+    <!-- Status Text -->
+    <div id="splashStatus" style="color: #aaffff; font-family: 'SF Mono', 'Courier New', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; background: rgba(0,255,255,0.08); padding: 8px 20px; border-radius: 60px; backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.2); z-index: 10;">🔐 establishing encrypted channel</div>
+    <div id="splashDots" style="color: rgba(0,255,255,0.5); font-size: 11px; letter-spacing: 5px; margin-top: 12px; z-index: 10;">✦ ✦ ✦</div>
+    
+    <!-- Version Badge -->
+    <div style="position: absolute; bottom: 24px; font-size: 9px; color: rgba(0,255,255,0.3); font-family: monospace; z-index: 10;">encrypted vault • zero-knowledge</div>
 </div>
 
-<!-- Essential CSS for Keyframe Animations & Professional Overrides -->
 <style>
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: translateY(0); }
+    @keyframes floatLogo {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
     }
-
-    /* Override default spin for buttery smoothness */
-    .animate-spin {
-        animation: spin 0.9s cubic-bezier(0.65, 0, 0.35, 1) infinite !important;
-    }
-    @keyframes spin {
+    @keyframes spinCw {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
-
-    /* Professional dark mode handling (respects system or class) */
-    @media (prefers-color-scheme: dark) {
-        #page-loader {
-            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%) !important;
-        }
-        #page-loader .animate-pulse,
-        #page-loader #loader-status {
-            color: #94a3b8 !important;
-        }
-        #page-loader .bg-slate-100 {
-            background-color: #1e293b !important;
-        }
-        #page-loader .shadow-md {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
-        }
-        #page-loader .bg-white {
-            background-color: #1e293b !important;
-        }
-        #page-loader .text-indigo-600 {
-            color: #818cf8 !important;
-        }
-        #page-loader .bg-indigo-50\/70 {
-            background-color: rgba(79, 70, 229, 0.15) !important;
-        }
-        #page-loader .text-slate-900 {
-            color: #f1f5f9 !important;
-        }
-        #page-loader .text-slate-500 {
-            color: #cbd5e1 !important;
-        }
-        #loader-progress {
-            background: linear-gradient(to right, #818cf8, #6366f1) !important;
-        }
+    @keyframes spinCcw {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
     }
-
-    /* Optional: subtle reduced motion support */
-    @media (prefers-reduced-motion: reduce) {
-        .animate-spin, .animate-[ping_1.8s...] {
-            animation-duration: 3s !important;
-        }
+    @keyframes pulseRing {
+        0% { opacity: 0.1; transform: scale(0.92); }
+        50% { opacity: 0.35; transform: scale(1.02); }
+        100% { opacity: 0.1; transform: scale(0.92); }
+    }
+    @keyframes pulseOrb {
+        0% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.15); }
+        100% { opacity: 0.3; transform: scale(1); }
+    }
+    @keyframes shimmerMove {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
     }
 </style>
 
-<!-- Simple script to simulate progress and dynamic status (keeps IDs untouched, adds professional simulation) -->
 <script>
     (function() {
-        const progressBar = document.getElementById('loader-progress');
-        const statusEl = document.getElementById('loader-status');
-        if (!progressBar) return;
+        // Particles Canvas
+        const canvas = document.getElementById('splashCanvas');
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            for (let i = 0; i < 55; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 0.8,
+                    alpha: Math.random() * 0.5 + 0.1,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3
+                });
+            }
+            function animateParticles() {
+                if (!ctx || !canvas) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let p of particles) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 200, 255, ${p.alpha * 0.7})`;
+                    ctx.fill();
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
         
-        // Professional status sequence
-        const statusMessages = [
-            "Verifying secure credentials...",
-            "Establishing encrypted channel...",
-            "Loading secure modules...",
-            "Finalizing environment..."
+        // Progress & Status (minimum 5 seconds)
+        const progressBar = document.getElementById('splashProgress');
+        const statusEl = document.getElementById('splashStatus');
+        const dotsEl = document.getElementById('splashDots');
+        const splashDiv = document.getElementById('savig-splash');
+        
+        const messages = [
+            "🔐 establishing encrypted channel",
+            "📦 loading secure vault segments",
+           
+            "✨ finalizing environment"
         ];
         
-        let step = 0;
+        // Dots animation
+        let dotIdx = 0;
+        const dotPatterns = ['✦', '✦ ✦', '✦ ✦ ✦', '✦ ✦'];
+        const dotInterval = setInterval(() => {
+            if (dotsEl) {
+                dotsEl.innerHTML = dotPatterns[dotIdx % dotPatterns.length];
+                dotIdx++;
+            }
+        }, 460);
         
-        // Smooth progress animation
-        let width = 0;
-        const interval = setInterval(() => {
-            if (width >= 100) {
-                clearInterval(interval);
-                if (statusEl) statusEl.textContent = "Ready.";
-                return;
-            }
+        let progress = 0;
+        const startTime = Date.now();
+        const MIN_DURATION = 2000; // 5 seconds minimum
+        
+        const progressInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            progress = Math.min((elapsed / MIN_DURATION) * 100, 100);
+            if (progressBar) progressBar.style.width = progress + '%';
             
-            // Increment progress: accelerate slightly towards end for professional feel
-            if (width < 30) width += 2.2;
-            else if (width < 70) width += 1.8;
-            else width += 1.2;
-            
-            if (width > 100) width = 100;
-            progressBar.style.width = width + '%';
-            
-            // Update professional status message based on progress
+            // Update status message based on progress
             if (statusEl) {
-                if (width >= 90) statusEl.textContent = statusMessages[3];
-                else if (width >= 60) statusEl.textContent = statusMessages[2];
-                else if (width >= 30) statusEl.textContent = statusMessages[1];
-                else statusEl.textContent = statusMessages[0];
+                if (progress >= 85) statusEl.innerHTML = messages[3];
+                else if (progress >= 55) statusEl.innerHTML = messages[2];
+                else if (progress >= 25) statusEl.innerHTML = messages[1];
+                else statusEl.innerHTML = messages[0];
             }
-        }, 45);
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                clearInterval(dotInterval);
+                if (statusEl) statusEl.innerHTML = "✅ ACCESS GRANTED";
+                
+                // Fade out and remove splash after minimum 5 seconds
+                setTimeout(() => {
+                    if (splashDiv) {
+                        splashDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            if (splashDiv && splashDiv.parentNode) {
+                                splashDiv.style.display = 'none';
+                            }
+                            window.dispatchEvent(new CustomEvent('splashComplete'));
+                        }, 700);
+                    }
+                }, 200);
+            }
+        }, 30);
+        
+        // Fallback safety: ensure splash removes after 6 seconds max
+        setTimeout(() => {
+            if (splashDiv && splashDiv.style.display !== 'none') {
+                clearInterval(progressInterval);
+                clearInterval(dotInterval);
+                splashDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (splashDiv && splashDiv.parentNode) splashDiv.style.display = 'none';
+                    window.dispatchEvent(new CustomEvent('splashComplete'));
+                }, 500);
+            }
+        }, 6000);
     })();
 </script>
-            <!-- Right Features -->
-            <div class="hidden lg:block space-y-6" style="animation: slideInRight 1s ease-out forwards; opacity: 0; animation-delay: 0.6s;">
-                <div class="p-5 bg-white rounded-xl shadow-lg">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="fas fa-lock text-2xl text-blue-600"></i>
-                        <h3 class="text-lg font-bold text-gray-800">Password Vault</h3>
-                    </div>
-                    <p class="text-gray-600 text-sm">Secure online credentials with military-grade encryption.</p>
-                </div>
-                <div class="p-5 bg-white rounded-xl shadow-lg">
-                    <div class="flex items-center gap-3 mb-2">
-                        <i class="fas fa-link text-2xl text-blue-600"></i>
-                        <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
-                    </div>
-                    <p class="text-gray-600 text-sm">Organize your bookmarks and digital resources in one hub.</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
       <section class="py-12 md:py-16 bg-gray-50">
         <div class="container mx-auto px-6">
             <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
