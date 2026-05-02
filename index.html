@@ -126,37 +126,19 @@
         <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
     </div>
 </div>
-<div id="page-loader" class="fixed inset-0 z-[10000] flex flex-col items-center justify-center transition-all duration-700 ease-in-out"
-     style="background: radial-gradient(circle at center, #ffffff 0%, #f8fafc 100%);">
-    
-    <!-- Loader Content Container (slight fade-in on load) -->
-    <div class="flex flex-col items-center gap-8 animate-[fadeIn_0.5s_ease-out_forwards] opacity-0">
-        
-        <!-- Modern Animated Icon Hub - Refined Professional -->
-        <div class="relative flex items-center justify-center w-24 h-24">
-            
-            <!-- 1. Subtle professional pulsing ring (executive feel) -->
-            <div class="absolute inset-0 rounded-full bg-indigo-50/70 animate-[ping_1.8s_cubic-bezier(0.2,0.9,0.4,1.1)_infinite]"></div>
-            
-            <!-- 2. Precision geometric spinner with gradient accent -->
-            <div class="absolute inset-0 rounded-full border-[2px] border-slate-100"></div>
-            <div class="absolute inset-0 rounded-full border-[2px] border-t-indigo-600 border-l-indigo-500 border-r-transparent border-b-transparent animate-spin" style="animation: spin 0.9s cubic-bezier(0.65, 0, 0.35, 1) infinite;"></div>
-            
-            <!-- 3. Core brand mark - refined crystal shield concept -->
-            <div class="relative flex items-center justify-center w-14 h-14 bg-white rounded-2xl shadow-md shadow-indigo-100/50">
-                <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-            </div>
-        </div>
-
-        <!-- Text and Progress Section - Executive Grade -->
-        <div class="text-center">
-            <!-- Modernized Typography with refined letter spacing -->
-            <span class="font-bold text-slate-900 tracking-[-0.02em] block mb-2" style="font-size: 32px; font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
-                Savig
-            </span>
-            
+<!-- Savig Wordmark Logo - Refined Executive Style -->
+<div class="flex items-center justify-center gap-2 mb-1">
+    <svg class="w-8 h-8 text-indigo-600" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 4L24 10L20 16L16 10L20 4Z" fill="currentColor" fill-opacity="0.9"/>
+        <path d="M28 12L34 20L28 28L22 20L28 12Z" fill="currentColor" fill-opacity="0.7"/>
+        <path d="M12 12L18 20L12 28L6 20L12 12Z" fill="currentColor" fill-opacity="0.7"/>
+        <rect x="18" y="22" width="4" height="14" rx="2" fill="currentColor" fill-opacity="0.8"/>
+    </svg>
+    <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white" 
+          style="font-family: 'Poppins', sans-serif; letter-spacing: -0.5px;">
+        Savig
+    </span>
+</div>
             <!-- Professional Dynamic Status Message -->
             <p id="loader-status" class="text-sm text-slate-500 font-medium mb-5 transition-all duration-300">Verifying secure credentials...</p>
             
