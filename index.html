@@ -440,7 +440,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
 
 <script>
-    // --- CONFIGURATION & INITIALIZATION ---
+// --- CONFIGURATION & INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -462,184 +462,170 @@ let generatedOTP = null;
 let otpExpiryTime = null;
 let timerInterval = null;
 let isSendingOTP = false;
-let otpSentForCurrentUser = false; // NEW: Track if OTP sent for current user session
-let lastProcessedUserUID = null; // NEW: Track last processed user to prevent duplicate processing
+let otpSentForCurrentUser = false;
+let lastProcessedUserUID = null;
+let authStateProcessed = false;
 
 // --- 1. AUTH STATE LISTENER (CORE LOGIC) ---
 auth.onAuthStateChanged((user) => {
     const isVerified = localStorage.getItem('savig_otp_verified');
     
     if (user && isVerified === 'true') {
-        // Already logged in and verified
-        otpSentForCurrentUser = false; // Reset flag
+        otpSentForCurrentUser = false;
         lastProcessedUserUID = null;
+        authStateProcessed = false;
         window.location.replace("home.html");
     } 
     else if (user) {
-        // USER LOGGED IN BUT NEEDS OTP
+        if (authStateProcessed) return;
         
-        // Check if we've already processed this user to prevent duplicate handling
         if (lastProcessedUserUID === user.uid) {
-            return; // Already processing this user
+            return;
         }
         
-        // A. Check for 3-Hour Lockout
         const lockTime = localStorage.getItem('savig_lockout_time');
         if (lockTime && Date.now() < parseInt(lockTime)) {
             const remainingMs = parseInt(lockTime) - Date.now();
             const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
             showMsg(`Security Lock: Try again in ${remainingHours} hours.`, false);
-            setTimeout(() => auth.signOut(), 3000); 
+            setTimeout(() => auth.signOut(), 3000);
+            authStateProcessed = false;
             return;
         }
 
-        // B. Update UI to OTP Screen
         document.getElementById('loginCard').classList.add('hidden');
         document.getElementById('pinCard').classList.remove('hidden');
         
-        // C. Show dynamic email address in the message
         const emailDisplay = document.getElementById('userEmailDisplay');
         if(emailDisplay) emailDisplay.innerText = user.email;
 
-        // D. Trigger OTP Send (Fixed: only once per user session)
         if (!generatedOTP && !isSendingOTP && !otpSentForCurrentUser) {
-            lastProcessedUserUID = user.uid; // Mark this user as being processed
-            otpSentForCurrentUser = true; // Prevent future sends for this session
+            authStateProcessed = true;
+            lastProcessedUserUID = user.uid;
+            otpSentForCurrentUser = true;
             sendOTP(user.email);
         }
     } 
     else {
-        // USER LOGGED OUT
         localStorage.removeItem('savig_otp_verified');
-        document.getElementById('loginCard').classList.remove('hidden');
-        document.getElementById('pinCard').classList.add('hidden');
+        const loginCard = document.getElementById('loginCard');
+        const pinCard = document.getElementById('pinCard');
+        if(loginCard) loginCard.classList.remove('hidden');
+        if(pinCard) pinCard.classList.add('hidden');
         resetOTPState();
         
-        // Reset tracking variables
         otpSentForCurrentUser = false;
         lastProcessedUserUID = null;
+        authStateProcessed = false;
     }
 });
 
 // --- 2. SIGN IN FUNCTION ---
-document.getElementById("googleLoginBtn").onclick = async () => {
-    // Reset flags before new sign-in
-    otpSentForCurrentUser = false;
-    lastProcessedUserUID = null;
-    resetOTPState();
-    
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    try { 
-        await auth.signInWithPopup(provider); 
-    } catch (e) { 
-        showMsg(e.message, false); 
-    }
-};
+const googleBtn = document.getElementById("googleLoginBtn");
+if(googleBtn) {
+    googleBtn.onclick = async () => {
+        otpSentForCurrentUser = false;
+        lastProcessedUserUID = null;
+        authStateProcessed = false;
+        resetOTPState();
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        try { 
+            await auth.signInWithPopup(provider); 
+        } catch (e) { 
+            showMsg(e.message, false); 
+        }
+    };
+}
 
+// --- 3. SEND OTP FUNCTION ---
 function sendOTP(email) {
-    // Double check the lock
-    if (generatedOTP) return;
+    if (isSendingOTP || generatedOTP) {
+        console.log("OTP already sent or in progress");
+        return;
+    }
 
+    isSendingOTP = true;
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    otpExpiryTime = Date.now() + (3 * 60000); 
+    otpExpiryTime = Date.now() + (3 * 60000);
 
     emailjs.send('service_2ucolxw', 'template_iknmqfs', { 
         user_email: email, 
         passcode: generatedOTP 
     }).then(() => {
         showMsg(`OTP Sent to ${email}`, true);
-        otpSentForCurrentUser = true; // Mark as successfully sent
         startTimer(180);
     }).catch((err) => {
-        generatedOTP = null; // Reset if it failed so user can retry
+        console.error("EmailJS Error:", err);
+        showMsg("Service Error. Check connection.", false);
+        generatedOTP = null;
         otpSentForCurrentUser = false;
-        showMsg("Failed to send OTP.", false);
+        lastProcessedUserUID = null;
+        authStateProcessed = false;
     }).finally(() => {
-        isOtpProcessing = false; // Release the lock
+        isSendingOTP = false;
     });
 }
 
-// --- 4. OTP VERIFICATION & ATTEMPT LIMITER ---
+// --- 4. OTP VERIFICATION ---
 const otpInputs = document.querySelectorAll('.otp-input-box');
-otpInputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-        // Auto-focus next box
-        if (e.target.value && index < 5) otpInputs[index + 1].focus();
-        
-        const code = Array.from(otpInputs).map(i => i.value).join('');
-        if (code.length === 6) {
-            verifyOTP(code);
-        }
-    });
+if(otpInputs.length) {
+    otpInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+            if (e.target.value && index < 5) otpInputs[index + 1].focus();
+            
+            const code = Array.from(otpInputs).map(i => i.value).join('');
+            if (code.length === 6) {
+                verifyOTP(code);
+            }
+        });
 
-    // Handle Backspace
-    input.addEventListener('keydown', (e) => { 
-        if (e.key === 'Backspace' && !e.target.value && index > 0) {
-            otpInputs[index - 1].focus();
-        }
+        input.addEventListener('keydown', (e) => { 
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                otpInputs[index - 1].focus();
+            }
+        });
     });
-});
+}
 
 function verifyOTP(code) {
     let attempts = parseInt(localStorage.getItem('savig_otp_attempts') || '0');
 
     if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-        // SUCCESS
         localStorage.setItem('savig_otp_verified', 'true');
-        localStorage.setItem('savig_otp_attempts', '0'); // Reset attempts
+        localStorage.setItem('savig_otp_attempts', '0');
         showMsg("Access Granted!", true);
         
-        // Reset flags
         otpSentForCurrentUser = false;
         lastProcessedUserUID = null;
+        authStateProcessed = false;
         
         setTimeout(() => window.location.replace("home.html"), 100);
     } 
     else {
-        // FAILURE
         attempts++;
         localStorage.setItem('savig_otp_attempts', attempts.toString());
 
         if (attempts >= 3) {
-            // LOCKOUT LOGIC: 3 Hours
             const lockoutPeriod = Date.now() + (3 * 60 * 60 * 1000);
             localStorage.setItem('savig_lockout_time', lockoutPeriod.toString());
             showMsg("Too many attempts. Locked for 3 hours.", false);
             
-            // Reset flags
             otpSentForCurrentUser = false;
             lastProcessedUserUID = null;
+            authStateProcessed = false;
             
             setTimeout(() => auth.signOut(), 2500);
         } else {
             showMsg(`Invalid code. ${3 - attempts} attempts left.`, false);
-            // Clear inputs and focus first box
             otpInputs.forEach(i => i.value = '');
-            otpInputs[0].focus();
+            if(otpInputs[0]) otpInputs[0].focus();
         }
     }
 }
 
-// --- 5. RESEND OTP FUNCTION (Optional but useful) ---
-function resendOTP() {
-    const user = auth.currentUser;
-    if (user && !isSendingOTP) {
-        // Reset OTP state
-        generatedOTP = null;
-        otpExpiryTime = null;
-        clearInterval(timerInterval);
-        
-        // Send new OTP
-        sendOTP(user.email);
-        
-        // Clear input fields
-        otpInputs.forEach(i => i.value = '');
-        otpInputs[0].focus();
-    }
-}
-
-// --- 6. HELPER UTILITIES ---
+// --- 5. HELPER UTILITIES ---
 function startTimer(s) {
     clearInterval(timerInterval);
     let t = s;
@@ -651,8 +637,8 @@ function startTimer(s) {
         
         if (--t < 0) { 
             clearInterval(timerInterval); 
-            generatedOTP = null; // Invalidate OTP
-            otpSentForCurrentUser = false; // Allow resend on expiry
+            generatedOTP = null;
+            otpSentForCurrentUser = false;
             showMsg("OTP Expired. Please sign in again.", false); 
         }
     }, 1000);
@@ -671,41 +657,124 @@ function resetOTPState() {
     }
 }
 
-function showMsg(m, s) {
-    const b = document.getElementById('msgBox');
-    if(!b) return;
+function showMsg(message, isSuccess) {
+    const msgBox = document.getElementById('msgBox');
+    if(!msgBox) return;
     
-    b.innerText = m; 
-    // Standardized classes for both Light and Dark mode
-    b.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 show ${s ? 'success' : 'error'}`;
+    msgBox.textContent = message;
+    msgBox.style.opacity = '1';
+    msgBox.style.pointerEvents = 'auto';
+    msgBox.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
     
-    setTimeout(() => b.classList.remove('show'), 4000);
-}
-    
-window.addEventListener('load', () => {
-    const loader = document.getElementById('page-loader');
-    const loaderBar = document.getElementById('loader-bar');
-    
-    // Start the loading bar animation immediately
-    if(loaderBar) loaderBar.style.width = '100%';
-
-    // Wait exactly 2 seconds before hiding
     setTimeout(() => {
-        loader.classList.add('opacity-0'); // Fade out
-        
-        // Remove from DOM after fade animation so it doesn't block clicks
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 500); 
-    }, 2000);
-});
-</script>
-        
-<button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
-    <span id="theme-icon">🌙</span>
-</button>
+        msgBox.style.opacity = '0';
+        msgBox.style.pointerEvents = 'none';
+    }, 4000);
+}
 
-<style>
+// --- SPLASH SCREEN HANDLER ---
+window.addEventListener('load', () => {
+    const canvas = document.getElementById('splashCanvas');
+    if (canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        for (let i = 0; i < 55; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 2 + 0.8,
+                alpha: Math.random() * 0.5 + 0.1,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3
+            });
+        }
+        function animateParticles() {
+            if (!ctx || !canvas) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 200, 255, ${p.alpha * 0.7})`;
+                ctx.fill();
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    }
+    
+    const progressBar = document.getElementById('splashProgress');
+    const splashDiv = document.getElementById('savig-splash');
+    let progress = 0;
+    const startTime = Date.now();
+    const MIN_DURATION = 2000;
+    
+    const progressInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        progress = Math.min((elapsed / MIN_DURATION) * 100, 100);
+        if (progressBar) progressBar.style.width = progress + '%';
+        
+        if (progress >= 100) {
+            clearInterval(progressInterval);
+            setTimeout(() => {
+                if (splashDiv) {
+                    splashDiv.style.opacity = '0';
+                    setTimeout(() => {
+                        if (splashDiv && splashDiv.parentNode) {
+                            splashDiv.style.display = 'none';
+                        }
+                    }, 700);
+                }
+            }, 500);
+        }
+    }, 50);
+});
+
+// --- THEME TOGGLE ---
+(function() {
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
+    const htmlElement = document.documentElement;
+
+    const savedTheme = localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    applyTheme(savedTheme);
+
+    if(themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+    }
+
+    function applyTheme(theme) {
+        htmlElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        if (theme === 'dark') {
+            if(themeIcon) themeIcon.textContent = '☀️';
+            if(themeBtn) themeBtn.style.background = '#fbbf24';
+        } else {
+            if(themeIcon) themeIcon.textContent = '🌙';
+            if(themeBtn) themeBtn.style.background = '#2563eb';
+        }
+    }
+})();
+</script>
+    <style>
 #msgBox {
     position: fixed;
     top: 25px;
