@@ -462,6 +462,8 @@ let generatedOTP = null;
 let otpExpiryTime = null;
 let timerInterval = null;
 let isSendingOTP = false;
+let otpSentForCurrentUser = false; // NEW: Track if OTP sent for current user session
+let lastProcessedUserUID = null; // NEW: Track last processed user to prevent duplicate processing
 
 // --- 1. AUTH STATE LISTENER (CORE LOGIC) ---
 auth.onAuthStateChanged((user) => {
@@ -469,10 +471,17 @@ auth.onAuthStateChanged((user) => {
     
     if (user && isVerified === 'true') {
         // Already logged in and verified
+        otpSentForCurrentUser = false; // Reset flag
+        lastProcessedUserUID = null;
         window.location.replace("home.html");
     } 
     else if (user) {
         // USER LOGGED IN BUT NEEDS OTP
+        
+        // Check if we've already processed this user to prevent duplicate handling
+        if (lastProcessedUserUID === user.uid) {
+            return; // Already processing this user
+        }
         
         // A. Check for 3-Hour Lockout
         const lockTime = localStorage.getItem('savig_lockout_time');
@@ -492,8 +501,10 @@ auth.onAuthStateChanged((user) => {
         const emailDisplay = document.getElementById('userEmailDisplay');
         if(emailDisplay) emailDisplay.innerText = user.email;
 
-        // D. Trigger OTP Send (Fixed: only once)
-        if (!generatedOTP && !isSendingOTP) {
+        // D. Trigger OTP Send (Fixed: only once per user session)
+        if (!generatedOTP && !isSendingOTP && !otpSentForCurrentUser) {
+            lastProcessedUserUID = user.uid; // Mark this user as being processed
+            otpSentForCurrentUser = true; // Prevent future sends for this session
             sendOTP(user.email);
         }
     } 
@@ -503,11 +514,20 @@ auth.onAuthStateChanged((user) => {
         document.getElementById('loginCard').classList.remove('hidden');
         document.getElementById('pinCard').classList.add('hidden');
         resetOTPState();
+        
+        // Reset tracking variables
+        otpSentForCurrentUser = false;
+        lastProcessedUserUID = null;
     }
 });
 
 // --- 2. SIGN IN FUNCTION ---
 document.getElementById("googleLoginBtn").onclick = async () => {
+    // Reset flags before new sign-in
+    otpSentForCurrentUser = false;
+    lastProcessedUserUID = null;
+    resetOTPState();
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     try { 
@@ -519,7 +539,10 @@ document.getElementById("googleLoginBtn").onclick = async () => {
 
 // --- 3. SEND OTP FUNCTION (WITH LOCK) ---
 function sendOTP(email) {
-    if (isSendingOTP || generatedOTP) return; // Critical: Prevents double sending
+    if (isSendingOTP || generatedOTP) {
+        console.log("OTP already sent or in progress");
+        return; // Critical: Prevents double sending
+    }
 
     isSendingOTP = true;
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
@@ -532,8 +555,11 @@ function sendOTP(email) {
         showMsg(`OTP Sent to ${email}`, true);
         startTimer(180);
     }).catch((err) => {
+        console.error("EmailJS Error:", err);
         showMsg("Service Error. Check connection.", false);
-        generatedOTP = null; 
+        generatedOTP = null;
+        otpSentForCurrentUser = false; // Reset so user can retry
+        lastProcessedUserUID = null;
     }).finally(() => {
         isSendingOTP = false;
     });
@@ -568,6 +594,11 @@ function verifyOTP(code) {
         localStorage.setItem('savig_otp_verified', 'true');
         localStorage.setItem('savig_otp_attempts', '0'); // Reset attempts
         showMsg("Access Granted!", true);
+        
+        // Reset flags
+        otpSentForCurrentUser = false;
+        lastProcessedUserUID = null;
+        
         setTimeout(() => window.location.replace("home.html"), 100);
     } 
     else {
@@ -580,6 +611,11 @@ function verifyOTP(code) {
             const lockoutPeriod = Date.now() + (3 * 60 * 60 * 1000);
             localStorage.setItem('savig_lockout_time', lockoutPeriod.toString());
             showMsg("Too many attempts. Locked for 3 hours.", false);
+            
+            // Reset flags
+            otpSentForCurrentUser = false;
+            lastProcessedUserUID = null;
+            
             setTimeout(() => auth.signOut(), 2500);
         } else {
             showMsg(`Invalid code. ${3 - attempts} attempts left.`, false);
@@ -590,7 +626,25 @@ function verifyOTP(code) {
     }
 }
 
-// --- 5. HELPER UTILITIES ---
+// --- 5. RESEND OTP FUNCTION (Optional but useful) ---
+function resendOTP() {
+    const user = auth.currentUser;
+    if (user && !isSendingOTP) {
+        // Reset OTP state
+        generatedOTP = null;
+        otpExpiryTime = null;
+        clearInterval(timerInterval);
+        
+        // Send new OTP
+        sendOTP(user.email);
+        
+        // Clear input fields
+        otpInputs.forEach(i => i.value = '');
+        otpInputs[0].focus();
+    }
+}
+
+// --- 6. HELPER UTILITIES ---
 function startTimer(s) {
     clearInterval(timerInterval);
     let t = s;
@@ -603,6 +657,7 @@ function startTimer(s) {
         if (--t < 0) { 
             clearInterval(timerInterval); 
             generatedOTP = null; // Invalidate OTP
+            otpSentForCurrentUser = false; // Allow resend on expiry
             showMsg("OTP Expired. Please sign in again.", false); 
         }
     }, 1000);
@@ -612,8 +667,13 @@ function resetOTPState() {
     generatedOTP = null;
     otpExpiryTime = null;
     isSendingOTP = false;
+    otpSentForCurrentUser = false;
     clearInterval(timerInterval);
-    otpInputs.forEach(i => i.value = '');
+    if (otpInputs) {
+        otpInputs.forEach(i => {
+            if (i) i.value = '';
+        });
+    }
 }
 
 function showMsg(m, s) {
@@ -624,9 +684,10 @@ function showMsg(m, s) {
     // Standardized classes for both Light and Dark mode
     b.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 show ${s ? 'success' : 'error'}`;
     
-    setTimeout(() => b.classList.remove('show'), 4000);}
+    setTimeout(() => b.classList.remove('show'), 4000);
+}
     
-    window.addEventListener('load', () => {
+window.addEventListener('load', () => {
     const loader = document.getElementById('page-loader');
     const loaderBar = document.getElementById('loader-bar');
     
@@ -643,7 +704,7 @@ function showMsg(m, s) {
         }, 500); 
     }, 2000);
 });
-    </script>
+</script>
         
 <button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
     <span id="theme-icon">🌙</span>
