@@ -288,11 +288,11 @@
                 dotsEl.innerHTML = dotPatterns[dotIdx % dotPatterns.length];
                 dotIdx++;
             }
-        }, 460);
+        }, 4600);
         
         let progress = 0;
         const startTime = Date.now();
-        const MIN_DURATION = 2000; // 5 seconds minimum
+        const MIN_DURATION = 3000; // 5 seconds minimum
         
         const progressInterval = setInterval(() => {
             const elapsed = Date.now() - startTime;
@@ -321,11 +321,11 @@
                                 splashDiv.style.display = 'none';
                             }
                             window.dispatchEvent(new CustomEvent('splashComplete'));
-                        }, 700);
+                        }, 7000);
                     }
-                }, 200);
+                }, 2000);
             }
-        }, 30);
+        }, 300);
         
         // Fallback safety: ensure splash removes after 6 seconds max
         setTimeout(() => {
@@ -336,7 +336,7 @@
                 setTimeout(() => {
                     if (splashDiv && splashDiv.parentNode) splashDiv.style.display = 'none';
                     window.dispatchEvent(new CustomEvent('splashComplete'));
-                }, 500);
+                }, 5000);
             }
         }, 6000);
     })();
