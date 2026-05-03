@@ -6,8 +6,9 @@
   "start_url": "/indexmob.html?launcher=true",
   "scope": "/",
   "display": "standalone",
-
   "orientation": "portrait",
+  "background_color": "#FFFF00",
+  "theme_color": "#FFFF00",
   "icons": [
     {
       "src": "icon-192.png",
