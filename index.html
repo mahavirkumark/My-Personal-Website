@@ -431,7 +431,7 @@
     &copy; 2026 Savig.com  | All Rights Reserved.
 </footer>
 
-<div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
+
 
 
     <div id="msgBox"></div>
@@ -537,31 +537,26 @@ document.getElementById("googleLoginBtn").onclick = async () => {
     }
 };
 
-// --- 3. SEND OTP FUNCTION (WITH LOCK) ---
 function sendOTP(email) {
-    if (isSendingOTP || generatedOTP) {
-        console.log("OTP already sent or in progress");
-        return; // Critical: Prevents double sending
-    }
+    // Double check the lock
+    if (generatedOTP) return;
 
-    isSendingOTP = true;
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    otpExpiryTime = Date.now() + (3 * 60000); // 3 minutes valid
+    otpExpiryTime = Date.now() + (3 * 60000); 
 
     emailjs.send('service_2ucolxw', 'template_iknmqfs', { 
         user_email: email, 
         passcode: generatedOTP 
     }).then(() => {
         showMsg(`OTP Sent to ${email}`, true);
+        otpSentForCurrentUser = true; // Mark as successfully sent
         startTimer(180);
     }).catch((err) => {
-        console.error("EmailJS Error:", err);
-        showMsg("Service Error. Check connection.", false);
-        generatedOTP = null;
-        otpSentForCurrentUser = false; // Reset so user can retry
-        lastProcessedUserUID = null;
+        generatedOTP = null; // Reset if it failed so user can retry
+        otpSentForCurrentUser = false;
+        showMsg("Failed to send OTP.", false);
     }).finally(() => {
-        isSendingOTP = false;
+        isOtpProcessing = false; // Release the lock
     });
 }
 
@@ -1139,7 +1134,7 @@ html[data-theme="light"] button[onclick="location.reload()"]:hover {
             background-color: #1e293b !important; border: 1px solid #334155 !important; color: white !important;
         }
     </style>
-fix issue
+
 
 </body>
 </html>
