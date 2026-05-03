@@ -4,15 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Savig</title>
-    <script>
-        if (localStorage.getItem('savig_otp_verified') === 'true') {
-            const sessionExists = Object.keys(localStorage).some(k => k.includes('firebase:authUser'));
-            if (sessionExists) {
-                window.location.replace("home.html");
-            }
-        }
-    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Essential for OTP functionality -->
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +22,7 @@
         
         .section-title { font-size: 2rem; font-weight: 700; text-align: center; color: #1f2937; margin-bottom: 2.5rem; }
 
+        /* OTP Input Styling */
         .otp-input-box { width: 40px; height: 50px; border: 1px solid #cbd5e1; border-radius: 10px; text-align: center; font-size: 1.25rem; font-weight: 600; }
         .otp-input-box:focus { outline: none; border-color: #2563eb; ring: 2px; ring-color: #3b82f6; }
 
@@ -48,79 +43,126 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between">
 
-<nav class="bg-white shadow-sm py-4">
-    <div class="container mx-auto px-1 flex items-center gap-1">
-        <div class="relative flex items-center justify-center">
-            <i class="fas fa-shield text-blue-600" style="font-size:31px;"></i>
-            <i class="fas fa-database text-white absolute" style="font-size: 14px;margin-top: 12px"></i>
+   <nav class="bg-white shadow-sm py-4">
+        <div class="container mx-auto px-1 flex items-center gap-1">
+            <div class="relative flex items-center justify-center ">
+                <i class="fas fa-shield text-blue-600" style="font-size:31px;;"></i>
+                <i class="fas fa-database text-white absolute" style="font-size: 14px;margin-top: 12px"></i>
+            </div>
+            <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</span>
         </div>
-        <span class="font-black text-gray-900 tracking-tighter" style="font-size: 21px;">Savig</span>
-    </div>
-</nav>
+    </nav>
 
-<main class="flex-grow flex items-center justify-center p-6 relative">
-    <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 items-center max-w-7xl">
-        <!-- Left Features -->
-        <div class="hidden lg:block space-y-6" style="animation: slideInLeft 1s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-            <div class="p-5 bg-white rounded-xl shadow-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <i class="fas fa-chart-line text-2xl text-blue-600"></i>
-                    <h3 class="text-lg font-bold text-gray-800">Financial Management</h3>
-                </div>
-                <p class="text-gray-600 text-sm">Track income, expenses, and savings goals with visual progress bars.</p>
-            </div>
-            <div class="p-5 bg-white rounded-xl shadow-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <i class="fas fa-address-book text-2xl text-blue-600"></i>
-                    <h3 class="text-lg font-bold text-gray-800">Secure Contacts Manager</h3>
-                </div>
-                <p class="text-gray-600 text-sm">Organize and secure your contacts including emails and birthdays.</p>
-            </div>
-        </div>
+    <main class="flex-grow flex items-center justify-center p-6 relative">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 items-center max-w-7xl">
 
-        <!-- Central Card -->
-        <div class="w-full flex justify-center items-center relative">
-            <!-- Single Message Box -->
-            <div id="msgBox" class="fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 pointer-events-none"></div>
-
-            <!-- Login Step -->
-            <div id="loginCard" class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Login to Your Hub</h2>
-                <p class="text-gray-600 dark:text-gray-400 mb-6 text-sm">Access your secure personal dashboard with your Google account.</p>
-                <button id="googleLoginBtn" class="flex items-center justify-center gap-3 w-full text-base font-semibold px-5 py-3 rounded-full border-2 border-blue-800 text-blue-800 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-700 transition-all duration-300">
-                    <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 25px;"> 
-                    <span>Sign in with Google</span>
-                </button>
-            </div>
-
-            <!-- OTP/PIN Step -->
-            <div id="pinCard" class="hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-2 shadow-2xl w-full max-w-xs text-center">
-                <div class="mb-1 flex justify-center">
-                    <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
+            <!-- Left Features -->
+            <div class="hidden lg:block space-y-6" style="animation: slideInLeft 1s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Financial Management</h3>
                     </div>
+                    <p class="text-gray-600 text-sm">Track income, expenses, and savings goals with visual progress bars.</p>
                 </div>
-                <h2 class="text-xl font-bold mb-1 text-gray-800 dark:text-white">Verify Email</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                    We sent a 6-digit code to <br>
-                    <span id="userEmailDisplay" class="font-semibold text-gray-700 dark:text-gray-200">your email</span>
-                </p>
-                
-                <div id="otpBox" class="flex justify-between gap-2 mb-2">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
-                    <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+                <div class="p-5 bg-white rounded-xl shadow-lg">
+                    <div class="flex items-center gap-3 mb-2">
+                        <i class="fas fa-address-book text-2xl text-blue-600"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Secure Contacts Manager</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm">Organize and secure your contacts including emails and birthdays.</p>
                 </div>
+            </div>
 
-                <p id="timer" class="text-blue-600 font-mono text-lg font-bold mb-4">03:00</p>
-                <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
+            <!-- Central Card -->
+         <div class="w-full flex justify-center items-center relative">
+    <!-- Message Notification Box (Floating) -->
+    <div id="msgBox" class="fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 opacity-0 pointer-events-none"></div>
+
+    <!-- Login Step -->
+<div id="loginCard" class="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-8 shadow-2xl w-full max-w-xs text-center" style="animation: fadeInZoom 0.8s ease-out forwards;">
+    <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Login to Your Hub</h2>
+    <p class="text-gray-600 dark:text-gray-400 mb-6 text-sm">Access your secure personal dashboard with your Google account.</p>
+    
+    <!-- Changed rounded-xl to rounded-full for 50% border radius -->
+    <button id="googleLoginBtn" class="flex items-center justify-center gap-3 w-full text-base font-semibold px-5 py-3 rounded-full border-2 border-blue-800 text-blue-800 hover:bg-blue-600 hover:text-white dark:hover:bg-blue-700 transition-all duration-300">
+        <img src="https://developers.google.com/identity/images/g-logo.png" style="width: 25px;"> 
+        <span>Sign in with Google</span>
+    </button>
+</div>
+
+    <!-- OTP/PIN Step -->
+    <div id="pinCard" class="hidden bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl p-2 shadow-2xl w-full max-w-xs text-center">
+        <div class="mb-1 flex justify-center">
+            <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 border-radius:50%  text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"  border-radius:50%  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
             </div>
         </div>
+        <h2 class="text-xl font-bold mb-1 text-gray-800 dark:text-white">Verify Email</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            We sent a 6-digit code to <br>
+            <span id="userEmailDisplay" class="font-semibold text-gray-700 dark:text-gray-200">your email</span>
+        </p>
+        
+        <div id="otpBox" class="flex justify-between gap-2 mb-2">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+            <input type="text" maxlength="1" class="otp-input-box w-10 h-12 text-center text-xl font-bold rounded-lg border-2 border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-blue-600 outline-none transition-all">
+        </div>
+
+        <p id="timer" class="text-blue-600 font-mono text-lg font-bold mb-4">03:00</p>
+        <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors uppercase tracking-widest font-semibold">Cancel</button>
+    </div>
+</div>
+
+        <div id="savig-splash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 30% 20%, #0a0f2a, #030614); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);">
+    
+    <!-- Canvas Particles Background -->
+    <canvas id="splashCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+    
+    <!-- Animated Glow Orbs -->
+    <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,255,255,0.07) 0%, transparent 70%); border-radius: 50%; animation: pulseOrb 4s ease-in-out infinite;"></div>
+    <div style="position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); border-radius: 50%; bottom: 10%; right: 5%; animation: pulseOrb 5s ease-in-out infinite reverse;"></div>
+    
+    <!-- Logo Container with Rings -->
+    <div style="position: relative; margin-bottom: 2rem; animation: floatLogo 3s ease-in-out infinite; z-index: 10;">
+        <!-- Outer spinning ring -->
+        <div style="position: absolute; top: -22px; left: -22px; width: 138px; height: 138px; border-radius: 50%; border: 2px solid rgba(0, 210, 255, 0.5); border-top-color: transparent; border-right-color: rgba(0, 210, 255, 0.15); animation: spinCw 2.2s linear infinite;"></div>
+        <!-- Middle reverse ring -->
+        <div style="position: absolute; top: -12px; left: -12px; width: 118px; height: 118px; border-radius: 50%; border: 1.5px solid rgba(59, 130, 246, 0.4); border-bottom-color: transparent; border-left-color: rgba(59, 130, 246, 0.1); animation: spinCcw 3.8s linear infinite;"></div>
+        <!-- Inner pulse ring -->
+        <div style="position: absolute; top: -2px; left: -2px; width: 98px; height: 98px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,255,0.05), transparent); animation: pulseRing 2.2s ease-in-out infinite;"></div>
+        
+        <!-- EXACT SHIELD + WHITE DATABASE LOGO -->
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));">
+            <i class="fas fa-shield" style="font-size: 82px; color: #3b82f6; filter: drop-shadow(0 6px 14px rgba(59,130,246,0.6));"></i>
+            <i class="fas fa-database" style="font-size: 42px; color: #ffffff !important; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -46%); text-shadow: 0 0 6px rgba(0,255,255,0.5);"></i>
+        </div>
+    </div>
+    
+    <!-- Brand Title -->
+    <h1 style="font-family: 'Inter', system-ui, sans-serif; font-size: 54px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #3b82f6, #0ff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; margin: 0; text-shadow: 0 0 20px rgba(59,130,246,0.3); z-index: 10;">Savig</h1>
+    <p style="color: rgba(59,130,246,0.7); font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 500; margin-top: 8px; z-index: 10;">SECURE PERSONAL HUB</p>
+    
+    <!-- Progress Bar -->
+    <div style="width: 280px; margin-top: 42px; margin-bottom: 28px; z-index: 10;">
+        <div style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
+            <div id="splashProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0ff, #3b82f6, #0ff); background-size: 200% auto; border-radius: 6px; transition: width 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1); animation: shimmerMove 1.4s linear infinite;"></div>
+        </div>
+    </div>
+    
+    <!-- Status Text -->
+    <div id="splashStatus" style="color: #aaffff; font-family: 'SF Mono', 'Courier New', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; background: rgba(0,255,255,0.08); padding: 8px 20px; border-radius: 60px; backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.2); z-index: 10;">🔐 establishing encrypted channel</div>
+    <div id="splashDots" style="color: rgba(0,255,255,0.5); font-size: 11px; letter-spacing: 5px; margin-top: 12px; z-index: 10;">✦ ✦ ✦</div>
+    
+    <!-- Version Badge -->
+    <div style="position: absolute; bottom: 24px; font-size: 9px; color: rgba(0,255,255,0.3); font-family: monospace; z-index: 10;">encrypted vault • zero-knowledge</div>
+</div>
 
         <div class="hidden lg:block space-y-6 order-3" style="animation: slideInRight 1s ease-out forwards; opacity: 1;">
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
@@ -128,79 +170,270 @@
                     <i class="fas fa-lock text-2xl text-blue-600"></i>
                     <h3 class="text-lg font-bold text-gray-800">Advanced Password Vault</h3>
                 </div>
-                <p class="text-gray-600 text-sm leading-relaxed">Secure all your online credentials in one place with military-grade encryption.</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Secure all your online credentials in one place with military-grade encryption.
+                </p>
             </div>
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
                 <div class="flex items-center gap-3 mb-2">
                     <i class="fas fa-link text-2xl text-blue-600"></i>
                     <h3 class="text-lg font-bold text-gray-800">Personalized Link Hub</h3>
                 </div>
-                <p class="text-gray-600 text-sm leading-relaxed">Organize your bookmarks and digital resources in a centralized hub.</p>
+                <p class="text-gray-600 text-sm leading-relaxed">
+                    Organize your bookmarks and digital resources in a centralized hub.
+                </p>
             </div>
         </div>
+
     </div>
 </main>
-
-<!-- Splash Screen -->
-<div id="savig-splash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 30% 20%, #0a0f2a, #030614); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);">
-    <canvas id="splashCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
-    <div style="position: relative; margin-bottom: 2rem; animation: floatLogo 3s ease-in-out infinite; z-index: 10;">
-        <div style="position: absolute; top: -22px; left: -22px; width: 138px; height: 138px; border-radius: 50%; border: 2px solid rgba(0, 210, 255, 0.5); border-top-color: transparent; border-right-color: rgba(0, 210, 255, 0.15); animation: spinCw 2.2s linear infinite;"></div>
-        <div style="position: absolute; top: -12px; left: -12px; width: 118px; height: 118px; border-radius: 50%; border: 1.5px solid rgba(59, 130, 246, 0.4); border-bottom-color: transparent; border-left-color: rgba(59, 130, 246, 0.1); animation: spinCcw 3.8s linear infinite;"></div>
-        <div style="position: absolute; top: -2px; left: -2px; width: 98px; height: 98px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,255,0.05), transparent); animation: pulseRing 2.2s ease-in-out infinite;"></div>
-        <div style="position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));">
-            <i class="fas fa-shield" style="font-size: 82px; color: #3b82f6; filter: drop-shadow(0 6px 14px rgba(59,130,246,0.6));"></i>
-            <i class="fas fa-database" style="font-size: 42px; color: #ffffff !important; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -46%); text-shadow: 0 0 6px rgba(0,255,255,0.5);"></i>
-        </div>
-    </div>
-    <h1 style="font-family: 'Inter', system-ui, sans-serif; font-size: 54px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #3b82f6, #0ff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; margin: 0; text-shadow: 0 0 20px rgba(59,130,246,0.3); z-index: 10;">Savig</h1>
-    <p style="color: rgba(59,130,246,0.7); font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 500; margin-top: 8px; z-index: 10;">SECURE PERSONAL HUB</p>
-    <div style="width: 280px; margin-top: 42px; margin-bottom: 28px; z-index: 10;">
-        <div style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
-            <div id="splashProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0ff, #3b82f6, #0ff); background-size: 200% auto; border-radius: 6px; transition: width 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1); animation: shimmerMove 1.4s linear infinite;"></div>
-        </div>
-    </div>
-    <div id="splashStatus" style="color: #aaffff; font-family: 'SF Mono', 'Courier New', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; background: rgba(0,255,255,0.08); padding: 8px 20px; border-radius: 60px; backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.2); z-index: 10;">🔐 establishing encrypted channel</div>
-    <div id="splashDots" style="color: rgba(0,255,255,0.5); font-size: 11px; letter-spacing: 5px; margin-top: 12px; z-index: 10;">✦ ✦ ✦</div>
-    <div style="position: absolute; bottom: 24px; font-size: 9px; color: rgba(0,255,255,0.3); font-family: monospace; z-index: 10;">encrypted vault • zero-knowledge</div>
-</div>
-
-<section class="py-12 md:py-16 bg-gray-50">
-    <div class="container mx-auto px-6">
-        <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
-                <i class="fas fa-database text-4xl text-blue-600 mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
-                <p class="text-gray-600 text-base leading-relaxed">A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.</p>
-            </div>
-            <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
-                <i class="fas fa-users text-4xl text-blue-600 mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Personal & Professional</h3>
-                <p class="text-gray-600 text-base leading-relaxed">Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.</p>
-            </div>
-            <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
-                <i class="fas fa-shield-alt text-4xl text-blue-600 mb-3"></i>
-                <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
-                <p class="text-gray-600 text-base leading-relaxed">Designed with security at its core. Your personal information stays private and under your control, always.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer class="bg-white text-gray-900 text-center py-4 text-sm mt-10">
-    &copy; 2026 Savig.com | All Rights Reserved.
-</footer>
-
-<button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
-    <span id="theme-icon">🌙</span>
-</button>
-
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+<style>
+    @keyframes floatLogo {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes spinCw {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    @keyframes spinCcw {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
+    }
+    @keyframes pulseRing {
+        0% { opacity: 0.1; transform: scale(0.92); }
+        50% { opacity: 0.35; transform: scale(1.02); }
+        100% { opacity: 0.1; transform: scale(0.92); }
+    }
+    @keyframes pulseOrb {
+        0% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(1.15); }
+        100% { opacity: 0.3; transform: scale(1); }
+    }
+    @keyframes shimmerMove {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+</style>
 
 <script>
-// --- CONFIGURATION & INITIALIZATION ---
+    (function() {
+        // Particles Canvas
+        const canvas = document.getElementById('splashCanvas');
+        if (canvas) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            for (let i = 0; i < 55; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 0.8,
+                    alpha: Math.random() * 0.5 + 0.1,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3
+                });
+            }
+            function animateParticles() {
+                if (!ctx || !canvas) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let p of particles) {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(0, 200, 255, ${p.alpha * 0.7})`;
+                    ctx.fill();
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        
+        // Progress & Status (minimum 5 seconds)
+        const progressBar = document.getElementById('splashProgress');
+        const statusEl = document.getElementById('splashStatus');
+        const dotsEl = document.getElementById('splashDots');
+        const splashDiv = document.getElementById('savig-splash');
+        
+        const messages = [
+            "🔐 establishing encrypted channel",
+         
+           
+            "✨ finalizing environment"
+        ];
+        
+        // Dots animation
+        let dotIdx = 0;
+        const dotPatterns = ['✦', '✦ ✦', '✦ ✦ ✦', '✦ ✦'];
+        const dotInterval = setInterval(() => {
+            if (dotsEl) {
+                dotsEl.innerHTML = dotPatterns[dotIdx % dotPatterns.length];
+                dotIdx++;
+            }
+        }, 2600);
+        
+        let progress = 0;
+        const startTime = Date.now();
+        const MIN_DURATION = 3000; // 5 seconds minimum
+        
+        const progressInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            progress = Math.min((elapsed / MIN_DURATION) * 100, 100);
+            if (progressBar) progressBar.style.width = progress + '%';
+            
+            // Update status message based on progress
+            if (statusEl) {
+                if (progress >= 85) statusEl.innerHTML = messages[3];
+                else if (progress >= 55) statusEl.innerHTML = messages[2];
+                else if (progress >= 25) statusEl.innerHTML = messages[1];
+                else statusEl.innerHTML = messages[0];
+            }
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+                clearInterval(dotInterval);
+                if (statusEl) statusEl.innerHTML = "✅ ACCESS GRANTED";
+                
+                // Fade out and remove splash after minimum 5 seconds
+                setTimeout(() => {
+                    if (splashDiv) {
+                        splashDiv.style.opacity = '0';
+                        setTimeout(() => {
+                            if (splashDiv && splashDiv.parentNode) {
+                                splashDiv.style.display = 'none';
+                            }
+                            window.dispatchEvent(new CustomEvent('splashComplete'));
+                        }, 4000);
+                    }
+                }, 2000);
+            }
+        }, 2000);
+        
+        // Fallback safety: ensure splash removes after 6 seconds max
+        setTimeout(() => {
+            if (splashDiv && splashDiv.style.display !== 'none') {
+                clearInterval(progressInterval);
+                clearInterval(dotInterval);
+                splashDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (splashDiv && splashDiv.parentNode) splashDiv.style.display = 'none';
+                    window.dispatchEvent(new CustomEvent('splashComplete'));
+                }, 1000);
+            }
+        }, 1000);
+    })();
+</script>
+      <section class="py-12 md:py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This Website</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <i class="fas fa-database text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <i class="fas fa-users text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Personal & Professional</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.
+                    </p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <i class="fas fa-shield-alt text-4xl text-blue-600 mb-3"></i>
+                    <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
+                    <p class="text-gray-600 text-base leading-relaxed">
+                        Designed with security at its core. Your personal information stays private and under your control, always.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12 md:py-16 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Key Benefits</h2>
+            <div class="space-y-8 relative border-l-4 border-blue-500 pl-4 max-w-3xl mx-auto">
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-bullseye mr-2"></i> Stay Focused</h3>
+                    <p class="text-gray-600 text-base">No distractions—only essential tools you need daily to save time and improve productivity.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-coins mr-2"></i> Smarter Finances</h3>
+                    <p class="text-gray-600 text-base">Automatically track your income, savings, and expenses in a visually engaging way.</p>
+                </div>
+                <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-globe mr-2"></i> Access Anywhere</h3>
+                    <p class="text-gray-600 text-base">Fully cloud-based—your data follows you across all devices, with secure access.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="py-12 md:py-16">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+                    <div class="mb-3">
+                        <i class="fas fa-user-shield text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Advanced Security Protocols</h3>
+                    <p class="text-gray-600 text-sm">Your data is protected by a two-factor authentication system, combining a secure Google login with a personal PIN.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                    <div class="mb-3">
+                        <i class="fas fa-lightbulb text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">All-in-One Convenience</h3>
+                    <p class="text-gray-600 text-sm">Say goodbye to scattered apps. Manage your finances, contacts, passwords, and links from a single, seamless dashboard.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                    <div class="mb-3">
+                        <i class="fas fa-cogs text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Seamless User Experience</h3>
+                    <p class="text-gray-600 text-sm">Our modern, intuitive interface is designed for simplicity, making it easy for anyone to get organized without a steep learning curve.</p>
+                </div>
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.7s;">
+                    <div class="mb-3">
+                        <i class="fas fa-mobile-alt text-4xl text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-1">Mobile-Friendly Design</h3>
+                    <p class="text-gray-600 text-sm">Access your personal hub on the go, with a design optimized for any device, from your desktop to your smartphone.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<footer class="bg-white text-gray-900 text-center py-4 text-sm mt-10">
+    &copy; 2026 Savig.com  | All Rights Reserved.
+</footer>
+
+<div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
+
+
+    <div id="msgBox"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+<script>
+    // --- CONFIGURATION & INITIALIZATION ---
 const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -222,62 +455,91 @@ let generatedOTP = null;
 let otpExpiryTime = null;
 let timerInterval = null;
 let isSendingOTP = false;
-let otpSentForCurrentUser = false;
-let lastProcessedUserUID = null;
-let authStateProcessed = false;
+let otpSentForCurrentUser = false; // NEW: Track if OTP sent for current user session
+let lastProcessedUserUID = null; // NEW: Track last processed user to prevent duplicate processing
 
+// --- 1. AUTH STATE LISTENER (CORE LOGIC) ---
 auth.onAuthStateChanged((user) => {
-    if (user) {
-        // If already verified, go home
-        if (localStorage.getItem('savig_otp_verified') === 'true') {
-            window.location.replace("home.html");
+    const isVerified = localStorage.getItem('savig_otp_verified');
+    
+    if (user && isVerified === 'true') {
+        // Already logged in and verified
+        otpSentForCurrentUser = false; // Reset flag
+        lastProcessedUserUID = null;
+        window.location.replace("home.html");
+    } 
+    else if (user) {
+        // USER LOGGED IN BUT NEEDS OTP
+        
+        // Check if we've already processed this user to prevent duplicate handling
+        if (lastProcessedUserUID === user.uid) {
+            return; // Already processing this user
+        }
+        
+        // A. Check for 3-Hour Lockout
+        const lockTime = localStorage.getItem('savig_lockout_time');
+        if (lockTime && Date.now() < parseInt(lockTime)) {
+            const remainingMs = parseInt(lockTime) - Date.now();
+            const remainingHours = Math.ceil(remainingMs / (1000 * 60 * 60));
+            showMsg(`Security Lock: Try again in ${remainingHours} hours.`, false);
+            setTimeout(() => auth.signOut(), 3000); 
             return;
         }
 
-        // Show the PIN card
+        // B. Update UI to OTP Screen
         document.getElementById('loginCard').classList.add('hidden');
         document.getElementById('pinCard').classList.remove('hidden');
-        document.getElementById('userEmailDisplay').innerText = user.email;
+        
+        // C. Show dynamic email address in the message
+        const emailDisplay = document.getElementById('userEmailDisplay');
+        if(emailDisplay) emailDisplay.innerText = user.email;
 
-        // ONLY trigger OTP if we haven't generated one yet
-        if (!generatedOTP && !isSendingOTP) {
+        // D. Trigger OTP Send (Fixed: only once per user session)
+        if (!generatedOTP && !isSendingOTP && !otpSentForCurrentUser) {
+            lastProcessedUserUID = user.uid; // Mark this user as being processed
+            otpSentForCurrentUser = true; // Prevent future sends for this session
             sendOTP(user.email);
         }
+    } 
+    else {
+        // USER LOGGED OUT
+        localStorage.removeItem('savig_otp_verified');
+        document.getElementById('loginCard').classList.remove('hidden');
+        document.getElementById('pinCard').classList.add('hidden');
+        resetOTPState();
+        
+        // Reset tracking variables
+        otpSentForCurrentUser = false;
+        lastProcessedUserUID = null;
     }
 });
 
 // --- 2. SIGN IN FUNCTION ---
-const googleBtn = document.getElementById("googleLoginBtn");
-if(googleBtn) {
-    googleBtn.onclick = async () => {
-        otpSentForCurrentUser = false;
-        lastProcessedUserUID = null;
-        authStateProcessed = false;
-        resetOTPState();
-        
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        try { 
-            await auth.signInWithPopup(provider); 
-        } catch (e) { 
-            showMsg(e.message, false); 
-        }
-    };
-}
-
-// --- 3. SEND OTP FUNCTION ---
-let lastSentTime = 0;
-function sendOTP(email) {
-    const now = Date.now();
-    // Block if sent in the last 30 seconds OR if already sending
-    if (isSendingOTP || generatedOTP || (now - lastSentTime < 30000)) {
-        return;
-    }
+document.getElementById("googleLoginBtn").onclick = async () => {
+    // Reset flags before new sign-in
+    otpSentForCurrentUser = false;
+    lastProcessedUserUID = null;
+    resetOTPState();
     
-    lastSentTime = now;
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    try { 
+        await auth.signInWithPopup(provider); 
+    } catch (e) { 
+        showMsg(e.message, false); 
+    }
+};
+
+// --- 3. SEND OTP FUNCTION (WITH LOCK) ---
+function sendOTP(email) {
+    if (isSendingOTP || generatedOTP) {
+        console.log("OTP already sent or in progress");
+        return; // Critical: Prevents double sending
+    }
+
     isSendingOTP = true;
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    otpExpiryTime = Date.now() + (3 * 60000);
+    otpExpiryTime = Date.now() + (3 * 60000); // 3 minutes valid
 
     emailjs.send('service_2ucolxw', 'template_iknmqfs', { 
         user_email: email, 
@@ -289,72 +551,93 @@ function sendOTP(email) {
         console.error("EmailJS Error:", err);
         showMsg("Service Error. Check connection.", false);
         generatedOTP = null;
-        otpSentForCurrentUser = false;
+        otpSentForCurrentUser = false; // Reset so user can retry
         lastProcessedUserUID = null;
-        authStateProcessed = false;
     }).finally(() => {
         isSendingOTP = false;
     });
 }
 
-// --- 4. OTP VERIFICATION ---
+// --- 4. OTP VERIFICATION & ATTEMPT LIMITER ---
 const otpInputs = document.querySelectorAll('.otp-input-box');
-if(otpInputs.length) {
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            if (e.target.value && index < 5) otpInputs[index + 1].focus();
-            
-            const code = Array.from(otpInputs).map(i => i.value).join('');
-            if (code.length === 6) {
-                verifyOTP(code);
-            }
-        });
-
-        input.addEventListener('keydown', (e) => { 
-            if (e.key === 'Backspace' && !e.target.value && index > 0) {
-                otpInputs[index - 1].focus();
-            }
-        });
+otpInputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+        // Auto-focus next box
+        if (e.target.value && index < 5) otpInputs[index + 1].focus();
+        
+        const code = Array.from(otpInputs).map(i => i.value).join('');
+        if (code.length === 6) {
+            verifyOTP(code);
+        }
     });
-}
+
+    // Handle Backspace
+    input.addEventListener('keydown', (e) => { 
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
+        }
+    });
+});
 
 function verifyOTP(code) {
     let attempts = parseInt(localStorage.getItem('savig_otp_attempts') || '0');
 
     if (code === generatedOTP && Date.now() <= otpExpiryTime) {
+        // SUCCESS
         localStorage.setItem('savig_otp_verified', 'true');
-        localStorage.setItem('savig_otp_attempts', '0');
+        localStorage.setItem('savig_otp_attempts', '0'); // Reset attempts
         showMsg("Access Granted!", true);
         
+        // Reset flags
         otpSentForCurrentUser = false;
         lastProcessedUserUID = null;
-        authStateProcessed = false;
         
         setTimeout(() => window.location.replace("home.html"), 100);
     } 
     else {
+        // FAILURE
         attempts++;
         localStorage.setItem('savig_otp_attempts', attempts.toString());
 
         if (attempts >= 3) {
+            // LOCKOUT LOGIC: 3 Hours
             const lockoutPeriod = Date.now() + (3 * 60 * 60 * 1000);
             localStorage.setItem('savig_lockout_time', lockoutPeriod.toString());
             showMsg("Too many attempts. Locked for 3 hours.", false);
             
+            // Reset flags
             otpSentForCurrentUser = false;
             lastProcessedUserUID = null;
-            authStateProcessed = false;
             
             setTimeout(() => auth.signOut(), 2500);
         } else {
             showMsg(`Invalid code. ${3 - attempts} attempts left.`, false);
+            // Clear inputs and focus first box
             otpInputs.forEach(i => i.value = '');
-            if(otpInputs[0]) otpInputs[0].focus();
+            otpInputs[0].focus();
         }
     }
 }
 
-// --- 5. HELPER UTILITIES ---
+// --- 5. RESEND OTP FUNCTION (Optional but useful) ---
+function resendOTP() {
+    const user = auth.currentUser;
+    if (user && !isSendingOTP) {
+        // Reset OTP state
+        generatedOTP = null;
+        otpExpiryTime = null;
+        clearInterval(timerInterval);
+        
+        // Send new OTP
+        sendOTP(user.email);
+        
+        // Clear input fields
+        otpInputs.forEach(i => i.value = '');
+        otpInputs[0].focus();
+    }
+}
+
+// --- 6. HELPER UTILITIES ---
 function startTimer(s) {
     clearInterval(timerInterval);
     let t = s;
@@ -366,8 +649,8 @@ function startTimer(s) {
         
         if (--t < 0) { 
             clearInterval(timerInterval); 
-            generatedOTP = null;
-            otpSentForCurrentUser = false;
+            generatedOTP = null; // Invalidate OTP
+            otpSentForCurrentUser = false; // Allow resend on expiry
             showMsg("OTP Expired. Please sign in again.", false); 
         }
     }, 1000);
@@ -386,214 +669,429 @@ function resetOTPState() {
     }
 }
 
-function showMsg(message, isSuccess) {
-    const msgBox = document.getElementById('msgBox');
-    if(!msgBox) return;
+function showMsg(m, s) {
+    const b = document.getElementById('msgBox');
+    if(!b) return;
     
-    msgBox.textContent = message;
-    msgBox.style.opacity = '1';
-    msgBox.style.pointerEvents = 'auto';
-    msgBox.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 ${isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+    b.innerText = m; 
+    // Standardized classes for both Light and Dark mode
+    b.className = `fixed top-5 right-5 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 show ${s ? 'success' : 'error'}`;
     
+    setTimeout(() => b.classList.remove('show'), 4000);
+}
+    
+window.addEventListener('load', () => {
+    const loader = document.getElementById('page-loader');
+    const loaderBar = document.getElementById('loader-bar');
+    
+    // Start the loading bar animation immediately
+    if(loaderBar) loaderBar.style.width = '100%';
+
+    // Wait exactly 2 seconds before hiding
     setTimeout(() => {
-        msgBox.style.opacity = '0';
-        msgBox.style.pointerEvents = 'none';
-    }, 4000);
+        loader.classList.add('opacity-0'); // Fade out
+        
+        // Remove from DOM after fade animation so it doesn't block clicks
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 500); 
+    }, 2000);
+});
+</script>
+        
+<button id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+    <span id="theme-icon">🌙</span>
+</button>
+
+<style>
+#msgBox {
+    position: fixed;
+    top: 25px;
+    right: -600px; /* Hidden far right for high speed */
+    white-space: nowrap;
+    padding: 12px 24px;
+    border-radius: 12px;
+
+    /* Professional 3-Color Vibrant Gradient (Vivid Orange -> Amber -> Lime) */
+    background: linear-gradient(135deg, 
+        rgba(234, 88, 12, 0.95) 0%,   /* Vivid Orange */
+        rgba(245, 158, 11, 0.95) 50%,  /* Amber Yellow */
+        rgba(132, 204, 22, 0.95) 100%  /* Lime Green */
+    );
+    /* Add this to your <style> block */
+#page-loader.opacity-0 {
+    opacity: 0;
+    pointer-events: none;
 }
 
-// --- SPLASH SCREEN HANDLER ---
-window.addEventListener('load', () => {
-    const canvas = document.getElementById('splashCanvas');
-    if (canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        for (let i = 0; i < 55; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                radius: Math.random() * 2 + 0.8,
-                alpha: Math.random() * 0.5 + 0.1,
-                vx: (Math.random() - 0.5) * 0.3,
-                vy: (Math.random() - 0.5) * 0.3
-            });
-        }
-        function animateParticles() {
-            if (!ctx || !canvas) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let p of particles) {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 200, 255, ${p.alpha * 0.7})`;
-                ctx.fill();
-                p.x += p.vx;
-                p.y += p.vy;
-                if (p.x < 0) p.x = canvas.width;
-                if (p.x > canvas.width) p.x = 0;
-                if (p.y < 0) p.y = canvas.height;
-                if (p.y > canvas.height) p.y = 0;
-            }
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+/* Prevent scrolling while loading */
+body.loading {
+    overflow: hidden;
+}
+    backdrop-filter: blur(10px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+    
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10000;
+    
+    /* FASTEST TRANSITION: Snaps into view in 0.25 seconds */
+    transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#msgBox.show {
+    right: 25px; /* Final position on screen */
+}
+
+.welcome-content {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.user-name {
+    font-weight: 800;
+    margin: 0 6px;
+}
+
+.redirect-span {
+    margin-left: 12px;
+    padding-left: 12px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.85);
+    font-size:18px;
+    font-weight: 400;
+}
+    /* --- BUTTON STYLING --- */
+    #theme-toggle-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        z-index: 1000;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background: #2563eb; /* Blue in Light Mode */
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
-    const progressBar = document.getElementById('splashProgress');
-    const splashDiv = document.getElementById('savig-splash');
-    let progress = 0;
-    const startTime = Date.now();
-    const MIN_DURATION = 2000;
-    
-    const progressInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        progress = Math.min((elapsed / MIN_DURATION) * 100, 100);
-        if (progressBar) progressBar.style.width = progress + '%';
+
+    #theme-toggle-btn:hover {
+        transform: scale(1.1) rotate(15deg);
+    }
+
+    #theme-toggle-btn:active {
+        transform: scale(0.95);
+    }
+
+    /* --- DARK MODE DEFINITIONS --- */
+    /* Using [data-theme="dark"] on the root (html) element */
+    [data-theme="dark"] {
+        background-color: #0f172a !important; /* Deep Navy */
+        color: #f1f5f9 !important;
+    }
+
+    /* Background Overrides */
+    [data-theme="dark"] body {
+        background-color: #0f172a !important;
+    }
+
+    [data-theme="dark"] nav, 
+    [data-theme="dark"] footer,
+    [data-theme="dark"] .bg-white, 
+    [data-theme="dark"] #loginCard, 
+    [data-theme="dark"] #pinCard,
+    [data-theme="dark"] .lg\:block > div { 
+        background-color: #1e293b !important; /* Lighter navy for cards */
+        color: #f1f5f9 !important;
+        border: 1px solid #334155 !important;
+    }
+
+    [data-theme="dark"] .bg-gray-50 {
+        background-color: #111827 !important; /* Darker section background */
+    }
+      [data-theme="dark"] #loginCard {
+    border: 5px solid blue ;
+    }
+    /* Text Color Overrides */
+    [data-theme="dark"] .text-gray-800,
+    [data-theme="dark"] .text-gray-900,
+    [data-theme="dark"] h2, 
+    [data-theme="dark"] h3 {
+        color: #ffffff !important;
+    }
+
+    [data-theme="dark"] .text-gray-600 {
+        color: #94a3b8 !important; /* Muted slate for descriptions */
+    }
+
+    /* Input Fields */
+    [data-theme="dark"] input {
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+        color: #ffffff !important;
+    }
+
+    [data-theme="dark"] input::placeholder {
+        color: #64748b !important;
+    }
+
+    /* Icon Colors */
+    [data-theme="dark"] .text-blue-600,
+    [data-theme="dark"] .text-blue-500,
+    [data-theme="dark"] .fas {
+        color: #60a5fa !important; /* Brighter blue for visibility */
+    }
+
+    /* Google Button Adjustments */
+    [data-theme="dark"] #googleLoginBtn {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 2px solid blue !important;
         
-        if (progress >= 100) {
-            clearInterval(progressInterval);
-            setTimeout(() => {
-                if (splashDiv) {
-                    splashDiv.style.opacity = '0';
-                    setTimeout(() => {
-                        if (splashDiv && splashDiv.parentNode) {
-                            splashDiv.style.display = 'none';
-                        }
-                    }, 700);
-                }
-            }, 500);
-        }
-    }, 50);
-});
+    }
 
-// --- THEME TOGGLE ---
-(function() {
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    const themeIcon = document.getElementById('theme-icon');
-    const htmlElement = document.documentElement;
+    [data-theme="dark"] #googleLoginBtn:hover {
+        background-color: #334155 !important;
+    }
+    /* 1. Fix the Brand Name Visibility */
+[data-theme="dark"] .text-gray-900 {
+    color: #ffffff !important;
+}
 
-    const savedTheme = localStorage.getItem('theme') || 
-                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    applyTheme(savedTheme);
+/* 2. Fix the Database Icon (The small white one) */
+/* We target the specific combination of classes you have in your HTML */
+[data-theme="dark"] .fas.fa-database.text-white {
+    color: #ffffff !important; /* Force it to stay white */
+    opacity: 1 !important;
+    z-index: 2; /* Ensure it stays above the shield */
+}
 
-    if(themeBtn) {
+/* 3. Enhance the Shield for Dark Mode */
+[data-theme="dark"] .fa-shield {
+    color: #3b82f6 !important; /* Brighter blue for better contrast */
+    filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5)); /* Subtle glow */
+}
+
+/* 4. Optical Alignment Fix */
+/* Since you have absolute and translateY(-50%), 
+   sometimes it looks slightly high. This centers it perfectly. */
+.fa-database.absolute {
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+}
+
+    /* Message Box Styles */
+    #msgBox.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    #msgBox.success {
+        background-color: #10B981; /* Green-500 */
+        color: white;
+    }
+    #msgBox.error {
+        background-color: #EF4444; /* Red-500 */
+        color: white;
+    }
+
+    /* Animation */
+    @keyframes fadeInZoom {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Target Dark Mode manually if not using Tailwind's compiler */
+    @media (prefers-color-scheme: dark) {
+        body { background-color: #0f172a; }
+    }
+
+</style>
+
+<script>
+    (function() {
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        // 1. Check for saved preference or system preference
+        const savedTheme = localStorage.getItem('theme') || 
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        
+        // 2. Apply theme on load
+        applyTheme(savedTheme);
+
+        // 3. Toggle event
         themeBtn.addEventListener('click', () => {
             const currentTheme = htmlElement.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(newTheme);
         });
-    }
 
-    function applyTheme(theme) {
-        htmlElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        
-        if (theme === 'dark') {
-            if(themeIcon) themeIcon.textContent = '☀️';
-            if(themeBtn) themeBtn.style.background = '#fbbf24';
-        } else {
-            if(themeIcon) themeIcon.textContent = '🌙';
-            if(themeBtn) themeBtn.style.background = '#2563eb';
+        function applyTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeBtn.style.background = '#fbbf24'; // Amber for Sun
+                themeBtn.style.boxShadow = '0 4px 15px rgba(251, 191, 36, 0.4)';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeBtn.style.background = '#2563eb'; // Blue for Moon
+                themeBtn.style.boxShadow = '0 4px 15px rgba(37, 99, 235, 0.4)';
+            }
         }
-    }
-})();
+    })();
 </script>
-
-<style>
-@keyframes floatLogo {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
-}
-@keyframes spinCw {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-@keyframes spinCcw {
-    from { transform: rotate(360deg); }
-    to { transform: rotate(0deg); }
-}
-@keyframes pulseRing {
-    0% { opacity: 0.1; transform: scale(0.92); }
-    50% { opacity: 0.35; transform: scale(1.02); }
-    100% { opacity: 0.1; transform: scale(0.92); }
-}
-@keyframes shimmerMove {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    <style>
+        /* Force white background in light mode */
+:root,
+html:not([data-theme="dark"]),
+html[data-theme="light"] {
+    background-color: #ffffff !important;
 }
 
-#theme-toggle-btn {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 1000;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: #2563eb;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+body {
+    background-color: #f0f4f8; /* Light gray-blue for body */
 }
 
-#theme-toggle-btn:hover {
-    transform: scale(1.1) rotate(15deg);
+/* Override any dark backgrounds in light mode */
+html:not([data-theme="dark"]) body,
+html[data-theme="light"] body {
+    background-color: #f0f4f8 !important;
 }
 
-/* Dark mode styles */
+html:not([data-theme="dark"]) .bg-white,
+html[data-theme="light"] .bg-white,
+html:not([data-theme="dark"]) #loginCard,
+html[data-theme="light"] #loginCard,
+html:not([data-theme="dark"]) #pinCard,
+html[data-theme="light"] #pinCard,
+html:not([data-theme="dark"]) .lg\:block > div,
+html[data-theme="light"] .lg\:block > div {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+}
+
+html:not([data-theme="dark"]) .bg-gray-50,
+html[data-theme="light"] .bg-gray-50 {
+    background-color: #f9fafb !important;
+}
+
+/* Keep dark mode styles separate */
 [data-theme="dark"] {
     background-color: #0f172a !important;
-    color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] body {
     background-color: #0f172a !important;
 }
 
-[data-theme="dark"] nav, 
-[data-theme="dark"] footer,
-[data-theme="dark"] .bg-white, 
-[data-theme="dark"] #loginCard, 
-[data-theme="dark"] #pinCard,
-[data-theme="dark"] .lg\:block > div { 
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] #loginCard,
+[data-theme="dark"] #pinCard {
     background-color: #1e293b !important;
-    color: #f1f5f9 !important;
-    border: 1px solid #334155 !important;
+}
+/* Fix heading visibility in light mode */
+html:not([data-theme="dark"]) #loginCard h2,
+html[data-theme="light"] #loginCard h2,
+html:not([data-theme="dark"]) .text-gray-800,
+html[data-theme="light"] .text-gray-800,
+html:not([data-theme="dark"]) .text-gray-900,
+html[data-theme="light"] .text-gray-900 {
+    color: #1f2937 !important; /* Dark gray for light mode */
 }
 
-[data-theme="dark"] .bg-gray-50 {
-    background-color: #111827 !important;
+/* Ensure the login card heading is clearly visible */
+#loginCard h2,
+.pinCard h2 {
+    font-weight: 700;
 }
 
+/* Light mode specific heading fix */
+html:not([data-theme="dark"]) h2,
+html[data-theme="light"] h2,
+html:not([data-theme="dark"]) .section-title,
+html[data-theme="light"] .section-title {
+    color: #1f2937 !important;
+}
+
+/* Fix description text in light mode */
+html:not([data-theme="dark"]) .text-gray-600,
+html[data-theme="light"] .text-gray-600,
+html:not([data-theme="dark"]) p,
+html[data-theme="light"] p {
+    color: #4b5563 !important;
+}
+
+/* Ensure the subheading text is visible */
+html:not([data-theme="dark"]) .text-gray-500,
+html[data-theme="light"] .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+/* Keep dark mode styles dark */
+[data-theme="dark"] #loginCard h2,
 [data-theme="dark"] .text-gray-800,
-[data-theme="dark"] .text-gray-900,
-[data-theme="dark"] h2, 
-[data-theme="dark"] h3 {
+[data-theme="dark"] .text-gray-900 {
     color: #ffffff !important;
 }
-
-[data-theme="dark"] .text-gray-600 {
-    color: #94a3b8 !important;
+/* Fix OTP input boxes in light mode - white background with blue border */
+html:not([data-theme="dark"]) .otp-input-box,
+html[data-theme="light"] .otp-input-box {
+    background-color: #ffffff !important;
+    border: 2px solid #3b82f6 !important; /* Blue border */
+    color: #1f2937 !important;
 }
 
-[data-theme="dark"] input {
-    background-color: #0f172a !important;
-    border: 1px solid #334155 !important;
-    color: #ffffff !important;
+/* OTP input focus state */
+html:not([data-theme="dark"]) .otp-input-box:focus,
+html[data-theme="light"] .otp-input-box:focus {
+    outline: none;
+    border: 2px solid #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    background-color: #ffffff !important;
 }
 
+/* Email display text in light mode */
+html:not([data-theme="dark"]) #userEmailDisplay,
+html[data-theme="light"] #userEmailDisplay {
+    color: #1f2937 !important;
+    font-weight: 600;
+}
+
+/* Timer text in light mode */
+html:not([data-theme="dark"]) #timer,
+html[data-theme="light"] #timer {
+    color: #2563eb !important;
+}
+
+/* Cancel button in light mode */
+html:not([data-theme="dark"]) button[onclick="location.reload()"],
+html[data-theme="light"] button[onclick="location.reload()"] {
+    color: #6b7280 !important;
+}
+
+html:not([data-theme="dark"]) button[onclick="location.reload()"]:hover,
+html[data-theme="light"] button[onclick="location.reload()"]:hover {
+    color: #374151 !important;
+}
+
+/* Keep dark mode styles */
 [data-theme="dark"] .otp-input-box {
     background-color: #0f172a !important;
     border: 2px solid #334155 !important;
@@ -603,7 +1101,38 @@ window.addEventListener('load', () => {
 [data-theme="dark"] .otp-input-box:focus {
     border-color: #3b82f6 !important;
 }
-</style>
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] p {
+    color: #94a3b8 !important;
+}</style>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; overflow-x: hidden; }
+        @keyframes fadeInZoom { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes slideInLeft { 0% { opacity: 0; transform: translateX(-50px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { 0% { opacity: 0; transform: translateX(50px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInUp { 0% { opacity: 0; transform: translateY(50px); } 100% { opacity: 1; transform: translateY(0); } }
+        
+        .section-title { font-size: 2rem; font-weight: 700; text-align: center; color: #1f2937; margin-bottom: 2.5rem; }
+
+        /* OTP Input Styling */
+        .otp-input-box { width: 40px; height: 50px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; font-size: 1.25rem; font-weight: 600; }
+        .otp-input-box:focus { outline: none; border-color: #2563eb; ring: 2px; ring-color: #3b82f6; }
+
+        #msgBox {
+            position: fixed; top: 25px; right: -600px;
+            padding: 12px 24px; border-radius: 12px;
+            background: linear-gradient(135deg, #ea580c 0%, #f59e0b 50%, #84cc16 100%);
+            color: white; z-index: 10000; transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; align-items: center; gap: 12px; font-weight: 600;
+        }
+        #msgBox.show { right: 25px; }
+
+        [data-theme="dark"] { background-color: #0f172a !important; color: #f1f5f9 !important; }
+        [data-theme="dark"] .bg-white, [data-theme="dark"] #loginCard, [data-theme="dark"] #pinCard { 
+            background-color: #1e293b !important; border: 1px solid #334155 !important; color: white !important;
+        }
+    </style>
+
 
 </body>
 </html>
