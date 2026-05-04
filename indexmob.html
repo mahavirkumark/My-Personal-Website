@@ -60,6 +60,58 @@
         .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
         
         #google_translate_element, .skiptranslate { display: none !important; }
+        /* Base mobile adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .grid {
+    gap: 1.25rem;
+  }
+
+  /* Reduce card padding on small screens */
+  .p-5 {
+    padding: 1rem;
+  }
+
+  /* Adjust icon sizes */
+  .text-4xl {
+    font-size: 1.75rem;
+  }
+
+  /* Smaller section titles */
+  .section-title {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  /* Better spacing for stacked elements */
+  .space-y-8 > * + * {
+    margin-top: 1.5rem;
+  }
+
+  /* Adjust border-left timeline for mobile */
+  .border-l-4 {
+    margin-left: 0.5rem;
+  }
+}
+
+/* Even tighter for very small devices */
+@media (max-width: 480px) {
+  .text-lg {
+    font-size: 1.1rem;
+  }
+
+  .text-sm {
+    font-size: 0.8rem;
+  }
+
+  .rounded-xl {
+    border-radius: 0.75rem;
+  }
+}
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between">
@@ -355,7 +407,7 @@
             </div>
         </div>
 
-        <div class="hidden lg:block space-y-6 order-3" style="animation: slideInRight 1s ease-out forwards; opacity: 1;">
+        <div class="lg:block space-y-6 order-3" style="animation: slideInRight 1s ease-out forwards; opacity: 1;">
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
                 <div class="flex items-center gap-3 mb-2">
                     <i class="fas fa-lock text-2xl text-blue-600"></i>
@@ -379,96 +431,212 @@
     </div>
 </main>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-        <section class="py-12 md:py-16 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">About This App</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Mobile-Optimized Custom Styles -->
+    <style>
+        /* Smooth animations (kept but responsive) */
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* MOBILE-FIRST OVERRIDES - Copy this entire block */
+        @media (max-width: 768px) {
+            /* Reduce padding on all containers */
+            .container {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            
+            /* Stack grid items and reduce gap */
+            .grid {
+                gap: 1rem !important;
+            }
+            
+            /* Smaller card padding */
+            .p-5 {
+                padding: 1rem !important;
+            }
+            
+            /* Adjust icon sizes for mobile */
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+            
+            /* Make section titles smaller and centered */
+            .section-title {
+                font-size: 1.5rem !important;
+                text-align: center !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            /* Better spacing for stacked elements */
+            .space-y-8 > * + * {
+                margin-top: 1.25rem !important;
+            }
+            
+            /* Fix left border timeline */
+            .border-l-4 {
+                margin-left: 0.25rem !important;
+                padding-left: 0.75rem !important;
+            }
+            
+            /* Reduce text size slightly on very small screens */
+            .text-base {
+                font-size: 0.9rem !important;
+            }
+            
+            .text-sm {
+                font-size: 0.8rem !important;
+            }
+            
+            /* Adjust heading sizes */
+            .text-lg {
+                font-size: 1.1rem !important;
+            }
+            
+            .text-xl {
+                font-size: 1.25rem !important;
+            }
+        }
+        
+        /* Extra small devices (phones under 480px) */
+        @media (max-width: 480px) {
+            .rounded-xl {
+                border-radius: 0.75rem !important;
+            }
+            
+            .gap-8 {
+                gap: 1rem !important;
+            }
+            
+            /* Reduce animation delays - snappier on mobile */
+            [style*="animation-delay"] {
+                animation-delay: 0s !important;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        button, 
+        [role="button"],
+        .cursor-pointer {
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Better card hover effect but subtle on mobile */
+        @media (hover: hover) {
+            .hover\:-translate-y-1:hover {
+                transform: translateY(-4px);
+            }
+        }
+    </style>
+
+
+
+    <!-- MAIN CONTENT - Only showing the first modified section as example -->
+    <!-- YOUR EXISTING HEADER/HERO SECTION GOES HERE -->
+    
+    <main>
+     
+
+        <!-- EmailJS Script (keep as is) -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+        
+        <!-- MODIFIED: Three-column section - stays responsive (1 col on mobile, 3 on desktop) -->
+        <div class="container mx-auto px-6 mt-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.1s;">
                     <i class="fas fa-database text-4xl text-blue-600 mb-3"></i>
                     <h3 class="text-lg font-semibold mb-2">Your Digital Vault</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
-                        A single platform that combines financial tracking, secure storage, and personal management. Say goodbye to scattered apps.
+                        A single platform that combines financial tracking, secure storage, and personal management.
                     </p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.3s;">
                     <i class="fas fa-users text-4xl text-blue-600 mb-3"></i>
                     <h3 class="text-lg font-semibold mb-2">Personal & Professional</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
-                        Whether you're a student, working professional, or entrepreneur—this hub adapts to your lifestyle and keeps you organized.
+                        Adapts to your lifestyle — student, professional, or entrepreneur.
                     </p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.5s;">
                     <i class="fas fa-shield-alt text-4xl text-blue-600 mb-3"></i>
                     <h3 class="text-lg font-semibold mb-2">Privacy First</h3>
                     <p class="text-gray-600 text-base leading-relaxed">
-                        Designed with security at its core. Your personal information stays private and under your control, always.
+                        Your data stays private and under your control, always.
                     </p>
                 </div>
             </div>
         </div>
-    </section>
 
-    <section class="py-12 md:py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Key Benefits</h2>
-            <div class="space-y-8 relative border-l-4 border-blue-500 pl-4 max-w-3xl mx-auto">
+        <!-- MODIFIED: Timeline section - better mobile spacing -->
+        <div class="container mx-auto px-6 mt-12">
+            <div class="space-y-6 relative border-l-4 border-blue-500 pl-4 max-w-3xl mx-auto">
                 <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
                     <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-bullseye mr-2"></i> Stay Focused</h3>
-                    <p class="text-gray-600 text-base">No distractions—only essential tools you need daily to save time and improve productivity.</p>
+                    <p class="text-gray-600 text-base">No distractions — essential tools to save time and boost productivity.</p>
                 </div>
                 <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
                     <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-coins mr-2"></i> Smarter Finances</h3>
-                    <p class="text-gray-600 text-base">Automatically track your income, savings, and expenses in a visually engaging way.</p>
+                    <p class="text-gray-600 text-base">Track income, savings, and expenses in a visually engaging way.</p>
                 </div>
                 <div style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
                     <h3 class="text-lg font-bold text-blue-600 mb-1"><i class="fas fa-globe mr-2"></i> Access Anywhere</h3>
-                    <p class="text-gray-600 text-base">Fully cloud-based—your data follows you across all devices, with secure access.</p>
+                    <p class="text-gray-600 text-base">Cloud-based — your data follows you across all devices.</p>
                 </div>
             </div>
         </div>
-    </section>
 
-    
-
-    <section class="py-12 md:py-16">
-        <div class="container mx-auto px-6">
-            <h2 class="section-title" style="animation: slideInUp 1s ease-out forwards; opacity: 0; animation-delay: 0.2s;">Why Choose Us?</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.1s;">
+        <!-- MODIFIED: Why Choose Us section - 1 column on mobile, 4 on desktop -->
+        <div class="container mx-auto px-6 mt-12 mb-12">
+            <h2 class="section-title text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800" style="animation: slideInUp 1s ease-out forwards; animation-delay: 0.2s;">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.1s;">
                     <div class="mb-3">
                         <i class="fas fa-user-shield text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-1">Advanced Security Protocols</h3>
-                    <p class="text-gray-600 text-sm">Your data is protected by a two-factor authentication system, combining a secure Google login with a personal PIN.</p>
+                    <h3 class="text-lg font-semibold mb-1">Advanced Security</h3>
+                    <p class="text-gray-600 text-sm">Two-factor authentication with Google login + personal PIN.</p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.3s;">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.3s;">
                     <div class="mb-3">
                         <i class="fas fa-lightbulb text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-1">All-in-One Convenience</h3>
-                    <p class="text-gray-600 text-sm">Say goodbye to scattered apps. Manage your finances, contacts, passwords, and links from a single, seamless dashboard.</p>
+                    <h3 class="text-lg font-semibold mb-1">All-in-One Hub</h3>
+                    <p class="text-gray-600 text-sm">Finances, contacts, passwords, and links — single dashboard.</p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.5s;">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.5s;">
                     <div class="mb-3">
                         <i class="fas fa-cogs text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-1">Seamless User Experience</h3>
-                    <p class="text-gray-600 text-sm">Our modern, intuitive interface is designed for simplicity, making it easy for anyone to get organized without a steep learning curve.</p>
+                    <h3 class="text-lg font-semibold mb-1">Seamless UX</h3>
+                    <p class="text-gray-600 text-sm">Modern, intuitive interface with no steep learning curve.</p>
                 </div>
-                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; opacity: 0; animation-delay: 0.7s;">
+                <div class="p-5 bg-white rounded-xl shadow-md text-center" style="animation: slideInUp 0.8s ease-out forwards; animation-delay: 0.7s;">
                     <div class="mb-3">
                         <i class="fas fa-mobile-alt text-4xl text-blue-500"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-1">Mobile-Friendly Design</h3>
-                    <p class="text-gray-600 text-sm">Access your personal hub on the go, with a design optimized for any device, from your desktop to your smartphone.</p>
+                    <h3 class="text-lg font-semibold mb-1">Mobile-Friendly</h3>
+                    <p class="text-gray-600 text-sm">Optimized for any device — desktop to smartphone.</p>
                 </div>
             </div>
         </div>
-    </section>
+    </main>
+ 
 
-
-
-   
    
 </body>
 <div id="msgBox" style="position: fixed; top: 20px; right: 20px; padding: 10px 18px; border: 1px solid; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 999; font-weight: 500;"></div>
@@ -491,124 +659,722 @@
     let generatedOTP = null;
     let otpExpiryTime = null;
     let timerInterval = null;
+    let currentUserEmail = null;
+    let isOtpSending = false;
+    let otpAttempts = 0;
+    let lockUntilTime = null;
 
-    const splashTextEl = document.getElementById("splash-text");
-    const splashScreenEl = document.getElementById("splash-screen");
     const getStep1 = () => document.getElementById('step1') || document.getElementById('loginCard');
     const getStep2 = () => document.getElementById('step2') || document.getElementById('pinCard');
 
-    // --- 2. Splash Animation ---
-    const splashMessages = ["Establishing Secure Connection...", "Encrypting Your Data Vault...", "Finalizing Privacy Protocols...", "Ready to Secure Your Life."];
-    let msgIndex = 0;
-    const msgInterval = setInterval(() => {
-        msgIndex++;
-        if (splashTextEl && splashMessages[msgIndex]) {
-            splashTextEl.innerText = splashMessages[msgIndex];
-        }
-    }, 1200);
-
-    // --- 3. Compulsory Authentication Logic ---
-    auth.onAuthStateChanged((user) => {
-        const isVerified = localStorage.getItem('savig_otp_verified');
-
-        setTimeout(() => {
-            if (user && isVerified === 'true') {
-                // If both are true, skip to home
-                window.location.replace("homemob.html");
+    // --- 2. Check Account Lock Status ---
+    function isAccountLocked(email) {
+        if (!email) return false;
+        const lockKey = `lock_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const lockData = localStorage.getItem(lockKey);
+        
+        if (lockData) {
+            const lockInfo = JSON.parse(lockData);
+            if (Date.now() < lockInfo.lockUntil) {
+                lockUntilTime = lockInfo.lockUntil;
+                return true;
             } else {
-                // If logged out OR logged in but NOT verified (post-logout), show UI
-                hideSplash();
-                if (user) {
-                    // Compulsory OTP flow: User is authenticated but flag is missing
-                    switchToOTPScreen(user);
-                } else {
-                    // Show login button if no user at all
-                    const s1 = getStep1();
-                    if(s1) s1.classList.remove('hidden');
+                localStorage.removeItem(lockKey);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    function lockAccount(email, hours = 6) {
+        if (!email) return;
+        const lockKey = `lock_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const lockUntil = Date.now() + (hours * 60 * 60 * 1000);
+        localStorage.setItem(lockKey, JSON.stringify({
+            lockUntil: lockUntil,
+            email: email,
+            timestamp: Date.now()
+        }));
+        lockUntilTime = lockUntil;
+        
+        const attemptsKey = `attempts_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        localStorage.removeItem(attemptsKey);
+    }
+
+    function getStoredAttempts(email) {
+        if (!email) return 0;
+        const attemptsKey = `attempts_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        const stored = localStorage.getItem(attemptsKey);
+        return stored ? parseInt(stored) : 0;
+    }
+
+    function saveAttempts(email, attempts) {
+        if (!email) return;
+        const attemptsKey = `attempts_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        localStorage.setItem(attemptsKey, attempts.toString());
+    }
+
+    function resetAttempts(email) {
+        if (!email) return;
+        const attemptsKey = `attempts_${email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+        localStorage.removeItem(attemptsKey);
+        otpAttempts = 0;
+    }
+
+    function formatLockTimeRemaining(lockUntil) {
+        const remainingMs = lockUntil - Date.now();
+        if (remainingMs <= 0) return null;
+        
+        const hours = Math.floor(remainingMs / (60 * 60 * 1000));
+        const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+        
+        if (hours > 0) {
+            return `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} minute${minutes > 1 ? 's' : ''}`;
+        }
+        return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+    }
+
+    // --- 3. Professional Dark/Light Mode Detection ---
+    function detectAndApplyTheme() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        let isDarkMode = false;
+        
+        if (savedTheme === 'dark') {
+            isDarkMode = true;
+        } else if (savedTheme === 'light') {
+            isDarkMode = false;
+        } else {
+            isDarkMode = prefersDark;
+        }
+        
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            document.documentElement.style.backgroundColor = '#0a0e1a';
+            document.body.style.backgroundColor = '#0a0e1a';
+            document.body.style.color = '#e2e8f0';
+            
+            const cards = document.querySelectorAll('.bg-white, .shadow-lg, .shadow-md, .rounded-xl, .bg-gray-50');
+            cards.forEach(card => {
+                card.style.backgroundColor = '#111827';
+                card.style.color = '#e2e8f0';
+                card.style.border = '1px solid #1f2937';
+                if (card.classList.contains('shadow-lg')) {
+                    card.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)';
+                }
+                const headings = card.querySelectorAll('.text-gray-800, .text-gray-700, .text-gray-900');
+                headings.forEach(h => h.style.color = '#f1f5f9');
+                const paragraphs = card.querySelectorAll('.text-gray-600, .text-gray-500');
+                paragraphs.forEach(p => p.style.color = '#94a3b8');
+            });
+            
+            // Google Login Button Dark Mode Styling with Blue Border
+            const googleBtn = document.getElementById('googleLoginBtn');
+            if (googleBtn) {
+                googleBtn.style.backgroundColor = '#1e293b';
+                googleBtn.style.color = '#ffffff';
+                googleBtn.style.border = '2px solid #3b82f6';
+                googleBtn.style.boxShadow = '0 0 0 1px rgba(59, 130, 246, 0.3)';
+                googleBtn.style.transition = 'all 0.3s ease';
+                
+                const googleIcon = googleBtn.querySelector('.fab.fa-google');
+                if (googleIcon) {
+                    googleIcon.style.color = '#ffffff';
                 }
             }
-        }, 100);
+            
+            const textGrayElements = document.querySelectorAll('.text-gray-600, .text-gray-500, .text-gray-400');
+            textGrayElements.forEach(el => el.style.color = '#94a3b8');
+            
+            const headingElements = document.querySelectorAll('.text-gray-800, .text-gray-900, .text-gray-700');
+            headingElements.forEach(el => el.style.color = '#f1f5f9');
+            
+            const otpInputs = document.querySelectorAll('#otpBox input');
+            otpInputs.forEach(input => {
+                input.style.backgroundColor = '#1e293b';
+                input.style.color = '#ffffff';
+                input.style.border = '2px solid #3b82f6';
+                input.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
+            });
+            
+            console.log("🌙 Professional dark mode activated");
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.documentElement.style.backgroundColor = '';
+            document.body.style.backgroundColor = '';
+            document.body.style.color = '';
+            
+            const googleBtn = document.getElementById('googleLoginBtn');
+            if (googleBtn) {
+                googleBtn.style.backgroundColor = '';
+                googleBtn.style.color = '';
+                googleBtn.style.border = '';
+                googleBtn.style.boxShadow = '';
+            }
+            
+            const cards = document.querySelectorAll('.bg-white');
+            cards.forEach(card => {
+                card.style.backgroundColor = '';
+                card.style.color = '';
+                card.style.border = '';
+                if (card.classList.contains('shadow-lg')) {
+                    card.style.boxShadow = '';
+                }
+                const headings = card.querySelectorAll('.text-gray-800, .text-gray-700');
+                headings.forEach(h => h.style.color = '');
+                const paragraphs = card.querySelectorAll('.text-gray-600');
+                paragraphs.forEach(p => p.style.color = '');
+            });
+            
+            const otpInputs = document.querySelectorAll('#otpBox input');
+            otpInputs.forEach(input => {
+                input.style.backgroundColor = '';
+                input.style.color = '';
+                input.style.border = '';
+                input.style.boxShadow = '';
+            });
+            
+            console.log("☀️ Light mode activated");
+        }
+        
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (!localStorage.getItem('theme')) {
+                detectAndApplyTheme();
+            }
+        });
+    }
+
+    // --- 4. Show OTP Screen Function (CRITICAL FIX) ---
+    function showOtpScreen() {
+        const s1 = getStep1();
+        const s2 = getStep2();
+        
+        console.log("Showing OTP Screen - Step1:", s1, "Step2:", s2);
+        
+        if (s1) {
+            s1.classList.add('hidden');
+            s1.style.display = 'none';
+        }
+        if (s2) {
+            s2.classList.remove('hidden');
+            s2.style.display = 'block';
+            s2.style.visibility = 'visible';
+            s2.style.opacity = '1';
+        }
+        
+        // Force focus on first OTP input after screen shows
+        setTimeout(() => {
+            const inputs = document.querySelectorAll('#otpBox input');
+            if (inputs && inputs[0]) {
+                inputs[0].focus();
+            }
+        }, 200);
+    }
+    
+    function showLoginScreen() {
+        const s1 = getStep1();
+        const s2 = getStep2();
+        
+        if (s1) {
+            s1.classList.remove('hidden');
+            s1.style.display = 'block';
+        }
+        if (s2) {
+            s2.classList.add('hidden');
+            s2.style.display = 'none';
+        }
+    }
+
+    // --- 5. Authentication Logic ---
+    auth.onAuthStateChanged((user) => {
+        const isVerified = localStorage.getItem('savig_otp_verified');
+        
+        console.log("Auth state changed - User:", user?.email, "Verified:", isVerified);
+
+        if (user && isVerified === 'true') {
+            window.location.replace("homemob.html");
+        } else if (user) {
+            currentUserEmail = user.email;
+            
+            if (isAccountLocked(currentUserEmail)) {
+                showLockScreen();
+                return;
+            }
+            
+            otpAttempts = getStoredAttempts(currentUserEmail);
+            // SHOW OTP SCREEN IMMEDIATELY
+            showOtpScreen();
+            
+            // Send OTP only if not already sent
+            if (!generatedOTP && !isOtpSending) {
+                sendOtpToUser(user);
+            } else {
+                // Update email display on existing OTP screen
+                updateOTPScreenEmailDisplay(currentUserEmail);
+                updateAttemptsDisplay();
+            }
+        } else {
+            showLoginScreen();
+        }
     });
 
-    // --- 4. Google Login ---
+    // --- 6. Send OTP Function ---
+    function sendOtpToUser(user) {
+        if (!user || !user.email) return;
+        
+        isOtpSending = true;
+        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        otpExpiryTime = Date.now() + (3 * 60000);
+        currentUserEmail = user.email;
+        
+        console.log("Sending OTP to:", currentUserEmail, "OTP:", generatedOTP);
+        
+        // Show notification
+        showMsg(`📧 OTP sent to: ${currentUserEmail}`, true);
+        
+        // Show banner
+        showOTPSentNotification(currentUserEmail);
+        
+        // Send email
+        emailjs.send('service_2ucolxw', 'template_iknmqfs', {
+            user_email: user.email,
+            passcode: generatedOTP,
+            time: new Date(otpExpiryTime).toLocaleTimeString()
+        }).then(() => {
+            console.log(`✅ OTP sent successfully to ${user.email}`);
+            isOtpSending = false;
+        }).catch((err) => {
+            console.error("Email send failed:", err);
+            showMsg("❌ Email service failed. Please try again.", false);
+            isOtpSending = false;
+            generatedOTP = null;
+        });
+        
+        startTimer(180);
+        
+        // Update display
+        updateOTPScreenEmailDisplay(currentUserEmail);
+        updateAttemptsDisplay();
+    }
+
+    // --- 7. Google Login ---
     const loginBtn = document.getElementById("googleLoginBtn");
     if (loginBtn) {
         loginBtn.onclick = async () => {
             try {
-                // Clear any old verification just in case before new login
-                localStorage.removeItem('savig_otp_verified'); 
-                await auth.signInWithPopup(provider);
-                showMsg("Authenticated!", true);
+                localStorage.removeItem('savig_otp_verified');
+                showMsg("Signing in with Google...", true);
+                const result = await auth.signInWithPopup(provider);
+                currentUserEmail = result.user.email;
+                console.log("Google login success:", currentUserEmail);
+                
+                if (isAccountLocked(currentUserEmail)) {
+                    showLockScreen();
+                    return;
+                }
+                
+                resetAttempts(currentUserEmail);
+                otpAttempts = 0;
+                
             } catch (e) {
+                console.error("Google login error:", e);
                 showMsg(e.message, false);
             }
         };
     }
 
-    // --- 5. OTP Management ---
-    function switchToOTPScreen(user) {
-        const s1 = getStep1();
-        const s2 = getStep2();
-
-        if (s1) s1.classList.add('hidden');
-        if (s2) s2.classList.remove('hidden');
-
-        if (!generatedOTP) {
-            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-            otpExpiryTime = Date.now() + (3 * 60000);
-
-            emailjs.send('service_2ucolxw', 'template_iknmqfs', {
-                user_email: user.email,
-                passcode: generatedOTP,
-                time: new Date(otpExpiryTime).toLocaleTimeString()
-            }).then(() => showMsg("OTP Sent to Email", true))
-              .catch(() => showMsg("Email failed", false));
-
-            startTimer(180);
+    // --- 8. Helper: Show OTP Sent Notification ---
+    function showOTPSentNotification(email) {
+        let emailBanner = document.getElementById('otpEmailBanner');
+        if (!emailBanner) {
+            emailBanner = document.createElement('div');
+            emailBanner.id = 'otpEmailBanner';
+            emailBanner.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #1e293b;
+                color: #60f0a8;
+                padding: 10px 20px;
+                border-radius: 50px;
+                font-size: 12px;
+                font-weight: 500;
+                z-index: 9999;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                pointer-events: none;
+                white-space: nowrap;
+                font-family: monospace;
+                backdrop-filter: blur(8px);
+            `;
+            document.body.appendChild(emailBanner);
         }
+        emailBanner.innerHTML = `🔐 OTP sent to: <strong style="max-width: 200px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${email}</strong> • Valid 3 min`;
+        emailBanner.style.display = 'block';
         
-        const inputs = document.querySelectorAll('#otpBox input');
-        if (inputs[0]) setTimeout(() => inputs[0].focus(), 500);
+        setTimeout(() => {
+            emailBanner.style.opacity = '0';
+            setTimeout(() => {
+                emailBanner.style.display = 'none';
+                emailBanner.style.opacity = '1';
+            }, 500);
+        }, 5000);
     }
 
-    const otpInputs = document.querySelectorAll('#otpBox input');
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            if (e.target.value && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
-            }
-            
-            const code = Array.from(otpInputs).map(i => i.value).join('');
-            if (code.length === 6) {
-                if (code === generatedOTP && Date.now() <= otpExpiryTime) {
-                    // Set the compulsory verification flag
-                    localStorage.setItem('savig_otp_verified', 'true');
-                    showMsg("Access Granted!", true);
-                    setTimeout(() => window.location.replace("homemob.html"), 800);
+    // --- 9. OTP Screen UI Updates ---
+    function updateAttemptsDisplay() {
+        const remainingAttempts = 3 - otpAttempts;
+        let attemptsDisplay = document.getElementById('attemptsDisplay');
+        
+        if (!attemptsDisplay) {
+            const otpCard = document.getElementById('step2') || document.getElementById('pinCard');
+            if (otpCard) {
+                attemptsDisplay = document.createElement('div');
+                attemptsDisplay.id = 'attemptsDisplay';
+                attemptsDisplay.style.cssText = `
+                    text-align: center;
+                    font-size: 12px;
+                    margin-top: 10px;
+                    margin-bottom: 10px;
+                    padding: 5px;
+                `;
+                const emailDisplay = document.getElementById('otpEmailDisplay');
+                if (emailDisplay && emailDisplay.parentNode) {
+                    emailDisplay.insertAdjacentElement('afterend', attemptsDisplay);
                 } else {
-                    showMsg("Invalid/Expired OTP", false);
-                    otpInputs.forEach(i => i.value = '');
-                    otpInputs[0].focus();
+                    otpCard.appendChild(attemptsDisplay);
                 }
             }
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && index > 0) otpInputs[index - 1].focus();
-        });
-    });
+        }
+        
+        if (attemptsDisplay) {
+            if (remainingAttempts <= 0) {
+                attemptsDisplay.innerHTML = `<span style="color: #ef4444;">⚠️ No attempts remaining! Account will be locked on next failure.</span>`;
+            } else {
+                attemptsDisplay.innerHTML = `
+                    <span style="color: ${document.body.classList.contains('dark-mode') ? '#94a3b8' : '#6b7280'};">
+                        🔐 Attempts remaining: <strong style="color: #3b82f6; font-size: 14px;">${remainingAttempts}/3</strong>
+                    </span>
+                `;
+            }
+        }
+    }
+    
+    function updateOTPScreenEmailDisplay(email) {
+        const otpCard = document.getElementById('step2') || document.getElementById('pinCard');
+        if (!otpCard) return;
+        
+        let emailDisplay = document.getElementById('otpEmailDisplay');
+        
+        let headingElement = otpCard.querySelector('h2, h3, .otp-title, .text-center h2, .text-center h3, p');
+        if (!headingElement) {
+            const allText = otpCard.querySelectorAll('p, h2, h3, h4, .font-bold, label');
+            for (let el of allText) {
+                if (el.innerText.toLowerCase().includes('enter') || 
+                    el.innerText.toLowerCase().includes('otp') ||
+                    el.innerText.toLowerCase().includes('verification') ||
+                    el.innerText.toLowerCase().includes('code')) {
+                    headingElement = el;
+                    break;
+                }
+            }
+        }
+        
+        if (!emailDisplay) {
+            emailDisplay = document.createElement('div');
+            emailDisplay.id = 'otpEmailDisplay';
+            emailDisplay.style.cssText = `
+                margin: 12px auto;
+                padding: 6px 12px;
+                text-align: center;
+                font-size: 12px !important;
+                font-weight: 400;
+                max-width: 100%;
+                white-space: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                text-overflow: ellipsis;
+                line-height: 1.3;
+            `;
+            
+            if (headingElement && headingElement.parentNode) {
+                headingElement.insertAdjacentElement('afterend', emailDisplay);
+            } else {
+                otpCard.insertBefore(emailDisplay, otpCard.firstChild);
+            }
+        }
+        
+        emailDisplay.innerHTML = `
+            <div style="
+                background: ${document.body.classList.contains('dark-mode') ? '#1e293b' : '#e0e7ff'};
+                padding: 6px 12px;
+                border-radius: 8px;
+                font-size: 12px;
+                color: ${document.body.classList.contains('dark-mode') ? '#93c5fd' : '#1e40af'};
+                text-align: center;
+                display: inline-block;
+                width: auto;
+                max-width: 95%;
+                white-space: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                font-family: monospace;
+            ">
+                <i class="fas fa-envelope" style="margin-right: 6px; font-size: 11px;"></i>
+                <span style="display: inline-block; max-width: 280px; overflow-x: auto; white-space: nowrap;">${email}</span>
+            </div>
+        `;
+        emailDisplay.style.textAlign = 'center';
+    }
 
-    // --- 6. Helpers ---
-    function hideSplash() {
-        if (splashScreenEl) {
-            clearInterval(msgInterval);
-            splashScreenEl.style.opacity = '0';
+    function showAccessGranted() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+            animation: fadeIn 0.4s ease;
+        `;
+        
+        overlay.innerHTML = `
+            <div style="
+                background: linear-gradient(135deg, #10b981, #059669);
+                padding: 40px 30px;
+                border-radius: 32px;
+                text-align: center;
+                max-width: 390px;
+                width: 85%;
+                animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+                box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            ">
+                <i class="fas fa-check-circle" style="font-size: 50px; color: white; margin-bottom: 20px; animation: pulse 0.6s ease-in-out;"></i>
+                <h2 style="font-size: 22px; font-weight: bold; color: white; margin-bottom: 6px;">ACCESS GRANTED</h2>
+                <p style="color: #d1fae5; font-size: 14px; margin-bottom: 5px;">Verification Successful</p>
+                <p style="color: #a7f3d0; font-size: 12px;">Redirecting to secure vault...</p>
+                <div style="margin-top: 25px;">
+                    <div style="width: 100%; height: 3px; background: rgba(255,255,255,0.3); border-radius: 10px; overflow: hidden;">
+                        <div style="width: 0%; height: 100%; background: white; border-radius: 10px; animation: loading 0.8s ease forwards;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+        
+        setTimeout(() => {
+            overlay.style.opacity = '0';
             setTimeout(() => {
-                splashScreenEl.style.display = 'none';
-                document.body.classList.add('translation-ready');
-            }, 600);
+                overlay.remove();
+                window.location.replace("homemob.html");
+            }, 300);
+        }, 1800);
+    }
+
+    function showLockScreen() {
+        const s1 = getStep1();
+        const s2 = getStep2();
+        
+        if (s1) s1.classList.add('hidden');
+        if (s2) s2.classList.add('hidden');
+        
+        let lockScreen = document.getElementById('lockScreen');
+        if (!lockScreen) {
+            lockScreen = document.createElement('div');
+            lockScreen.id = 'lockScreen';
+            lockScreen.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.95);
+                backdrop-filter: blur(10px);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: fadeIn 0.5s ease;
+            `;
+            document.body.appendChild(lockScreen);
+        }
+        
+        const remainingTime = formatLockTimeRemaining(lockUntilTime);
+        
+        lockScreen.innerHTML = `
+            <div style="
+                background: ${document.body.classList.contains('dark-mode') ? '#1e1e2e' : '#ffffff'};
+                padding: 20px 15px;
+                border-radius: 24px;
+                text-align: center;
+                max-width: 320px;
+                width: 90%;
+                box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+                border: 1px solid ${document.body.classList.contains('dark-mode') ? '#ef4444' : '#fee2e2'};
+            ">
+                <i class="fas fa-lock" style="font-size: 40px; color: #ef4444; margin-bottom: 10px;"></i>
+                <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 6px; color: #ef4444;">Account Locked</h2>
+                <p style="margin-bottom: 12px; color: ${document.body.classList.contains('dark-mode') ? '#cbd5e1' : '#4b5563'};">
+                    Too many failed OTP attempts.<br>
+                    Your account has been locked for security.
+                </p>
+                <p style="margin-bottom: 20px; font-weight: 600; color: #f59e0b;">
+                    ⏰ Locked for: ${remainingTime}
+                </p>
+                <button onclick="window.location.reload()" style="
+                    margin-top: 15px;
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    padding: 6px 14px;
+                    border-radius: 50px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    width: 100%;
+                ">
+                    <i class="fas fa-sync-alt"></i> Reload Page
+                </button>
+            </div>
+        `;
+        lockScreen.style.display = 'flex';
+    }
+
+    // --- 10. OTP Input Handling ---
+    function initializeOtpInputs() {
+        const otpInputs = document.querySelectorAll('#otpBox input');
+        otpInputs.forEach((input, index) => {
+            input.removeEventListener('focus', handleFocus);
+            input.removeEventListener('blur', handleBlur);
+            input.removeEventListener('input', handleInput);
+            input.removeEventListener('keydown', handleKeydown);
+            
+            input.addEventListener('focus', () => handleFocus(input));
+            input.addEventListener('blur', () => handleBlur(input));
+            input.addEventListener('input', (e) => handleInput(e, input, index, otpInputs));
+            input.addEventListener('keydown', (e) => handleKeydown(e, input, index, otpInputs));
+        });
+    }
+    
+    function handleFocus(input) {
+        input.style.transform = 'scale(1.05)';
+        input.style.transition = 'all 0.2s ease';
+        if (document.body.classList.contains('dark-mode')) {
+            input.style.border = '2px solid #3b82f6';
+            input.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.3)';
+        } else {
+            input.style.border = '2px solid #3b82f6';
+            input.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.2)';
+        }
+    }
+    
+    function handleBlur(input) {
+        input.style.transform = 'scale(1)';
+        if (document.body.classList.contains('dark-mode')) {
+            input.style.border = '2px solid #3b82f6';
+            input.style.boxShadow = '0 0 0 2px rgba(59, 130, 246, 0.2)';
+        } else {
+            input.style.border = '';
+            input.style.boxShadow = '';
+        }
+    }
+    
+    function handleInput(e, input, index, otpInputs) {
+        if (e.target.value && index < otpInputs.length - 1) {
+            otpInputs[index + 1].focus();
+        }
+        
+        const code = Array.from(otpInputs).map(i => i.value).join('');
+        if (code.length === 6) {
+            if (code === generatedOTP && Date.now() <= otpExpiryTime) {
+                resetAttempts(currentUserEmail);
+                localStorage.setItem('savig_otp_verified', 'true');
+                showMsg(`✅ Access Granted! Redirecting...`, true);
+                showAccessGranted();
+            } else {
+                otpAttempts++;
+                saveAttempts(currentUserEmail, otpAttempts);
+                updateAttemptsDisplay();
+                
+                const remainingAttempts = 3 - otpAttempts;
+                
+                if (otpAttempts >= 3) {
+                    lockAccount(currentUserEmail, 6);
+                    showMsg(`🔒 Account LOCKED for 6 hours! Too many failed attempts.`, false);
+                    setTimeout(() => {
+                        showLockScreen();
+                    }, 1500);
+                } else {
+                    showMsg(`❌ Invalid OTP! ${remainingAttempts} attempt${remainingAttempts > 1 ? 's' : ''} remaining.`, false);
+                }
+                
+                otpInputs.forEach(i => i.value = '');
+                otpInputs[0].focus();
+                otpInputs.forEach(i => {
+                    i.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => { i.style.animation = ''; }, 500);
+                });
+            }
+        }
+    }
+    
+    function handleKeydown(e, input, index, otpInputs) {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            otpInputs[index - 1].focus();
         }
     }
 
+    // --- 11. Resend OTP ---
+    window.resendOTP = function() {
+        if (!currentUserEmail) {
+            showMsg("No email found. Please login again.", false);
+            return;
+        }
+        
+        if (isAccountLocked(currentUserEmail)) {
+            showLockScreen();
+            return;
+        }
+        
+        if (isOtpSending) {
+            showMsg("⏳ OTP already sending, please wait...", false);
+            return;
+        }
+        
+        isOtpSending = true;
+        
+        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        otpExpiryTime = Date.now() + (3 * 60000);
+        
+        showMsg(`📧 New OTP sent to: ${currentUserEmail}`, true);
+        showOTPSentNotification(currentUserEmail);
+        
+        emailjs.send('service_2ucolxw', 'template_iknmqfs', {
+            user_email: currentUserEmail,
+            passcode: generatedOTP,
+            time: new Date(otpExpiryTime).toLocaleTimeString()
+        }).then(() => {
+            showMsg(`🔄 New OTP sent successfully!`, true);
+            startTimer(180);
+            isOtpSending = false;
+            
+            const inputs = document.querySelectorAll('#otpBox input');
+            inputs.forEach(i => i.value = '');
+            if (inputs[0]) inputs[0].focus();
+        }).catch(() => {
+            showMsg("❌ Failed to resend OTP", false);
+            isOtpSending = false;
+        });
+    };
+
+    // --- 12. Timer & Message Helpers ---
     function startTimer(seconds) {
         clearInterval(timerInterval);
         let time = seconds;
@@ -620,7 +1386,7 @@
             if (--time < 0) {
                 clearInterval(timerInterval);
                 generatedOTP = null; 
-                showMsg("OTP Expired", false);
+                showMsg(`⏰ OTP expired`, false);
             }
         }, 1000);
     }
@@ -630,12 +1396,108 @@
         if (!b) return;
         b.innerText = m;
         b.className = `show ${s ? 'success' : 'error'}`;
-        setTimeout(() => b.classList.remove('show'), 3000);
+        setTimeout(() => b.classList.remove('show'), 4000);
     }
+    
+    // --- 13. Resend Button ---
+    const resendBtn = document.getElementById('resendOtpBtn');
+    if (resendBtn) {
+        resendBtn.onclick = () => window.resendOTP();
+    }
+    
+    // --- 14. Initialize on DOM Load ---
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM fully loaded");
+        detectAndApplyTheme();
+        initializeOtpInputs();
+    });
 </script>
+
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+        20%, 40%, 60%, 80% { transform: translateX(2px); }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    @keyframes loading {
+        0% { width: 0%; }
+        100% { width: 100%; }
+    }
+    
+    #otpBox input {
+        width: 40px;
+        height: 45px;
+        text-align: center;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 12px;
+        margin: 0 1px;
+        transition: all 0.2s ease;
+    }
+    
+    body.dark-mode #otpBox input {
+        background-color: #1e293b;
+        color: #ffffff;
+        border: 2px solid #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    
+    body.dark-mode #otpBox input:focus {
+        border: 2px solid #60a5fa;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+        outline: none;
+    }
+    
+    #otpBox input:focus {
+        border: 2px solid #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        outline: none;
+    }
+    
+    #googleLoginBtn {
+        transition: all 0.3s ease;
+    }
+    
+    body.dark-mode #googleLoginBtn:hover {
+        background-color: #2d3a5e !important;
+        border-color: #60a5fa !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+    }
+    
+    @media (max-width: 640px) {
+        #otpBox input {
+            width: 42px;
+            height: 38px;
+            font-size: 15px;
+       
+        }
+    }
+</style>
 </body>
 </html>
-
 
 
 
