@@ -2209,9 +2209,302 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     #theme-toggle-btn:active { transform: scale(0.9); }
+/* Fix for Dark Mode - Next/Previous Button Hover */
+[data-theme='dark'] #calendar-controls button {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1.5px solid var(--white-border) !important;
+    transition: all 0.2s ease;
+}
+
+
+
+
+
+
+[data-theme='dark'] #searchInput {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border: 2px solid #3b82f6 !important;
+    border-radius: 9999px !important;
+}
+
+[data-theme='dark'] #searchInput::placeholder {
+    color: #94a3b8 !important;
+}
+
+[data-theme='dark'] #searchInput:focus {
+    border-color: #818cf8 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3) !important;
+}
+
+[data-theme='dark'] .search-back-btn {
+    color: #818cf8 !important;
+    background-color: transparent !important;
+}
+
+[data-theme='dark'] .search-back-btn:hover {
+    color: #c7d2fe !important;
+}
+
+[data-theme='dark'] #searchTimeframe {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #475569 !important;
+    border-radius: 9999px !important;
+}
+
+[data-theme='dark'] #searchTimeframe option {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+}
+
+/* Search Results Container - Dark Mode */
+[data-theme='dark'] #searchResults {
+    background-color: #020617 !important;
+}
+
+[data-theme='dark'] #searchResults .search-results-panel {
+    background-color: transparent !important;
+}
+
+/* Individual Search Result Cards - Dark Mode */
+[data-theme='dark'] .search-result-item {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-left: 4px solid #818cf8 !important;
+    border-radius: 16px !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+/* Fix for Dark Mode - Next/Previous Button with 2px Border */
+[data-theme='dark'] #calendar-controls button {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 2px solid var(--white-border, #ffffff) !important;
+}
+
+[data-theme='dark'] #calendar-controls button:hover {
+    background-color: #475569 !important;
+    border-color: #94a3b8 !important;
+}
+
+/* Dark Mode - Search Input Fix */
+[data-theme='dark'] #searchInput {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    border: 2px solid #3b82f6 !important;
+}
+
+[data-theme='dark'] #searchInput::placeholder {
+    color: #94a3b8 !important;
+}
+/* Dark Mode - Search Results Container & Cards */
+[data-theme='dark'] #searchResults,
+[data-theme='dark'] #searchResults .search-results-panel,
+[data-theme='dark'] body.search-mode-active #searchResults.active-view {
+    background-color: #020617 !important;
+}
+
+/* All Search Result Cards - Dark Background */
+[data-theme='dark'] .search-result-item {
+    background-color: #1e293b !important;
+    border: 1px solid #334155 !important;
+    border-radius: 16px !important;
+}
+
+/* Completed Events - Dark Green Background */
+[data-theme='dark'] .search-result-item .fa-check-circle {
+    color: #4ade80 !important;
+}
+
+/* Incomplete Events - Dark Red Background */
+[data-theme='dark'] .search-result-item .fa-times-circle {
+    color: #f87171 !important;
+}
+
+/* Event Bell Icon */
+[data-theme='dark'] .search-result-item .fa-bell {
+    color: #34d399 !important;
+}
+
+/* Task Icon */
+[data-theme='dark'] .search-result-item .fa-list-check {
+    color: #818cf8 !important;
+}
+
+/* All Text in Search Results - White/Light */
+[data-theme='dark'] .search-result-item,
+[data-theme='dark'] .search-result-item strong,
+[data-theme='dark'] .search-result-item .font-bold,
+[data-theme='dark'] .search-result-item span,
+[data-theme='dark'] .search-result-item div {
+    color: #f1f5f9 !important;
+}
+
+/* Hover Effect */
+[data-theme='dark'] .search-result-item:hover {
+    background-color: #334155 !important;
+}
+[data-theme='dark'] #searchInput:focus {
+    border-color: #818cf8 !important;
+    background-color: #1e293b !important;
+}
+[data-theme='dark'] .search-result-item:hover {
+    background-color: #334155 !important;
+    border-left-color: #a5b4fc !important;
+    transform: translateX(4px);
+}
+
+/* Search Result Text Colors - Dark Mode */
+[data-theme='dark'] .search-result-item strong,
+[data-theme='dark'] .search-result-item .font-bold {
+    color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .search-result-item .text-gray-600,
+[data-theme='dark'] .search-result-item .text-gray-500,
+[data-theme='dark'] .search-result-item .text-sm {
+    color: #94a3b8 !important;
+}
+
+[data-theme='dark'] .search-result-item .text-base {
+    color: #e2e8f0 !important;
+}
+
+/* Search Result Icons - Dark Mode */
+[data-theme='dark'] .search-result-item .fa-bell {
+    color: #34d399 !important;
+}
+
+[data-theme='dark'] .search-result-item .fa-list-check,
+[data-theme='dark'] .search-result-item .fa-check-circle {
+    color: #818cf8 !important;
+}
+
+[data-theme='dark'] .search-result-item .fa-times-circle {
+    color: #f87171 !important;
+}
+
+/* Empty/No Results Message - Dark Mode */
+[data-theme='dark'] #searchResults .text-center,
+[data-theme='dark'] #searchResults p {
+    color: #94a3b8 !important;
+    background-color: transparent !important;
+}
+
+[data-theme='dark'] #searchResults .bg-yellow-50 {
+    background-color: #451a03 !important;
+    color: #fde047 !important;
+}
+
+[data-theme='dark'] #searchResults .text-yellow-700 {
+    color: #fef08a !important;
+}
+
+/* Loading Spinner - Dark Mode */
+[data-theme='dark'] #searchResults .fa-spinner {
+    color: #818cf8 !important;
+}
+
+[data-theme='dark'] #searchResults .text-indigo-500 {
+    color: #a5b4fc !important;
+}
+
+/* Close Button inside Search Results (Mobile) - Dark Mode */
+[data-theme='dark'] #searchResults .md\\:hidden button,
+[data-theme='dark'] #searchResults .md\\:hidden .border-b button {
+    background-color: #1e293b !important;
+    color: #f87171 !important;
+    border: 1px solid #475569 !important;
+}
+
+[data-theme='dark'] #searchResults .md\\:hidden button:hover {
+    background-color: #7f1d1d !important;
+    color: #ffffff !important;
+}
+
+/* Search Results Header - Dark Mode */
+[data-theme='dark'] #searchResults .text-lg.font-bold {
+    color: #e2e8f0 !important;
+}
+
+/* Search Overlay Background - Dark Mode */
+[data-theme='dark'] .search-overlay-background {
+    background-color: rgba(2, 6, 23, 0.95) !important;
+}
+
+/* Additional fix for any leftover white elements */
+[data-theme='dark'] .search-controls-row .btn-control {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border: 1px solid #475569 !important;
+}
+
+[data-theme='dark'] .search-controls-row .btn-control:hover {
+    background-color: #334155 !important;
+    border-color: #818cf8 !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-emerald-600 {
+    background-color: #065f46 !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-emerald-600:hover {
+    background-color: #047857 !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-indigo-600 {
+    background-color: #4338ca !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-indigo-600:hover {
+    background-color: #4f46e5 !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-green-600 {
+    background-color: #166534 !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-green-600:hover {
+    background-color: #15803d !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-red-600 {
+    background-color: #991b1b !important;
+}
+
+[data-theme='dark'] .search-controls-row .bg-red-600:hover {
+    background-color: #b91c1c !important;
+}
+
+/* FORCE DARK SEARCH INPUT */
+[data-theme='dark'] #searchInput,
+[data-theme='dark'] input#searchInput.p-3 {
+    background-color: #1e293b !important; /* Matches your cards */
+    color: #ffffff !important;
+    border: 2px solid #3b82f6 !important; /* Blue border */
+}
+
+/* Fix for the container around the search input */
+[data-theme='dark'] .search-container,
+[data-theme='dark'] .search-bar-wrapper {
+    background-color: #1e293b !important;
+}
+
+/* Specific fix for the input text when typing */
+[data-theme='dark'] #searchInput:focus {
+    background-color: #0f172a !important;
+    color: #ffffff !important;
+    outline: none !important;
+}
+
+
 </style>      
 </style>
-
 
 
 
