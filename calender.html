@@ -2533,8 +2533,32 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
 
+/* Specific fix for Date and Time inputs in Dark Mode */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] .modern-input-group input {
+    color: #ffffff !important; /* Forces text to white */
+    background-color: #1e293b !important; /* Matches your card background */
+    color-scheme: dark; /* Modern fix: tells the browser to use dark-themed UI pickers */
+}
 
+/* Fix for the black icons (Calendar and Clock) inside the inputs */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Inverts the default black icons to white */
+    cursor: pointer;
+    opacity: 0.8;
+}
 
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator:hover,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Fix for the container icons (the FontAwesome icons next to inputs) */
+[data-theme="dark"] .modern-input-group i {
+    color: hsl(0, 0%, 0%) !important; /* Light gray/blue for icons */
+}
 
 
 [data-theme='dark'] #searchInput {
@@ -2816,8 +2840,35 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #ffffff !important;
     outline: none !important;
 }
+/* Specific fix for Date and Time inputs in Dark Mode */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] .modern-input-group input {
+    color: whitesmoke !important; /* Forces text to white */
+    background-color: #33e30b !important; /* Matches your card background */
+    color-scheme: dark; /* Modern fix: tells the browser to use dark-themed UI pickers */
+    font-size: larger;
+}
 
+/* Fix for the black icons (Calendar and Clock) inside the inputs */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Inverts the default black icons to white */
+    cursor: pointer;
+    opacity: 0.8;
+}
 
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator:hover,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 2;
+}
+
+/* Fix for the container icons (the FontAwesome icons next to inputs) */
+
+[data-theme="dark"] .modern-input-group i {
+    color: #1562c7 !important; /* Light gray/blue for icons */
+    font-size: larger;
+}
 </style>      
 </style>
 
