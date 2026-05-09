@@ -1101,6 +1101,7 @@ document.getElementById("saveEventBtn").addEventListener("click",()=>{
     });
 });
 
+
 function loadTasks(date) {
     if (!currentUser) return;
     const c = document.getElementById(`tasks-${date}`);
@@ -1138,7 +1139,71 @@ function loadTasks(date) {
         });
     });
 }
+document.getElementById("saveEventBtn").addEventListener("click",()=>{
+    if (!currentUser) return alert("User not logged in.");
 
+    let title=document.getElementById("eventTitle").value.trim();
+    const date=document.getElementById("eventDate").value.trim();
+    const time=document.getElementById("eventTime").value.trim();
+    const location=document.getElementById("eventLocation").value.trim();
+    const desc=document.getElementById("eventDesc").value.trim();
+
+    if(!title || !date || !time) return alert("Enter event name, date, and time.");
+
+    // FIXED: Apply capitalization before saving
+    title = capitalizeFirstLetter(title);
+    const capitalizedLocation = capitalizeFirstLetter(location);
+    const capitalizedDesc = capitalizeFirstLetter(desc);
+    
+    const eventDateISO = date;
+    
+    // Determine if we are editing an existing event or creating a new one
+    const isEditing = !!editEventId;
+    const refPath = isEditing ? `users/${currentUser.uid}/events/${selectedDate}/${editEventId}` : `users/${currentUser.uid}/events/${eventDateISO}`;
+
+    const timestamp = new Date(`${date}T${time}:00`).getTime(); 
+
+    const eventData = {
+        title: title, 
+        time: time,
+        location: capitalizedLocation,
+        desc: capitalizedDesc,
+        timestamp: timestamp, 
+        savedTimestamp: new Date().getTime(), 
+        status: EVENT_STATUS.PENDING 
+    };
+
+    const savePromise = isEditing 
+        ? db.ref(refPath).update(eventData) 
+        : db.ref(refPath).push(eventData);
+
+    savePromise.then(() => {
+        editEventId=null;
+        closeEventModal();
+        // Optimized updates: only refresh the calendar cell
+        loadTasks(eventDateISO); 
+        checkAndShowNotifications();
+        
+        // If the task modal was open on the relevant date, reload its content (optional, but clean)
+        if(selectedDate === eventDateISO) {
+             loadModalTasks(eventDateISO);
+        }
+    }).catch(err => {
+        console.error("Event save error:", err);
+        alert("Failed to save event.");
+    });
+});
+// Force full calendar refresh (useful if date cells aren't updating)
+function refreshCalendarDates(dates) {
+    dates.forEach(date => {
+        loadTasks(date);
+        
+        // If this date is currently selected in the modal, refresh modal too
+        if (selectedDate === date) {
+            loadModalTasks(date);
+        }
+    });
+}
 function loadModalTasks(date) {
     if (!currentUser) return;
     selectedDate = date; 
@@ -1428,8 +1493,6 @@ function updateEventStatus(event, status, calledFromModal = false) {
           alert("Could not update status. Please try again.");
       });
 }
-
-// --- 3. TRACKING EVENTS LOGIC ---
 function loadTrackingEvents(status) {
     if (!currentUser) return;
 
@@ -1439,24 +1502,58 @@ function loadTrackingEvents(status) {
         const allEvents = snapshot.val() || {};
         let filteredEvents = [];
 
-        const cutoffDate = new Date();
-        cutoffDate.setUTCDate(cutoffDate.getUTCDate() - 30);
-        cutoffDate.setUTCHours(0, 0, 0, 0); 
-
+        const now = new Date();
+        
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
-                const eventDate = new Date(dateISO); 
+                const eventDate = new Date(dateISO);
                 
-                if (event.status === status && eventDate >= cutoffDate) {
-                    filteredEvents.push({ date: dateISO, id: id, ...event });
+                if (event.status === status) {
+                    let includeEvent = false;
+                    
+                    if (status === EVENT_STATUS.INCOMPLETE) {
+                        // INCOMPLETE: Last 1 year AND Next 1 year
+                        const oneYearAgo = new Date();
+                        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+                        oneYearAgo.setHours(0, 0, 0, 0);
+                        
+                        const oneYearLater = new Date();
+                        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+                        oneYearLater.setHours(23, 59, 59, 999);
+                        
+                        includeEvent = eventDate >= oneYearAgo && eventDate <= oneYearLater;
+                    } 
+                    else if (status === EVENT_STATUS.COMPLETED) {
+                        // COMPLETED: Only last 2 months
+                        const twoMonthsAgo = new Date();
+                        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+                        twoMonthsAgo.setHours(0, 0, 0, 0);
+                        
+                        includeEvent = eventDate >= twoMonthsAgo && eventDate <= now;
+                    }
+                    
+                    if (includeEvent) {
+                        filteredEvents.push({ date: dateISO, id: id, ...event });
+                    }
                 }
             });
         });
 
-        filteredEvents.sort((a, b) => b.timestamp - a.timestamp);
+        // ========== CHANGED SORTING LOGIC ==========
+        if (status === EVENT_STATUS.COMPLETED) {
+            // Completed events: Most recent FIRST (descending order)
+            filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        } else {
+            // Incomplete events: Oldest FIRST (ascending order)
+            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        }
+        // ========== END OF CHANGED SORTING ==========
 
         if (filteredEvents.length === 0) {
-            trackingEventsList.innerHTML = `<p class="text-center text-gray-500 italic p-3">No ${status} events found in the last 30 days.</p>`;
+            let emptyMessage = status === EVENT_STATUS.INCOMPLETE 
+                ? "No incomplete events found in the last or next year." 
+                : "No completed events found in the last 2 months.";
+            trackingEventsList.innerHTML = `<p class="text-center text-gray-500 italic p-3">${emptyMessage}</p>`;
             return;
         }
 
@@ -1464,100 +1561,318 @@ function loadTrackingEvents(status) {
 
         filteredEvents.forEach(event => {
             const isCompleted = event.status === EVENT_STATUS.COMPLETED;
+            // Background color classes - these will be styled by dark mode CSS
             const bgColor = isCompleted ? 'bg-green-50' : 'bg-red-50';
             const icon = isCompleted ? 'fa-check-circle text-green-700' : 'fa-times-circle text-red-700';
-            const locationText = (event.location && event.location.trim() !== '') ? `Location: ${event.location}` : 'Location: N/A';
+            const locationText = (event.location && event.location.trim() !== '') ? `📍 ${event.location}` : '📍 No location';
+            
+            const formattedFullDate = formatDate(event.date);
+            
+            const linkMatch = (event.desc || "").match(/(https?:\/\/[^\s]+)/);
+            const openLinkHtml = linkMatch ? 
+                `<button onclick="event.stopPropagation(); window.open('${linkMatch[0]}', '_blank')" 
+                         class="mt-2 w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition">
+                    <i class="fas fa-external-link-alt mr-1"></i> OPEN LINK
+                </button>` : '';
 
             const eventDiv = document.createElement("div");
-            eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200`;
+            eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200 dark:border-gray-700`;
             
-            let completeButton = '';
+            let actionButton = '';
             if (status === EVENT_STATUS.INCOMPLETE) {
-                 // Escape title for the onclick string
-                 const safeTitle = event.title.replace(/'/g, "\\'");
-                 completeButton = `
-                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
-                             class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
-                         <i class="fas fa-check"></i> Complete Event
-                     </button>
-                 `;
+                const safeTitle = event.title.replace(/'/g, "\\'");
+                actionButton = `
+                    <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
+                            class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
+                        <i class="fas fa-check"></i> Mark Complete
+                    </button>
+                `;
             }
             
             eventDiv.innerHTML = `
-                <div class="flex items-start justify-between">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                     <div class="flex-1 min-w-0">
-                        <strong class="text-xl text-gray-800 block">
-                            <i class="fas ${icon} mr-3"></i> ${event.title}
-                        </strong>
-                        <span class="text-sm text-gray-600 block">${formatDate(event.date)} at ${event.time}</span>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <i class="fas ${icon} text-xl"></i>
+                            <strong class="text-lg font-bold text-gray-800 dark:text-gray-100 break-words">${event.title}</strong>
+                        </div>
+                        <div class="mt-2 space-y-1">
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                <i class="far fa-calendar-alt mr-1"></i> ${formattedFullDate}
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-300">
+                                <i class="far fa-clock mr-1"></i> ${event.time}
+                            </p>
+                            ${event.location ? `<p class="text-sm text-gray-600 dark:text-gray-300"><i class="fas fa-map-marker-alt mr-1"></i> ${event.location}</p>` : ''}
+                            ${event.desc ? `<p class="text-sm text-gray-700 dark:text-gray-200 mt-2 break-words"><i class="fas fa-align-left mr-1"></i> ${event.desc}</p>` : ''}
+                            ${openLinkHtml}
+                        </div>
                     </div>
-                    <div class="ml-4">${completeButton}</div>
+                    <div class="flex flex-row md:flex-col gap-2">
+                        ${actionButton}
+                        ${!isCompleted ? `
+                            <button onclick="openRescheduleModalFromTracking({ date: '${event.date}', id: '${event.id}', title: '${event.title.replace(/'/g, "\\'")}', time: '${event.time}' })"
+                                    class="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition shadow-md whitespace-nowrap font-semibold">
+                                <i class="fas fa-calendar-alt"></i> Reschedule
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
-                <p class="mt-2 text-gray-600">${event.desc || 'No Description'}</p>
-                <p class="text-sm text-gray-500 mt-1 italic">${locationText}</p>
             `;
             trackingEventsList.appendChild(eventDiv);
         });
-// Find this inside loadTrackingEvents loop
-const linkMatch = (event.desc || "").match(/(https?:\/\/[^\s]+)/);
-const trackingOpenBtn = linkMatch ? 
-    `<button onclick="window.open('${linkMatch[0]}', '_blank')" 
-             class="mt-2 w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-full text-xs font-bold hover:bg-blue-600 transition">
-        <i class="fas fa-external-link-alt mr-1"></i> VIEW LINK
-    </button>` : '';
-
-// Then insert ${trackingOpenBtn} inside the eventDiv.innerHTML
     }).catch(err => {
         console.error("Error loading tracking events:", err);
         trackingEventsList.innerHTML = `<p class="text-center text-red-500 italic p-3">Error loading event history.</p>`;
     });
 }
 
-// --- PDF Download Fix (FIXED: Excludes all event data) ---
-if (downloadButton) {
-    downloadButton.addEventListener("click",async()=>{
-        if(!currentUser) return alert("User not logged in.");
-        
-        const {jsPDF}=window.jspdf || {};
-        if (!jsPDF) return alert("PDF generation failed: jsPDF library is not loaded.");
 
-        const y=currentDate.getFullYear(), m=currentDate.getMonth();
-        const snapTasks = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-        const tasksData = snapTasks.val()||{};
-        
-        const pdfData=[];
-        
-        // Loop through all days of the current displayed month
-        const daysInMonth = new Date(y,m+1,0).getDate();
-        for(let d=1; d<=daysInMonth; d++){
-            // Create UTC date for consistent ISO and display date
-            const dateObj = new Date(Date.UTC(y, m, d));
-            const iso=toISODate(dateObj);
-            
-            // Format using UTC methods for consistency
-            const dateStr = `${String(dateObj.getUTCDate()).padStart(2,"0")}-${String(dateObj.getUTCMonth()+1).padStart(2,"0")}-${dateObj.getUTCFullYear()}`; 
-            
-            // 1. Collect ONLY Tasks
-            if(tasksData[iso]) {
-                Object.values(tasksData[iso]).forEach(t=>pdfData.push([dateStr, t.title, t.desc||""]));
+
+function openRescheduleModalFromTracking(event) {
+    if (!currentUser) return;
+    
+    // Close tracking modal first
+    closeTrackingModal();
+    
+    // Store event data globally
+    currentEventForAction = {
+        date: event.date,
+        id: event.id,
+        title: event.title,
+        time: event.time
+    };
+    
+    document.getElementById("rescheduleEventTitle").textContent = event.title;
+    document.getElementById("rescheduleDate").value = event.date;
+    document.getElementById("rescheduleTime").value = event.time;
+    
+    overlayElement.classList.remove("hidden");
+    rescheduleModal.classList.remove("hidden");
+}
+
+// ============================================
+// REPLACE THE confirmRescheduleBtn EVENT LISTENER
+// ============================================
+// Find this in your code and replace with:
+document.getElementById("confirmRescheduleBtn").addEventListener('click', () => {
+    if (!currentEventForAction) return alert("Error: No event selected.");
+
+    const newDate = document.getElementById("rescheduleDate").value;
+    const newTime = document.getElementById("rescheduleTime").value;
+
+    if (!newDate || !newTime) return alert("Please select a new date and time.");
+
+    rescheduleEvent(currentEventForAction, newDate, newTime);
+});
+
+// ============================================
+// ADD THIS NEW FUNCTION FOR RESCHEDULING
+// ============================================
+// Main reschedule function - FIXED to refresh both old and new dates
+function rescheduleEvent(event, newDate, newTime) {
+    if (!currentUser || !event.id) {
+        alert("Invalid event data.");
+        return;
+    }
+    
+    const oldDate = event.date;
+    const eventPath = `users/${currentUser.uid}/events/${oldDate}/${event.id}`;
+    
+    // Show loading indicator
+    const confirmBtn = document.getElementById("confirmRescheduleBtn");
+    const originalText = confirmBtn ? confirmBtn.textContent : "Confirm";
+    if (confirmBtn) {
+        confirmBtn.textContent = "⏳ Processing...";
+        confirmBtn.disabled = true;
+    }
+    
+    // First, get the existing event data
+    db.ref(eventPath).once("value").then(snapshot => {
+        const eventData = snapshot.val();
+        if (!eventData) {
+            alert("Event not found. It may have been deleted.");
+            if (confirmBtn) {
+                confirmBtn.textContent = originalText;
+                confirmBtn.disabled = false;
             }
+            return;
         }
-
-        if(!pdfData.length) return alert("No tasks found for this month.");
         
-        const doc=new jsPDF();
-        doc.setFontSize(18);
-        doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
+        // Create new timestamp
+        const newTimestamp = new Date(`${newDate}T${newTime}:00`).getTime();
         
-        doc.autoTable({
-            startY:30,
-            head:[["Date","Task Title","Description"]],
-            body:pdfData,
-            styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
-            headStyles: { fillColor: [51, 65, 85] } /* Charcoal color for PDF header */
-        });
-        doc.save(`Tasks_${currentDate.toLocaleString("default",{month:"short"})}_${y}.pdf`);
+        // Update the event with new date and time
+        const updatedEvent = {
+            title: eventData.title,
+            time: newTime,
+            location: eventData.location || "",
+            desc: eventData.desc || "",
+            timestamp: newTimestamp,
+            savedTimestamp: eventData.savedTimestamp || new Date().getTime(),
+            status: eventData.status || EVENT_STATUS.PENDING,
+            lastRescheduled: new Date().getTime()
+        };
+        
+        // If date changed, move to new location
+        if (oldDate !== newDate) {
+            // Delete from old location
+            db.ref(eventPath).remove().then(() => {
+                // Add to new location with same ID
+                const newRef = db.ref(`users/${currentUser.uid}/events/${newDate}/${event.id}`);
+                newRef.set(updatedEvent).then(() => {
+                    alert(`✅ "${event.title}" rescheduled to ${formatDate(newDate)} at ${newTime}`);
+                    closeRescheduleModal();
+                    
+                    // IMPORTANT: Refresh BOTH old and new dates in calendar
+                    loadTasks(oldDate);  // Remove from old date cell
+                    loadTasks(newDate);  // Add to new date cell
+                    
+                    // Also refresh the calendar display for both dates
+                    const oldDateCell = document.getElementById(`tasks-${oldDate}`);
+                    const newDateCell = document.getElementById(`tasks-${newDate}`);
+                    if (oldDateCell) {
+                        // Force refresh of old date cell
+                        loadTasks(oldDate);
+                    }
+                    if (newDateCell) {
+                        // Force refresh of new date cell
+                        loadTasks(newDate);
+                    }
+                    
+                    // If modal is open for either date, refresh it
+                    if (selectedDate === oldDate || selectedDate === newDate) {
+                        loadModalTasks(selectedDate);
+                    }
+                    
+                    // Refresh tracking modal if it was open
+                    const trackingModal = document.getElementById("eventTrackingSection");
+                    if (trackingModal && !trackingModal.classList.contains('hidden')) {
+                        const titleElement = document.getElementById("trackingModalTitle");
+                        const currentStatus = titleElement && titleElement.textContent.includes("Incomplete") 
+                            ? EVENT_STATUS.INCOMPLETE 
+                            : EVENT_STATUS.COMPLETED;
+                        loadTrackingEvents(currentStatus);
+                    }
+                    
+                    if (confirmBtn) {
+                        confirmBtn.textContent = originalText;
+                        confirmBtn.disabled = false;
+                    }
+                }).catch(err => {
+                    alert("❌ Failed to reschedule: " + err.message);
+                    if (confirmBtn) {
+                        confirmBtn.textContent = originalText;
+                        confirmBtn.disabled = false;
+                    }
+                });
+            }).catch(err => {
+                alert("❌ Failed to remove from old date: " + err.message);
+                if (confirmBtn) {
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                }
+            });
+        } else {
+            // Same date, just update time
+            db.ref(eventPath).update({
+                time: newTime,
+                timestamp: newTimestamp,
+                lastRescheduled: new Date().getTime()
+            }).then(() => {
+                alert(`✅ "${event.title}" time updated to ${newTime}`);
+                closeRescheduleModal();
+                
+                // Refresh the calendar cell for this date
+                loadTasks(oldDate);
+                
+                // If modal is open for this date, refresh it
+                if (selectedDate === oldDate) {
+                    loadModalTasks(oldDate);
+                }
+                
+                // Refresh tracking modal if it was open
+                const trackingModal = document.getElementById("eventTrackingSection");
+                if (trackingModal && !trackingModal.classList.contains('hidden')) {
+                    const titleElement = document.getElementById("trackingModalTitle");
+                    const currentStatus = titleElement && titleElement.textContent.includes("Incomplete") 
+                        ? EVENT_STATUS.INCOMPLETE 
+                        : EVENT_STATUS.COMPLETED;
+                    loadTrackingEvents(currentStatus);
+                }
+                
+                if (confirmBtn) {
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                }
+            }).catch(err => {
+                alert("❌ Failed to update time: " + err.message);
+                if (confirmBtn) {
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                }
+            });
+        }
+    }).catch(err => {
+        console.error("Error fetching event:", err);
+        alert("❌ Error fetching event data: " + err.message);
+        if (confirmBtn) {
+            confirmBtn.textContent = originalText;
+            confirmBtn.disabled = false;
+        }
     });
+}
+
+// ============================================
+// ADD THIS FUNCTION TO CLOSE RESCHEDULE MODAL
+// ============================================
+function closeRescheduleModal() {
+    const rescheduleModalElem = document.getElementById("rescheduleModal");
+    if (rescheduleModalElem) {
+        rescheduleModalElem.classList.add("hidden");
+    }
+    // Don't hide overlay if other modals are open
+    const anyModalOpen = !taskModalElement.classList.contains('hidden') ||
+                        !eventModalElement.classList.contains('hidden') ||
+                        !statusPromptModal.classList.contains('hidden') ||
+                        !eventTrackingSection.classList.contains('hidden');
+    
+    if (!anyModalOpen) {
+        overlayElement.classList.add("hidden");
+    }
+    currentEventForAction = null;
+}
+
+// ============================================
+// ATTACH CLOSE RESCHEDULE MODAL EVENT LISTENER
+// ============================================
+// Add this to your DOMContentLoaded or after elements are defined
+const closeRescheduleModalBtn = document.getElementById("closeRescheduleModal");
+if (closeRescheduleModalBtn) {
+    closeRescheduleModalBtn.addEventListener("click", closeRescheduleModal);
+}
+
+
+// ============================================
+// UPDATE openTrackingModal FUNCTION (optional - for clarity)
+// ============================================
+// Replace your existing openTrackingModal with this if needed
+function openTrackingModal(status) {
+    if (!currentUser) return alert("Please sign in.");
+    closeModal();
+    closeEventModal();
+    closeStatusPromptModal();
+
+    const titleText = status === EVENT_STATUS.COMPLETED 
+        ? "✅ Completed Events (Last 2 Months Only)" 
+        : "⏳ Incomplete Events (Last & Next Year)";
+    
+    trackingModalTitle.textContent = titleText;
+
+    overlayElement.classList.remove("hidden");
+    eventTrackingSection.classList.remove("hidden");
+
+    loadTrackingEvents(status);
 }
 
 // --- Notification Logic Fixes (Timezone and Location) ---
@@ -2505,7 +2820,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </style>      
 </style>
-
 
 
 
