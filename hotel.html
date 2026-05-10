@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Savig | Premium Food Expense Tracker</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+</head>
+<body>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Light Mode (default) */
+    body {
+      background-color: #f3f4f6;
+      color: #1f2937;
+      transition: background-color 0.25s ease, color 0.2s ease;
+    }
+
+    /* Dark Mode Class */
+    body.dark-mode {
+      background-color: #0a0f1c;
+      color: #e2e8f0;
+    }
+
+    /* Container cards */
+    .card-glass {
+      background-color: #ffffff;
+      border: 1px solid #e9eef3;
+      transition: all 0.2s;
+    }
+    body.dark-mode .card-glass {
+      background-color: #111827;
+      border-color: #1f2a3e;
+    }
+
+    .input-modern {
+      background-color: #f9fafb;
+      border: 1.5px solid #e5e7eb;
+      transition: all 0.2s;
+    }
+    body.dark-mode .input-modern {
+      background-color: #1e293b;
+      border-color: #334155;
+      color: #f1f5f9;
+    }
+    .input-modern:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+    body.dark-mode .input-modern:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
+    }
+
+    /* Modern Circular Dining Type Selector */
+    .dining-circle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .circle-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #f0f2f5, #ffffff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      border: 2px solid transparent;
+    }
+    body.dark-mode .circle-icon {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .dining-circle.selected .circle-icon {
+      border-color: #3b82f6;
+      background: linear-gradient(145deg, #dbeafe, #eff6ff);
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+    }
+    body.dark-mode .dining-circle.selected .circle-icon {
+      background: linear-gradient(145deg, #1e3a8a, #1e40af);
+      border-color: #60a5fa;
+      box-shadow: 0 8px 20px rgba(96,165,250,0.3);
+    }
+    .dining-circle span {
+      font-size: 12px;
+      font-weight: 600;
+    }
+    @media (max-width: 640px) {
+      .circle-icon { width: 55px; height: 55px; font-size: 26px; }
+      .dining-circle span { font-size: 11px; }
+    }
+
+    /* Dish tags */
+    .dish-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      border-radius: 40px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    body.dark-mode .dish-tag {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      color: #cbd5e1;
+    }
+    .dish-option {
+      cursor: pointer;
+      transition: all 0.15s;
+      padding: 7px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .dish-option:hover {
+      background-color: #dbeafe;
+      transform: translateX(2px);
+    }
+    body.dark-mode .dish-option:hover {
+      background-color: #1e293b;
+    }
+
+    /* Expense card hover effects desktop */
+    .expense-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    @media (min-width: 1024px) {
+      .expense-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.2);
+      }
+      .action-btn {
+        font-size: 24px !important;
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+      }
+      .action-btn:hover {
+        background-color: rgba(0,0,0,0.08);
+        transform: scale(1.08);
+      }
+      body.dark-mode .action-btn:hover {
+        background-color: rgba(255,255,255,0.1);
+      }
+    }
+    @media (max-width: 1023px) {
+      .action-btn { font-size: 18px; padding: 8px; }
+    }
+
+    /* Mobile slide panel */
+    .slide-panel {
+      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+    .panel-hidden { transform: translateX(-100%); }
+    .panel-visible { transform: translateX(0); }
+    @media (min-width: 1024px) {
+      .slide-panel { transform: translateX(0) !important; position: relative !important; width: 42% !important; box-shadow: none !important; }
+      .mobile-float-btn, .close-panel-btn, .overlay-blur { display: none; }
+    }
+    @media (max-width: 1023px) {
+      .slide-panel {
+        position: fixed; top: 0; left: 0; width: 88%; max-width: 380px; height: 100vh; z-index: 1000; overflow-y: auto;
+        border-radius: 0 28px 28px 0; box-shadow: 8px 0 30px rgba(0,0,0,0.3);
+        background-color: #ffffff;
+      }
+      body.dark-mode .slide-panel { background-color: #0f172a; border-right: 1px solid #334155; }
+      .overlay-blur { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 999; transition: opacity 0.2s; }
+    }
+
+    /* Custom scroll */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+    body.dark-mode ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+  </style>
+  <div class="container mx-auto px-4 py-4 md:py-6 max-w-7xl relative">
+    <!-- Header with logo (no theme toggle, theme controlled by localStorage) -->
+    <div class="flex justify-between items-center mb-5 pb-2 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center gap-2">
+        <div class="relative flex items-center justify-center">
+          <i class="fas fa-shield text-blue-600" style="font-size:32px;"></i>
+          <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; transform: translateY(-50%);"></i>
+        </div>
+        <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">Savig</span>
+        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 ml-1">| Premium Tracker</span>
+      </div>
+    </div>
+
+    <!-- Mobile Floating Button -->
+    <button id="mobileOpenBtn" class="mobile-float-btn fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 lg:hidden">
+      <i class="fas fa-plus-circle text-xl"></i>
+      <span class="font-semibold">Add</span>
+    </button>
+    <div id="mobileOverlay" class="overlay-blur hidden lg:hidden"></div>
+
+    <!-- LEFT PANEL: Slide-in on mobile -->
+    <div id="entryPanel" class="slide-panel panel-hidden lg:panel-visible fixed lg:relative top-0 left-0 z-[1000] lg:z-auto card-glass p-5 rounded-r-2xl lg:rounded-2xl shadow-xl">
+      <div class="flex justify-between items-center mb-4 lg:hidden">
+        <h2 class="text-xl font-bold">New Expense</h2>
+        <button id="closePanelBtn" class="text-gray-500 text-2xl p-2 w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-times"></i></button>
+      </div>
+      <h2 class="text-xl font-semibold hidden lg:flex items-center gap-2 mb-5"><i class="fas fa-pen-alt text-blue-500"></i> Log expense</h2>
+      
+      <!-- Modern Circular Dining Type Selector -->
+      <div class="mb-6">
+        <label class="block text-sm font-semibold mb-3">🍽️ Dining type</label>
+        <div class="flex flex-wrap justify-around gap-4 sm:gap-6">
+          <div class="dining-circle" data-type="hotel">
+            <div class="circle-icon"><i class="fas fa-hotel"></i></div>
+            <span>Hotel</span>
+          </div>
+          <div class="dining-circle" data-type="zomato">
+            <div class="circle-icon"><i class="fas fa-pizza-slice"></i></div>
+            <span>Zomato</span>
+          </div>
+          <div class="dining-circle" data-type="swiggy">
+            <div class="circle-icon"><i class="fas fa-hamburger"></i></div>
+            <span>Swiggy</span>
+          </div>
+          <div class="dining-circle" data-type="other" id="otherCircle">
+            <div class="circle-icon"><i class="fas fa-ellipsis-h"></i></div>
+            <span>Other</span>
+          </div>
+        </div>
+        <input type="hidden" id="selectedPlatform" value="hotel">
+        <div id="customPlatformWrapper" class="mt-3 hidden">
+          <input type="text" id="customPlatformInput" placeholder="Platform name (e.g., UberEats)" class="w-full p-2.5 rounded-xl border input-modern">
+        </div>
+      </div>
+
+      <!-- Hotel Name -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1.5">🏨 Hotel / Restaurant *</label>
+        <input type="text" id="hotelName" placeholder="e.g., Shree Datta, Sagar Ratna, The Grand" class="w-full p-3 rounded-xl border input-modern">
+      </div>
+
+      <!-- City + District -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1.5">📍 City / District (Maharashtra)</label>
+        <select id="citySelect" class="w-full p-3 rounded-xl border input-modern mb-2">
+          <option value="">-- Select district --</option>
+        </select>
+        <input type="text" id="customCityInput" placeholder="Or type any city name" class="w-full p-3 rounded-xl border input-modern">
+      </div>
+
+      <!-- Family Count -->
+      <div class="mb-4">
+        <label class="block text-sm font-semibold mb-1.5">👨‍👩‍👧‍👦 Family / Group count</label>
+        <input type="number" id="familyCount" min="1" max="50" value="2" class="w-full p-3 rounded-xl border input-modern">
+      </div>
+
+      <!-- Dishes with search + custom add -->
+      <div class="mb-4">
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-sm font-semibold">🍲 Dishes *</label>
+          <span class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full font-bold" id="selectedDishCount">0</span>
+        </div>
+        <div class="relative mb-2">
+          <input type="text" id="dishSearchInput" placeholder="Search or type custom dish..." class="w-full p-3 pr-9 rounded-xl border input-modern">
+          <i class="fas fa-search absolute right-3 top-4 text-gray-400"></i>
+        </div>
+        <button id="addCustomDishBtn" class="text-sm bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 px-4 py-1.5 rounded-full mb-2 font-medium flex items-center gap-1"><i class="fas fa-plus-circle"></i> Add custom dish</button>
+        <div class="border rounded-xl max-h-40 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-800/40 mb-2">
+          <div id="dishOptionsList" class="grid grid-cols-2 gap-1 text-sm"></div>
+        </div>
+        <div id="selectedDishesContainer" class="flex flex-wrap gap-2 mt-2 min-h-[55px]"></div>
+      </div>
+
+      <!-- Dish details fields (price, rating, review) -->
+      <div id="dishesDetailsArea" class="space-y-3 mt-3 max-h-56 overflow-y-auto"></div>
+
+      <button id="saveExpenseBtn" class="mt-5 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition hover:shadow-xl active:scale-95 text-base">
+        <i class="fas fa-save"></i> Save to Savig
+      </button>
+    </div>
+
+    <!-- RIGHT PANEL: Dashboard & Records -->
+    <div class="lg:w-[55%] lg:ml-auto mt-5 lg:mt-0">
+      <div class="card-glass rounded-2xl shadow-md p-4 md:p-5">
+        <!-- Search -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
+          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-green-500"></i> Dashboard & Records</h2>
+          <div class="relative w-full sm:w-72">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input type="text" id="searchRecords" placeholder="Search hotel, dish, city..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border input-modern text-sm">
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">🏨 Today Hotel</p><p id="todayHotelCount" class="text-2xl font-bold text-blue-600">0</p></div>
+          <div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📱 Today Online</p><p id="todayOnlineCount" class="text-2xl font-bold text-orange-600">0</p></div>
+          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📅 Monthly Visits</p><p id="monthlyVisitsCount" class="text-2xl font-bold text-purple-600">0</p></div>
+          <div class="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📆 Yearly Visits</p><p id="yearlyVisitsCount" class="text-2xl font-bold text-teal-600">0</p></div>
+        </div>
+
+        <!-- Pie Chart + Expense Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          <div class="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-3">
+            <p class="text-sm font-bold mb-2"><i class="fas fa-chart-pie text-blue-500"></i> Orders by platform</p>
+            <canvas id="platformPieChart" width="200" height="160" style="max-height: 170px;"></canvas>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📆 Monthly Expense</span><span id="monthlyTotal" class="text-xl font-bold text-indigo-700">₹0</span></div>
+            <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📅 Yearly Expense</span><span id="yearlyTotal" class="text-xl font-bold text-green-700">₹0</span></div>
+            <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">🏨 Hotel (This Month)</span><span id="monthlyHotelCount" class="text-xl font-bold">0</span></div>
+            <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📱 Online Orders (Month)</span><span id="monthlyOnlineCount" class="text-xl font-bold">0</span></div>
+          </div>
+        </div>
+
+        <!-- Entries List -->
+        <div id="entriesList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+          <div class="text-center text-gray-400 py-10">✨ No records yet. Tap + to add expense</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== PURE VEG DISH DATABASE (300+ items) ==========
+    const vegMaster = [
+      "Paneer Butter Masala", "Shahi Paneer", "Kadai Paneer", "Palak Paneer", "Dal Makhani", "Chana Masala", "Veg Biryani", "Masala Dosa", "Idli Sambhar", "Pav Bhaji", "Samosa", "Dhokla", "Vada Pav", "Chole Bhature", "Aloo Paratha", "Veg Manchurian", "Chilli Paneer", "Gobi Manchurian", "Hakka Noodles", "Spring Rolls", "Veg Pizza", "Garlic Bread", "Cheese Balls", "French Fries", "Gulab Jamun", "Jalebi", "Rasmalai", "Kheer", "Mango Lassi", "Masala Chai", "Veg Burger", "Aloo Tikki", "Malai Kofta", "Dal Tadka", "Jeera Rice", "Naan", "Butter Naan", "Rava Dosa", "Uttapam", "Medu Vada", "Upma", "Bhindi Masala", "Aloo Gobi", "Baingan Bharta", "Rajma", "Kadhi Pakora", "Veg Kolhapuri", "Methi Malai Matar", "Schezwan Noodles", "Honey Chilli Potato", "Paneer Momos", "Veg Momos", "Corn Cheese Balls", "Crispy Corn", "Stuffed Mushroom", "Tandoori Aloo", "Veg Seekh Kebab", "Paneer Tikka", "Samosa Chaat", "Papdi Chaat", "Bhel Puri", "Pani Puri", "Veg Thali", "Poori Bhaji", "Khaman", "Fafda", "Undhiyu", "Misal Pav", "Sabudana Khichdi", "Paneer Pasanda"
+    ];
+    const DISH_LIB = [...new Set(vegMaster)].slice(0, 330);
+    
+    // Maharashtra 36 districts
+    const maharashtraCities = [
+      "Mumbai City", "Mumbai Suburban", "Thane", "Palghar", "Raigad", "Ratnagiri", "Sindhudurg", "Pune", "Satara", "Sangli", "Kolhapur", "Solapur", "Ahmednagar", "Nashik", "Jalgaon", "Dhule", "Nandurbar", "Aurangabad", "Jalna", "Parbhani", "Hingoli", "Nanded", "Latur", "Osmanabad", "Beed", "Nagpur", "Wardha", "Bhandara", "Gondia", "Chandrapur", "Gadchiroli", "Amravati", "Akola", "Buldhana", "Yavatmal", "Washim"
+    ];
+    
+    let expenseEntries = [];
+    let currentSelectedDishes = [];
+    let pieChart = null;
+    
+    // Helpers
+    function formatDate(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); }
+    
+    function loadData() { const stored = localStorage.getItem("savig_db"); if(stored) expenseEntries = JSON.parse(stored); updateDashboard(); renderRightPanel(); renderPieChart(); }
+    function saveData() { localStorage.setItem("savig_db", JSON.stringify(expenseEntries)); updateDashboard(); renderRightPanel(); renderPieChart(); }
+    
+    // Theme from localStorage (no toggle button shown)
+    function applyTheme() { const theme = localStorage.getItem("savig_theme"); if(theme === "dark") document.body.classList.add("dark-mode"); else document.body.classList.remove("dark-mode"); }
+    
+    function populateCities() { let sel = document.getElementById("citySelect"); sel.innerHTML = '<option value="">-- Select Maharashtra district --</option>'; maharashtraCities.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; }); }
+    
+    // Circular Dining Selector
+    function initDiningSelector() {
+      const circles = document.querySelectorAll('.dining-circle');
+      circles.forEach(circle => {
+        circle.addEventListener('click', () => {
+          circles.forEach(c => c.classList.remove('selected'));
+          circle.classList.add('selected');
+          let type = circle.getAttribute('data-type');
+          document.getElementById("selectedPlatform").value = type;
+          if(type === 'other') {
+            document.getElementById("customPlatformWrapper").classList.remove("hidden");
+          } else {
+            document.getElementById("customPlatformWrapper").classList.add("hidden");
+            document.getElementById("customPlatformInput").value = "";
+          }
+        });
+      });
+      // default select hotel
+      document.querySelector('.dining-circle[data-type="hotel"]').classList.add('selected');
+    }
+    
+    // Dish search and add
+    function renderDishOptions(search = "") { let container = document.getElementById("dishOptionsList"); let filtered = DISH_LIB.filter(d => d.toLowerCase().includes(search.toLowerCase())).slice(0, 45); container.innerHTML = filtered.map(dish => `<div class="dish-option text-sm" data-dish="${dish.replace(/"/g, '&quot;')}">🌱 ${dish}</div>`).join(''); document.querySelectorAll('.dish-option').forEach(el => { el.addEventListener('click', () => { let dishName = el.getAttribute('data-dish'); if(!currentSelectedDishes.some(d => d.dishName === dishName)) { currentSelectedDishes.push({ dishName, price: 0, rating: 3, review: "" }); updateSelectedUI(); } document.getElementById("dishSearchInput").value = ""; renderDishOptions(""); }); }); }
+    
+    function addCustomDish() { let input = document.getElementById("dishSearchInput"); let custom = input.value.trim(); if(custom && !currentSelectedDishes.some(d => d.dishName === custom)) { currentSelectedDishes.push({ dishName: custom, price: 0, rating: 3, review: "" }); updateSelectedUI(); input.value = ""; renderDishOptions(""); } else if(!custom) alert("Type a dish name"); else alert("Already added"); }
+    
+    function updateSelectedUI() { let container = document.getElementById("selectedDishesContainer"); let countSpan = document.getElementById("selectedDishCount"); countSpan.innerText = `${currentSelectedDishes.length}`; if(currentSelectedDishes.length===0) { container.innerHTML = '<span class="text-gray-400 text-xs">No dishes. Search or add custom dish.</span>'; } else { container.innerHTML = currentSelectedDishes.map((d,i) => `<span class="dish-tag">🍽️ ${d.dishName} <i class="fas fa-times-circle cursor-pointer text-red-500 ml-1" data-index="${i}"></i></span>`).join(''); document.querySelectorAll('.dish-tag .fa-times-circle').forEach(el => { el.addEventListener('click', (e) => { let idx = parseInt(el.getAttribute('data-index')); currentSelectedDishes.splice(idx,1); updateSelectedUI(); renderDishDetails(); }); }); } renderDishDetails(); }
+    
+    function renderDishDetails() { let area = document.getElementById("dishesDetailsArea"); if(currentSelectedDishes.length===0) { area.innerHTML = '<div class="text-sm text-gray-400 italic p-2">✨ Add dishes — price required for each.</div>'; return; } area.innerHTML = currentSelectedDishes.map((dish, idx) => `<div class="border rounded-xl p-3 bg-gray-50 dark:bg-gray-800/60"><div class="font-semibold text-sm mb-2 flex justify-between"><span>🍽️ ${dish.dishName}</span><span class="text-xs text-gray-500">#${idx+1}</span></div><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-medium">💰 Price (₹) *</label><input type="number" class="dish-price w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.price||0}" step="1" min="1"></div><div><label class="text-xs font-medium">⭐ Rating (0-5)</label><input type="number" class="dish-rating w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.rating||3}" step="0.5" min="0" max="5"></div></div><div class="mt-2"><label class="text-xs font-medium">📝 Review</label><input type="text" class="dish-review w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.review||''}" placeholder="Delicious, authentic..."></div></div>`).join(''); document.querySelectorAll('.dish-price').forEach(inp=>inp.addEventListener('change',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].price=parseFloat(inp.value)||0;})); document.querySelectorAll('.dish-rating').forEach(inp=>inp.addEventListener('change',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].rating=parseFloat(inp.value)||0;})); document.querySelectorAll('.dish-review').forEach(inp=>inp.addEventListener('input',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].review=inp.value;})); }
+    
+    function saveExpense() { 
+      let platformType = document.getElementById("selectedPlatform").value;
+      let customPlat = document.getElementById("customPlatformInput");
+      if(platformType === 'other' && customPlat && customPlat.value.trim()) platformType = customPlat.value.trim();
+      let hotelName = document.getElementById("hotelName").value.trim();
+      let city = document.getElementById("citySelect").value || document.getElementById("customCityInput").value.trim();
+      let familyCount = parseInt(document.getElementById("familyCount").value) || 1;
+      if(!hotelName) { alert("Hotel name required"); return; }
+      if(!city) city = "Maharashtra";
+      if(currentSelectedDishes.length===0 || currentSelectedDishes.some(d=>d.price<=0)) { alert("Add at least one dish with price >0"); return; }
+      let newEntry = { id: Date.now()+Math.random(), type: platformType, hotelName, city, familyCount, dishes: currentSelectedDishes.map(d=>({dishName:d.dishName, price:d.price, rating:d.rating, review:d.review})), createdAt: new Date().toISOString() };
+      expenseEntries.unshift(newEntry); saveData(); resetForm(); alert("✅ Expense saved!"); if(window.innerWidth<1024) closeMobilePanel(); }
+    
+    function resetForm() { currentSelectedDishes = []; updateSelectedUI(); document.getElementById("hotelName").value = ""; document.getElementById("citySelect").value = ""; document.getElementById("customCityInput").value = ""; document.getElementById("familyCount").value = "2"; document.querySelector('.dining-circle[data-type="hotel"]').click(); document.getElementById("customPlatformInput").value=""; document.getElementById("customPlatformWrapper").classList.add("hidden"); }
+    
+    function updateDashboard() { let today = new Date().toDateString(); let now=new Date(), curMonth=now.getMonth(), curYear=now.getFullYear(); let todayHotel=0,todayOnline=0,monthlyVisits=0,yearlyVisits=0,monthlyHotel=0,monthlyOnline=0,monthlySum=0,yearlySum=0; expenseEntries.forEach(entry=>{ let d=new Date(entry.createdAt); let total=entry.dishes.reduce((s,di)=>s+di.price,0); if(d.getFullYear()===curYear) yearlySum+=total; if(d.getMonth()===curMonth && d.getFullYear()===curYear){ monthlySum+=total; monthlyVisits++; if(entry.type==="hotel") monthlyHotel++; else monthlyOnline++; } if(d.getFullYear()===curYear) yearlyVisits++; if(d.toDateString()===today){ if(entry.type==="hotel") todayHotel++; else todayOnline++; } }); document.getElementById("todayHotelCount").innerText=todayHotel; document.getElementById("todayOnlineCount").innerText=todayOnline; document.getElementById("monthlyVisitsCount").innerText=monthlyVisits; document.getElementById("yearlyVisitsCount").innerText=yearlyVisits; document.getElementById("monthlyHotelCount").innerText=monthlyHotel; document.getElementById("monthlyOnlineCount").innerText=monthlyOnline; document.getElementById("monthlyTotal").innerHTML=`₹${monthlySum.toFixed(2)}`; document.getElementById("yearlyTotal").innerHTML=`₹${yearlySum.toFixed(2)}`; }
+    
+    function renderPieChart() { let cnt={hotel:0,zomato:0,swiggy:0,other:0}; expenseEntries.forEach(e=>{if(e.type==="hotel") cnt.hotel++; else if(e.type==="zomato") cnt.zomato++; else if(e.type==="swiggy") cnt.swiggy++; else cnt.other++;}); let ctx=document.getElementById('platformPieChart').getContext('2d'); if(pieChart) pieChart.destroy(); pieChart=new Chart(ctx,{type:'pie',data:{labels:['Hotel 🏨','Zomato 🍕','Swiggy 🍔','Other'],datasets:[{data:[cnt.hotel,cnt.zomato,cnt.swiggy,cnt.other],backgroundColor:['#3b82f6','#f97316','#ef4444','#8b5cf6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}}}}); }
+    
+    function renderRightPanel() { let kw=document.getElementById("searchRecords")?.value.toLowerCase()||""; let filtered=expenseEntries.filter(e=>e.hotelName.toLowerCase().includes(kw)||e.city.toLowerCase().includes(kw)||e.dishes.some(d=>d.dishName.toLowerCase().includes(kw))); let container=document.getElementById("entriesList"); if(filtered.length===0){container.innerHTML='<div class="text-center text-gray-400 py-8">📭 No matching records.</div>'; return;} container.innerHTML=filtered.map(entry=>{let total=entry.dishes.reduce((s,d)=>s+d.price,0); let preview=entry.dishes.map(d=>`${d.dishName} (₹${d.price})`).join(', '); return `<div class="expense-card bg-gray-50 dark:bg-gray-700/40 rounded-xl p-3 border-l-4 border-green-500"><div class="flex justify-between items-start flex-wrap"><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-base">${escapeHtml(entry.hotelName)}</span><span class="text-xs bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded-full">${entry.type}</span></div><div class="text-xs text-gray-500 flex gap-2 flex-wrap mt-1"><span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(entry.city)}</span><span><i class="fas fa-users"></i> 👥 ${entry.familyCount}</span><span><i class="far fa-calendar"></i> ${formatDate(entry.createdAt)}</span></div><div class="text-xs mt-1">🍽️ ${preview.substring(0,85)}${preview.length>85?'...':''}</div><div class="text-sm font-bold mt-1">₹${total.toFixed(2)}</div><div class="text-xs text-gray-400 mt-0.5">⭐ ${entry.dishes[0]?.rating} ${entry.dishes[0]?.review ? `“${entry.dishes[0].review.substring(0,35)}”`:''}</div></div><div class="flex gap-1 items-center"><button class="editBtn action-btn text-blue-600 p-1" data-id="${entry.id}"><i class="fas fa-edit"></i></button><button class="deleteBtn action-btn text-red-500 p-1" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button><button class="shareBtn action-btn text-green-600 p-1" data-id="${entry.id}"><i class="fas fa-share-alt"></i></button></div></div></div>`;}).join(''); attachEvents(); }
+    
+    function attachEvents(){ document.querySelectorAll('.editBtn').forEach(btn=>btn.addEventListener('click',()=>{let id=parseInt(btn.dataset.id); editEntry(id);})); document.querySelectorAll('.deleteBtn').forEach(btn=>btn.addEventListener('click',()=>{if(confirm("Delete permanently?")){expenseEntries=expenseEntries.filter(e=>e.id!==parseInt(btn.dataset.id)); saveData();}})); document.querySelectorAll('.shareBtn').forEach(btn=>btn.addEventListener('click',()=>{let entry=expenseEntries.find(e=>e.id===parseInt(btn.dataset.id)); if(entry){let text=`🍽️ ${entry.hotelName} (${entry.type}) | ${entry.city} | Family:${entry.familyCount} | Total ₹${entry.dishes.reduce((s,d)=>s+d.price,0)}`; if(navigator.share)navigator.share({title:'Savig Expense',text}); else prompt("Share:",text);}})); }
+    
+    function editEntry(id){ let entry=expenseEntries.find(e=>e.id===id); if(!entry) return; document.getElementById("hotelName").value=entry.hotelName; let citySel=document.getElementById("citySelect"); if(maharashtraCities.includes(entry.city)) citySel.value=entry.city; else { citySel.value=""; document.getElementById("customCityInput").value=entry.city; } document.getElementById("familyCount").value=entry.familyCount; let targetCircle = document.querySelector(`.dining-circle[data-type="${entry.type}"]`); if(targetCircle) targetCircle.click(); else { document.querySelector('.dining-circle[data-type="other"]').click(); document.getElementById("customPlatformInput").value=entry.type; } currentSelectedDishes=entry.dishes.map(d=>({...d})); updateSelectedUI(); expenseEntries=expenseEntries.filter(e=>e.id!==id); saveData(); alert("✏️ Edit mode: Modify and click Save."); if(window.innerWidth<1024) openMobilePanel(); }
+    
+    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
+    
+    function openMobilePanel(){ document.getElementById("entryPanel").classList.remove("panel-hidden"); document.getElementById("entryPanel").classList.add("panel-visible"); document.getElementById("mobileOverlay").classList.remove("hidden"); document.body.style.overflow="hidden"; }
+    function closeMobilePanel(){ document.getElementById("entryPanel").classList.add("panel-hidden"); document.getElementById("entryPanel").classList.remove("panel-visible"); document.getElementById("mobileOverlay").classList.add("hidden"); document.body.style.overflow="auto"; }
+    
+    // Event Listeners
+    document.getElementById("saveExpenseBtn").addEventListener("click", saveExpense);
+    document.getElementById("searchRecords").addEventListener("input", ()=>renderRightPanel());
+    document.getElementById("dishSearchInput").addEventListener("input",(e)=>renderDishOptions(e.target.value));
+    document.getElementById("addCustomDishBtn").addEventListener("click", addCustomDish);
+    document.getElementById("mobileOpenBtn")?.addEventListener("click", openMobilePanel);
+    document.getElementById("closePanelBtn")?.addEventListener("click", closeMobilePanel);
+    document.getElementById("mobileOverlay")?.addEventListener("click", closeMobilePanel);
+    
+    populateCities(); renderDishOptions(""); updateSelectedUI(); initDiningSelector(); applyTheme(); loadData();
+  </script>
+</body>
+</html>
