@@ -396,30 +396,30 @@
             <input type="text" id="searchInput" placeholder="Search tasks..."
                 class="p-3 px-6 md:p-4 md:px-6 md:py-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base md:text-lg w-full flex-1">
             
-            <div class="search-controls-row flex flex-row w-full gap-2 items-center justify-between md:w-auto">
+            <div class="search-controls-row flex flex-row w-full gap-1 items-center justify-between md:w-auto">
                 <select id="searchTimeframe" class="p-3 md:p-4 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-1/2 text-sm px-2 md:w-auto md:text-base">
                     <option value="1year">Search Last 1 Year</option>
                     <option value="alltime">Search All Time</option>
                 </select>
                 
                 <button id="downloadMonthTasks"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap">
+                    class="px-3 py-2 md:px-3 md:py-1 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap">
                     <i class="fas fa-download mr-1"></i> Download Month's Data
                 </button>
                 
                 <button id="openEventModalBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap">
+                    class="px-3 py- md:px-3 md:py-1 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap">
                     <i class="fas fa-plus mr-1"></i> Add Event
                 </button>
 
                  <button id="openCompletedEventsBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap"
+                    class="px-2 py-2 md:px-2 md:py-1 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap"
                     onclick="openTrackingModal('completed')">
                     <i class="fas fa-check-circle mr-1"></i> Completed Events
                 </button>
 
                 <button id="openIncompleteEventsBtn"
-                    class="px-2 py-2 md:px-5 md:py-3 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition w-1/2 font-semibold text-xs md:text-lg md:w-auto whitespace-nowrap"
+                    class="px-2 py-1 md:px-2 md:py-1 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap"
                     onclick="openTrackingModal('incomplete')">
                     <i class="fas fa-times-circle mr-1"></i> Incomplete Events
                 </button>
@@ -619,7 +619,13 @@
 </footer>
 
 <script>
-// --- Mobile Menu Toggle (from previous code) ---
+// ============================================
+// COMPLETE JAVASCRIPT WITH SAVE/REPEAT OPTION
+// When saving event: Shows "Save Only" or "Repeat" choice
+// Repeat opens full config modal with presets & custom days
+// ============================================
+
+// --- Mobile Menu Toggle ---
 const menuBtn = document.getElementById("menu-btn");
 const mobileMenu = document.getElementById("mobileMenu"); 
 if (menuBtn && mobileMenu) {
@@ -627,17 +633,17 @@ if (menuBtn && mobileMenu) {
         mobileMenu.classList.toggle("hidden"); 
     });
 }
-    
-// --- Firebase Config (NOTE: Use your actual keys) ---
+
+// --- Firebase Config ---
 const firebaseConfig = {
-   apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-  authDomain: "sk12-58e9e.firebaseapp.com",
-  databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-  projectId: "sk12-58e9e",
-  storageBucket: "sk12-58e9e.firebasestorage.app",
-  messagingSenderId: "470207874652",
-  appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
-  measurementId: "G-QKCRDR9QML"
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.firebasestorage.app",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
+    measurementId: "G-QKCRDR9QML"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
@@ -646,25 +652,47 @@ const db = firebase.database();
 // --- Globals & Enums ---
 let currentUser = null;
 let currentDate = new Date();
-let selectedDate = null;      // Declared once
-let editTaskId = null;        // Declared once
-let editEventId = null;       // Declared once
-let eventsToPrompt = [];      // Queue for status prompts
-let realTimeCheckInterval;    // Reference for the recurring timer
-let currentEventForAction = null; 
+let selectedDate = null;
+let editTaskId = null;
+let editEventId = null;
+let eventsToPrompt = [];
+let realTimeCheckInterval;
+let currentEventForAction = null;
+let pendingEventData = null; // Store event data while repeat modal is open
 
 const EVENT_STATUS = {
     PENDING: 'pending',
     COMPLETED: 'completed',
     INCOMPLETE: 'incomplete'
 };
-// 24 hours in milliseconds
-const PROMPT_DELAY_MS = 24 * 60 * 60 * 1000; 
-// 12 hours in milliseconds for notification tolerance (12 * 60 * 60 * 1000)
-const NOTIFICATION_TOLERANCE_MS = 12 * 3600000; 
 
+const PROMPT_DELAY_MS = 24 * 60 * 60 * 1000;
+const NOTIFICATION_TOLERANCE_MS = 12 * 3600000;
 
-// --- DOM Element References (New and Updated) ---
+// --- Repeat Types ---
+const REPEAT_TYPES = {
+    WEEK_1: '1week',
+    DAYS_15: '15days',
+    MONTH_1: '1month',
+    MONTH_6: '6months',
+    YEAR_1: '1year',
+    CUSTOM: 'custom'
+};
+
+const REPEAT_DISPLAY_NAMES = {
+    '1week': 'Every Week (7 days)',
+    '15days': 'Every 15 Days',
+    '1month': 'Every Month',
+    '6months': 'Every 6 Months',
+    '1year': 'Every Year',
+    'custom': 'Custom Interval'
+};
+
+let selectedRepeatPreset = null;
+let currentEventForRepeat = null;
+let repeatCallback = null;
+
+// --- DOM Elements ---
 const searchInput = document.getElementById("searchInput");
 const searchTimeframe = document.getElementById("searchTimeframe");
 const searchResults = document.getElementById("searchResults");
@@ -676,8 +704,7 @@ const statusPromptModal = document.getElementById("statusPromptModal");
 const eventTrackingSection = document.getElementById("eventTrackingSection");
 const trackingModalTitle = document.getElementById("trackingModalTitle");
 const trackingEventsList = document.getElementById("trackingEventsList");
-const rescheduleModal = document.getElementById("rescheduleModal"); 
-
+const rescheduleModal = document.getElementById("rescheduleModal");
 const overlayElement = document.getElementById("overlay");
 const closeModalBtn = document.getElementById("closeModal");
 const cancelTaskBtn = document.getElementById("cancelTaskBtn");
@@ -688,30 +715,558 @@ const closeStatusPromptModalBtn = document.getElementById("closeStatusPromptModa
 const completeEventBtn = document.getElementById("completeEventBtn");
 const incompleteEventBtn = document.getElementById("incompleteEventBtn");
 const closeTrackingModalBtn = document.getElementById("closeTrackingModal");
-const reschedulePromptBtn = document.getElementById("reschedulePromptBtn"); 
-const cancelPromptBtn = document.getElementById("cancelPromptBtn"); 
+const reschedulePromptBtn = document.getElementById("reschedulePromptBtn");
+const cancelPromptBtn = document.getElementById("cancelPromptBtn");
 const searchOverlayBackground = document.querySelector('.search-overlay-background');
+
+// --- Save/Repeat Choice Modal ---
+function showSaveRepeatChoiceModal(eventData, saveCallback, repeatCallbackFn) {
+    // Create modal if not exists
+    let choiceModal = document.getElementById('saveRepeatChoiceModal');
+    if (!choiceModal) {
+        const modalHTML = `
+            <div id="saveRepeatChoiceModal" class="fixed inset-0 z-[75] hidden items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative z-50">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-calendar-plus text-4xl text-emerald-500 mb-2"></i>
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white">Event Saved Successfully!</h3>
+                        <p class="text-gray-500 mt-2">Would you like to make this a repeating event?</p>
+                    </div>
+                    <div class="flex gap-3 mt-6">
+                        <button id="saveOnlyBtn" class="flex-1 py-3 bg-gray-500 text-white rounded-xl font-semibold hover:bg-gray-600 transition">
+                            Save Only
+                        </button>
+                        <button id="repeatChoiceBtn" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition">
+                            Repeat Event
+                        </button>
+                    </div>
+                </div>
+                <div class="fixed inset-0 bg-black/50 -z-10" onclick="closeSaveRepeatChoiceModal()"></div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        choiceModal = document.getElementById('saveRepeatChoiceModal');
+    }
+    
+    pendingEventData = eventData;
+    
+    const saveOnlyBtn = document.getElementById('saveOnlyBtn');
+    const repeatChoiceBtn = document.getElementById('repeatChoiceBtn');
+    
+    // Remove old listeners
+    const newSaveBtn = saveOnlyBtn.cloneNode(true);
+    const newRepeatBtn = repeatChoiceBtn.cloneNode(true);
+    saveOnlyBtn.parentNode.replaceChild(newSaveBtn, saveOnlyBtn);
+    repeatChoiceBtn.parentNode.replaceChild(newRepeatBtn, repeatChoiceBtn);
+    
+    newSaveBtn.addEventListener('click', () => {
+        closeSaveRepeatChoiceModal();
+        if (saveCallback) saveCallback(eventData);
+    });
+    
+    newRepeatBtn.addEventListener('click', () => {
+        closeSaveRepeatChoiceModal();
+        if (repeatCallbackFn) repeatCallbackFn(eventData);
+    });
+    
+    choiceModal.classList.remove('hidden');
+    choiceModal.classList.add('flex');
+}
+
+function closeSaveRepeatChoiceModal() {
+    const modal = document.getElementById('saveRepeatChoiceModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    pendingEventData = null;
+}
+
+// --- Enhanced Repeat Modal ---
+function initRepeatModal() {
+    if (document.getElementById('repeatModal')) return;
+    
+    const modalHTML = `
+        <div id="repeatModal" class="fixed inset-0 z-[80] hidden items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative z-50 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">🔄 Configure Repeating Event</h3>
+                    <button onclick="closeRepeatModal()" class="text-gray-600 hover:text-yellow-600 text-4xl">&times;</button>
+                </div>
+                <p class="text-sm text-gray-500 mb-4" id="repeatEventTitle">Choose how often this event repeats</p>
+                
+                <div class="space-y-4">
+                    <!-- Preset Buttons Grid -->
+                    <div>
+                        <label class="block text-sm font-bold mb-2">📅 Quick Presets</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="selectRepeatPreset('1week')" class="repeat-preset-btn bg-emerald-50 hover:bg-indigo-100 p-3 rounded-xl text-sm font-semibold transition-all">📅 1 Week (7 days)</button>
+                            <button type="button" onclick="selectRepeatPreset('15days')" class="repeat-preset-btn bg-emerald-50 hover:bg-emerald-100 p-3 rounded-xl text-sm font-semibold transition-all">📅 15 Days</button>
+                            <button type="button" onclick="selectRepeatPreset('1month')" class="repeat-preset-btn bg-emerald-50 hover:bg-emerald-100 p-3 rounded-xl text-sm font-semibold transition-all">📆 1 Month</button>
+                            <button type="button" onclick="selectRepeatPreset('6months')" class="repeat-preset-btn bg-emerald-50  hover:bg-emerald-100 p-3 rounded-xl text-sm font-semibold transition-all">🗓️ 6 Months</button>
+                            <button type="button" onclick="selectRepeatPreset('1year')" class="repeat-preset-btn bg-emerald-50 hover:bg-emerald-100 p-3 rounded-xl text-sm font-semibold transition-all">🎯 1 Year</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Custom Days Input -->
+                    <div class="border-t pt-4">
+                        <label class="block text-sm font-bold mb-2">✏️ Custom Days Interval</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="repeatCustomDays" placeholder="Enter number of days (e.g., 45)" class="flex-1 p-2 border rounded-xl dark:bg-slate-700 dark:border-slate-600">
+                            <button type="button" onclick="applyCustomDaysRepeat()" class="bg-blue-600 text-white px-4 rounded-xl font-semibold hover:bg-blue-700">Apply</button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">Creates recurring events every X days</p>
+                    </div>
+                    
+                    <!-- Max occurrences option -->
+                    <div class="border-t pt-4">
+                        <label class="block text-sm font-bold mb-2">🔢 Maximum Recurrences</label>
+                        <select id="repeatMaxOccurrences" class="w-full p-2 border rounded-xl dark:bg-slate-700">
+                            <option value="5">5 occurrences</option>
+                            <option value="10" selected>10 occurrences</option>
+                            <option value="15">15 occurrences</option>
+                            <option value="20">20 occurrences</option>
+                            <option value="30">30 occurrences</option>
+                        </select>
+                        <p class="text-xs text-gray-400 mt-1">Total number of repeat events (excluding the original)</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button onclick="closeRepeatModal()" class="flex-1 py-2 border rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700">Cancel</button>
+                    <button id="confirmRepeatBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold hover:bg-emerald-700">Create Repeating Series</button>
+                </div>
+            </div>
+            <div class="fixed inset-0 bg-black/50 -z-10" onclick="closeRepeatModal()"></div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function openRepeatModal(eventData, onConfirm) {
+    initRepeatModal();
+    currentEventForRepeat = { ...eventData };
+    repeatCallback = onConfirm;
+    const titleSpan = document.getElementById('repeatEventTitle');
+    if (titleSpan) titleSpan.innerText = `Repeating: ${eventData.title || 'Event'}`;
+    const modal = document.getElementById('repeatModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    selectedRepeatPreset = null;
+    const customInput = document.getElementById('repeatCustomDays');
+    if (customInput) customInput.value = '';
+    document.querySelectorAll('.repeat-preset-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-100');
+    });
+}
+
+function closeRepeatModal() {
+    const modal = document.getElementById('repeatModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    currentEventForRepeat = null;
+    repeatCallback = null;
+}
+
+window.selectRepeatPreset = function(presetKey) {
+    selectedRepeatPreset = presetKey;
+    document.querySelectorAll('.repeat-preset-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-100');
+    });
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('ring-2', 'ring-emerald-500', 'bg-emerald-100');
+    }
+};
+
+window.applyCustomDaysRepeat = function() {
+    const days = parseInt(document.getElementById('repeatCustomDays')?.value);
+    if (!days || days < 1) {
+        alert('Please enter a valid number of days (minimum 1)');
+        return;
+    }
+    selectedRepeatPreset = `custom_${days}`;
+    alert(`✅ Repeat every ${days} days selected. Click "Create Repeating Series" to confirm.`);
+    document.querySelectorAll('.repeat-preset-btn').forEach(btn => {
+        btn.classList.remove('ring-2', 'ring-emerald-500', 'bg-emerald-100');
+    });
+};
+
+window.closeRepeatModal = closeRepeatModal;
+window.openRepeatModal = openRepeatModal;
+window.closeSaveRepeatChoiceModal = closeSaveRepeatChoiceModal;
+
+// --- Core Recurring Events Logic ---
+async function createRecurringEvents(originalEvent, originalDateISO, repeatConfig) {
+    if (!currentUser) return [];
+    
+    const { type, customDaysValue, maxOccurrences = 10 } = repeatConfig;
+    let occurrences = [];
+    const baseDate = new Date(originalDateISO);
+    baseDate.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const seriesId = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const addOccurrence = (dateObj) => {
+        if (dateObj > today) occurrences.push(dateObj);
+    };
+    
+    switch(type) {
+        case REPEAT_TYPES.WEEK_1:
+            for (let i = 1; i <= maxOccurrences; i++) {
+                let newDate = new Date(baseDate);
+                newDate.setDate(baseDate.getDate() + (7 * i));
+                addOccurrence(newDate);
+            }
+            break;
+        case REPEAT_TYPES.DAYS_15:
+            for (let i = 1; i <= maxOccurrences; i++) {
+                let newDate = new Date(baseDate);
+                newDate.setDate(baseDate.getDate() + (15 * i));
+                addOccurrence(newDate);
+            }
+            break;
+        case REPEAT_TYPES.MONTH_1:
+            for (let i = 1; i <= maxOccurrences; i++) {
+                let newDate = new Date(baseDate);
+                newDate.setMonth(baseDate.getMonth() + i);
+                addOccurrence(newDate);
+            }
+            break;
+        case REPEAT_TYPES.MONTH_6:
+            for (let i = 1; i <= maxOccurrences; i++) {
+                let newDate = new Date(baseDate);
+                newDate.setMonth(baseDate.getMonth() + (6 * i));
+                addOccurrence(newDate);
+            }
+            break;
+        case REPEAT_TYPES.YEAR_1:
+            for (let i = 1; i <= maxOccurrences; i++) {
+                let newDate = new Date(baseDate);
+                newDate.setFullYear(baseDate.getFullYear() + i);
+                addOccurrence(newDate);
+            }
+            break;
+        default:
+            if (type && type.toString().startsWith('custom_')) {
+                const daysVal = parseInt(type.toString().split('_')[1]) || customDaysValue;
+                if (daysVal > 0) {
+                    for (let i = 1; i <= maxOccurrences; i++) {
+                        let newDate = new Date(baseDate);
+                        newDate.setDate(baseDate.getDate() + (daysVal * i));
+                        addOccurrence(newDate);
+                    }
+                }
+            }
+            break;
+    }
+    
+    occurrences = occurrences.slice(0, maxOccurrences);
+    const createdEvents = [];
+    
+    // Update the original event to be the master
+    const masterRef = db.ref(`users/${currentUser.uid}/events/${originalDateISO}/${originalEvent.id}`);
+    await masterRef.update({
+        isMasterEvent: true,
+        seriesId: seriesId,
+        repeatInterval: type,
+        repeatIntervalDisplay: getRepeatDisplayName(type, customDaysValue),
+        totalOccurrences: occurrences.length
+    });
+    createdEvents.push({ id: originalEvent.id, date: originalDateISO, isMaster: true });
+    
+    // Create recurring instances
+    for (const occDate of occurrences) {
+        const newISO = toISODate(occDate);
+        const eventCopy = {
+            title: originalEvent.title,
+            time: originalEvent.time,
+            location: originalEvent.location || '',
+            desc: (originalEvent.desc || '') + ` [Repeats: ${getRepeatDisplayName(type, customDaysValue)}]`,
+            timestamp: new Date(`${newISO}T${originalEvent.time}:00`).getTime(),
+            savedTimestamp: Date.now(),
+            status: EVENT_STATUS.PENDING,
+            seriesId: seriesId,
+            repeatInterval: type,
+            repeatParentId: originalEvent.id
+        };
+        
+        const newRef = db.ref(`users/${currentUser.uid}/events/${newISO}`).push();
+        await newRef.set(eventCopy);
+        createdEvents.push({ id: newRef.key, date: newISO });
+        loadTasks(newISO);
+    }
+    
+    alert(`✅ Created ${createdEvents.length} recurring events (1 original + ${createdEvents.length - 1} repeats)`);
+    return createdEvents;
+}
+
+function getRepeatDisplayName(type, customDaysValue = null) {
+    if (type === '1week') return 'Every Week (7 days)';
+    if (type === '15days') return 'Every 15 Days';
+    if (type === '1month') return 'Every Month';
+    if (type === '6months') return 'Every 6 Months';
+    if (type === '1year') return 'Every Year';
+    if (type && type.toString().startsWith('custom_')) {
+        const days = type.toString().split('_')[1];
+        return `Every ${days} days`;
+    }
+    return 'Custom Repeat';
+}
+
+// --- Show All Repeating Events Modal ---
+function showAllRepeatingEvents() {
+    if (!currentUser) return alert("Please sign in.");
+    
+    let repeatingModal = document.getElementById('repeatingEventsModal');
+    if (!repeatingModal) {
+        const modalHTML = `
+            <div id="repeatingEventsModal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative z-50 max-h-[85vh] flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800 dark:text-white">🔄 All Repeating Event Series</h3>
+                        <button onclick="closeRepeatingEventsModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                    </div>
+                    <div id="repeatingEventsList" class="flex-1 overflow-y-auto custom-scroll">
+                        <div class="text-center py-8 text-gray-500">Loading...</div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t flex justify-end">
+                        <button onclick="closeRepeatingEventsModal()" class="px-4 py-2 bg-gray-500 text-white rounded-xl">Close</button>
+                    </div>
+                </div>
+                <div class="fixed inset-0 bg-black/50 -z-10" onclick="closeRepeatingEventsModal()"></div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    const modal = document.getElementById('repeatingEventsModal');
+    const listContainer = document.getElementById('repeatingEventsList');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    listContainer.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin"></i> Loading repeating series...</div>';
+    
+    db.ref(`users/${currentUser.uid}/events`).once("value").then(snapshot => {
+        const allEvents = snapshot.val() || {};
+        const seriesMap = new Map();
+        
+        Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
+            Object.entries(dayEvents).forEach(([id, event]) => {
+                if (event.seriesId && !event.isMasterEvent) {
+                    if (!seriesMap.has(event.seriesId)) {
+                        seriesMap.set(event.seriesId, {
+                            seriesId: event.seriesId,
+                            title: event.title,
+                            repeatIntervalDisplay: event.repeatIntervalDisplay || getRepeatDisplayName(event.repeatInterval),
+                            events: []
+                        });
+                    }
+                    const series = seriesMap.get(event.seriesId);
+                    series.events.push({ id, date: dateISO, ...event });
+                }
+            });
+        });
+        
+        if (seriesMap.size === 0) {
+            listContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No repeating event series found.</div>';
+            return;
+        }
+        
+        listContainer.innerHTML = '';
+        for (const [seriesId, series] of seriesMap) {
+            const seriesDiv = document.createElement('div');
+            seriesDiv.className = 'border rounded-xl p-4 mb-4 bg-gray-50 dark:bg-slate-700/50';
+            seriesDiv.innerHTML = `
+                <div class="flex justify-between items-start flex-wrap gap-3">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i class="fas fa-repeat text-emerald-600 text-xl"></i>
+                            <strong class="text-lg font-bold">${series.title}</strong>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-300">
+                            <p><i class="fas fa-chart-line w-5"></i> Pattern: ${series.repeatIntervalDisplay}</p>
+                            <p><i class="fas fa-copy w-5"></i> Total events: ${series.events.length}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="viewSeriesDetails('${seriesId}')" class="px-3 py-2 bg-indigo-500 text-white rounded-lg text-sm hover:bg-indigo-600">
+                            <i class="fas fa-eye"></i> View All
+                        </button>
+                        <button onclick="deleteEntireSeries('${seriesId}', '${series.title.replace(/'/g, "\\'")}')" class="px-3 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600">
+                            <i class="fas fa-trash"></i> Delete Series
+                        </button>
+                    </div>
+                </div>
+            `;
+            listContainer.appendChild(seriesDiv);
+        }
+    });
+}
+
+function closeRepeatingEventsModal() {
+    const modal = document.getElementById('repeatingEventsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function viewSeriesDetails(seriesId) {
+    if (!currentUser) return;
+    
+    const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
+    const allEvents = snapshot.val() || {};
+    const seriesEvents = [];
+    
+    Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
+        Object.entries(dayEvents).forEach(([id, event]) => {
+            if (event.seriesId === seriesId) {
+                seriesEvents.push({ id, date: dateISO, ...event });
+            }
+        });
+    });
+    
+    seriesEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    let detailsHtml = `
+        <div class="max-h-[60vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white dark:bg-slate-800 pb-2 border-b mb-3">
+                <h4 class="font-bold text-lg">${seriesEvents[0]?.title || 'Series'} - ${seriesEvents.length} events</h4>
+                <p class="text-sm text-gray-500">Pattern: ${seriesEvents[0]?.repeatIntervalDisplay || 'Custom'}</p>
+            </div>
+            <div class="space-y-2">
+    `;
+    
+    for (const event of seriesEvents) {
+        const statusIcon = event.status === 'completed' ? '✅' : (event.status === 'incomplete' ? '❌' : '⏳');
+        detailsHtml += `
+            <div class="flex justify-between items-center p-3 bg-gray-100 dark:bg-slate-700 rounded-lg">
+                <div>
+                    <span class="font-mono mr-2">${statusIcon}</span>
+                    <strong>${formatDate(event.date)}</strong> at ${event.time}
+                </div>
+                <button onclick="deleteSingleRecurringEvent('${seriesId}', '${event.id}', '${event.date}')" class="text-red-500 hover:text-red-700 text-sm">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        `;
+    }
+    
+    detailsHtml += `</div></div><div class="mt-4 flex gap-2"><button onclick="deleteEntireSeries('${seriesId}', '${seriesEvents[0]?.title.replace(/'/g, "\\'") || 'Series'}')" class="flex-1 bg-red-600 text-white py-2 rounded-lg">Delete Entire Series</button><button onclick="closeSeriesDetailsModal()" class="flex-1 bg-gray-500 text-white py-2 rounded-lg">Close</button></div>`;
+    
+    let detailsModal = document.getElementById('seriesDetailsModal');
+    if (!detailsModal) {
+        const modalHTML = `
+            <div id="seriesDetailsModal" class="fixed inset-0 z-[80] hidden items-center justify-center p-4">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative z-50 max-h-[80vh] flex flex-col">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xl font-bold">📋 Series Details</h3>
+                        <button onclick="closeSeriesDetailsModal()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+                    </div>
+                    <div id="seriesDetailsContent" class="flex-1 overflow-y-auto"></div>
+                </div>
+                <div class="fixed inset-0 bg-black/50 -z-10" onclick="closeSeriesDetailsModal()"></div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        detailsModal = document.getElementById('seriesDetailsModal');
+    }
+    
+    const contentDiv = document.getElementById('seriesDetailsContent');
+    contentDiv.innerHTML = detailsHtml;
+    detailsModal.classList.remove('hidden');
+    detailsModal.classList.add('flex');
+}
+
+function closeSeriesDetailsModal() {
+    const modal = document.getElementById('seriesDetailsModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function deleteEntireSeries(seriesId, seriesTitle) {
+    if (!confirm(`⚠️ Delete ENTIRE "${seriesTitle}" series?\n\nThis will permanently delete ALL events in this repeating series. This action cannot be undone.`)) {
+        return;
+    }
+    
+    const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
+    const allEvents = snapshot.val() || {};
+    const deletePromises = [];
+    
+    Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
+        Object.entries(dayEvents).forEach(([id, event]) => {
+            if (event.seriesId === seriesId) {
+                deletePromises.push(db.ref(`users/${currentUser.uid}/events/${dateISO}/${id}`).remove());
+            }
+        });
+    });
+    
+    await Promise.all(deletePromises);
+    alert(`✅ Deleted entire "${seriesTitle}" series (${deletePromises.length} events).`);
+    closeSeriesDetailsModal();
+    closeRepeatingEventsModal();
+    renderCalendar();
+}
+
+async function deleteSingleRecurringEvent(seriesId, eventId, eventDate) {
+    if (!confirm(`Delete this single occurrence? Other events in the series will remain.`)) return;
+    
+    await db.ref(`users/${currentUser.uid}/events/${eventDate}/${eventId}`).remove();
+    alert(`✅ Single occurrence deleted.`);
+    viewSeriesDetails(seriesId);
+    renderCalendar();
+    if (selectedDate === eventDate) loadModalTasks(eventDate);
+    loadTasks(eventDate);
+}
+
+// --- Add "Show Repeating Events" button ---
+function addRepeatingEventsButton() {
+    if (document.getElementById('showRepeatingBtn')) return;
+    const trackingBtn = document.getElementById('openEventModalBtn');
+    if (trackingBtn && trackingBtn.parentElement) {
+        const repeatBtn = document.createElement('button');
+        repeatBtn.id = 'showRepeatingBtn';
+        repeatBtn.className = 'bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl shadow-md font-semibold text-sm';
+        repeatBtn.innerHTML = '<i class="fas fa-repeat"></i> Repeating Events';
+        repeatBtn.onclick = () => showAllRepeatingEvents();
+        trackingBtn.parentElement.insertBefore(repeatBtn, trackingBtn.nextSibling);
+    }
+}
+
+// --- Real-Time Polling ---
+function startRealTimeChecks() {
+    if (realTimeCheckInterval) clearInterval(realTimeCheckInterval);
+    checkAndShowNotifications();
+    realTimeCheckInterval = setInterval(() => {
+        checkAndShowNotifications();
+        checkAndPromptForEventStatus();
+    }, 60000);
+}
 
 // --- Helpers ---
 const toISODate = d => {
-    // Uses UTC methods to ensure date key is YYYY-MM-DD regardless of local timezone
-    const dt = d;
+    const dt = new Date(d);
     return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
 };
 
 function capitalizeFirstLetter(str) {
     if (!str) return "";
-    // FIXED: Ensure every word's first letter is capitalized
     return str.toLowerCase().split(' ').map(word => {
-        if (word.length === 0) return ""; 
+        if (word.length === 0) return "";
         return word.charAt(0).toUpperCase() + word.slice(1);
     }).join(' ');
 }
 
 function formatDate(dateISO) {
     const parts = dateISO.split('-').map(Number);
-    // Create a UTC date object from ISO parts
-    const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); 
+    const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
     const day = String(dt.getUTCDate()).padStart(2, "0");
     const month = String(dt.getUTCMonth() + 1).padStart(2, "0");
     const year = dt.getUTCFullYear();
@@ -719,123 +1274,76 @@ function formatDate(dateISO) {
     return `${day}-${month}-${year} (${weekday})`;
 }
 
-// --- NEW: Real-Time Polling Logic ---
-function startRealTimeChecks() {
-    // Clear any existing interval to prevent duplicates
-    if (realTimeCheckInterval) {
-        clearInterval(realTimeCheckInterval);
-    }
-
-    // Call immediately upon start
-    checkAndShowNotifications();
-    
-    // Set up recurring check every 60 seconds (60000 ms)
-    realTimeCheckInterval = setInterval(() => {
-        checkAndShowNotifications();
-        // Also periodically re-check for overdue prompts
-        checkAndPromptForEventStatus();
-    }, 60000); 
-}
-// --- END Real-Time Polling Logic ---
-
-
 // --- Auth ---
 auth.onAuthStateChanged(user => {
-    if(user){
+    if (user) {
         currentUser = user;
         document.getElementById("userName").textContent = user.displayName || "User Name";
         document.getElementById("userEmail").textContent = user.email;
         document.getElementById("mobileUserName").textContent = user.displayName || "User Name";
         document.getElementById("mobileUserEmail").textContent = user.email;
-        
         const photoUrl = user.photoURL || "https://via.placeholder.com/40";
         document.getElementById("userPhoto").src = photoUrl;
-        
         const mobilePhotoElement = document.getElementById("mobileUserPhoto");
-        if(mobilePhotoElement) {
-            mobileUserPhoto.src = photoUrl;
-        }
-
+        if (mobilePhotoElement) mobileUserPhoto.src = photoUrl;
         renderCalendar();
         requestNotificationPermission();
-        // Start continuous checking for notifications
-        startRealTimeChecks(); 
-        // INSTANT PROMPT on page load/login
-        checkAndPromptForEventStatus(); 
+        startRealTimeChecks();
+        checkAndPromptForEventStatus();
+        addRepeatingEventsButton();
     } else {
-        // Clear interval on logout
-        if (realTimeCheckInterval) {
-            clearInterval(realTimeCheckInterval);
-        }
+        if (realTimeCheckInterval) clearInterval(realTimeCheckInterval);
         if (window.location.pathname !== '/index.html' && !window.location.pathname.endsWith('/')) {
-            window.location.href = "index.html"; 
+            window.location.href = "index.html";
         }
     }
 });
 
-function logout(){
-    auth.signOut().then(() => {
-        location.href="index.html";
-    }); 
+function logout() {
+    auth.signOut().then(() => { location.href = "index.html"; });
 }
 
 // --- Calendar ---
-function changeMonth(offset){
-    currentDate.setMonth(currentDate.getMonth()+offset);
+function changeMonth(offset) {
+    currentDate.setMonth(currentDate.getMonth() + offset);
     renderCalendar();
 }
 
-function renderCalendar(){
-    if (!currentUser) return; 
-    
-    const cal=document.getElementById("calendar");
-    if(!cal) return;
-
-    cal.innerHTML="";
-    const y=currentDate.getFullYear(), m=currentDate.getMonth();
-    document.getElementById("monthYear").textContent=
-        currentDate.toLocaleString("default",{month:"long",year:"numeric"});
-
-    const firstDay=new Date(y,m,1);
-    const start=(firstDay.getDay()+6)%7; 
-    const days=new Date(y,m+1,0).getDate();
-
+function renderCalendar() {
+    if (!currentUser) return;
+    const cal = document.getElementById("calendar");
+    if (!cal) return;
+    cal.innerHTML = "";
+    const y = currentDate.getFullYear(), m = currentDate.getMonth();
+    document.getElementById("monthYear").textContent = currentDate.toLocaleString("default", { month: "long", year: "numeric" });
+    const firstDay = new Date(y, m, 1);
+    const start = (firstDay.getDay() + 6) % 7;
+    const days = new Date(y, m + 1, 0).getDate();
     if (window.innerWidth >= 768) {
-        for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
+        for (let i = 0; i < start; i++) cal.appendChild(document.createElement("div"));
     }
-
-    for(let d=1;d<=days;d++){
-        const dateObj=new Date(Date.UTC(y, m, d)); 
-        const iso=toISODate(dateObj);
-        const cell=document.createElement("div");
-        cell.className="calendar-cell text-center text-gray-800";
-        
+    for (let d = 1; d <= days; d++) {
+        const dateObj = new Date(Date.UTC(y, m, d));
+        const iso = toISODate(dateObj);
+        const cell = document.createElement("div");
+        cell.className = "calendar-cell text-center text-gray-800";
         const today = new Date();
         const todayISO = toISODate(today);
-
-        if(iso === todayISO) cell.classList.add("today");
-        
-        const dayOfWeek = dateObj.getUTCDay(); 
-        if(dayOfWeek === 6) cell.classList.add("weekend"); 
-        
-        if(dayOfWeek === 0) { 
-            cell.classList.add("sunday-cell");
-        }
-        
+        if (iso === todayISO) cell.classList.add("today");
+        const dayOfWeek = dateObj.getUTCDay();
+        if (dayOfWeek === 6) cell.classList.add("weekend");
         let dayOfWeekText = '';
         if (window.innerWidth < 768) {
-            dayOfWeekText = `<span class="text-base text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
+            dayOfWeekText = `<span class="text-base text-gray-600">${dateObj.toLocaleDateString("en-US", { weekday: "short", timeZone: 'UTC' })}</span>`;
         }
-
-
-        cell.innerHTML=`
+        cell.innerHTML = `
             <div class="flex justify-start items-center gap-2 font-semibold text-gray-800">
                 <span class="text-xl md:text-2xl">${d}</span>
                 ${dayOfWeekText}
             </div>
             <div id="tasks-${iso}" class="mt-2 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
         `;
-        cell.onclick=()=>openModal(iso); 
+        cell.onclick = () => openModal(iso);
         cal.appendChild(cell);
         loadTasks(iso);
     }
@@ -847,494 +1355,359 @@ function openModal(dateISO) {
     closeEventModal();
     closeTrackingModal();
     closeStatusPromptModal();
-
     document.getElementById("modalDate").textContent = `Tasks & Events for ${formatDate(dateISO)}`;
     selectedDate = dateISO;
     editTaskId = null;
     document.getElementById("taskTitle").value = "";
     document.getElementById("taskDesc").value = "";
-
     overlayElement.classList.remove("hidden");
     taskModalElement.classList.remove("hidden");
-
     loadModalTasks(dateISO);
 }
 
 function openEventModal(dateISO = null) {
     if (!currentUser) return alert("Please sign in to manage events.");
-    closeModal(); 
+    closeModal();
     closeTrackingModal();
     closeStatusPromptModal();
-
-    const defaultDate = dateISO || toISODate(new Date()); 
+    const defaultDate = dateISO || toISODate(new Date());
     document.getElementById("eventDate").value = defaultDate;
-    document.getElementById("eventTime").value = "09:00"; 
+    document.getElementById("eventTime").value = "09:00";
     document.getElementById("eventTitle").value = "";
     document.getElementById("eventLocation").value = "";
-    
-    // UPDATED: Adding the placeholder text for links
     const eventDescInput = document.getElementById("eventDesc");
-    eventDescInput.value = ""; 
-    eventDescInput.placeholder = "e.g., Meeting Link: https://zoom.us/j/... (Link saved from Savig)";
-    
+    eventDescInput.value = "";
     editEventId = null;
-    document.getElementById("eventModalTitle").textContent = editEventId ? "Edit Event" : "Add New Event";
-    
+    document.getElementById("eventModalTitle").textContent = "Add New Event";
     overlayElement.classList.remove("hidden");
     eventModalElement.classList.remove("hidden");
 }
 
-// NEW: Open Tracking Modal
 function openTrackingModal(status) {
     if (!currentUser) return alert("Please sign in.");
     closeModal();
     closeEventModal();
     closeStatusPromptModal();
-
-    trackingModalTitle.textContent = status === EVENT_STATUS.COMPLETED ? "Completed Events (Last 30 Days)" : "Incomplete Events (Last 30 Days)";
-
+    trackingModalTitle.textContent = status === EVENT_STATUS.COMPLETED ? "✅ Completed Events (Last 2 Months)" : "⏳ Incomplete Events (Last & Next Year)";
     overlayElement.classList.remove("hidden");
     eventTrackingSection.classList.remove("hidden");
-
     loadTrackingEvents(status);
 }
 
-// NEW: Open Reschedule Modal (Retained as prompt option uses it)
 function openRescheduleModal(event) {
-    closeModal(); // Close task modal if open
-    closeStatusPromptModal(); // Close status prompt if open
-
-    currentEventForAction = event; // Store event data globally
-
+    closeModal();
+    closeStatusPromptModal();
+    currentEventForAction = event;
     document.getElementById("rescheduleEventTitle").textContent = event.title;
-    document.getElementById("rescheduleDate").value = event.date; // Use current date for pre-fill
-    document.getElementById("rescheduleTime").value = event.time; // Use current time for pre-fill
-
+    document.getElementById("rescheduleDate").value = event.date;
+    document.getElementById("rescheduleTime").value = event.time;
     overlayElement.classList.remove("hidden");
     rescheduleModal.classList.remove("hidden");
 }
 
-
-function closeModal(){
-    selectedDate=null; editTaskId=null;
+function closeModal() {
+    selectedDate = null; editTaskId = null;
     overlayElement.classList.add("hidden");
     taskModalElement.classList.add("hidden");
-    document.getElementById("existingTasks").innerHTML="";
-    // Reset search view logic... (kept simplified here for brevity)
-    document.body.style.overflow = 'auto'; 
+    document.getElementById("existingTasks").innerHTML = "";
+    document.body.style.overflow = 'auto';
 }
 
-function closeEventModal(){
+function closeEventModal() {
     editEventId = null;
     overlayElement.classList.add("hidden");
     eventModalElement.classList.add("hidden");
 }
 
-// NEW: Close Status Prompt Modal
 function closeStatusPromptModal() {
     overlayElement.classList.add("hidden");
     statusPromptModal.classList.add("hidden");
-    currentEventForAction = null; 
-    // Resume checking the queue
-    if (eventsToPrompt.length > 0) {
-        processNextPendingEvent();
-    }
+    currentEventForAction = null;
+    if (eventsToPrompt.length > 0) processNextPendingEvent();
 }
 
-// NEW: Close Tracking Modal
 function closeTrackingModal() {
     overlayElement.classList.add("hidden");
     eventTrackingSection.classList.add("hidden");
 }
 
+function closeRescheduleModal() {
+    const rescheduleModalElem = document.getElementById("rescheduleModal");
+    if (rescheduleModalElem) rescheduleModalElem.classList.add("hidden");
+    const anyModalOpen = !taskModalElement.classList.contains('hidden') ||
+                        !eventModalElement.classList.contains('hidden') ||
+                        !statusPromptModal.classList.contains('hidden') ||
+                        !eventTrackingSection.classList.contains('hidden');
+    if (!anyModalOpen) overlayElement.classList.add("hidden");
+    currentEventForAction = null;
+}
 
-// Attach event listeners for close buttons
-closeModalBtn.addEventListener("click", closeModal);
-cancelTaskBtn.addEventListener("click", closeModal);
-closeEventModalBtn.addEventListener("click", closeEventModal);
-cancelEventBtn.addEventListener("click", closeEventModal);
-openEventModalBtn.addEventListener("click", () => openEventModal(toISODate(currentDate)));
-closeStatusPromptModalBtn.addEventListener("click", closeStatusPromptModal);
-closeTrackingModalBtn.addEventListener("click", closeTrackingModal);
-searchOverlayBackground.addEventListener("click", closeModal);
-
-
-// NEW: Reschedule Confirmation Logic
-confirmRescheduleBtn.addEventListener('click', () => {
-    if (!currentEventForAction) return alert("Error: No event selected.");
-
-    const newDate = document.getElementById("rescheduleDate").value;
-    const newTime = document.getElementById("rescheduleTime").value;
-
-    if (!newDate || !newTime) return alert("Please select a new date and time.");
-
-    rescheduleEvent(currentEventForAction, newDate, newTime);
-});
-
-
-// --- Save Task (Existing - Applied Capitalization, Optimized Reload) ---
-document.getElementById("saveTaskBtn").addEventListener("click",()=>{
+// --- Save Task ---
+document.getElementById("saveTaskBtn").addEventListener("click", () => {
     if (!currentUser) return alert("User not logged in.");
-
-    let title=document.getElementById("taskTitle").value.trim();
-    let desc=document.getElementById("taskDesc").value.trim();
-    if(!title) return alert("Enter task title.");
-
-    // FIXED: Apply capitalization before saving
+    let title = document.getElementById("taskTitle").value.trim();
+    let desc = document.getElementById("taskDesc").value.trim();
+    if (!title) return alert("Enter task title.");
     title = capitalizeFirstLetter(title);
     desc = capitalizeFirstLetter(desc);
-    
-    const ref=`users/${currentUser.uid}/tasks/${selectedDate}`;
-
-    const taskData = {
-        title: title, 
-        desc: desc
-    };
-
-    if(editTaskId){
-        db.ref(`${ref}/${editTaskId}`).set(taskData).then(()=>{
-            editTaskId=null;
+    const ref = `users/${currentUser.uid}/tasks/${selectedDate}`;
+    const taskData = { title: title, desc: desc };
+    if (editTaskId) {
+        db.ref(`${ref}/${editTaskId}`).set(taskData).then(() => {
+            editTaskId = null;
             loadModalTasks(selectedDate);
-            loadTasks(selectedDate); // Optimized update
+            loadTasks(selectedDate);
         });
     } else {
-        db.ref(ref).push(taskData).then(()=>{
+        db.ref(ref).push(taskData).then(() => {
             loadModalTasks(selectedDate);
-            loadTasks(selectedDate); // Optimized update
+            loadTasks(selectedDate);
         });
     }
-    document.getElementById("taskTitle").value="";
-    document.getElementById("taskDesc").value="";
+    document.getElementById("taskTitle").value = "";
+    document.getElementById("taskDesc").value = "";
 });
 
+// --- Save Event with Save Only / Repeat Choice ---
+document.getElementById("saveEventBtn").addEventListener("click", async () => {
+    if (!currentUser) return;
+    
+    let title = document.getElementById("eventTitle").value.trim();
+    const date = document.getElementById("eventDate").value;
+    const time = document.getElementById("eventTime").value;
+    const location = document.getElementById("eventLocation").value.trim();
+    const desc = document.getElementById("eventDesc").value.trim();
+    
+    if (!title || !date || !time) {
+        alert("Please fill in Title, Date, and Time.");
+        return;
+    }
+    
+    title = capitalizeFirstLetter(title);
+    const capitalizedLocation = capitalizeFirstLetter(location);
+    const capitalizedDesc = capitalizeFirstLetter(desc);
+    const eventDateISO = date;
+    const isEditing = !!editEventId;
+    
+    if (isEditing) {
+        // Editing existing event - just save, no repeat option
+        const refPath = `users/${currentUser.uid}/events/${selectedDate}/${editEventId}`;
+        const timestamp = new Date(`${date}T${time}:00`).getTime();
+        const eventData = {
+            title: title, time: time, location: capitalizedLocation, desc: capitalizedDesc,
+            timestamp: timestamp, savedTimestamp: new Date().getTime(), status: EVENT_STATUS.PENDING
+        };
+        await db.ref(refPath).update(eventData);
+        editEventId = null;
+        closeEventModal();
+        loadTasks(eventDateISO);
+        if (selectedDate === eventDateISO) loadModalTasks(eventDateISO);
+        alert("Event updated successfully!");
+        return;
+    }
+    
+    // NEW EVENT: Save to Firebase first
+    const timestamp = new Date(`${date}T${time}:00`).getTime();
+    const eventData = {
+        title: title, time: time, location: capitalizedLocation, desc: capitalizedDesc,
+        timestamp: timestamp, savedTimestamp: new Date().getTime(), status: EVENT_STATUS.PENDING
+    };
+    
+    const newRef = db.ref(`users/${currentUser.uid}/events/${eventDateISO}`).push();
+    const savedEventId = newRef.key;
+    await newRef.set(eventData);
+    
+    loadTasks(eventDateISO);
+    if (selectedDate === eventDateISO) loadModalTasks(eventDateISO);
+    
+    const savedEvent = { id: savedEventId, title, time, location: capitalizedLocation, desc: capitalizedDesc, date: eventDateISO };
+    
+    // Show Save Only / Repeat choice modal
+    showSaveRepeatChoiceModal(savedEvent, 
+        // Save Only callback
+        (event) => {
+            closeEventModal();
+            alert(`Event "${event.title}" saved successfully!`);
+        },
+        // Repeat callback
+        (event) => {
+            // Open repeat configuration modal
+            openRepeatModal(event, async (repeatEventData) => {
+                if (!selectedRepeatPreset) {
+                    alert("Please select a repeat interval first.");
+                    return;
+                }
+                const maxOccurrences = parseInt(document.getElementById('repeatMaxOccurrences')?.value || '10');
+                let repeatTypeKey = selectedRepeatPreset;
+                const config = { type: repeatTypeKey, customDaysValue: null, maxOccurrences: maxOccurrences };
+                if (selectedRepeatPreset.toString().startsWith('custom_')) {
+                    const daysNum = parseInt(selectedRepeatPreset.toString().split('_')[1]);
+                    config.type = `custom_${daysNum}`;
+                    config.customDaysValue = daysNum;
+                }
+                await createRecurringEvents(repeatEventData, repeatEventData.date, config);
+                renderCalendar();
+                selectedRepeatPreset = null;
+                closeRepeatModal();
+                closeEventModal();
+            });
+        }
+    );
+});
 
-
-
+// --- Load Tasks for Calendar Cells ---
 function loadTasks(date) {
     if (!currentUser) return;
     const c = document.getElementById(`tasks-${date}`);
     if (!c) return;
     c.innerHTML = "";
-
-    // Optimization: Single path fetch to increase loading speed
     db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
         const data = snap.val() || {};
         const tasks = data.tasks?.[date] || {};
         const events = data.events?.[date] || {};
-        
         let allItems = [];
         Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
-        Object.values(events)
-            .filter(e => e.status === EVENT_STATUS.PENDING)
-            .forEach(e => allItems.push({ type: 'event', ...e }));
-
-        // Sort: Events first
+        Object.values(events).filter(e => e.status === EVENT_STATUS.PENDING && !e.isMasterEvent).forEach(e => allItems.push({ type: 'event', ...e }));
         allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
-
-        allItems.slice(0, 3).forEach(item => { 
+        allItems.slice(0, 3).forEach(item => {
             const isEvent = item.type === 'event';
             const line = document.createElement("div");
-            
-            // UI Requirement: 16px font, slightly darker but not black
-          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
-                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
-            }`;
-            line.style.fontSize = "16px"; 
-            
+            line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''}`;
+            line.style.fontSize = "16px";
             const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
-            line.innerHTML = `${icon}${item.title}`;
+            const repeatIcon = item.seriesId ? '<i class="fas fa-repeat text-xs ml-1"></i>' : '';
+            line.innerHTML = `${icon}${item.title}${repeatIcon}`;
             c.appendChild(line);
         });
     });
 }
-document.getElementById("saveEventBtn").addEventListener("click",()=>{
-    if (!currentUser) return alert("User not logged in.");
 
-    let title=document.getElementById("eventTitle").value.trim();
-    const date=document.getElementById("eventDate").value.trim();
-    const time=document.getElementById("eventTime").value.trim();
-    const location=document.getElementById("eventLocation").value.trim();
-    const desc=document.getElementById("eventDesc").value.trim();
-
-    if(!title || !date || !time) return alert("Enter event name, date, and time.");
-
-    // FIXED: Apply capitalization before saving
-    title = capitalizeFirstLetter(title);
-    const capitalizedLocation = capitalizeFirstLetter(location);
-    const capitalizedDesc = capitalizeFirstLetter(desc);
-    
-    const eventDateISO = date;
-    
-    // Determine if we are editing an existing event or creating a new one
-    const isEditing = !!editEventId;
-    const refPath = isEditing ? `users/${currentUser.uid}/events/${selectedDate}/${editEventId}` : `users/${currentUser.uid}/events/${eventDateISO}`;
-
-    const timestamp = new Date(`${date}T${time}:00`).getTime(); 
-
-    const eventData = {
-        title: title, 
-        time: time,
-        location: capitalizedLocation,
-        desc: capitalizedDesc,
-        timestamp: timestamp, 
-        savedTimestamp: new Date().getTime(), 
-        status: EVENT_STATUS.PENDING 
-    };
-
-    const savePromise = isEditing 
-        ? db.ref(refPath).update(eventData) 
-        : db.ref(refPath).push(eventData);
-
-    savePromise.then(() => {
-        editEventId=null;
-        closeEventModal();
-        // Optimized updates: only refresh the calendar cell
-        loadTasks(eventDateISO); 
-        checkAndShowNotifications();
-        
-        // If the task modal was open on the relevant date, reload its content (optional, but clean)
-        if(selectedDate === eventDateISO) {
-             loadModalTasks(eventDateISO);
-        }
-    }).catch(err => {
-        console.error("Event save error:", err);
-        alert("Failed to save event.");
-    });
-});
-
-
-function loadTasks(date) {
-    if (!currentUser) return;
-    const c = document.getElementById(`tasks-${date}`);
-    if (!c) return;
-    c.innerHTML = "";
-
-    // Optimization: Single path fetch to increase loading speed
-    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
-        const data = snap.val() || {};
-        const tasks = data.tasks?.[date] || {};
-        const events = data.events?.[date] || {};
-        
-        let allItems = [];
-        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
-        Object.values(events)
-            .filter(e => e.status === EVENT_STATUS.PENDING)
-            .forEach(e => allItems.push({ type: 'event', ...e }));
-
-        // Sort: Events first
-        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
-
-        allItems.slice(0, 3).forEach(item => { 
-            const isEvent = item.type === 'event';
-            const line = document.createElement("div");
-            
-            // UI Requirement: 16px font, slightly darker but not black
-          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
-                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
-            }`;
-            line.style.fontSize = "16px"; 
-            
-            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
-            line.innerHTML = `${icon}${item.title}`;
-            c.appendChild(line);
-        });
-    });
-}
-document.getElementById("saveEventBtn").addEventListener("click",()=>{
-    if (!currentUser) return alert("User not logged in.");
-
-    let title=document.getElementById("eventTitle").value.trim();
-    const date=document.getElementById("eventDate").value.trim();
-    const time=document.getElementById("eventTime").value.trim();
-    const location=document.getElementById("eventLocation").value.trim();
-    const desc=document.getElementById("eventDesc").value.trim();
-
-    if(!title || !date || !time) return alert("Enter event name, date, and time.");
-
-    // FIXED: Apply capitalization before saving
-    title = capitalizeFirstLetter(title);
-    const capitalizedLocation = capitalizeFirstLetter(location);
-    const capitalizedDesc = capitalizeFirstLetter(desc);
-    
-    const eventDateISO = date;
-    
-    // Determine if we are editing an existing event or creating a new one
-    const isEditing = !!editEventId;
-    const refPath = isEditing ? `users/${currentUser.uid}/events/${selectedDate}/${editEventId}` : `users/${currentUser.uid}/events/${eventDateISO}`;
-
-    const timestamp = new Date(`${date}T${time}:00`).getTime(); 
-
-    const eventData = {
-        title: title, 
-        time: time,
-        location: capitalizedLocation,
-        desc: capitalizedDesc,
-        timestamp: timestamp, 
-        savedTimestamp: new Date().getTime(), 
-        status: EVENT_STATUS.PENDING 
-    };
-
-    const savePromise = isEditing 
-        ? db.ref(refPath).update(eventData) 
-        : db.ref(refPath).push(eventData);
-
-    savePromise.then(() => {
-        editEventId=null;
-        closeEventModal();
-        // Optimized updates: only refresh the calendar cell
-        loadTasks(eventDateISO); 
-        checkAndShowNotifications();
-        
-        // If the task modal was open on the relevant date, reload its content (optional, but clean)
-        if(selectedDate === eventDateISO) {
-             loadModalTasks(eventDateISO);
-        }
-    }).catch(err => {
-        console.error("Event save error:", err);
-        alert("Failed to save event.");
-    });
-});
-// Force full calendar refresh (useful if date cells aren't updating)
-function refreshCalendarDates(dates) {
-    dates.forEach(date => {
-        loadTasks(date);
-        
-        // If this date is currently selected in the modal, refresh modal too
-        if (selectedDate === date) {
-            loadModalTasks(date);
-        }
-    });
-}
+// --- Load Modal Tasks ---
 function loadModalTasks(date) {
     if (!currentUser) return;
-    selectedDate = date; 
+    selectedDate = date;
     const cont = document.getElementById("existingTasks");
     if (!cont) return;
-
-    // 1. Initial State & Loader
     cont.className = "max-h-[420px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 rounded-2xl border border-gray-200 mx-auto w-full shadow-inner";
-    cont.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12 gap-1">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-            <p class="text-indigo-500 italic text-sm">Syncing schedule...</p>
-        </div>`;
-
+    cont.innerHTML = `<div class="flex flex-col items-center justify-center py-12 gap-1"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div><p class="text-indigo-500 italic text-sm">Syncing schedule...</p></div>`;
+    
     const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
     const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
-
+    
     Promise.all([taskRef.once("value"), eventRef.once("value")]).then(([taskSnap, eventSnap]) => {
-        let allItems = [];
         const tasks = taskSnap.val() || {};
         const events = eventSnap.val() || {};
-
         cont.innerHTML = "";
-
-        Object.entries(tasks).forEach(([id, t]) => {
-            allItems.push({ type: 'task', id, date, ...t });
+        let allItems = [];
+        Object.entries(tasks).forEach(([id, t]) => { allItems.push({ type: 'task', id, date, ...t }); });
+        Object.entries(events).forEach(([id, e]) => { allItems.push({ type: 'event', id, date, ...e }); });
+        
+        allItems.forEach(item => {
+            const isEvent = item.type === 'event';
+            const hasDesc = item.desc && item.desc.trim() !== "";
+            const isRepeating = item.seriesId && isEvent;
+            const div = document.createElement("div");
+            div.className = `flex flex-col p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'}`;
+            
+            const urlRegex = /(https?:\/\/[^\s]+)/gi;
+            const descriptionText = (item.desc || "").trim();
+            const matches = descriptionText.match(urlRegex);
+            let openLinkHtml = "";
+            if (matches && matches.length > 0) {
+                const link = matches[0].replace(/[.,;]$/, "");
+                openLinkHtml = `<div class="mt-3"><a href="${link}" target="_blank" class="flex items-center justify-center gap-2 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm font-bold text-[10px]"><i class="fas fa-external-link-alt"></i> OPEN SAVED LINK</a></div>`;
+            }
+            
+            const upperSection = document.createElement("div");
+            upperSection.className = "grid grid-cols-1 md:grid-cols-[1fr_130px] gap-4 items-start";
+            const contentContainer = document.createElement("div");
+            contentContainer.className = "flex flex-col gap-1 min-w-0";
+            const repeatBadge = isRepeating && !item.isMasterEvent ? `<span class="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full"><i class="fas fa-repeat"></i> Repeating</span>` : '';
+            const masterBadge = item.isMasterEvent ? `<span class="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full"><i class="fas fa-crown"></i> Original</span>` : '';
+            
+            contentContainer.innerHTML = `
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
+                    <strong class="text-xl font-bold text-slate-800 break-words">${item.title}</strong>
+                    ${repeatBadge}${masterBadge}
+                </div>
+                ${isEvent ? `<div class="text-sm font-bold text-emerald-600 ml-8 mb-2">🕒 ${item.time}</div>` : ''}
+                ${hasDesc ? `<div class="ml-8 text-gray-600 text-sm md:text-base break-all whitespace-pre-wrap">${item.desc}</div><div class="ml-8">${openLinkHtml}</div>` : ''}
+            `;
+            
+            const actionsSection = document.createElement("div");
+            actionsSection.className = "flex flex-col gap-2";
+            const editBtn = document.createElement("button");
+            editBtn.innerHTML = `<i class="fa-solid fa-pen"></i> EDIT`;
+            editBtn.className = "h-9 bg-indigo-500 text-white text-[15px] font-bold rounded-lg hover:bg-indigo-600 transition shadow-sm";
+            editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
+            const delBtn = document.createElement("button");
+            delBtn.innerHTML = `<i class="fa-solid fa-trash"></i> DELETE`;
+            delBtn.className = "h-9 bg-pink-600 text-white text-[15px] font-bold rounded-lg hover:bg-red-700 transition shadow-sm";
+            delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
+            actionsSection.appendChild(editBtn);
+            actionsSection.appendChild(delBtn);
+            
+            if (isEvent && !item.seriesId) {
+                const repeatBtn = document.createElement("button");
+                repeatBtn.className = "bg-amber-500 text-white text-[13px] py-2 rounded-lg font-bold w-full";
+                repeatBtn.innerHTML = "<i class='fas fa-repeat'></i> MAKE REPEATING";
+                repeatBtn.onclick = async (e) => {
+                    e.stopPropagation();
+                    const ev = { id: item.id, title: item.title, time: item.time, location: item.location, desc: item.desc, date: item.date };
+                    openRepeatModal(ev, async (repeatEvent) => {
+                        if (!selectedRepeatPreset) return alert("Choose repeat interval first.");
+                        const maxOccurrences = parseInt(document.getElementById('repeatMaxOccurrences')?.value || '10');
+                        let repeatTypeKey = selectedRepeatPreset;
+                        const config = { type: repeatTypeKey, customDaysValue: null, maxOccurrences: maxOccurrences };
+                        if (selectedRepeatPreset.toString().startsWith('custom_')) {
+                            const daysNum = parseInt(selectedRepeatPreset.toString().split('_')[1]);
+                            config.type = `custom_${daysNum}`;
+                            config.customDaysValue = daysNum;
+                        }
+                        await createRecurringEvents(repeatEvent, repeatEvent.date, config);
+                        renderCalendar();
+                        selectedRepeatPreset = null;
+                        closeRepeatModal();
+                    });
+                };
+                actionsSection.appendChild(repeatBtn);
+            }
+            
+            if (isEvent && item.status === EVENT_STATUS.PENDING && !item.isMasterEvent) {
+                const doneBtn = document.createElement("button");
+                doneBtn.className = "bg-emerald-600 text-white text-[15px] h-10 rounded-lg font-bold uppercase w-full";
+                doneBtn.innerHTML = "✓ COMPLETE";
+                doneBtn.onclick = () => updateEventStatus({ date: item.date, id: item.id }, EVENT_STATUS.COMPLETED, true);
+                const failBtn = document.createElement("button");
+                failBtn.className = "bg-rose-600 text-white text-[15px] h-10 rounded-lg font-bold uppercase w-full";
+                failBtn.innerHTML = "✗ INCOMPLETE";
+                failBtn.onclick = () => updateEventStatus({ date: item.date, id: item.id }, EVENT_STATUS.INCOMPLETE, true);
+                actionsSection.appendChild(doneBtn);
+                actionsSection.appendChild(failBtn);
+            }
+            
+            upperSection.appendChild(contentContainer);
+            upperSection.appendChild(actionsSection);
+            div.appendChild(upperSection);
+            cont.appendChild(div);
         });
-        
-        Object.entries(events)
-            .filter(([id, e]) => e.status === EVENT_STATUS.PENDING)
-            .forEach(([id, e]) => {
-                allItems.push({ type: 'event', id, date, ...e });
-            });
-
-       allItems.forEach(item => {
-    const isEvent = item.type === 'event';
-    const hasDesc = item.desc && item.desc.trim() !== "";
-    const div = document.createElement("div");
-    
-    div.className = `flex flex-col p-5 mb-4 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
-        isEvent ? 'border-l-[6px] border-l-emerald-500' : 'border-l-[6px] border-l-indigo-500'
-    }`;
-
-    // --- STRONGER LINK DETECTION ---
-    const urlRegex = /(https?:\/\/[^\s]+)/gi;
-    const descriptionText = (item.desc || "").trim();
-    const matches = descriptionText.match(urlRegex);
-    let openLinkHtml = "";
-
-    if (matches && matches.length > 0) {
-        // Take the first link found
-        const link = matches[0].replace(/[.,;]$/, ""); // Clean trailing punctuation
-        openLinkHtml = `
-            <div class="mt-3">
-                <a href="${link}" target="_blank" 
-                   class="flex items-center justify-center gap-2 w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm font-bold text-[10px]">
-                    <i class="fas fa-external-link-alt"></i> OPEN SAVED LINK
-                </a>
-            </div>`;
-    }
-
-    const upperSection = document.createElement("div");
-    upperSection.className = "grid grid-cols-1 md:grid-cols-[1fr_130px] gap-4 items-start";
-
-    const contentContainer = document.createElement("div");
-    contentContainer.className = "flex flex-col gap-1 min-w-0";
-    
-    contentContainer.innerHTML = `
-        <div class="flex items-center gap-2">
-            <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
-            <strong class="text-xl font-bold text-slate-800 break-words">${item.title}</strong>
-        </div>
-        ${isEvent ? `<div class="text-sm font-bold text-emerald-600 ml-8 mb-2">🕒 ${item.time}</div>` : ''}
-        ${hasDesc ? `
-            <div class="ml-8 text-gray-600 text-sm md:text-base break-all whitespace-pre-wrap">${item.desc}</div>
-            <div class="ml-8">${openLinkHtml}</div>
-        ` : ''}
-    `;
-
-    const actionsSection = document.createElement("div");
-    actionsSection.className = "flex flex-col gap-2";
-    
-    // EDIT
-    const editBtn = document.createElement("button");
-    editBtn.innerHTML = `<i class="fa-solid fa-pen"></i> EDIT`;
-    editBtn.className = "h-9 bg-indigo-500 text-white text-[15px] font-bold rounded-lg hover:bg-indigo-600 transition shadow-sm";
-    editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
-
-    // DELETE
-    const delBtn = document.createElement("button");
-    delBtn.innerHTML = `<i class="fa-solid fa-trash"></i> DELETE`;
-    delBtn.className = "h-9 bg-pink-600 text-white text-[15px] font-bold rounded-lg hover:bg-red-700 transition shadow-sm";
-    delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
-
-    actionsSection.appendChild(editBtn);
-    actionsSection.appendChild(delBtn);
-
-    if (isEvent) {
-        const doneBtn = document.createElement("button");
-        doneBtn.className = "bg-emerald-600 text-white text-[15px] h-14 rounded-lg font-bold uppercase w-full leading-tight";
-        doneBtn.innerHTML = "COMPLETED<br>EVENT";
-        doneBtn.onclick = () => updateEventStatus({ date: item.date, id: item.id }, EVENT_STATUS.COMPLETED, true);
-        
-        const failBtn = document.createElement("button");
-        failBtn.className = "bg-rose-600 text-white text-[15px] h-14 rounded-lg font-bold uppercase w-full leading-tight";
-        failBtn.innerHTML = "INCOMPLETE<br>EVENT";
-        failBtn.onclick = () => updateEventStatus({ date: item.date, id: item.id }, EVENT_STATUS.INCOMPLETE, true);
-
-        actionsSection.appendChild(doneBtn);
-        actionsSection.appendChild(failBtn);
-    }
-
-    upperSection.appendChild(contentContainer);
-    upperSection.appendChild(actionsSection);
-    div.appendChild(upperSection);
-    cont.appendChild(div);
-});
     });
 }
-// --- 3. CRUD Action Helpers ---
+
 function handleEdit(type, id, date) {
     const isEvent = type === 'event';
     db.ref(`users/${currentUser.uid}/${isEvent ? 'events' : 'tasks'}/${date}/${id}`).once('value').then(snap => {
         const item = snap.val();
         if (isEvent) {
             editEventId = id;
+            selectedDate = date;
             document.getElementById("eventTitle").value = item.title;
             document.getElementById("eventDate").value = date;
             document.getElementById("eventTime").value = item.time;
+            document.getElementById("eventLocation").value = item.location || "";
             document.getElementById("eventDesc").value = item.desc || "";
+            document.getElementById("eventModalTitle").textContent = "Edit Event";
             closeModal();
             eventModalElement.classList.remove("hidden");
             overlayElement.classList.remove("hidden");
@@ -1349,927 +1722,342 @@ function handleEdit(type, id, date) {
 
 function handleDelete(type, id, date) {
     if (confirm(`Remove this ${type} permanently?`)) {
-        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
-            .then(() => {
-                loadModalTasks(date);
-                loadTasks(date);
-            });
-    }
-}
-
-function handleDelete(type, id, date) {
-    if (confirm(`Remove this ${type} permanently?`)) {
-        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
-            .then(() => {
-                loadModalTasks(date);
-                loadTasks(date);
-            });
-    }
-}
-/**
- * Permanently deletes an event, typically used from the 24hr prompt modal.
- */
-function cancelEventPermanent(event) {
-    if (!currentUser) return;
-    closeStatusPromptModal();
-    
-    if (confirm(`Are you sure you want to permanently cancel and delete '${event.title}'? This action cannot be undone.`)) {
-        const refPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-        db.ref(refPath).remove().then(() => {
-            alert(`Event '${event.title}' has been permanently cancelled.`);
-            renderCalendar();
-        }).catch(err => {
-            console.error("Cancellation error:", err);
-            alert("Failed to cancel event.");
+        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove().then(() => {
+            loadModalTasks(date);
+            loadTasks(date);
         });
     }
 }
 
+function cancelEventPermanent(event) {
+    if (!currentUser) return;
+    closeStatusPromptModal();
+    if (confirm(`Are you sure you want to permanently cancel and delete '${event.title}'?`)) {
+        db.ref(`users/${currentUser.uid}/events/${event.date}/${event.id}`).remove().then(() => {
+            alert(`Event '${event.title}' has been permanently cancelled.`);
+            renderCalendar();
+        });
+    }
+}
 
-
-
-// --- FIXED: Prompt for status the day AFTER the event date ---
+// --- Event Status Prompt Logic ---
 async function checkAndPromptForEventStatus() {
     if (!currentUser) return;
-    
     try {
         const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
         const allEvents = snapshot.val() || {};
-        
-        eventsToPrompt = []; 
+        eventsToPrompt = [];
         const now = new Date();
-        // Set 'now' to the start of the current day to compare dates easily
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
-                
-                // 1. Create a Date object for the event day
                 const eventDateParts = dateISO.split('-').map(Number);
-                // Create date at 00:00:00 of that day
                 const eventDayObj = new Date(eventDateParts[0], eventDateParts[1] - 1, eventDateParts[2]);
                 const eventDayTime = eventDayObj.getTime();
-
-                // 2. LOGIC: 
-                // We prompt if status is PENDING 
-                // AND Today is strictly GREATER than the Event Date
-                if (event.status === EVENT_STATUS.PENDING && todayStart > eventDayTime) {
+                if (event.status === EVENT_STATUS.PENDING && todayStart > eventDayTime && !event.isMasterEvent) {
                     eventsToPrompt.push({ date: dateISO, id, ...event });
                 }
             });
         });
-
-        if (eventsToPrompt.length > 0) {
-            processNextPendingEvent();
-        }
+        if (eventsToPrompt.length > 0) processNextPendingEvent();
     } catch (error) {
         console.error("Error checking pending events:", error);
     }
 }
 
 function processNextPendingEvent() {
-    if (!eventsToPrompt.length) {
-        closeStatusPromptModal(); 
-        return;
-    }
-    
-    const event = eventsToPrompt[0]; 
-    currentEventForAction = event; 
-
+    if (!eventsToPrompt.length) { closeStatusPromptModal(); return; }
+    const event = eventsToPrompt[0];
+    currentEventForAction = event;
     document.getElementById("eventToPromptTitle").textContent = event.title;
     document.getElementById("eventToPromptDate").textContent = formatDate(event.date);
     document.getElementById("eventToPromptTime").textContent = event.time;
-    
-    // Set listeners for prompt actions
     completeEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.COMPLETED);
     incompleteEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.INCOMPLETE);
     reschedulePromptBtn.onclick = () => openRescheduleModal(event);
     cancelPromptBtn.onclick = () => cancelEventPermanent(event);
-
     overlayElement.classList.remove("hidden");
     statusPromptModal.classList.remove("hidden");
 }
 
-// --- 2. THE CENTRAL UPDATE FUNCTION (Fixed Date/Path Issues) ---
 function updateEventStatus(event, status, calledFromModal = false) {
-    if (!currentUser || !event.date || !event.id) {
-        console.error("Missing Event Data:", event);
-        return;
-    }
-
+    if (!currentUser || !event.date || !event.id) return;
     const eventPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-
-    db.ref(eventPath)
-      .update({ status: status })
-      .then(() => {
-          console.log(`Successfully updated ${event.id} to ${status}`);
-          
-          // ALWAYS refresh the main calendar cell
-          if (typeof loadTasks === "function") loadTasks(event.date);
-
-          if (calledFromModal) {
-              // Refresh the specific day/modal view
-              if (typeof loadModalTasks === "function") loadModalTasks(event.date);
-          } else {
-              // Logic for 24hr Prompt Queue
-              // Only remove from queue if this event is the one being prompted
-              if (eventsToPrompt.length > 0 && eventsToPrompt[0].id === event.id) {
-                  eventsToPrompt.shift();
-                  closeStatusPromptModal();
-                  processNextPendingEvent();
-              }
-              
-              // Refresh Tracking Modal if it is currently visible
-              const isTrackingOpen = !eventTrackingSection.classList.contains('hidden');
-              if (isTrackingOpen) {
-                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") 
-                      ? EVENT_STATUS.INCOMPLETE 
-                      : EVENT_STATUS.COMPLETED;
-                  loadTrackingEvents(currentStatusInView); 
-              }
-          }
-      })
-      .catch(err => {
-          console.error("Update failed:", err);
-          alert("Could not update status. Please try again.");
-      });
+    db.ref(eventPath).update({ status: status }).then(() => {
+        loadTasks(event.date);
+        if (calledFromModal && typeof loadModalTasks === "function") loadModalTasks(event.date);
+        if (eventsToPrompt.length > 0 && eventsToPrompt[0].id === event.id) {
+            eventsToPrompt.shift();
+            closeStatusPromptModal();
+            processNextPendingEvent();
+        }
+        const isTrackingOpen = !eventTrackingSection.classList.contains('hidden');
+        if (isTrackingOpen) {
+            const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") ? EVENT_STATUS.INCOMPLETE : EVENT_STATUS.COMPLETED;
+            loadTrackingEvents(currentStatusInView);
+        }
+    });
 }
+
 function loadTrackingEvents(status) {
     if (!currentUser) return;
-
     trackingEventsList.innerHTML = `<p class="text-center text-indigo-500 italic p-3"><i class="fas fa-spinner fa-spin mr-2"></i> Loading ${status} events...</p>`;
-
     db.ref(`users/${currentUser.uid}/events`).once("value").then(snapshot => {
         const allEvents = snapshot.val() || {};
         let filteredEvents = [];
-
         const now = new Date();
-        
         Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
                 const eventDate = new Date(dateISO);
-                
-                if (event.status === status) {
+                if (event.status === status && !event.isMasterEvent) {
                     let includeEvent = false;
-                    
                     if (status === EVENT_STATUS.INCOMPLETE) {
-                        // INCOMPLETE: Last 1 year AND Next 1 year
-                        const oneYearAgo = new Date();
-                        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-                        oneYearAgo.setHours(0, 0, 0, 0);
-                        
-                        const oneYearLater = new Date();
-                        oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
-                        oneYearLater.setHours(23, 59, 59, 999);
-                        
+                        const oneYearAgo = new Date(); oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1); oneYearAgo.setHours(0, 0, 0, 0);
+                        const oneYearLater = new Date(); oneYearLater.setFullYear(oneYearLater.getFullYear() + 1); oneYearLater.setHours(23, 59, 59, 999);
                         includeEvent = eventDate >= oneYearAgo && eventDate <= oneYearLater;
-                    } 
-                    else if (status === EVENT_STATUS.COMPLETED) {
-                        // COMPLETED: Only last 2 months
-                        const twoMonthsAgo = new Date();
-                        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
-                        twoMonthsAgo.setHours(0, 0, 0, 0);
-                        
+                    } else if (status === EVENT_STATUS.COMPLETED) {
+                        const twoMonthsAgo = new Date(); twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2); twoMonthsAgo.setHours(0, 0, 0, 0);
                         includeEvent = eventDate >= twoMonthsAgo && eventDate <= now;
                     }
-                    
-                    if (includeEvent) {
-                        filteredEvents.push({ date: dateISO, id: id, ...event });
-                    }
+                    if (includeEvent) filteredEvents.push({ date: dateISO, id: id, ...event });
                 }
             });
         });
-
-        // ========== CHANGED SORTING LOGIC ==========
-        if (status === EVENT_STATUS.COMPLETED) {
-            // Completed events: Most recent FIRST (descending order)
-            filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
-        } else {
-            // Incomplete events: Oldest FIRST (ascending order)
-            filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
-        }
-        // ========== END OF CHANGED SORTING ==========
-
+        if (status === EVENT_STATUS.COMPLETED) filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        else filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
         if (filteredEvents.length === 0) {
-            let emptyMessage = status === EVENT_STATUS.INCOMPLETE 
-                ? "No incomplete events found in the last or next year." 
-                : "No completed events found in the last 2 months.";
-            trackingEventsList.innerHTML = `<p class="text-center text-gray-500 italic p-3">${emptyMessage}</p>`;
+            trackingEventsList.innerHTML = `<p class="text-center text-gray-500 italic p-3">No events found.</p>`;
             return;
         }
-
-        trackingEventsList.innerHTML = ''; 
-
+        trackingEventsList.innerHTML = '';
         filteredEvents.forEach(event => {
             const isCompleted = event.status === EVENT_STATUS.COMPLETED;
-            // Background color classes - these will be styled by dark mode CSS
             const bgColor = isCompleted ? 'bg-green-50' : 'bg-red-50';
             const icon = isCompleted ? 'fa-check-circle text-green-700' : 'fa-times-circle text-red-700';
-            const locationText = (event.location && event.location.trim() !== '') ? `📍 ${event.location}` : '📍 No location';
-            
             const formattedFullDate = formatDate(event.date);
-            
-            const linkMatch = (event.desc || "").match(/(https?:\/\/[^\s]+)/);
-            const openLinkHtml = linkMatch ? 
-                `<button onclick="event.stopPropagation(); window.open('${linkMatch[0]}', '_blank')" 
-                         class="mt-2 w-full px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition">
-                    <i class="fas fa-external-link-alt mr-1"></i> OPEN LINK
-                </button>` : '';
-
             const eventDiv = document.createElement("div");
-            eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200 dark:border-gray-700`;
-            
-            let actionButton = '';
-            if (status === EVENT_STATUS.INCOMPLETE) {
-                const safeTitle = event.title.replace(/'/g, "\\'");
-                actionButton = `
-                    <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
-                            class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
-                        <i class="fas fa-check"></i> Mark Complete
-                    </button>
-                `;
-            }
-            
+            eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200`;
             eventDiv.innerHTML = `
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <i class="fas ${icon} text-xl"></i>
-                            <strong class="text-lg font-bold text-gray-800 dark:text-gray-100 break-words">${event.title}</strong>
-                        </div>
-                        <div class="mt-2 space-y-1">
-                            <p class="text-sm text-gray-600 dark:text-gray-300">
-                                <i class="far fa-calendar-alt mr-1"></i> ${formattedFullDate}
-                            </p>
-                            <p class="text-sm text-gray-600 dark:text-gray-300">
-                                <i class="far fa-clock mr-1"></i> ${event.time}
-                            </p>
-                            ${event.location ? `<p class="text-sm text-gray-600 dark:text-gray-300"><i class="fas fa-map-marker-alt mr-1"></i> ${event.location}</p>` : ''}
-                            ${event.desc ? `<p class="text-sm text-gray-700 dark:text-gray-200 mt-2 break-words"><i class="fas fa-align-left mr-1"></i> ${event.desc}</p>` : ''}
-                            ${openLinkHtml}
-                        </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2"><i class="fas ${icon} text-xl"></i><strong class="text-lg font-bold">${event.title}</strong>${event.seriesId ? '<span class="ml-2 text-xs bg-purple-200 px-2 py-0.5 rounded-full"><i class="fas fa-repeat"></i> Repeating</span>' : ''}</div>
+                        <div class="mt-2"><p class="text-sm"><i class="far fa-calendar-alt mr-1"></i> ${formattedFullDate}</p><p class="text-sm"><i class="far fa-clock mr-1"></i> ${event.time}</p>${event.location ? `<p class="text-sm">📍 ${event.location}</p>` : ''}${event.desc ? `<p class="text-sm mt-2">📝 ${event.desc}</p>` : ''}</div>
                     </div>
-                    <div class="flex flex-row md:flex-col gap-2">
-                        ${actionButton}
-                        ${!isCompleted ? `
-                            <button onclick="openRescheduleModalFromTracking({ date: '${event.date}', id: '${event.id}', title: '${event.title.replace(/'/g, "\\'")}', time: '${event.time}' })"
-                                    class="bg-indigo-500 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-600 transition shadow-md whitespace-nowrap font-semibold">
-                                <i class="fas fa-calendar-alt"></i> Reschedule
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
+                </div>`;
             trackingEventsList.appendChild(eventDiv);
         });
-    }).catch(err => {
-        console.error("Error loading tracking events:", err);
-        trackingEventsList.innerHTML = `<p class="text-center text-red-500 italic p-3">Error loading event history.</p>`;
     });
 }
 
-
-
-function openRescheduleModalFromTracking(event) {
-    if (!currentUser) return;
-    
-    // Close tracking modal first
-    closeTrackingModal();
-    
-    // Store event data globally
-    currentEventForAction = {
-        date: event.date,
-        id: event.id,
-        title: event.title,
-        time: event.time
-    };
-    
-    document.getElementById("rescheduleEventTitle").textContent = event.title;
-    document.getElementById("rescheduleDate").value = event.date;
-    document.getElementById("rescheduleTime").value = event.time;
-    
-    overlayElement.classList.remove("hidden");
-    rescheduleModal.classList.remove("hidden");
-}
-
-// ============================================
-// REPLACE THE confirmRescheduleBtn EVENT LISTENER
-// ============================================
-// Find this in your code and replace with:
-document.getElementById("confirmRescheduleBtn").addEventListener('click', () => {
-    if (!currentEventForAction) return alert("Error: No event selected.");
-
-    const newDate = document.getElementById("rescheduleDate").value;
-    const newTime = document.getElementById("rescheduleTime").value;
-
-    if (!newDate || !newTime) return alert("Please select a new date and time.");
-
-    rescheduleEvent(currentEventForAction, newDate, newTime);
-});
-
-// ============================================
-// ADD THIS NEW FUNCTION FOR RESCHEDULING
-// ============================================
-// Main reschedule function - FIXED to refresh both old and new dates
 function rescheduleEvent(event, newDate, newTime) {
-    if (!currentUser || !event.id) {
-        alert("Invalid event data.");
-        return;
-    }
-    
+    if (!currentUser || !event.id) return alert("Invalid event data.");
     const oldDate = event.date;
     const eventPath = `users/${currentUser.uid}/events/${oldDate}/${event.id}`;
-    
-    // Show loading indicator
-    const confirmBtn = document.getElementById("confirmRescheduleBtn");
-    const originalText = confirmBtn ? confirmBtn.textContent : "Confirm";
-    if (confirmBtn) {
-        confirmBtn.textContent = "⏳ Processing...";
-        confirmBtn.disabled = true;
-    }
-    
-    // First, get the existing event data
     db.ref(eventPath).once("value").then(snapshot => {
         const eventData = snapshot.val();
-        if (!eventData) {
-            alert("Event not found. It may have been deleted.");
-            if (confirmBtn) {
-                confirmBtn.textContent = originalText;
-                confirmBtn.disabled = false;
-            }
-            return;
-        }
-        
-        // Create new timestamp
+        if (!eventData) return alert("Event not found.");
         const newTimestamp = new Date(`${newDate}T${newTime}:00`).getTime();
-        
-        // Update the event with new date and time
-        const updatedEvent = {
-            title: eventData.title,
-            time: newTime,
-            location: eventData.location || "",
-            desc: eventData.desc || "",
-            timestamp: newTimestamp,
-            savedTimestamp: eventData.savedTimestamp || new Date().getTime(),
-            status: eventData.status || EVENT_STATUS.PENDING,
-            lastRescheduled: new Date().getTime()
-        };
-        
-        // If date changed, move to new location
+        const updatedEvent = { ...eventData, time: newTime, timestamp: newTimestamp, lastRescheduled: new Date().getTime() };
         if (oldDate !== newDate) {
-            // Delete from old location
             db.ref(eventPath).remove().then(() => {
-                // Add to new location with same ID
-                const newRef = db.ref(`users/${currentUser.uid}/events/${newDate}/${event.id}`);
-                newRef.set(updatedEvent).then(() => {
-                    alert(`✅ "${event.title}" rescheduled to ${formatDate(newDate)} at ${newTime}`);
+                db.ref(`users/${currentUser.uid}/events/${newDate}/${event.id}`).set(updatedEvent).then(() => {
+                    alert(`✅ Event rescheduled to ${formatDate(newDate)} at ${newTime}`);
                     closeRescheduleModal();
-                    
-                    // IMPORTANT: Refresh BOTH old and new dates in calendar
-                    loadTasks(oldDate);  // Remove from old date cell
-                    loadTasks(newDate);  // Add to new date cell
-                    
-                    // Also refresh the calendar display for both dates
-                    const oldDateCell = document.getElementById(`tasks-${oldDate}`);
-                    const newDateCell = document.getElementById(`tasks-${newDate}`);
-                    if (oldDateCell) {
-                        // Force refresh of old date cell
-                        loadTasks(oldDate);
-                    }
-                    if (newDateCell) {
-                        // Force refresh of new date cell
-                        loadTasks(newDate);
-                    }
-                    
-                    // If modal is open for either date, refresh it
-                    if (selectedDate === oldDate || selectedDate === newDate) {
-                        loadModalTasks(selectedDate);
-                    }
-                    
-                    // Refresh tracking modal if it was open
-                    const trackingModal = document.getElementById("eventTrackingSection");
-                    if (trackingModal && !trackingModal.classList.contains('hidden')) {
-                        const titleElement = document.getElementById("trackingModalTitle");
-                        const currentStatus = titleElement && titleElement.textContent.includes("Incomplete") 
-                            ? EVENT_STATUS.INCOMPLETE 
-                            : EVENT_STATUS.COMPLETED;
-                        loadTrackingEvents(currentStatus);
-                    }
-                    
-                    if (confirmBtn) {
-                        confirmBtn.textContent = originalText;
-                        confirmBtn.disabled = false;
-                    }
-                }).catch(err => {
-                    alert("❌ Failed to reschedule: " + err.message);
-                    if (confirmBtn) {
-                        confirmBtn.textContent = originalText;
-                        confirmBtn.disabled = false;
-                    }
+                    loadTasks(oldDate);
+                    loadTasks(newDate);
+                    if (selectedDate === oldDate || selectedDate === newDate) loadModalTasks(selectedDate);
                 });
-            }).catch(err => {
-                alert("❌ Failed to remove from old date: " + err.message);
-                if (confirmBtn) {
-                    confirmBtn.textContent = originalText;
-                    confirmBtn.disabled = false;
-                }
             });
         } else {
-            // Same date, just update time
-            db.ref(eventPath).update({
-                time: newTime,
-                timestamp: newTimestamp,
-                lastRescheduled: new Date().getTime()
-            }).then(() => {
-                alert(`✅ "${event.title}" time updated to ${newTime}`);
+            db.ref(eventPath).update({ time: newTime, timestamp: newTimestamp }).then(() => {
+                alert(`✅ Time updated to ${newTime}`);
                 closeRescheduleModal();
-                
-                // Refresh the calendar cell for this date
                 loadTasks(oldDate);
-                
-                // If modal is open for this date, refresh it
-                if (selectedDate === oldDate) {
-                    loadModalTasks(oldDate);
-                }
-                
-                // Refresh tracking modal if it was open
-                const trackingModal = document.getElementById("eventTrackingSection");
-                if (trackingModal && !trackingModal.classList.contains('hidden')) {
-                    const titleElement = document.getElementById("trackingModalTitle");
-                    const currentStatus = titleElement && titleElement.textContent.includes("Incomplete") 
-                        ? EVENT_STATUS.INCOMPLETE 
-                        : EVENT_STATUS.COMPLETED;
-                    loadTrackingEvents(currentStatus);
-                }
-                
-                if (confirmBtn) {
-                    confirmBtn.textContent = originalText;
-                    confirmBtn.disabled = false;
-                }
-            }).catch(err => {
-                alert("❌ Failed to update time: " + err.message);
-                if (confirmBtn) {
-                    confirmBtn.textContent = originalText;
-                    confirmBtn.disabled = false;
-                }
+                if (selectedDate === oldDate) loadModalTasks(oldDate);
             });
-        }
-    }).catch(err => {
-        console.error("Error fetching event:", err);
-        alert("❌ Error fetching event data: " + err.message);
-        if (confirmBtn) {
-            confirmBtn.textContent = originalText;
-            confirmBtn.disabled = false;
         }
     });
 }
 
-// ============================================
-// ADD THIS FUNCTION TO CLOSE RESCHEDULE MODAL
-// ============================================
-function closeRescheduleModal() {
-    const rescheduleModalElem = document.getElementById("rescheduleModal");
-    if (rescheduleModalElem) {
-        rescheduleModalElem.classList.add("hidden");
-    }
-    // Don't hide overlay if other modals are open
-    const anyModalOpen = !taskModalElement.classList.contains('hidden') ||
-                        !eventModalElement.classList.contains('hidden') ||
-                        !statusPromptModal.classList.contains('hidden') ||
-                        !eventTrackingSection.classList.contains('hidden');
-    
-    if (!anyModalOpen) {
-        overlayElement.classList.add("hidden");
-    }
-    currentEventForAction = null;
-}
-
-// ============================================
-// ATTACH CLOSE RESCHEDULE MODAL EVENT LISTENER
-// ============================================
-// Add this to your DOMContentLoaded or after elements are defined
-const closeRescheduleModalBtn = document.getElementById("closeRescheduleModal");
-if (closeRescheduleModalBtn) {
-    closeRescheduleModalBtn.addEventListener("click", closeRescheduleModal);
-}
-
-
-// ============================================
-// UPDATE openTrackingModal FUNCTION (optional - for clarity)
-// ============================================
-// Replace your existing openTrackingModal with this if needed
-function openTrackingModal(status) {
-    if (!currentUser) return alert("Please sign in.");
-    closeModal();
-    closeEventModal();
-    closeStatusPromptModal();
-
-    const titleText = status === EVENT_STATUS.COMPLETED 
-        ? "✅ Completed Events (Last 2 Months Only)" 
-        : "⏳ Incomplete Events (Last & Next Year)";
-    
-    trackingModalTitle.textContent = titleText;
-
-    overlayElement.classList.remove("hidden");
-    eventTrackingSection.classList.remove("hidden");
-
-    loadTrackingEvents(status);
-}
-
-// --- Notification Logic Fixes (Timezone and Location) ---
-
+// --- Notification Logic ---
 function requestNotificationPermission() {
-    if (!("Notification" in window)) {
-        console.warn("Browser does not support desktop notification");
-        return;
-    }
-    
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-            } else {
-                console.log("Notification permission denied.");
-            }
-        });
-    }
+    if (!("Notification" in window)) return;
+    if (Notification.permission !== "granted") Notification.requestPermission();
 }
 
-/**
- * Checks for pending events and triggers system notifications.
- * Uses a more robust checking logic and cleaner formatting.
- */
 async function checkAndShowNotifications() {
-    // 1. Early exits for permissions and auth
     if (!currentUser || Notification.permission !== "granted") return;
-
     try {
         const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
         const allEvents = snapshot.val();
         if (!allEvents) return;
-
         const now = Date.now();
-        
-        // Use flatMap or nested forEach to process events
         Object.entries(allEvents).forEach(([date, dayEvents]) => {
             Object.entries(dayEvents).forEach(([id, event]) => {
-                
-                // Logic Guard: Only process PENDING events
-                if (event.status !== EVENT_STATUS.PENDING) return;
-
-                const eventTimestamp = event.timestamp; 
-                
-                // Timing Window: Event is within the past 12 hours (tolerance) up until 'now'
+                if (event.status !== EVENT_STATUS.PENDING || event.isMasterEvent) return;
+                const eventTimestamp = event.timestamp;
                 const isWithinWindow = eventTimestamp > (now - NOTIFICATION_TOLERANCE_MS) && eventTimestamp <= now;
-
                 if (eventTimestamp && isWithinWindow) {
-                    sendProfessionalNotification(date, id, event);
+                    const title = event.title?.toUpperCase() || "EVENT REMINDER";
+                    const body = `⏰ Time: ${event.time || 'Not specified'}\n📍 Location: ${event.location || 'No location'}`;
+                    new Notification(title, { body });
                 }
             });
         });
-    } catch (err) {
-        console.error("Critical: Notification sync failed", err);
-    }
+    } catch (err) { console.error("Notification sync failed", err); }
 }
 
-/**
- * Helper to handle the UI/UX of the notification itself
- */
-/**
- * Triggers a professionally formatted system notification
- */
-function sendProfessionalNotification(date, id, event) {
-    // Header for the body content
-    const header = "EVENT DETAILS";
-    const divider = "───────────────────";
-    
-    // Formatting the content with clean labels and spacing
-    const timeEntry = `⏰ Time:     ${event.time || 'Not specified'}`;
-    const locEntry  = event.location?.trim() ? `📍 Location: ${event.location}` : '';
-    const descEntry = `📝 Note:     ${event.desc || 'No details provided'}`;
-
-    // Construct the body: Only include location if it exists
-    const bodyContent = [
-        header,
-        divider,
-        timeEntry,
-        locEntry,
-        descEntry
-    ].filter(line => line !== '').join('\n');
-
-    const options = {
-        body: bodyContent,
-        // Using a high-quality local asset for a native app feel
-        icon: '/assets/img/calendar-notification-icon.png', 
-        badge: '/assets/img/badge-icon.png', 
-        tag: `event-${date}-${id}`,
-        vibrate: [200, 100, 200],
-        requireInteraction: false // Automatically hides after a few seconds
-    };
-
-    const title = event.title?.toUpperCase() || "EVENT REMINDER";
-
-    try {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
-        } else {
-            new Notification(title, options);
-        }
-    } catch (e) {
-        console.error("Notification UI Error:", e);
-    }
-}
-// --- Search Functions (OPTIMIZED: Instant response) ---
+// --- Search Functions ---
 let debounceTimeout;
-let isSearchInputFocused = false; 
+let isSearchInputFocused = false;
 
 function closeSearchView() {
     isSearchInputFocused = false;
     body.classList.remove("search-active");
     searchResults.innerHTML = "";
-    if (downloadButton) downloadButton.style.display = 'block'; 
+    if (downloadButton) downloadButton.style.display = 'block';
     if (searchTimeframe) searchTimeframe.style.display = 'block';
-    searchOverlayBackground.style.display = 'none'; 
-    document.body.style.overflow = 'auto'; 
+    searchOverlayBackground.style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
 
 function searchTasks(isFocusEvent = false) {
     const query = searchInput.value.toLowerCase().trim();
     const timeframe = searchTimeframe.value;
-    
-    // 1. Instant UI Preparation
-    if (!query) {
-        closeSearchView();
-        return; 
-    }
-    
+    if (!query) { closeSearchView(); return; }
     body.classList.add("search-active");
-    searchOverlayBackground.style.display = 'block'; 
+    searchOverlayBackground.style.display = 'block';
     if (downloadButton) downloadButton.style.display = 'none';
     document.body.style.overflow = 'hidden';
-
-    // 2. Clear previous timer
     clearTimeout(debounceTimeout);
-    
-    // 3. Instant feedback if results panel is not already there
     if (!searchResults.querySelector('.search-results-panel')) {
-        searchResults.innerHTML = `
-            <div class="search-results-panel">
-                 <p class='p-3 text-center text-indigo-500 font-semibold'>
-                     <i class="fas fa-spinner fa-spin mr-2"></i> Searching...
-                 </p>
-            </div>`;
+        searchResults.innerHTML = `<div class="search-results-panel"><p class='p-3 text-center text-indigo-500 font-semibold'><i class="fas fa-spinner fa-spin mr-2"></i> Searching...</p></div>`;
     }
-
-    // 4. Set the actual search logic (Shortened delay for snappier feel)
-    // If it's a focus event, we run it even faster
-    const delay = isFocusEvent ? 0 : 200; 
-
+    const delay = isFocusEvent ? 0 : 200;
     debounceTimeout = setTimeout(() => {
         const user = firebase.auth().currentUser;
         if (!user) return;
-
-        // Fetching data
         const taskPromise = db.ref(`users/${user.uid}/tasks`).once("value");
         const eventPromise = db.ref(`users/${user.uid}/events`).once("value");
-
         Promise.all([taskPromise, eventPromise]).then(([taskSnapshot, eventSnapshot]) => {
-            if (!searchInput.value.trim()) return; // User cleared search while loading
-
+            if (!searchInput.value.trim()) return;
             const allTasks = taskSnapshot.val() || {};
             const allEvents = eventSnapshot.val() || {};
             const combinedData = {};
-            
             const processData = (sourceData, typePrefix) => {
                 Object.entries(sourceData).forEach(([date, dayItems]) => {
                     if (!combinedData[date]) combinedData[date] = {};
-                    Object.entries(dayItems).forEach(([id, item]) => {
-                        combinedData[date][`${typePrefix}-${id}`] = item;
-                    });
+                    Object.entries(dayItems).forEach(([id, item]) => { combinedData[date][`${typePrefix}-${id}`] = item; });
                 });
             };
-
             processData(allTasks, 'task');
             processData(allEvents, 'event');
-
             let cutoffDate = null;
-            if (timeframe === '1year') {
-                cutoffDate = new Date();
-                cutoffDate.setUTCFullYear(cutoffDate.getUTCFullYear() - 1);
-            }
-
+            if (timeframe === '1year') { cutoffDate = new Date(); cutoffDate.setUTCFullYear(cutoffDate.getUTCFullYear() - 1); }
             let found = 0;
             const addedItems = new Set();
             const listContainer = document.createElement("div");
             listContainer.className = "search-results-panel custom-scroll";
-            
-            // Header for Mobile
-            listContainer.innerHTML = `
-                <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden">
-                    <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                    <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-                </div>`;
-
+            listContainer.innerHTML = `<div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200 md:hidden"><h3 class="text-lg font-bold text-gray-700">Search Results</h3><button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button></div>`;
             const sortedDates = Object.keys(combinedData).sort((a, b) => new Date(b) - new Date(a));
-
             sortedDates.forEach(date => {
                 if (cutoffDate && new Date(date) < cutoffDate) return;
-
                 Object.entries(combinedData[date]).forEach(([prefixedId, item]) => {
                     const title = (item.title || "").toLowerCase();
                     const desc = (item.desc || "").toLowerCase();
-                    const queryLower = query.toLowerCase();
-
-                    if ((title.includes(queryLower) || desc.includes(queryLower)) && !addedItems.has(`${date}-${prefixedId}`)) {
+                    if ((title.includes(query) || desc.includes(query)) && !addedItems.has(`${date}-${prefixedId}`)) {
                         addedItems.add(`${date}-${prefixedId}`);
                         found++;
-                        
-                        const isEvent = prefixedId.startsWith('event-'); 
+                        const isEvent = prefixedId.startsWith('event-');
                         let iconClass = isEvent ? 'fa-bell text-emerald-600' : 'fa-list-check text-indigo-600';
-                        if (isEvent && item.status === EVENT_STATUS.COMPLETED) iconClass = 'fa-check-circle text-green-600';
-                        if (isEvent && item.status === EVENT_STATUS.INCOMPLETE) iconClass = 'fa-times-circle text-red-600';
-                        
-                      const formattedDate = formatDate(date).split('(')[0].trim();
-
-// --- START NEW LINK DETECTION LOGIC ---
-const linkMatch = (item.desc || "").match(/(https?:\/\/[^\s]+)/);
-const searchOpenBtn = linkMatch ? 
-    `<button onclick="event.stopPropagation(); window.open('${linkMatch[0]}', '_blank')" 
-             class="ml-3 px-3 py-1 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-600 hover:text-white transition text-xs font-bold shadow-sm">
-        <i class="fas fa-external-link-alt mr-1"></i> OPEN
-    </button>` : '';
-// --- END NEW LINK DETECTION LOGIC ---
-
-const itemDiv = document.createElement("div");
-itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50`; 
-itemDiv.innerHTML = `
-    <div class="flex justify-between items-center">
-        <strong class="text-base font-bold text-gray-800 md:text-xl flex items-center">
-            <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'} 
-            ${searchOpenBtn}
-        </strong>
-        <span class="text-sm text-gray-600">${formattedDate}</span>
-    </div>
-    <div class="mt-0.5 truncate text-sm text-gray-500 md:text-base">${item.desc || 'No Description'}</div>
-`;
-
-                        itemDiv.onclick = () => {
-                            closeSearchView(); 
-                            openModal(date); 
-                        };
+                        const formattedDate = formatDate(date).split('(')[0].trim();
+                        const repeatBadge = item.seriesId ? '<span class="ml-1 text-xs bg-purple-100 px-1 rounded">🔄</span>' : '';
+                        const itemDiv = document.createElement("div");
+                        itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50 p-4 rounded-xl mb-3 border`;
+                        itemDiv.innerHTML = `<div class="flex justify-between items-center flex-wrap gap-2"><strong class="text-base font-bold flex items-center"><i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'}${repeatBadge}</strong><span class="text-sm text-gray-600">${formattedDate}</span></div><div class="mt-0.5 truncate text-sm text-gray-500">${item.desc || 'No Description'}</div>`;
+                        itemDiv.onclick = () => { closeSearchView(); openModal(date); };
                         listContainer.appendChild(itemDiv);
                     }
                 });
             });
-
-            // INSTANT SWAP: Remove loader and show results immediately
             searchResults.innerHTML = '';
-            if (found > 0) {
-                searchResults.appendChild(listContainer);
-            } else {
-                searchResults.innerHTML = `
-                    <div class='search-results-panel'>
-                        <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No matching data found.</p>
-                    </div>`;
-            }
+            if (found > 0) searchResults.appendChild(listContainer);
+            else searchResults.innerHTML = `<div class='search-results-panel'><p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No matching data found.</p></div>`;
         });
     }, delay);
 }
 
-// Event Listeners for Instant Trigger
 if (searchInput) {
-    searchInput.addEventListener("focus", () => {
-        isSearchInputFocused = true;
-        searchTasks(true); // Pass true for instant 0ms delay
-    }); 
-    
-    searchInput.addEventListener("input", () => searchTasks(false)); 
+    searchInput.addEventListener("focus", () => { isSearchInputFocused = true; searchTasks(true); });
+    searchInput.addEventListener("input", () => searchTasks(false));
     searchTimeframe.addEventListener("change", () => searchTasks(true));
-
-    searchInput.addEventListener("blur", () => {
-        isSearchInputFocused = false;
-        setTimeout(() => {
-            if (searchInput.value.trim() === "") closeSearchView();
-        }, 200);
-    }); 
+    searchInput.addEventListener("blur", () => { isSearchInputFocused = false; setTimeout(() => { if (searchInput.value.trim() === "") closeSearchView(); }, 200); });
 }
-// --- 1. CORRECTED DELETE LOGIC (Place this inside loadModalTasks loop) ---
-dBtn.onclick = () => {
-    const isEvent = (item.type === 'event');
-    const path = isEvent ? 'events' : 'tasks';
-    // itemId and itemDate must be correctly captured from the current loop iteration
-    const targetRef = db.ref(`users/${currentUser.uid}/${path}/${itemDate}/${itemId}`);
 
-    if (confirm(`Are you sure you want to delete this ${item.type}?`)) {
-        targetRef.remove()
-            .then(() => {
-                // Success: Refresh the specific calendar cell and the current modal
-                loadTasks(itemDate);
-                loadModalTasks(itemDate);
-                console.log(`${item.type} deleted successfully`);
-            })
-            .catch(err => {
-                console.error("Delete failed:", err);
-                alert("Could not delete item. Check Firebase permissions.");
-            });
+// --- Event Listeners ---
+if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+if (cancelTaskBtn) cancelTaskBtn.addEventListener("click", closeModal);
+if (closeEventModalBtn) closeEventModalBtn.addEventListener("click", closeEventModal);
+if (cancelEventBtn) cancelEventBtn.addEventListener("click", closeEventModal);
+if (openEventModalBtn) openEventModalBtn.addEventListener("click", () => openEventModal(toISODate(currentDate)));
+if (closeStatusPromptModalBtn) closeStatusPromptModalBtn.addEventListener("click", closeStatusPromptModal);
+if (closeTrackingModalBtn) closeTrackingModalBtn.addEventListener("click", closeTrackingModal);
+if (searchOverlayBackground) searchOverlayBackground.addEventListener("click", closeSearchView);
+
+const confirmRescheduleBtn = document.getElementById("confirmRescheduleBtn");
+if (confirmRescheduleBtn) {
+    confirmRescheduleBtn.addEventListener('click', () => {
+        if (!currentEventForAction) return alert("Error: No event selected.");
+        const newDate = document.getElementById("rescheduleDate").value;
+        const newTime = document.getElementById("rescheduleTime").value;
+        if (!newDate || !newTime) return alert("Please select a new date and time.");
+        rescheduleEvent(currentEventForAction, newDate, newTime);
+    });
+}
+
+const closeRescheduleModalBtn = document.getElementById("closeRescheduleModal");
+if (closeRescheduleModalBtn) closeRescheduleModalBtn.addEventListener("click", closeRescheduleModal);
+
+document.addEventListener('click', (e) => {
+    if (e.target.id === 'confirmRepeatBtn' && currentEventForRepeat && repeatCallback) {
+        repeatCallback(currentEventForRepeat);
+        closeRepeatModal();
     }
-};
-
-// --- 2. CORRECTED EDIT LOGIC (Place this inside loadModalTasks loop) ---
-e.onclick = () => {
-    if (isEvent) {
-        editEventId = itemId; // Critical: Store the ID for the save function
-        selectedDate = itemDate;
-
-        // Populate the Event Modal fields
-        document.getElementById("eventTitle").value = item.title;
-        document.getElementById("eventDate").value = itemDate;
-        document.getElementById("eventTime").value = item.time;
-        document.getElementById("eventLocation").value = item.location || "";
-        document.getElementById("eventDesc").value = item.desc || "";
-        document.getElementById("eventModalTitle").textContent = "Edit Event";
-
-        // Switch Modals
-        taskModalElement.classList.add("hidden");
-        eventModalElement.classList.remove("hidden");
-        overlayElement.classList.remove("hidden");
-    } else {
-        // Standard Task Edit Logic
-        editTaskId = itemId;
-        document.getElementById("taskTitle").value = item.title;
-        document.getElementById("taskDesc").value = item.desc || "";
-    }
-};
-
-// --- 3. CORRECTED SAVE EVENT LOGIC (Update your saveEventBtn listener) ---
-document.getElementById("saveEventBtn").addEventListener("click", () => {
-    if (!currentUser) return;
-
-    let title = document.getElementById("eventTitle").value.trim();
-    const date = document.getElementById("eventDate").value;
-    const time = document.getElementById("eventTime").value;
-
-    if (!title || !date || !time) return alert("Please fill in Title, Date, and Time.");
-
-    // Determine if we are updating an existing entry or pushing a new one
-    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
-    const finalRef = editEventId ? eventRef.child(editEventId) : eventRef.push();
-
-    const eventData = {
-        title: capitalizeFirstLetter(title),
-        time: time,
-        location: capitalizeFirstLetter(document.getElementById("eventLocation").value),
-        desc: capitalizeFirstLetter(document.getElementById("eventDesc").value),
-        timestamp: new Date(`${date}T${time}:00`).getTime(),
-        savedTimestamp: new Date().getTime(),
-        status: EVENT_STATUS.PENDING
-    };
-
-    // .set() will overwrite the existing data if editEventId is present
-    finalRef.set(eventData)
-        .then(() => {
-            editEventId = null; // Reset edit state
-            closeEventModal();
-            loadTasks(date);
-            // Re-open task modal if the user was originally looking at that date
-            if (selectedDate === date) openModal(date); 
-        })
-        .catch(err => alert("Save failed: " + err.message));
 });
 
-
-</script>
-
-
-
-
-
-
-<script>
+// --- Theme ---
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('theme-toggle-btn');
     const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
+    if (icon) icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    if (btn) {
+        btn.addEventListener('click', () => {
+            let currentTheme = document.documentElement.getAttribute('data-theme');
+            let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            if (icon) icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        });
+    }
 });
+
+// Make functions globally available
+window.showAllRepeatingEvents = showAllRepeatingEvents;
+window.deleteEntireSeries = deleteEntireSeries;
+window.deleteSingleRecurringEvent = deleteSingleRecurringEvent;
+window.viewSeriesDetails = viewSeriesDetails;
+window.closeRepeatingEventsModal = closeRepeatingEventsModal;
+window.closeSeriesDetailsModal = closeSeriesDetailsModal;
+window.updateEventStatus = updateEventStatus;
+window.closeSearchView = closeSearchView;
+window.changeMonth = changeMonth;
+window.openTrackingModal = openTrackingModal;
+window.logout = logout;
+window.selectRepeatPreset = selectRepeatPreset;
+window.applyCustomDaysRepeat = applyCustomDaysRepeat;
+window.closeRepeatModal = closeRepeatModal;
 </script>
       <button id="theme-toggle-btn">
     <span id="theme-icon">🌙</span>
@@ -2871,9 +2659,107 @@ document.addEventListener('DOMContentLoaded', () => {
     color: #1562c7 !important; /* Light gray/blue for icons */
     font-size: larger;
 }
+/* Dark Mode Fixes */
+[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+/* Calendar */
+[data-theme="dark"] .calendar-cell {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .calendar-cell.today {
+    background-color: #2d3a5e;
+    border-color: #facc15;
+}
+
+/* Search Overlay */
+[data-theme="dark"] #fullscreenSearchOverlay {
+    background-color: #0f172a;
+}
+
+[data-theme="dark"] #fullscreenSearchOverlay .sticky {
+    background-color: #1e293b;
+    border-bottom-color: #334155;
+}
+
+[data-theme="dark"] #fullscreenSearchOverlay input {
+    color: #f1f5f9;
+}
+
+[data-theme="dark"] #fullscreenSearchOverlay input::placeholder {
+    color: #64748b;
+}
+
+[data-theme="dark"] #fullscreenSearchTimeframe {
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+
+/* Search Results */
+[data-theme="dark"] .search-result-card {
+    background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .search-result-card .text-gray-800 {
+    color: #f1f5f9;
+}
+
+/* Specific fix for Date and Time inputs in Dark Mode */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] .modern-input-group input {
+    color: whitesmoke !important; /* Forces text to white */
+    background-color: #33e30b !important; /* <--- THIS IS THE PROBLEM */
+    color-scheme: dark; 
+    font-size: larger;
+    font-weight:600;
+}
+/* =========================================================
+   FIX: High-Contrast Input Fields for Date & Time in Dark Mode
+   ========================================================= */
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] .modern-input-group {
+    background-color: #0f172a !important; /* Deep Navy background for clean contrast */
+    border: 1px solid #3882f6 !important;  /* High-visibility blue border */
+    border-radius: 0.5rem;
+}
+
+[data-theme="dark"] input[type="date"],
+[data-theme="dark"] input[type="time"],
+[data-theme="dark"] .modern-input-group input {
+    color: #ffffff !important;            /* Clean, pure white text */
+    background-color: transparent !important; 
+    color-scheme: dark;                   /* Forces native browser picker panel into dark mode */
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Fix for the internal browser calendar and clock icons */
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="dark"] input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(1.5);    /* Converts black icon to highly visible white/gray */
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+/* Fix for FontAwesome side icons next to date/time inputs */
+[data-theme="dark"] .modern-input-group i {
+    color: #60a5fa !important;            /* Clear, bright blue icon tone */
+    font-size: 1.2rem;
+    align-self: center;
+}
 </style>      
 </style>
-
 
 
 
