@@ -194,9 +194,6 @@
         }
     </style>
 </head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <body class="bg-gray-50 text-gray-900">
 
     <div class="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-10 pt-5 pb-16">
@@ -216,7 +213,7 @@
             </button>
         </div>
         
-        <!-- VIEW DATA FOR Container - Just below SAVIG page name (mobile and desktop) -->
+        <!-- VIEW DATA FOR Container -->
         <div class="glass-panel p-4 sm:p-5 mb-5">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div class="w-full sm:w-auto flex-1">
@@ -237,10 +234,9 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-7">
-            <!-- LEFT FORM - Collapsible on mobile, always closed by default -->
+            <!-- LEFT FORM -->
             <div class="lg:col-span-5">
                 <div class="glass-panel p-4 sm:p-5 md:p-6">
-                    <!-- Collapsible header - only shows on mobile -->
                     <div class="form-collapsible-header flex justify-between items-center lg:cursor-default" onclick="toggleMobileForm()">
                         <div class="flex items-center gap-2">
                             <div class="w-1 h-5 bg-gold rounded-full"></div>
@@ -274,6 +270,8 @@
                                     <div data-cat="Part Replacement" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-microchip text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">🔧 PART</span></div>
                                     <div data-cat="Servicing" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-wrench text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">🛠️ SERVICE</span></div>
                                     <div data-cat="Modification" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-microphone text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">✨ MOD</span></div>
+                                    <!-- NEW TYRE/AIR OPTION -->
+                                    <div data-cat="Tyre/Air" class="expense-option glass-panel p-2.5 sm:p-3 text-center cursor-pointer"><i class="fa fa-circle text-gold text-lg sm:text-xl mb-1 block"></i><span class="text-[11px] sm:text-sm font-bold">🛞 TYRE/AIR</span></div>
                                 </div>
                                 <input type="hidden" id="category" value="">
                             </div>
@@ -296,27 +294,27 @@
 
             <!-- RIGHT PANEL - Expenses List -->
             <div class="lg:col-span-7 space-y-4">
-                <!-- TOTAL EXPENDITURE CARD -->
                 <div id="totalExpenditureCard" class="glass-panel total-exp-card hidden">
                     <div class="flex justify-between items-center">
                         <div>
                             <p class="text-[9px] sm:text-[10px] uppercase font-bold text-gold tracking-wide">Total Expenditure</p>
-                            <p id="totalExpenditureAmount" class="text-2xl sm:text-3xl font-black gradient-gold-text">₹0</p>
+                            <p id="totalExpenditureAmount" class="text-2xl sm:text-3xl font-black">₹0</p>
                         </div>
                         <i class="fa fa-chart-line text-gold/40 text-2xl sm:text-3xl"></i>
                     </div>
                 </div>
                 
-                <div class="glass-panel p-3 sm:p-4">
-                    <label class="input-label text-xs">FILTER</label>
-                    <div class="flex flex-wrap gap-2 sm:gap-3">
-                        <button data-filter="all" class="filter-chip active px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gold text-white">ALL</button>
-                        <button data-filter="Petrol" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 dark:bg-gray-800">⛽ PETROL</button>
-                        <button data-filter="Part Replacement" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">🔧 PART</button>
-                        <button data-filter="Servicing" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">🛠️ SERVICE</button>
-                        <button data-filter="Modification" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold">✨ MOD</button>
-                    </div>
-                </div>
+             <div class="glass-panel p-3 sm:p-4">
+    <label class="input-label text-xs">FILTER</label>
+    <div class="flex flex-wrap gap-2 sm:gap-3">
+        <button data-filter="all" class="filter-chip active px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gold text-white">ALL</button>
+        <button data-filter="Petrol" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">⛽ PETROL</button>
+        <button data-filter="Part Replacement" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">🔧 PART</button>
+        <button data-filter="Servicing" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">🛠️ SERVICE</button>
+        <button data-filter="Modification" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">✨ MOD</button>
+        <button data-filter="Tyre/Air" class="filter-chip px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">🛞 TYRE/AIR</button>
+    </div>
+</div>
 
                 <div class="glass-panel p-3 sm:p-4 flex items-center gap-2 flex-wrap">
                     <i class="fa fa-search text-gray-400 text-sm sm:text-base"></i>
@@ -337,11 +335,11 @@
         <div class="modal-content glass-panel p-4 sm:p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-base sm:text-xl font-black flex gap-2 items-center"><i class="fa fa-chart-pie text-gold"></i><span id="modalVehicleName" class="truncate">History</span></h2>
-               <button onclick="closeHistoryModal()" class="w-12 h-12 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-all active:scale-90">
-    <i class="fa fa-times text-gray-500 text-2xl"></i>
-</button>
+                <button onclick="closeHistoryModal()" class="w-12 h-12 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-all active:scale-90">
+                    <i class="fa fa-times text-gray-500 text-2xl"></i>
+                </button>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-5">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-5">
                 <div onclick="filterHistoryByCategory('all')" id="historyAllCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer border-2 border-transparent active">
                     <i class="fa fa-database text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold uppercase mt-1">Total</p><p id="historyTotalAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyTotalCount" class="text-[8px] sm:text-[10px] text-gray-400">0</p>
                 </div>
@@ -354,6 +352,9 @@
                 <div onclick="filterHistoryByCategory('Servicing')" id="historyServicingCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer">
                     <i class="fa fa-wrench text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold">Service</p><p id="historyServicingAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyServicingCount" class="text-[8px] sm:text-[10px]">0</p>
                 </div>
+                <div onclick="filterHistoryByCategory('Tyre/Air')" id="historyTyreCard" class="history-stat-card glass-panel p-2 sm:p-3 text-center cursor-pointer">
+                    <i class="fa fa-circle text-gold text-base sm:text-xl"></i><p class="text-[10px] sm:text-xs font-bold">Tyre/Air</p><p id="historyTyreAmount" class="text-sm sm:text-base font-black text-gold">₹0</p><p id="historyTyreCount" class="text-[8px] sm:text-[10px]">0</p>
+                </div>
             </div>
             <div class="border-t pt-3"><h3 class="text-[10px] sm:text-xs font-bold uppercase text-gray-500 mb-3">📋 Transactions</h3><div id="historyEntriesList" class="space-y-2 max-h-[350px] overflow-y-auto custom-scrollbar pr-1"></div></div>
         </div>
@@ -365,14 +366,14 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
         const firebaseConfig = {
-           apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-  authDomain: "sk12-58e9e.firebaseapp.com",
-  databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-  projectId: "sk12-58e9e",
-  storageBucket: "sk12-58e9e.firebasestorage.app",
-  messagingSenderId: "470207874652",
-  appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
-  measurementId: "G-QKCRDR9QML"
+            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+            authDomain: "sk12-58e9e.firebaseapp.com",
+            databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+            projectId: "sk12-58e9e",
+            storageBucket: "sk12-58e9e.firebasestorage.app",
+            messagingSenderId: "470207874652",
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
+            measurementId: "G-QKCRDR9QML"
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -388,7 +389,7 @@
 
         signInAnonymously(auth).catch(e => console.warn(e));
         
-        // Mobile form collapse functionality - default closed on mobile
+        // Mobile form collapse functionality
         let isFormOpen = false;
         window.toggleMobileForm = () => {
             const isDesktop = window.innerWidth >= 1024;
@@ -406,7 +407,6 @@
             }
         };
         
-        // On window resize, ensure desktop view always shows form
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
                 const content = document.getElementById('mobileFormContent');
@@ -421,7 +421,6 @@
             }
         });
         
-        // Initialize: on mobile form closed, on desktop open
         setTimeout(() => {
             if (window.innerWidth >= 1024) {
                 const content = document.getElementById('mobileFormContent');
@@ -449,6 +448,7 @@
             else if (cat === 'Part Replacement') container.innerHTML = `<div class="space-y-3"><input type="text" id="partName" placeholder="Part name" class="modern-input"><div class="grid grid-cols-2 gap-2 sm:gap-3"><input type="date" id="warrantyFrom" class="modern-input"><input type="date" id="warrantyEnd" class="modern-input"></div><input type="text" id="brandName" placeholder="Brand" class="modern-input"><input type="text" id="shopName" placeholder="Shop" class="modern-input"></div>`;
             else if (cat === 'Servicing') container.innerHTML = `<div class="space-y-3"><input type="text" id="serviceType" placeholder="Service type" class="modern-input"><input type="text" id="serviceCenter" placeholder="Center" class="modern-input"><div class="grid grid-cols-2 gap-2 sm:gap-3"><input type="date" id="serviceDate" class="modern-input"><input type="number" id="odometer" placeholder="Odometer km" class="modern-input"></div></div>`;
             else if (cat === 'Modification') container.innerHTML = `<div class="space-y-3"><input type="text" id="modPart" placeholder="Part name" class="modern-input"><input type="text" id="modBrand" placeholder="Brand" class="modern-input"><input type="text" id="installerShop" placeholder="Installer" class="modern-input"><input type="text" id="warrantyPeriod" placeholder="Warranty" class="modern-input"></div>`;
+            else if (cat === 'Tyre/Air') container.innerHTML = `<div class="space-y-3"><div class="grid grid-cols-2 gap-2 sm:gap-3"><input type="text" id="tyrePosition" placeholder="Position (e.g., Front Left)" class="modern-input"><input type="text" id="tyreSize" placeholder="Size (e.g., 205/55R16)" class="modern-input"></div><input type="text" id="tyreBrand" placeholder="Tyre Brand" class="modern-input"><textarea id="airNotes" rows="2" placeholder="Air pressure notes..." class="modern-input resize-none"></textarea></div>`;
             else container.innerHTML = `<div class="text-xs sm:text-sm text-gray-400 italic p-3 bg-gray-50 rounded-xl">Select expense type</div>`;
         }
         
@@ -535,6 +535,12 @@
                 if(document.getElementById('installerShop')?.value) entryData.installerShop = document.getElementById('installerShop').value;
                 if(document.getElementById('warrantyPeriod')?.value) entryData.warrantyPeriod = document.getElementById('warrantyPeriod').value;
             }
+            if (category === 'Tyre/Air') {
+                if(document.getElementById('tyrePosition')?.value) entryData.tyrePosition = document.getElementById('tyrePosition').value;
+                if(document.getElementById('tyreSize')?.value) entryData.tyreSize = document.getElementById('tyreSize').value;
+                if(document.getElementById('tyreBrand')?.value) entryData.tyreBrand = document.getElementById('tyreBrand').value;
+                if(document.getElementById('airNotes')?.value) entryData.airNotes = document.getElementById('airNotes').value;
+            }
             try {
                 if (editId) { await update(ref(db, `vehicleExpenses/${editId}`), entryData); showToast("Updated ✓"); }
                 else { await push(expensesRef, entryData); showToast("Saved ✓"); }
@@ -542,7 +548,6 @@
                 document.getElementById('category').value = ''; selectedCategory = '';
                 document.querySelectorAll('.expense-option').forEach(opt => opt.classList.remove('selected'));
                 document.getElementById('conditionalFields').innerHTML = '<div class="text-xs sm:text-sm text-gray-400 italic p-3 bg-gray-50 rounded-xl">Select expense type</div>';
-                // On mobile, keep form closed after submit if preferred - but we leave as is
             } catch(err) { alert("Error"); }
         });
         
@@ -577,15 +582,16 @@
             const container = document.getElementById('logsContainer');
             if (!filtered.length) { container.innerHTML = `<div class="glass-panel p-6 sm:p-8 text-center"><i class="fa fa-receipt text-gray-300 text-2xl sm:text-3xl"></i><p class="text-xs sm:text-sm mt-2">No entries</p></div>`; return; }
             container.innerHTML = filtered.map(d => {
-                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨'}[d.category]||'📄';
+                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨','Tyre/Air':'🛞'}[d.category]||'📄';
                 return `<div class="entry-card" data-id="${d.id}">
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-2">
                         <div class="flex-1 w-full"><div class="flex items-center gap-2 flex-wrap"><span class="text-[10px] sm:text-[11px] font-bold text-gold">${d.date || formatIndianDate(d.timestamp)}</span><span class="text-[9px] sm:text-[10px] bg-gold/10 px-2 py-0.5 rounded-full">${icon} ${d.category}</span></div>
                         <h3 class="font-black text-sm sm:text-base mt-1 break-words">${escapeHtml(d.name)}</h3>
                         ${d.details ? `<p class="text-xs sm:text-sm text-gray-500 mt-1 break-words">${escapeHtml(d.details)}</p>` : ''}
                         ${d.partName ? `<p class="text-[10px] sm:text-xs text-gray-400">🔩 ${escapeHtml(d.partName)}</p>` : ''}
+                        ${d.tyrePosition ? `<p class="text-[10px] sm:text-xs text-gray-400">🛞 ${escapeHtml(d.tyrePosition)} | ${escapeHtml(d.tyreSize || '')}</p>` : ''}
                         ${d.privateNotes ? `<div class="text-[9px] sm:text-[10px] text-gray-400 mt-1 break-words">📝 ${escapeHtml(d.privateNotes)}</div>` : ''}</div>
-                        <div class="text-right shrink-0 w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end gap-2"><span class="text-base sm:text-lg font-black gradient-gold-text">₹${d.cost.toLocaleString('en-IN')}</span>
+                        <div class="text-right shrink-0 w-full sm:w-auto flex sm:flex-col justify-between items-center sm:items-end gap-2"><span class="text-base sm:text-lg font-black text-gold">₹${d.cost.toLocaleString('en-IN')}</span>
                         <div class="flex gap-3"><button onclick='editEntry("${d.id}")' class="text-blue-500 hover:text-gold text-sm sm:text-base"><i class="fa-regular fa-pen-to-square"></i></button>
                         <button onclick='deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 text-sm sm:text-base"><i class="fa-regular fa-trash-can"></i></button></div></div>
                     </div></div>`;
@@ -607,8 +613,11 @@
             if (entry.fuelVolume && document.getElementById('fuelVolume')) document.getElementById('fuelVolume').value = entry.fuelVolume;
             if (entry.partName && document.getElementById('partName')) document.getElementById('partName').value = entry.partName;
             if (entry.serviceCenter && document.getElementById('serviceCenter')) document.getElementById('serviceCenter').value = entry.serviceCenter;
+            if (entry.tyrePosition && document.getElementById('tyrePosition')) document.getElementById('tyrePosition').value = entry.tyrePosition;
+            if (entry.tyreSize && document.getElementById('tyreSize')) document.getElementById('tyreSize').value = entry.tyreSize;
+            if (entry.tyreBrand && document.getElementById('tyreBrand')) document.getElementById('tyreBrand').value = entry.tyreBrand;
+            if (entry.airNotes && document.getElementById('airNotes')) document.getElementById('airNotes').value = entry.airNotes;
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            // On mobile, auto expand form when editing
             if (window.innerWidth < 1024 && !document.getElementById('mobileFormContent').classList.contains('open')) {
                 toggleMobileForm();
             }
@@ -633,16 +642,18 @@
             else if(cat === 'Petrol') document.getElementById('historyPetrolCard').classList.add('active','border-gold');
             else if(cat === 'Part Replacement') document.getElementById('historyPartCard').classList.add('active','border-gold');
             else if(cat === 'Servicing') document.getElementById('historyServicingCard').classList.add('active','border-gold');
+            else if(cat === 'Tyre/Air') document.getElementById('historyTyreCard').classList.add('active','border-gold');
             updateHistoryModal(historyCurrentVehicle, cat);
         };
         function updateHistoryModal(vehicle, category) {
             const entries = allEntries.filter(e => e.name === vehicle);
-            let petrolTot=0,partTot=0,servTot=0,total=0, petrolCnt=0,partCnt=0,servCnt=0;
+            let petrolTot=0,partTot=0,servTot=0,tyreTot=0,total=0, petrolCnt=0,partCnt=0,servCnt=0,tyreCnt=0;
             entries.forEach(e => {
                 total += e.cost;
                 if(e.category === 'Petrol') { petrolTot+=e.cost; petrolCnt++; }
                 else if(e.category === 'Part Replacement') { partTot+=e.cost; partCnt++; }
                 else if(e.category === 'Servicing') { servTot+=e.cost; servCnt++; }
+                else if(e.category === 'Tyre/Air') { tyreTot+=e.cost; tyreCnt++; }
             });
             document.getElementById('historyTotalAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
             document.getElementById('historyTotalCount').innerText = `${entries.length} records`;
@@ -652,6 +663,8 @@
             document.getElementById('historyPartCount').innerText = `${partCnt}`;
             document.getElementById('historyServicingAmount').innerHTML = `₹${servTot.toLocaleString('en-IN')}`;
             document.getElementById('historyServicingCount').innerText = `${servCnt}`;
+            document.getElementById('historyTyreAmount').innerHTML = `₹${tyreTot.toLocaleString('en-IN')}`;
+            document.getElementById('historyTyreCount').innerText = `${tyreCnt}`;
             
             let filtered = entries;
             if(category !== 'all') filtered = filtered.filter(e => e.category === category);
@@ -659,105 +672,112 @@
             const container = document.getElementById('historyEntriesList');
             if(!filtered.length) { container.innerHTML = '<div class="text-center text-gray-400 text-xs sm:text-sm py-5">No records</div>'; return; }
             container.innerHTML = filtered.map(entry => {
-                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨'}[entry.category]||'📄';
-                return `<div class="glass-panel p-2.5 sm:p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"><div><div class="flex gap-2 items-center flex-wrap"><span class="text-[10px] sm:text-[11px] font-bold text-gold">${entry.date || formatIndianDate(entry.timestamp)}</span><span class="text-[8px] sm:text-[9px] bg-gold/10 px-2 rounded-full">${icon} ${entry.category}</span></div><p class="text-xs sm:text-sm font-medium mt-0.5 break-words">${entry.details || '—'}</p></div><span class="text-sm sm:text-base font-black text-gold">₹${entry.cost.toLocaleString('en-IN')}</span></div>`;
+                let icon = { Petrol:'⛽','Part Replacement':'🔧',Servicing:'🛠️',Modification:'✨','Tyre/Air':'🛞'}[entry.category]||'📄';
+                let extraInfo = '';
+                if (entry.tyrePosition) extraInfo = `<div class="text-[9px] text-gray-400 mt-0.5">🛞 ${escapeHtml(entry.tyrePosition)} ${entry.tyreSize ? '| '+escapeHtml(entry.tyreSize) : ''}</div>`;
+                return `<div class="glass-panel p-2.5 sm:p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2"><div><div class="flex gap-2 items-center flex-wrap"><span class="text-[10px] sm:text-[11px] font-bold text-gold">${entry.date || formatIndianDate(entry.timestamp)}</span><span class="text-[8px] sm:text-[9px] bg-gold/10 px-2 rounded-full">${icon} ${entry.category}</span></div><p class="text-xs sm:text-sm font-medium mt-0.5 break-words">${entry.details || '—'}</p>${extraInfo}</div><span class="text-sm sm:text-base font-black text-gold">₹${entry.cost.toLocaleString('en-IN')}</span></div>`;
             }).join('');
         }
         
-      window.shareVehiclePDF = async () => {
-    if (!currentVehicleFilter) { 
-        alert("Please select a vehicle from dropdown first"); 
-        return; 
-    }
-
-    const vehicle = currentVehicleFilter;
-    const entries = allEntries
-        .filter(e => e.name === vehicle)
-        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-    if (entries.length === 0) { 
-        alert("No data to export"); 
-        return; 
-    }
-
-    // --- Data Aggregation ---
-    const total = entries.reduce((s, e) => s + e.cost, 0);
-    const summary = {
-        'Petrol': entries.filter(e => e.category === 'Petrol').reduce((s, e) => s + e.cost, 0),
-        'Parts': entries.filter(e => e.category === 'Part Replacement').reduce((s, e) => s + e.cost, 0),
-        'Servicing': entries.filter(e => e.category === 'Servicing').reduce((s, e) => s + e.cost, 0),
-        'Mods': entries.filter(e => e.category === 'Modification').reduce((s, e) => s + e.cost, 0)
-    };
-
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    // --- Header Section ---
-    doc.setFillColor(40, 40, 40); // Dark background for header
-    doc.rect(0, 0, 210, 40, 'F');
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(218, 165, 32); // Gold color
-    doc.text("VEHICLE EXPENSE REPORT", 14, 20);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Vehicle: ${vehicle.toUpperCase()}`, 14, 30);
-    doc.text(`Generated on: ${formatIndianDate(Date.now())}`, 160, 30, { align: 'right' });
-
-    // --- Summary Cards ---
-    doc.setTextColor(40);
-    doc.setFontSize(14);
-    doc.text("Financial Summary", 14, 55);
-    
-    // Draw a light grey box for the summary
-    doc.setDrawColor(200);
-    doc.setLineHeightFactor(1.5);
-    doc.roundedRect(14, 60, 182, 30, 3, 3, 'S');
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const summaryText = [
-        `Total Expenditure: RS ${total.toLocaleString('en-IN')}`,
-        `Petrol: RS ${summary.Petrol.toLocaleString('en-IN')}  |  Parts: RS ${summary.Parts.toLocaleString('en-IN')}`,
-        `Service: RS ${summary.Servicing.toLocaleString('en-IN')}  |  Mods: RS ${summary.Mods.toLocaleString('en-IN')}`
-    ];
-    doc.text(summaryText, 20, 70);
-
-    
-    const tableRows = entries.map(e => [
-        e.date || formatIndianDate(e.timestamp),
-        e.category,
-        `RS ${e.cost.toLocaleString('en-IN')}`,
-        e.details || '-'
-    ]);
-
-    doc.autoTable({
-        startY: 100,
-        head: [['Date', 'Category', 'Amount', 'Description']],
-        body: tableRows,
-        theme: 'striped',
-        headStyles: { fillColor: [218, 165, 32], textColor: [255, 255, 255], fontStyle: 'bold' },
-        columnStyles: {
-            2: { halign: 'right', fontStyle: 'bold' }, // Amount column
-        },
-        styles: { fontSize: 9, cellPadding: 3 },
-        margin: { left: 14, right: 14 }
-    });
-
-    // --- Footer ---
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`Page ${i} of ${pageCount} - SAVIG Expense Manager`, 105, 290, { align: 'center' });
-    }
-
-    doc.save(`${vehicle}_Report.pdf`);
-    showToast("Professional PDF Generated!");
-};
+        window.shareVehiclePDF = async () => {
+            if (!currentVehicleFilter) { 
+                alert("Please select a vehicle from dropdown first"); 
+                return; 
+            }
+            const vehicle = currentVehicleFilter;
+            const entries = allEntries.filter(e => e.name === vehicle).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            if (entries.length === 0) { alert("No data to export"); return; }
+            const total = entries.reduce((s, e) => s + e.cost, 0);
+            const summary = {
+                'Petrol': entries.filter(e => e.category === 'Petrol').reduce((s, e) => s + e.cost, 0),
+                'Parts': entries.filter(e => e.category === 'Part Replacement').reduce((s, e) => s + e.cost, 0),
+                'Servicing': entries.filter(e => e.category === 'Servicing').reduce((s, e) => s + e.cost, 0),
+                'Mods': entries.filter(e => e.category === 'Modification').reduce((s, e) => s + e.cost, 0),
+                'Tyre/Air': entries.filter(e => e.category === 'Tyre/Air').reduce((s, e) => s + e.cost, 0)
+            };
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFillColor(40, 40, 40);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(218, 165, 32);
+            doc.text("VEHICLE EXPENSE REPORT", 14, 20);
+            doc.setFontSize(12);
+            doc.setTextColor(255, 255, 255);
+            doc.text(`Vehicle: ${vehicle.toUpperCase()}`, 14, 30);
+            doc.text(`Generated on: ${formatIndianDate(Date.now())}`, 160, 30, { align: 'right' });
+            doc.setTextColor(40);
+            doc.setFontSize(14);
+            doc.text("Financial Summary", 14, 55);
+            doc.setDrawColor(200);
+            doc.roundedRect(14, 60, 182, 30, 3, 3, 'S');
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            const summaryText = [
+                `Total Expenditure: ₹${total.toLocaleString('en-IN')}`,
+                `Petrol: ₹${summary.Petrol.toLocaleString('en-IN')}  |  Parts: ₹${summary.Parts.toLocaleString('en-IN')}`,
+                `Service: ₹${summary.Servicing.toLocaleString('en-IN')}  |  Mods: ₹${summary.Mods.toLocaleString('en-IN')}  |  Tyre/Air: ₹${summary['Tyre/Air'].toLocaleString('en-IN')}`
+            ];
+            doc.text(summaryText, 20, 70);
+            const tableRows = entries.map(e => [
+                e.date || formatIndianDate(e.timestamp),
+                e.category,
+                `₹${e.cost.toLocaleString('en-IN')}`,
+                e.details || '-'
+            ]);
+            doc.autoTable({
+                startY: 100,
+                head: [['Date', 'Category', 'Amount', 'Description']],
+                body: tableRows,
+                theme: 'striped',
+                headStyles: { fillColor: [218, 165, 32], textColor: [255, 255, 255], fontStyle: 'bold' },
+                columnStyles: { 2: { halign: 'right', fontStyle: 'bold' } },
+                styles: { fontSize: 9, cellPadding: 3 },
+                margin: { left: 14, right: 14 }
+            });
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(`Page ${i} of ${pageCount} - SAVIG Expense Manager`, 105, 290, { align: 'center' });
+            }
+            doc.save(`${vehicle}_Report.pdf`);
+            showToast("Professional PDF Generated!");
+        };
     </script>
+    <style>
+        /* Increase Edit/Delete Button Font Size */
+.entry-card button {
+    font-size: 1rem !important;
+}
+
+.entry-card button i {
+    font-size: 1.1rem !important;
+}
+
+/* For larger screens */
+@media (min-width: 640px) {
+    .entry-card button {
+        font-size: 1.1rem !important;
+    }
+    
+    .entry-card button i {
+        font-size: 1.2rem !important;
+    }
+}
+
+/* Alternative: Target specific buttons */
+button[onclick*="editEntry"],
+button[onclick*="deleteEntry"] {
+    font-size: 1rem !important;
+}
+
+button[onclick*="editEntry"] i,
+button[onclick*="deleteEntry"] i {
+    font-size: 1.1rem !important;
+}
+    </style>
 </body>
 </html>
