@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>SAVIG | VEHICLE EXPENSE TRACKER</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { 'sans': ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: { gold: '#DAA520', 'onyx': '#0A0A0C' }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            box-sizing: border-box;
+        }
+        
+        body { 
+            background: #F8F9FA; 
+            color: #1A1A1A;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        .dark body {
+            background: #0A0A0C;
+            color: #E5E5E5;
+        }
+        
+        .container-custom {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        @media (min-width: 640px) { .container-custom { padding: 0 1.5rem; } }
+        @media (min-width: 1024px) { .container-custom { padding: 0 2rem; } }
+        @media (min-width: 1280px) { .container-custom { padding: 0 2.5rem; } }
+        
+        .glass-panel {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        .dark .glass-panel {
+            background: #121216;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 640px) { .glass-panel { border-radius: 20px; } }
+        
+        .modern-input {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            color: #1A1A1A;
+            font-weight: 500;
+            width: 100%;
+        }
+        .dark .modern-input {
+            background: #1A1A1E;
+            border: 1px solid #2A2A30;
+            color: #E5E5E5;
+        }
+        .dark .modern-input::placeholder { color: #6B7280; }
+        
+        @media (max-width: 640px) {
+            .modern-input { padding: 10px 12px; font-size: 14px; border-radius: 12px; }
+        }
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .modern-input { padding: 10px 12px; font-size: 14px; }
+        }
+        @media (min-width: 1024px) {
+            .modern-input { padding: 12px 12px; font-size: 15px; }
+        }
+        
+        .modern-input:focus { border-color: #DAA520; outline: none; box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1); }
+        
+        .input-label {
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #DAA520;
+            display: block;
+            margin-bottom: 5px;
+        }
+        @media (max-width: 640px) { .input-label { font-size: 11px; margin-bottom: 0.4rem; } }
+        @media (min-width: 641px) { .input-label { font-size: 11px; } }
+        @media (min-width: 1024px) { .input-label { font-size: 12px; margin-bottom: 0.6rem; } }
+        
+        .entry-card {
+            background: #FFFFFF;
+            border: 1px solid #F0F0F0;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .dark .entry-card {
+            background: #121216;
+            border: 1px solid #202024;
+        }
+        .entry-card:hover { 
+            transform: translateY(-3px); 
+            border-color: #DAA520; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 640px) { 
+            .entry-card { padding: 14px; border-radius: 16px; margin-bottom: 12px; }
+        }
+        @media (min-width: 641px) and (max-width: 1023px) { 
+            .entry-card { padding: 16px; margin-bottom: 12px; }
+        }
+        @media (min-width: 1024px) { 
+            .entry-card { padding: 18px; margin-bottom: 14px; }
+        }
+        
+        .entry-card button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border-radius: 10px;
+            padding: 4px 5px;
+        }
+        
+        .entry-card button:hover {
+            transform: scale(1.15);
+            background: rgba(218, 165, 32, 0.1);
+        }
+        
+        button[onclick*="editEntry"]:hover {
+            color: #DAA520 !important;
+        }
+        
+        button[onclick*="deleteEntry"]:hover {
+            color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .amount-date-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 640px) {
+            .amount-date-row {
+                gap: 0.75rem;
+            }
+        }
+        
+        .expense-option {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 14px;
+            text-align: center;
+        }
+        .expense-option:hover {
+            transform: translateY(-2px);
+            background: rgba(218, 165, 32, 0.15);
+            border-color: rgba(218, 165, 32, 0.3);
+        }
+        
+        @media (max-width: 640px) {
+            .expense-option { padding: 10px 4px !important; border-radius: 12px; }
+            .expense-option i { font-size: 16px; }
+            .expense-option span { font-size: 11px; margin-top: 4px; }
+        }
+        @media (min-width: 641px) {
+            .expense-option { padding: 10px 6px !important; border-radius: 14px; }
+            .expense-option i { font-size: 18px; }
+            .expense-option span { font-size: 12px; margin-top: 5px; }
+        }
+        @media (min-width: 1024px) {
+            .expense-option { padding: 12px 8px !important; }
+            .expense-option i { font-size: 20px; }
+            .expense-option span { font-size: 13px; margin-top: 6px; }
+        }
+        .expense-option.selected { 
+            border-color: #DAA520; 
+            background: rgba(218, 165, 32, 0.12);
+            transform: scale(1.02);
+        }
+        
+        .expense-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+        @media (max-width: 640px) { .expense-grid { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; } }
+        @media (min-width: 641px) { .expense-grid { grid-template-columns: repeat(6, 1fr); gap: 0.75rem; } }
+        
+        .fields-three-columns {
+            display: grid;
+            gap: 0.75rem;
+        }
+        @media (max-width: 640px) { .fields-three-columns { grid-template-columns: 1fr; gap: 0.6rem; } }
+        @media (min-width: 641px) and (max-width: 1023px) { .fields-three-columns { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; } }
+        @media (min-width: 1024px) { .fields-three-columns { grid-template-columns: repeat(3, 1fr); gap: 0.9rem; } }
+        
+        .full-width-field { grid-column: 1 / -1; }
+        
+        .filter-chip {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border-radius: 24px;
+            font-weight: 600;
+            white-space: nowrap;
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+        .dark .filter-chip {
+            background: #1F1F24;
+            color: #9CA3AF;
+        }
+        .filter-chip:hover {
+            transform: translateY(-1px);
+            background: #E5E7EB;
+        }
+        .filter-chip.active { 
+            background: #DAA520 !important; 
+            color: white !important;
+            transform: scale(1.02);
+        }
+        
+        /* PETROL FILTER - 3px SMALLER */
+        .filter-chip[data-filter="Petrol"] {
+            font-size: 13px !important;
+        }
+        
+        @media (max-width: 640px) {
+            .filter-chip { font-size: 11px !important; padding: 5px 12px !important; }
+            .filter-chip[data-filter="Petrol"] {
+                font-size: 12px !important;
+                padding: 5px 8px !important;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .filter-chip[data-filter="Petrol"] {
+                font-size: 12px !important;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .filter-chip { font-size: 13px !important; padding: 6px 16px !important; }
+            .filter-chip[data-filter="Petrol"] {
+                font-size: 13px !important;
+            }
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .modal-content {
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #FFFFFF;
+            border-radius: 28px;
+            animation: slideUp 0.3s ease;
+        }
+        .dark .modal-content {
+            background: #121216;
+        }
+        @media (max-width: 640px) { 
+            .modal-content { max-width: 95%; border-radius: 24px; padding: 20px 18px !important; }
+        }
+        @media (min-width: 641px) { 
+            .modal-content { max-width: 900px; padding: 28px 30px !important; }
+        }
+        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .history-stat-card {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border-radius: 16px;
+            border: 2px solid transparent;
+            background: #FFFFFF;
+            padding: 12px 8px;
+        }
+        .dark .history-stat-card {
+            background: #121216;
+        }
+        .history-stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(218, 165, 32, 0.2);
+            background: rgba(218, 165, 32, 0.08);
+        }
+        .history-stat-card.active { 
+            border-color: #DAA520; 
+            background: rgba(218, 165, 32, 0.12);
+            transform: scale(1.02);
+        }
+        
+        .history-detail-card {
+            background: #F9FAFB;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            transition: all 0.25s ease;
+            border: 1px solid #F0F0F0;
+        }
+        .dark .history-detail-card {
+            background: #1A1A1E;
+            border: 1px solid #2A2A30;
+        }
+        .history-detail-card:hover {
+            transform: translateX(6px);
+            border-color: #DAA520;
+        }
+        
+        .history-grid-item {
+            display: grid;
+            grid-template-columns: 160px 1fr auto;
+            gap: 20px;
+            align-items: start;
+        }
+        @media (max-width: 640px) {
+            .history-grid-item {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+        
+        /* HISTORY DATE TEXT - INCREASED BY 4PX */
+        .history-detail-card .date-text,
+        .history-grid-item .date-text,
+        #historyEntriesList .date-text {
+            font-weight: 700 !important;
+            color: #DAA520 !important;
+            font-size: 18px !important;
+        }
+        
+        @media (max-width: 640px) {
+            .history-detail-card .date-text,
+            .history-grid-item .date-text,
+            #historyEntriesList .date-text {
+                font-size: 16px !important;
+            }
+        }
+        
+        @media (min-width: 641px) and (max-width: 1023px) {
+            .history-detail-card .date-text,
+            .history-grid-item .date-text,
+            #historyEntriesList .date-text {
+                font-size: 17px !important;
+            }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #10B981;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 640px) { 
+            .toast { left: 20px; right: 20px; text-align: center; font-size: 12px; padding: 10px 16px; }
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .form-collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .form-collapsible-content.open {
+            max-height: 3000px;
+        }
+        @media (min-width: 1024px) {
+            .form-collapsible-content {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            .form-collapsible-header {
+                cursor: default;
+            }
+            .mobile-collapse-icon {
+                display: none !important;
+            }
+        }
+        
+        .total-exp-card {
+            background: linear-gradient(135deg, rgba(218,165,32,0.12), rgba(218,165,32,0.03));
+            border-radius: 20px;
+            padding: 16px 20px;
+        }
+        
+        .view-data-row { 
+            display: flex; 
+            gap: 0.75rem; 
+            align-items: center; 
+            flex-wrap: wrap; 
+        }
+        .view-data-select { 
+            flex: 1; 
+            min-width: 160px; 
+        }
+        .view-data-buttons { 
+            display: flex; 
+            gap: 0.75rem; 
+            flex-shrink: 0; 
+        }
+        
+        .reminder-btn {
+            background: linear-gradient(135deg, #DAA520, #B8860B);
+            transition: all 0.3s ease;
+            padding: 8px 16px;
+        }
+        .reminder-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(218, 165, 32, 0.4);
+        }
+        
+        .category-badge {
+            display: inline-block;
+            border-radius: 24px;
+            background: rgba(218, 165, 32, 0.12);
+            color: #DAA520;
+            font-weight: 600;
+            padding: 4px 12px;
+        }
+        
+        .text-gold { color: #DAA520 !important; }
+        .bg-gold\/10 { background: rgba(218, 165, 32, 0.12) !important; }
+        
+        @media (max-width: 640px) {
+            .history-stat-card i { font-size: 16px !important; }
+            .entry-card .text-gold.font-black { font-size: 18px !important; }
+        }
+        @media (min-width: 1024px) {
+            .entry-card .text-gold.font-black { font-size: 22px !important; }
+        }
+        
+        /* Mobile header adjustments */
+        @media (max-width: 420px) {
+            .reminder-btn {
+                padding: 0.375rem 0.625rem;
+            }
+            .reminder-btn span {
+                font-size: 9px;
+            }
+            .reminder-btn i {
+                font-size: 10px;
+            }
+            .text-\[7px\] {
+                font-size: 9px;
+                letter-spacing: 0.1em;
+            }
+            h1.text-sm {
+                font-size: 12px;
+            }
+            .w-7 {
+                width: 1.6rem;
+                height: 1.6rem;
+            }
+            .gap-1\.5 {
+                gap: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-custom pt-2 pb-15">
+        <!-- Header -->
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-5 md:mb-5">
+            <div class="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
+                <div class="w-7 h-7 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center">
+                    <i class="fa fa-car text-gold text-sm md:text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-2xl md:text-xl font-black tracking-tight">SAVIG<span class="text-gold">.</span></h1>
+                    <p class="text-[7px] sm:text-[9px] md:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 mt-0.5 whitespace-nowrap">VEHICLE EXPENSE LOG</p>
+                </div>
+            </div>
+            <div class="flex gap-1.5 md:gap-3 flex-shrink-0">
+                <button onclick="window.openServiceReminderModal()" class="reminder-btn text-white font-bold px-2 py-1.5 md:px-5 md:py-2.5 rounded-xl flex items-center gap-1 md:gap-2 text-[10px] md:text-sm shadow-md transition-all hover:scale-105 whitespace-nowrap">
+                    <i class="fa fa-calendar-plus text-[11px] md:text-base"></i>
+                    <span class="text-[10px] md:text-sm">Service Reminder</span>
+                </button>
+                <button onclick="window.toggleTheme()" class="glass-panel w-7 h-7 md:w-11 md:h-11 rounded-full flex items-center justify-center hover:scale-105 transition-transform flex-shrink-0">
+                    <i id="themeIcon" class="fa fa-moon text-gold text-xs md:text-lg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- VIEW DATA FOR -->
+        <div class="glass-panel p-2 md:p-2 mb-2 md:mb-2">
+            <label class="input-label"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
+            <div class="view-data-row">
+                <div class="view-data-select">
+                    <select id="historyVehicleSelect" class="modern-input font-medium">
+                        <option value="">—— SELECT VEHICLE ——</option>
+                    </select>
+                </div>
+                <div class="view-data-buttons">
+                    <button onclick="window.shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm transition-all hover:scale-105">
+                        <i class="fa fa-file-pdf"></i> <span>PDF</span>
+                    </button>
+                    <button onclick="window.openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm transition-all hover:scale-105">
+                        <i class="fa fa-chart-simple"></i> <span>HIST</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main grid -->
+        <div class="flex flex-col lg:flex-row gap-2 md:gap-2 lg:gap-2">
+            <!-- LEFT FORM -->
+            <div class="w-full lg:w-[650px] flex-shrink-0">
+                <div class="glass-panel p-2 md:p-2">
+                    <div class="form-collapsible-header flex justify-between items-center lg:cursor-default" onclick="window.toggleMobileForm()">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1 h-5 bg-gold rounded-full"></div>
+                            <h2 class="text-[11px] sm:text-[12px] font-black tracking-wide uppercase text-gray-500">Record Expense</h2>
+                        </div>
+                        <i id="collapseIcon" class="fa fa-chevron-down text-gold text-sm mobile-collapse-icon lg:hidden transition-transform duration-300"></i>
+                    </div>
+                    <div id="mobileFormContent" class="form-collapsible-content mt-2 md:mt-2">
+                        <form id="expenseForm" class="space-y-2 md:space-y-3">
+                            <input type="hidden" id="editId" value="">
+                            
+                            <div>
+                                <label class="input-label"><i class="fa-regular fa-id-card mr-1"></i> Vehicle <span class="text-[8px] font-bold text-gold">*</span></label>
+                                <select id="vehicleList" class="modern-input font-medium">
+                                    <option value="">—— SELECT VEHICLE ——</option>
+                                </select>
+                                <div id="newVehicleWrapper" class="hidden mt-2">
+                                    <input type="text" id="newVehicleName" placeholder="New vehicle name" class="modern-input">
+                                </div>
+                            </div>
+                            
+                            <div class="amount-date-row">
+                                <div>
+                                    <label class="input-label"><i class="fa-solid fa-indian-rupee-sign"></i> Amount (₹) <span class="text-[8px] font-bold text-gold">*</span></label>
+                                    <div class="relative">
+                                        <span class="absolute left-3 top-1/3 -translate-y-1/2 text-base font-black text-gold">₹</span>
+                                        <input type="number" id="cost" placeholder="0.00" class="modern-input pl-7 font-black text-gold" required>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="input-label"><i class="fa-regular fa-calendar"></i> Date <span class="text-[8px] font-bold text-gold">*</span></label>
+                                    <input type="date" id="expenseDate" class="modern-input">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="input-label"><i class="fa-solid fa-tag"></i> Expense Type <span class="text-[8px] font-bold text-gold">*</span></label>
+                                <div class="expense-grid">
+                                    <div data-cat="Petrol" class="expense-option glass-panel cursor-pointer"><i class="fa fa-gas-pump text-gold block"></i><span class="block">PETROL</span></div>
+                                    <div data-cat="Part Replacement" class="expense-option glass-panel cursor-pointer"><i class="fa fa-microchip text-gold block"></i><span class="block">PART</span></div>
+                                    <div data-cat="Servicing" class="expense-option glass-panel cursor-pointer"><i class="fa fa-wrench text-gold block"></i><span class="block">SERVICE</span></div>
+                                    <div data-cat="Modification" class="expense-option glass-panel cursor-pointer"><i class="fa fa-microphone text-gold block"></i><span class="block">MOD</span></div>
+                                    <div data-cat="Tyre/Air" class="expense-option glass-panel cursor-pointer"><i class="fa fa-circle text-gold block"></i><span class="block">TYRE/AIR</span></div>
+                                    <div data-cat="Cleaning" class="expense-option glass-panel cursor-pointer"><i class="fa fa-soap text-gold block"></i><span class="block">CLEAN</span></div>
+                                </div>
+                                <input type="hidden" id="category" value="">
+                            </div>
+                            
+                            <div id="conditionalFields" class="fields-three-columns"></div>
+                            
+                            <div>
+                                <label class="input-label">Description <span class="text-[8px] text-gray-400">OPT</span></label>
+                                <input type="text" id="details" placeholder="Additional info..." class="modern-input">
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-2 md:py-3 rounded-xl transition text-sm md:text-base uppercase tracking-wide shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95">
+                                <i class="fa fa-cloud-arrow-up"></i> <span>Save Entry</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="flex-1 space-y-4 md:space-y-5">
+                <div id="totalExpenditureCard" class="glass-panel total-exp-card hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-[9px] md:text-[10px] uppercase font-bold text-gold tracking-wide">Total Expenditure</p>
+                            <p id="totalExpenditureAmount" class="text-xl md:text-2xl font-black">₹0</p>
+                        </div>
+                        <i class="fa fa-chart-line text-gold/40 text-xl md:text-2xl"></i>
+                    </div>
+                </div>
+                
+                <div class="glass-panel p-2 md:p-2">
+                    <label class="input-label">FILTER</label>
+                    <div class="flex flex-wrap gap-2 md:gap-2.5">
+                        <button data-filter="all" class="filter-chip active">ALL</button>
+                        <button data-filter="Petrol" class="filter-chip">PETROL</button>
+                        <button data-filter="Part Replacement" class="filter-chip">PART</button>
+                        <button data-filter="Servicing" class="filter-chip">SERVICE</button>
+                        <button data-filter="Modification" class="filter-chip">MOD</button>
+                        <button data-filter="Tyre/Air" class="filter-chip">TYRE/AIR</button>
+                        <button data-filter="Cleaning" class="filter-chip">CLEAN</button>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-2 md:p-3 flex items-center gap-2">
+                    <i class="fa fa-search text-gray-400 text-sm md:text-base"></i>
+                    <input type="text" id="searchBar" onkeyup="window.filterEntries()" placeholder="Search vehicle, notes..." class="flex-1 outline-none text-sm md:text-base bg-transparent">
+                    <button onclick="window.startVoiceSearch()" class="bg-gold/10 rounded-full w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-gold/20 transition-all hover:scale-110">
+                        <i class="fa fa-microphone text-gold text-sm md:text-base"></i>
+                    </button>
+                    <div class="text-[10px] md:text-[11px] font-bold text-gray-400" id="logCounter">0</div>
+                </div>
+
+                <div id="logsContainer" class="space-y-2 custom-scrollbar overflow-y-auto pr-2" style="max-height: 55vh; min-height: 320px;">
+                    <div class="glass-panel p-4 md:p-6 text-center">
+                        <i class="fa fa-database text-gray-300 text-2xl md:text-3xl"></i>
+                        <p class="text-sm md:text-base text-gray-400 mt-2">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICE REMINDER MODAL -->
+    <div id="serviceReminderModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-panel" style="max-width: 550px;">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-lg md:text-xl font-black flex gap-3 items-center"><i class="fa fa-calendar-alt text-gold"></i> Set Service Reminder</h2>
+                <button onclick="window.closeServiceReminderModal()" class="w-9 h-9 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-all hover:scale-110">
+                    <i class="fa fa-times text-gray-500"></i>
+                </button>
+            </div>
+            <div class="space-y-5">
+                <div>
+                    <label class="input-label"><i class="fa fa-car"></i> Select Vehicle</label>
+                    <select id="reminderVehicleSelect" class="modern-input">
+                        <option value="">—— SELECT VEHICLE ——</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="input-label"><i class="fa fa-calendar"></i> Next Service Date</label>
+                    <input type="date" id="nextServiceDate" class="modern-input">
+                </div>
+                <div>
+                    <label class="input-label"><i class="fa fa-road"></i> Next Service KM</label>
+                    <input type="number" id="nextServiceKM" placeholder="Odometer reading" class="modern-input">
+                </div>
+                <div>
+                    <label class="input-label"><i class="fa fa-sticky-note"></i> Notes</label>
+                    <textarea id="serviceNotes" rows="3" placeholder="Additional notes..." class="modern-input resize-none"></textarea>
+                </div>
+                <button onclick="window.saveServiceReminder()" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-3 rounded-xl transition flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95">
+                    <i class="fa fa-bell"></i> Set Reminder
+                </button>
+            </div>
+            <div id="existingReminders" class="mt-5 pt-4 border-t dark:border-gray-700">
+                <h3 class="text-sm font-bold mb-3">📋 Active Reminders</h3>
+                <div id="remindersList" class="space-y-2 max-h-200 overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTORY MODAL -->
+    <div id="historyModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-panel">
+            <div class="flex justify-between items-center mb-4 md:mb-5">
+                <h2 class="text-lg md:text-xl font-black flex gap-3 items-center"><i class="fa fa-chart-pie text-gold"></i><span id="modalVehicleName">History</span></h2>
+                <button onclick="window.closeHistoryModal()" class="w-9 h-9 md:w-10 md:h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center justify-center transition-all hover:scale-110">
+                    <i class="fa fa-times text-gray-500 text-base md:text-lg"></i>
+                </button>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3 md:gap-4 mb-5 md:mb-6">
+                <div onclick="window.filterHistoryByCategory('all')" id="historyAllCard" class="history-stat-card glass-panel text-center cursor-pointer border border-transparent active">
+                    <i class="fa fa-database text-gold"></i>
+                    <p class="font-bold mt-2">Total</p>
+                    <p id="historyTotalAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyTotalCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+                <div onclick="window.filterHistoryByCategory('Petrol')" id="historyPetrolCard" class="history-stat-card glass-panel text-center cursor-pointer">
+                    <i class="fa fa-gas-pump text-gold"></i>
+                    <p class="font-bold mt-2">Petrol</p>
+                    <p id="historyPetrolAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyPetrolCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+                <div onclick="window.filterHistoryByCategory('Part Replacement')" id="historyPartCard" class="history-stat-card glass-panel text-center cursor-pointer">
+                    <i class="fa fa-microchip text-gold"></i>
+                    <p class="font-bold mt-2">Part</p>
+                    <p id="historyPartAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyPartCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+                <div onclick="window.filterHistoryByCategory('Servicing')" id="historyServicingCard" class="history-stat-card glass-panel text-center cursor-pointer">
+                    <i class="fa fa-wrench text-gold"></i>
+                    <p class="font-bold mt-2">Service</p>
+                    <p id="historyServicingAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyServicingCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+                <div onclick="window.filterHistoryByCategory('Modification')" id="historyModCard" class="history-stat-card glass-panel text-center cursor-pointer">
+                    <i class="fa fa-microphone text-gold"></i>
+                    <p class="font-bold mt-2">Mod</p>
+                    <p id="historyModAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyModCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+                <div onclick="window.filterHistoryByCategory('Tyre/Air')" id="historyTyreCard" class="history-stat-card glass-panel text-center cursor-pointer">
+                    <i class="fa fa-circle text-gold"></i>
+                    <p class="font-bold mt-2">Tyre/Air</p>
+                    <p id="historyTyreAmount" class="font-black text-gold text-sm md:text-base">₹0</p>
+                    <p id="historyTyreCount" class="text-[10px] md:text-[11px] mt-1">0</p>
+                </div>
+            </div>
+            <div class="border-t pt-4 dark:border-gray-700">
+                <h3 class="text-[11px] md:text-[12px] font-bold uppercase text-gray-500 mb-4">📋 Complete Transaction Details</h3>
+                <div id="historyEntriesList" class="space-y-3 max-h-[450px] overflow-y-auto custom-scrollbar pr-2"></div>
+            </div>
+        </div>
+    </div>
+
+   <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, query, orderByChild, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+            authDomain: "sk12-58e9e.firebaseapp.com",
+            databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+            projectId: "sk12-58e9e",
+            storageBucket: "sk12-58e9e.firebasestorage.app",
+            messagingSenderId: "470207874652",
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const expensesRef = ref(db, 'vehicleExpenses');
+        const remindersRef = ref(db, 'serviceReminders');
+        
+        let allEntries = [];
+        let currentVehicleFilter = '';
+        let currentCategoryFilter = 'all';
+        let currentSearchTerm = '';
+        let historyCurrentVehicle = '';
+        let reminders = [];
+        let isFormOpen = false;
+
+        signInAnonymously(auth).catch(e => console.warn(e));
+        
+        // Format date to "10 June 2026" pattern
+        function formatDateToDisplay(dateString) {
+            if (!dateString) return getTodayFormatted();
+            
+            let date;
+            if (dateString.includes('-')) {
+                const parts = dateString.split('-');
+                date = new Date(parts[0], parts[1]-1, parts[2]);
+            } else {
+                date = new Date(dateString);
+            }
+            
+            if (isNaN(date.getTime())) return getTodayFormatted();
+            
+            const day = date.getDate();
+            const month = date.toLocaleString('en-IN', { month: 'long' });
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+        
+        function getTodayFormatted() {
+            const today = new Date();
+            const day = today.getDate();
+            const month = today.toLocaleString('en-IN', { month: 'long' });
+            const year = today.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+        
+        function getTodayDate() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        }
+        
+        function formatIndianDate(timestamp) {
+            const date = new Date(timestamp || Date.now());
+            const day = date.getDate();
+            const month = date.toLocaleString('en-IN', { month: 'long' });
+            const year = date.getFullYear();
+            return `${day} ${month} ${year}`;
+        }
+        
+        window.toggleMobileForm = () => {
+            const isDesktop = window.innerWidth >= 1024;
+            if (isDesktop) return;
+            const content = document.getElementById('mobileFormContent');
+            const icon = document.getElementById('collapseIcon');
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+                isFormOpen = false;
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+                isFormOpen = true;
+            }
+        };
+        
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.add('open');
+                if (icon) icon.classList.add('open');
+            } else if (!isFormOpen) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.remove('open');
+                if (icon) icon.classList.remove('open');
+            }
+        });
+        
+        setTimeout(() => {
+            if (window.innerWidth >= 1024) {
+                const content = document.getElementById('mobileFormContent');
+                const icon = document.getElementById('collapseIcon');
+                if (content) content.classList.add('open');
+                if (icon) icon.classList.add('open');
+            }
+        }, 100);
+        
+        const dateInput = document.getElementById('expenseDate');
+        if (dateInput) dateInput.value = getTodayDate();
+        
+        window.toggleTheme = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDark ? "fa fa-sun text-gold" : "fa fa-moon text-gold";
+        };
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = "fa fa-sun text-gold";
+        }
+
+        function updateConditionalFields(cat) {
+            const container = document.getElementById('conditionalFields');
+            if (cat === 'Petrol') {
+                container.innerHTML = `<div><input type="number" step="any" id="fuelVolume" placeholder="Fuel (L)" class="modern-input"></div><div><input type="text" id="station" placeholder="Station" class="modern-input"></div><div></div>`;
+            } else if (cat === 'Part Replacement') {
+                container.innerHTML = `<div><input type="text" id="partName" placeholder="Part name" class="modern-input"></div><div><input type="text" id="brandName" placeholder="Brand" class="modern-input"></div><div><input type="text" id="shopName" placeholder="Shop" class="modern-input"></div>`;
+            } else if (cat === 'Servicing') {
+                container.innerHTML = `<div><input type="text" id="serviceType" placeholder="Service type" class="modern-input"></div><div><input type="text" id="serviceCenter" placeholder="Center" class="modern-input"></div><div><input type="number" id="odometer" placeholder="Odometer (km)" class="modern-input"></div>`;
+            } else if (cat === 'Modification') {
+                container.innerHTML = `<div><input type="text" id="modPart" placeholder="Part name" class="modern-input"></div><div><input type="text" id="modBrand" placeholder="Brand" class="modern-input"></div><div><input type="text" id="installerShop" placeholder="Installer" class="modern-input"></div>`;
+            } else if (cat === 'Tyre/Air') {
+                container.innerHTML = `<div><input type="text" id="tyrePosition" placeholder="Position" class="modern-input"></div><div><input type="text" id="tyreSize" placeholder="Size" class="modern-input"></div><div><input type="text" id="tyreBrand" placeholder="Brand" class="modern-input"></div>`;
+            } else if (cat === 'Cleaning') {
+                container.innerHTML = `<div><input type="text" id="cleaningType" placeholder="Cleaning type" class="modern-input"></div><div><input type="text" id="serviceCenterName" placeholder="Center" class="modern-input"></div><div></div>`;
+            } else {
+                container.innerHTML = `<div class="full-width-field text-center text-xs text-gray-400 italic p-3">Select expense type</div>`;
+            }
+        }
+        
+        document.querySelectorAll('.expense-option').forEach(opt => opt.addEventListener('click', function() {
+            document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('category').value = this.getAttribute('data-cat');
+            updateConditionalFields(this.getAttribute('data-cat'));
+        }));
+        
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => { c.classList.remove('active'); });
+            this.classList.add('active');
+            currentCategoryFilter = this.getAttribute('data-filter');
+            renderFilteredEntries();
+        }));
+        
+        document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { currentVehicleFilter = e.target.value; renderFilteredEntries(); updateTotalExpenditureCard(); });
+        document.getElementById('vehicleList').addEventListener('change', (e) => document.getElementById('newVehicleWrapper').classList.toggle('hidden', e.target.value !== 'NEW'));
+        
+        function showToast(msg) { let t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fa fa-check-circle mr-2"></i>${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+        
+        function updateTotalExpenditureCard() {
+            const card = document.getElementById('totalExpenditureCard');
+            if(!currentVehicleFilter) { card.classList.add('hidden'); return; }
+            const total = allEntries.filter(e=>e.name===currentVehicleFilter).reduce((s,e)=>s+e.cost,0);
+            document.getElementById('totalExpenditureAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
+            card.classList.remove('hidden');
+        }
+        
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let selectedVehicle = document.getElementById('vehicleList').value;
+            if (selectedVehicle === 'NEW') {
+                let newName = document.getElementById('newVehicleName').value.trim();
+                if(!newName) return alert("Enter vehicle name");
+                selectedVehicle = newName.toUpperCase();
+            }
+            if (!selectedVehicle) return alert("Vehicle required");
+            const rawCost = parseFloat(document.getElementById('cost').value);
+            if (isNaN(rawCost)||rawCost<=0) return alert("Valid amount required");
+            const category = document.getElementById('category').value;
+            if (!category) return alert("Select expense type");
+            
+            let expenseDateRaw = document.getElementById('expenseDate').value || getTodayDate();
+            const displayDate = formatDateToDisplay(expenseDateRaw);
+            const timestamp = new Date(expenseDateRaw).getTime();
+            
+            const entryData = {
+                name: selectedVehicle, cost: rawCost, category, date: displayDate,
+                rawDate: expenseDateRaw, timestamp: isNaN(timestamp) ? Date.now() : timestamp,
+                details: document.getElementById('details').value||null
+            };
+            
+            if(category==='Petrol') {
+                if(document.getElementById('fuelVolume')?.value) entryData.fuelVolume = parseFloat(document.getElementById('fuelVolume').value);
+                if(document.getElementById('station')?.value) entryData.station = document.getElementById('station').value;
+            }
+            if(category==='Part Replacement') {
+                if(document.getElementById('partName')?.value) entryData.partName = document.getElementById('partName').value;
+                if(document.getElementById('brandName')?.value) entryData.brandName = document.getElementById('brandName').value;
+                if(document.getElementById('shopName')?.value) entryData.shopName = document.getElementById('shopName').value;
+            }
+            if(category==='Servicing') {
+                if(document.getElementById('serviceType')?.value) entryData.serviceType = document.getElementById('serviceType').value;
+                if(document.getElementById('serviceCenter')?.value) entryData.serviceCenter = document.getElementById('serviceCenter').value;
+                if(document.getElementById('odometer')?.value) entryData.odometer = parseFloat(document.getElementById('odometer').value);
+            }
+            if(category==='Modification') {
+                if(document.getElementById('modPart')?.value) entryData.modPart = document.getElementById('modPart').value;
+                if(document.getElementById('modBrand')?.value) entryData.modBrand = document.getElementById('modBrand').value;
+                if(document.getElementById('installerShop')?.value) entryData.installerShop = document.getElementById('installerShop').value;
+            }
+            if(category==='Tyre/Air') {
+                if(document.getElementById('tyrePosition')?.value) entryData.tyrePosition = document.getElementById('tyrePosition').value;
+                if(document.getElementById('tyreSize')?.value) entryData.tyreSize = document.getElementById('tyreSize').value;
+                if(document.getElementById('tyreBrand')?.value) entryData.tyreBrand = document.getElementById('tyreBrand').value;
+            }
+            if(category==='Cleaning') {
+                if(document.getElementById('cleaningType')?.value) entryData.cleaningType = document.getElementById('cleaningType').value;
+                if(document.getElementById('serviceCenterName')?.value) entryData.serviceCenterName = document.getElementById('serviceCenterName').value;
+            }
+            
+            const editId = document.getElementById('editId').value;
+            try {
+                if(editId) await update(ref(db, `vehicleExpenses/${editId}`), entryData);
+                else await push(expensesRef, entryData);
+                showToast(editId?"Updated ✓":"Saved ✓");
+                document.getElementById('expenseForm').reset();
+                document.getElementById('editId').value = '';
+                document.getElementById('newVehicleWrapper').classList.add('hidden');
+                document.getElementById('category').value = '';
+                document.querySelectorAll('.expense-option').forEach(opt=>opt.classList.remove('selected'));
+                updateConditionalFields('');
+                if(dateInput) dateInput.value = getTodayDate();
+            } catch(err) { alert("Error: " + err.message); }
+        });
+        
+        onValue(query(ref(db,'vehicleExpenses'),orderByChild('timestamp')), (snap) => {
+            const data = snap.val();
+            allEntries = data ? Object.entries(data).map(([id,val])=>({id,...val})).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)) : [];
+            renderFilteredEntries();
+            updateTotalExpenditureCard();
+            const uniqueVehicles = [...new Set(allEntries.map(e=>e.name))];
+            ['vehicleList','historyVehicleSelect','reminderVehicleSelect'].forEach(id=>{
+                let sel = document.getElementById(id);
+                if(sel){
+                    let html = '<option value="">—— SELECT VEHICLE ——</option>';
+                    uniqueVehicles.sort().forEach(v => html += `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`);
+                    html += '<option value="NEW" class="text-gold font-bold">+ ADD NEW VEHICLE</option>';
+                    sel.innerHTML = html;
+                }
+            });
+        });
+        
+        onValue(ref(db, 'serviceReminders'), (snap) => {
+            const data = snap.val();
+            reminders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+            const container = document.getElementById('remindersList');
+            if(!container) return;
+            if(reminders.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 text-sm py-3">No reminders set</div>'; return; }
+            container.innerHTML = reminders.map(r => `<div class="glass-panel p-3 text-sm"><div class="flex justify-between items-start"><div><div class="font-bold text-gold">${escapeHtml(r.vehicle)}</div><div class="text-xs mt-1">📅 ${formatDateToDisplay(r.date)} ${r.km ? `| 📍 ${r.km} km` : ''}</div>${r.notes ? `<div class="text-xs text-gray-500 mt-1">${escapeHtml(r.notes)}</div>` : ''}</div><button onclick="window.deleteReminder('${r.id}')" class="text-red-400 hover:text-red-600 text-sm transition-colors p-1"><i class="fa fa-trash"></i></button></div></div>`).join('');
+        });
+        
+        window.deleteReminder = async (id) => { if(confirm("Delete?")){ await remove(ref(db, `serviceReminders/${id}`)); showToast("Reminder deleted"); } };
+        window.openServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'flex'; document.getElementById('nextServiceDate').value = getTodayDate(); };
+        window.closeServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'none'; };
+        window.saveServiceReminder = async () => {
+            const vehicle = document.getElementById('reminderVehicleSelect').value;
+            const date = document.getElementById('nextServiceDate').value;
+            const km = document.getElementById('nextServiceKM').value;
+            const notes = document.getElementById('serviceNotes').value;
+            if(!vehicle || !date) { alert("Vehicle and date required"); return; }
+            await push(ref(db, 'serviceReminders'), { vehicle, date, km: km||null, notes: notes||null, createdAt: Date.now() });
+            showToast(`Reminder set for ${vehicle}`);
+            document.getElementById('nextServiceKM').value = '';
+            document.getElementById('serviceNotes').value = '';
+            closeServiceReminderModal();
+        };
+        
+        function renderFilteredEntries() {
+            let filtered = allEntries.filter(e=>!currentVehicleFilter||e.name===currentVehicleFilter);
+            if(currentCategoryFilter!=='all') filtered = filtered.filter(e=>e.category===currentCategoryFilter);
+            if(currentSearchTerm) filtered = filtered.filter(e=>JSON.stringify(e).toLowerCase().includes(currentSearchTerm));
+            document.getElementById('logCounter').innerText = `${filtered.length}`;
+            const container = document.getElementById('logsContainer');
+            if(!filtered.length){ container.innerHTML = `<div class="glass-panel p-6 text-center"><i class="fa fa-receipt text-gray-300 text-2xl"></i><p class="text-sm mt-2">No entries</p></div>`; return; }
+            container.innerHTML = filtered.map(d => `<div class="entry-card"><div class="flex justify-between items-start gap-3"><div class="flex-1"><div class="flex gap-2 flex-wrap"><span class="font-bold text-gold">${d.date || formatIndianDate(d.timestamp)}</span><span class="bg-gold/10 px-3 py-1 rounded-full">${d.category}</span></div><h3 class="font-black mt-1.5">${escapeHtml(d.name)}</h3>${d.details?`<p class="text-gray-500 mt-1.5">${escapeHtml(d.details)}</p>`:''}</div><div class="text-right shrink-0"><span class="font-black text-gold text-lg">₹${d.cost.toLocaleString('en-IN')}</span><div class="flex gap-2 mt-2 justify-end"><button onclick='window.editEntry("${d.id}")' class="text-blue-500"><i class="fa-regular fa-pen-to-square"></i></button><button onclick='window.deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500"><i class="fa-regular fa-trash-can"></i></button></div></div></div></div>`).join('');
+        }
+        
+        window.editEntry = async (id) => {
+            const entry = allEntries.find(e=>e.id===id);
+            if(!entry) return;
+            document.getElementById('editId').value = id;
+            document.getElementById('vehicleList').value = entry.name;
+            document.getElementById('cost').value = entry.cost;
+            document.getElementById('category').value = entry.category;
+            updateConditionalFields(entry.category);
+            document.querySelectorAll('.expense-option').forEach(opt=>opt.classList.toggle('selected',opt.getAttribute('data-cat')===entry.category));
+            document.getElementById('details').value = entry.details||'';
+            if(entry.rawDate && dateInput) dateInput.value = entry.rawDate;
+            else if(dateInput) dateInput.value = getTodayDate();
+            window.scrollTo({top:0});
+            if(window.innerWidth < 1024 && !document.getElementById('mobileFormContent').classList.contains('open')) window.toggleMobileForm();
+        };
+        
+        window.deleteEntry = async (id) => { if(confirm("Delete?")){ await remove(ref(db,`vehicleExpenses/${id}`)); showToast("Deleted"); } };
+        window.filterEntries = () => { currentSearchTerm = document.getElementById('searchBar').value.toLowerCase(); renderFilteredEntries(); };
+        window.startVoiceSearch = () => {
+            const SpeechRecognition = window.SpeechRecognition||window.webkitSpeechRecognition;
+            if(!SpeechRecognition) return alert("Not supported");
+            const rec = new SpeechRecognition(); rec.lang = 'en-IN'; rec.start();
+            rec.onresult = (e) => { document.getElementById('searchBar').value = e.results[0][0].transcript; currentSearchTerm = e.results[0][0].transcript.toLowerCase(); renderFilteredEntries(); };
+        };
+        
+        function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+        
+        window.openHistoryModal = () => {
+            if (!currentVehicleFilter) { alert("Select a vehicle from 'VIEW DATA FOR' first"); return; }
+            historyCurrentVehicle = currentVehicleFilter;
+            document.getElementById('modalVehicleName').innerHTML = `<i class="fa fa-car"></i> ${currentVehicleFilter}`;
+            updateHistoryModal(currentVehicleFilter, 'all');
+            document.getElementById('historyModal').style.display = 'flex';
+        };
+        
+        window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; };
+        window.filterHistoryByCategory = (cat) => {
+            updateHistoryModal(historyCurrentVehicle, cat);
+            document.querySelectorAll('.history-stat-card').forEach(c=>c.classList.remove('active'));
+            const cardMap = { 'all':'historyAllCard', 'Petrol':'historyPetrolCard', 'Part Replacement':'historyPartCard', 'Servicing':'historyServicingCard', 'Modification':'historyModCard', 'Tyre/Air':'historyTyreCard' };
+            document.getElementById(cardMap[cat] || 'historyAllCard').classList.add('active');
+        };
+        
+      function updateHistoryModal(vehicle, category) {
+    const entries = allEntries.filter(e => e.name === vehicle);
+    let totals = {Petrol:0, Part:0, Servicing:0, Mod:0, Tyre:0, total:0};
+    let counts = {Petrol:0, Part:0, Servicing:0, Mod:0, Tyre:0};
+    entries.forEach(e => {
+        totals.total += e.cost;
+        if(e.category === 'Petrol') { totals.Petrol += e.cost; counts.Petrol++; }
+        else if(e.category === 'Part Replacement') { totals.Part += e.cost; counts.Part++; }
+        else if(e.category === 'Servicing') { totals.Servicing += e.cost; counts.Servicing++; }
+        else if(e.category === 'Modification') { totals.Mod += e.cost; counts.Mod++; }
+        else if(e.category === 'Tyre/Air') { totals.Tyre += e.cost; counts.Tyre++; }
+    });
+    document.getElementById('historyTotalAmount').innerHTML = `₹${totals.total.toLocaleString('en-IN')}`;
+    document.getElementById('historyTotalCount').innerText = entries.length;
+    document.getElementById('historyPetrolAmount').innerHTML = `₹${totals.Petrol.toLocaleString('en-IN')}`;
+    document.getElementById('historyPetrolCount').innerText = counts.Petrol;
+    document.getElementById('historyPartAmount').innerHTML = `₹${totals.Part.toLocaleString('en-IN')}`;
+    document.getElementById('historyPartCount').innerText = counts.Part;
+    document.getElementById('historyServicingAmount').innerHTML = `₹${totals.Servicing.toLocaleString('en-IN')}`;
+    document.getElementById('historyServicingCount').innerText = counts.Servicing;
+    document.getElementById('historyModAmount').innerHTML = `₹${totals.Mod.toLocaleString('en-IN')}`;
+    document.getElementById('historyModCount').innerText = counts.Mod;
+    document.getElementById('historyTyreAmount').innerHTML = `₹${totals.Tyre.toLocaleString('en-IN')}`;
+    document.getElementById('historyTyreCount').innerText = counts.Tyre;
+    
+    let filtered = category === 'all' ? entries : entries.filter(e => e.category === category);
+    filtered.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+    const container = document.getElementById('historyEntriesList');
+    if(!filtered.length){ container.innerHTML = '<div class="text-center text-gray-400 text-sm py-5">No records found</div>'; return; }
+    container.innerHTML = filtered.map(entry => {
+        let extra = '';
+        if(entry.fuelVolume) extra += `<div class="extra-info mt-1.5">⛽ Fuel: ${entry.fuelVolume} L</div>`;
+        if(entry.station) extra += `<div class="extra-info">📍 Station: ${escapeHtml(entry.station)}</div>`;
+        if(entry.partName) extra += `<div class="extra-info">🔧 Part: ${escapeHtml(entry.partName)}</div>`;
+        if(entry.serviceType) extra += `<div class="extra-info">🛠️ Service: ${escapeHtml(entry.serviceType)}</div>`;
+        if(entry.odometer) extra += `<div class="extra-info">📊 Odometer: ${entry.odometer} km</div>`;
+        if(entry.tyrePosition) extra += `<div class="extra-info">🛞 Position: ${escapeHtml(entry.tyrePosition)}</div>`;
+        if(entry.modPart) extra += `<div class="extra-info">✨ Mod: ${escapeHtml(entry.modPart)}</div>`;
+        if(entry.cleaningType) extra += `<div class="extra-info">🧼 Cleaning: ${escapeHtml(entry.cleaningType)}</div>`;
+        // REMOVED the duplicate date on the right side - now only shows main date
+        return `<div class="history-detail-card"><div class="history-grid-item"><div><div class="date-text font-bold text-gold">${entry.date || formatIndianDate(entry.timestamp)}</div><span class="category-badge inline-block mt-2">${entry.category}</span></div><div><div class="amount-text font-black text-gold">₹${entry.cost.toLocaleString('en-IN')}</div>${entry.details ? `<div class="detail-text text-gray-600 dark:text-gray-400 mt-2">📝 ${escapeHtml(entry.details)}</div>` : ''}${extra}</div></div></div>`;
+    }).join('');
+}
+        
+        window.shareVehiclePDF = async () => {
+            if (!currentVehicleFilter) { alert("Select vehicle first"); return; }
+            const vehicle = currentVehicleFilter;
+            const entries = allEntries.filter(e => e.name === vehicle).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+            if(entries.length===0){ alert("No data"); return; }
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFillColor(218,165,32); doc.rect(0,0,210,45,'F');
+                doc.setFont("helvetica","bold"); doc.setFontSize(22); doc.setTextColor(255,255,255);
+                doc.text("VEHICLE EXPENSE REPORT",105,20,{align:'center'});
+                doc.setFontSize(11); doc.text(`Vehicle: ${vehicle}`,105,30,{align:'center'});
+                doc.text(`Generated: ${formatDateToDisplay(getTodayDate())}`,105,38,{align:'center'});
+                const total = entries.reduce((s,e)=>s+e.cost,0);
+                doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("FINANCIAL SUMMARY",14,60);
+                doc.setFontSize(10); doc.setFont("helvetica","normal");
+                doc.text(`Total Expenditure: ₹${total.toLocaleString('en-IN')}`,14,70);
+                const tableRows = entries.map(e=>[e.date || formatIndianDate(e.timestamp), e.category, `₹${e.cost.toLocaleString('en-IN')}`, e.details||'-']);
+                doc.autoTable({ startY:85, head:[['Date','Category','Amount','Description']], body:tableRows, theme:'striped', headStyles:{fillColor:[218,165,32],textColor:[255,255,255],fontStyle:'bold'}, bodyStyles:{fontSize:8}, margin:{left:14,right:14} });
+                doc.save(`${vehicle}_Expense_Report.pdf`);
+                showToast("PDF Generated!");
+            } catch(err){ alert("PDF Error: "+err.message); }
+        };
+    </script>
+    <style>
+        /* Reduce Petrol category badge font in entry cards */
+.entry-card .bg-gold\/10 {
+    font-size: 10px !important;
+}
+
+/* Specifically target Petrol badge */
+.entry-card span.bg-gold\/10:contains("Petrol"),
+.entry-card .rounded-full:contains("Petrol") {
+    font-size: 9px !important;
+}
+
+/* More precise selector for category badge in entry cards */
+.entry-card .flex.gap-2.flex-wrap span.bg-gold\/10 {
+    font-size: 14px !important;
+    padding: 2px 8px !important;
+}
+
+/* For mobile screens */
+@media (max-width: 640px) {
+    .entry-card .bg-gold\/10 {
+        font-size: 14px !important;
+        padding: 2px 6px !important;
+    }
+}
+
+/* For desktop */
+@media (min-width: 1024px) {
+    .entry-card .bg-gold\/10 {
+        font-size: 10px !important;
+        padding: 3px 10px !important;
+    }
+}
+/* Remove hover effect for entry cards */
+.entry-card {
+    transition: none !important;
+}
+
+.entry-card:hover {
+    transform: none !important;
+    border-color: #F0F0F0 !important;
+    box-shadow: none !important;
+}
+
+.dark .entry-card:hover {
+    border-color: #202024 !important;
+    box-shadow: none !important;
+}
+/* Increase the small date font in history entries (right side) */
+.history-detail-card .text-right,
+.history-grid-item .text-right,
+.history-detail-card .text-right.text-\[11px\] {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* More specific selector for the raw date */
+.history-detail-card .text-right,
+.history-grid-item > div:last-child {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+/* For mobile screens */
+@media (max-width: 640px) {
+    .history-detail-card .text-right,
+    .history-grid-item > div:last-child {
+        font-size: 12px !important;
+    }
+}
+/* Increase edit and delete button font/icons in entry cards */
+.entry-card button,
+.entry-card button i,
+button[onclick*="editEntry"] i,
+button[onclick*="deleteEntry"] i {
+    font-size: 18px !important;
+}
+
+/* For mobile screens */
+@media (max-width: 640px) {
+    .entry-card button,
+    .entry-card button i,
+    button[onclick*="editEntry"] i,
+    button[onclick*="deleteEntry"] i {
+        font-size: 16px !important;
+    }
+}
+
+/* For desktop */
+@media (min-width: 1024px) {
+    .entry-card button,
+    .entry-card button i,
+    button[onclick*="editEntry"] i,
+    button[onclick*="deleteEntry"] i {
+        font-size: 20px !important;
+    }
+}
+
+/* Increase button size and padding */
+.entry-card button {
+    padding: 8px 10px !important;
+}
+
+@media (max-width: 640px) {
+    .entry-card button {
+        padding: 6px 8px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .entry-card button {
+        padding: 10px 12px !important;
+    }
+}
+/* For desktop */
+@media (min-width: 1024px) {
+    .history-detail-card .text-right,
+    .history-grid-item > div:last-child {
+        font-size: 14px !important;
+    }
+}
+/* Increase amount font in history container */
+.history-detail-card .amount-text,
+.history-detail-card .font-black.text-gold,
+#historyEntriesList .amount-text {
+    font-size: 22px !important;
+    font-weight: 900 !important;
+}
+
+/* For mobile screens */
+@media (max-width: 640px) {
+    .history-detail-card .amount-text,
+    .history-detail-card .font-black.text-gold,
+    #historyEntriesList .amount-text {
+        font-size: 18px !important;
+    }
+}
+
+/* For tablet screens */
+@media (min-width: 641px) and (max-width: 1023px) {
+    .history-detail-card .amount-text,
+    .history-detail-card .font-black.text-gold,
+    #historyEntriesList .amount-text {
+        font-size: 15px !important;
+    }
+}
+
+/* For desktop */
+@media (min-width: 1024px) {
+    .history-detail-card .amount-text,
+    .history-detail-card .font-black.text-gold,
+    #historyEntriesList .amount-text {
+        font-size: 20px !important;
+    }
+}
+/* Toast notification styling with proper padding */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #10B981;
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 1100;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    padding: 14px 20px !important;
+    font-size: 14px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 200px !important;
+}
+
+/* Delete toast - different color */
+.toast.delete-toast {
+    background: #EF4444 !important;
+}
+
+/* Success toast */
+.toast.success-toast {
+    background: #10B981 !important;
+}
+
+/* Toast icon styling */
+.toast i {
+    font-size: 16px !important;
+}
+
+/* For mobile screens */
+@media (max-width: 640px) {
+    .toast {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        text-align: center;
+        font-size: 13px !important;
+        padding: 12px 16px !important;
+        justify-content: center;
+        min-width: auto !important;
+    }
+    
+    .toast i {
+        font-size: 14px !important;
+    }
+}
+
+/* For desktop */
+@media (min-width: 1024px) {
+    .toast {
+        padding: 16px 24px !important;
+        font-size: 15px !important;
+        border-radius: 14px !important;
+    }
+    
+    .toast i {
+        font-size: 18px !important;
+    }
+}
+/* Fix rupee sign position in amount input */
+.amount-date-row .relative {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.amount-date-row .relative span.absolute {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    left: 12px !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+    color: #DAA520 !important;
+    pointer-events: none;
+}
+
+/* For the amount input */
+#cost {
+    padding-left: 28px !important;
+}
+
+/* Mobile adjustment */
+@media (max-width: 640px) {
+    .amount-date-row .relative span.absolute {
+        left: 10px !important;
+        font-size: 14px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+    
+    #cost {
+        padding-left: 24px !important;
+    }
+}
+
+/* For desktop */
+@media (min-width: 1024px) {
+    .amount-date-row .relative span.absolute {
+        left: 14px !important;
+        font-size: 18px !important;
+    }
+    
+    #cost {
+        padding-left: 32px !important;
+    }
+}
+
+/* Alternative fix if the above doesn't work */
+.modern-input.pl-7 {
+    padding-left: 2rem !important;
+}
+
+/* Ensure the rupee sign is vertically centered */
+.relative .absolute {
+    line-height: 1 !important;
+    display: inline-block !important;
+}
+/* Animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+/* Fix calendar icon color in dark mode - make it visible */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(5.2) !important;
+    opacity: 1.8 !important;
+    cursor: pointer !important;
+}
+
+/* Make calendar icon brighter on hover */
+.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(1) brightness(1.5) !important;
+    opacity: 4 !important;
+}
+
+/* For Firefox - date picker icon */
+.dark input[type="date"] {
+    color-scheme: dark !important;
+}
+
+/* Alternative if the above doesn't work - force white color */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    background-color: transparent !important;
+    filter: brightness(0) invert(1) !important;
+}
+
+/* For the specific date inputs */
+.dark #expenseDate::-webkit-calendar-picker-indicator,
+.dark #nextServiceDate::-webkit-calendar-picker-indicator {
+    filter: invert(1) !important;
+    opacity: 4 !important;
+}
+
+.dark #expenseDate::-webkit-calendar-picker-indicator:hover,
+.dark #nextServiceDate::-webkit-calendar-picker-indicator:hover {
+    opacity: 4 !important;
+    filter: invert(1) brightness(1.2) !important;
+}
+    </style>
+</body>
+</html>
