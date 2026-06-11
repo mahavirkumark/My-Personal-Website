@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Savig - Smart Dashboard</title>
+    
+    <!-- Tailwind + Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Firebase SDKs (v8 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* Reusable Animations - ORIGINAL preserved */
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+        .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
+        .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
+        .animate-card { animation: cardPop 0.5s ease-out both; }
+        
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+        @keyframes cardPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Original Nav Hover Effects */
+        nav a { transition: color 0.3s, transform 0.2s ease-out;}
+        nav a:hover { color: #1e40af; transform: translateY(-2px); }
+        
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrapper { flex-grow: 1; }
+
+        /* Mobile Menu */
+        #mobile-menu { position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20; transition: max-height 0.3s ease-out, opacity 0.3s ease-out; max-height: 0; overflow: hidden; opacity: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        #mobile-menu:not(.hidden) { max-height: 80vh; overflow-y: auto; opacity: 1; }
+        #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; }
+        #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #f3f4f6; }
+        
+        /* Desktop Sidebar - Original styling */
+        .sidebar-desktop { width: 320px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); align-self: flex-start; position: sticky; top: 6rem; min-height: calc(100vh - 8rem); }
+        .sidebar-nav-internal a { display: flex; align-items: center; padding: 0.8rem 0.6rem; margin-bottom: 0.5rem; border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500; font-size: 1.05rem; transition: all 0.2s; }
+        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { background-color: #eff6ff; color: #1e40af; transform: translateX(3px); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); }
+        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; }
+        
+        .dashboard-wrapper { max-width: 1400px; width: 90%; margin: 0 auto; }
+        .dashboard-main-content { flex-grow: 1; }
+        
+        /* Three column grid - INCREASED HEIGHT by 100px */
+        .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; }
+        @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
+        
+        /* Card styling with increased height (min-height increased by 100px) */
+        .dashboard-card { 
+            background: var(--bg-card); 
+            border-radius: 1rem; 
+            border: 1px solid var(--border); 
+            overflow: hidden; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 480px; /* Increased by ~100px from original ~380px */
+        }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .card-header { padding: 0.9rem 1rem; }
+        .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 420px; /* Increased to accommodate more content */ }
+        
+        /* Links list items */
+        .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.75rem; background: var(--item-bg); border-radius: 0.75rem; margin-bottom: 0.5rem; transition: all 0.2s; border: 1px solid var(--border-light); }
+        .link-item:hover { background: var(--item-hover); transform: translateX(2px); }
+        .link-info { flex: 1; overflow: hidden; }
+        .link-title { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
+        .link-url { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .link-actions { display: flex; gap: 0.5rem; }
+        .icon-btn { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: all 0.15s; cursor: pointer; border: none; background: transparent; }
+        .icon-btn:hover { transform: scale(1.08); }
+        .open-btn { background: var(--accent-light); color: var(--accent-dark); }
+        .delete-btn { background: var(--danger-light); color: var(--danger-dark); }
+        
+        /* Form styling */
+        .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+        .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; }
+        .link-input:focus { border-color: var(--primary); ring: 2px; }
+        
+        /* Theme Variables - full dark/light support */
+        :root {
+            --bg-body: #f9fafb;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-bold: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --border-light: #f0f2f5;
+            --item-bg: #f9fafb;
+            --item-hover: #f3f4f6;
+            --form-bg: #f9fafb;
+            --input-bg: #ffffff;
+            --primary: #3b82f6;
+            --accent-light: #e0e7ff;
+            --accent-dark: #4338ca;
+            --danger-light: #fee2e2;
+            --danger-dark: #b91c1c;
+            --nav-bg: #ffffff;
+            --nav-text: #000000;
+            --nav-height: 65px;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #cbd5e1;
+            --text-bold: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-light: #2d3a4f;
+            --item-bg: #1e293b;
+            --item-hover: #334155;
+            --form-bg: #0f172a;
+            --input-bg: #1e293b;
+            --primary: #3b82f6;
+            --accent-light: #1e3a8a;
+            --accent-dark: #60a5fa;
+            --danger-light: #7f1d1d;
+            --danger-dark: #fca5a5;
+            --nav-bg: #0f172a;
+            --nav-text: #ffffff;
+        }
+        
+        body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.2s, color 0.2s; }
+        .bg-white, header, aside, main, #mobile-menu, footer, .dashboard-card { background-color: var(--bg-card) !important; border-color: var(--border) !important; }
+        h1, h2, h3, h4, .font-bold, .font-semibold { color: var(--text-bold) !important; }
+        p, li, span, .text-gray-700, .text-gray-600 { color: var(--text-main) !important; }
+        
+        /* Sidebar dark mode override */
+        [data-theme="dark"] .sidebar-nav-internal a { color: #ffffff !important; font-weight: 700 !important; }
+        [data-theme="dark"] .sidebar-nav-internal a i { color: #ffffff !important; }
+        [data-theme="dark"] .sidebar-nav-internal a:hover { background-color: #334155 !important; color: #60a5fa !important; }
+        [data-theme="dark"] .sidebar-desktop h3 { color: #ffffff !important; border-bottom-color: #ffffff !important; }
+        
+        /* Bottom nav */
+        #universal-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 999999; }
+        .nav-link { text-decoration: none; text-align: center; flex: 1; }
+        .nav-link i { font-size: 20px; display: block; margin-bottom: 2px; font-weight: 900; color: var(--nav-text); }
+        .nav-link div { font-size: 11px; font-weight: 800; color: var(--nav-text); }
+        .nav-spacer { height: 75px; }
+        @media (min-width: 768px) { #universal-bottom-nav, .nav-spacer { display: none !important; } }
+        
+        /* Theme toggle button */
+        #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: transform 0.1s; }
+        #theme-toggle-btn:active { transform: scale(0.94); }
+        
+        /* Custom scrollbar */
+        .card-body::-webkit-scrollbar { width: 5px; }
+        .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* Celebration card hover effects - original style */
+        .celeb-card { transition: all 0.2s; }
+        .celeb-card:hover { transform: translateX(3px); }
+        
+        /* Event item hover */
+        .event-item { transition: all 0.2s; }
+        .event-item:hover { background: var(--item-hover); transform: translateX(2px); }
+    </style>
+</head>
+<body>
+
+<div class="content-wrapper">
+    <!-- DESKTOP HEADER - original design preserved -->
+    <div class="hidden md:block fade-in">
+        <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
+            <div class="flex items-center gap-1 slide-left">
+                <div class="relative flex items-center justify-center">
+                    <i class="fas fa-shield text-blue-600 text-3xl"></i>
+                    <i class="fas fa-database text-white absolute text-sm top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                </div>
+                <span class="font-black tracking-tighter text-2xl" style="color: var(--text-bold);">Savig</span>
+            </div>
+            <nav class="flex items-center gap-6 text-lg font-semibold">
+                <a href="home.html" class="flex items-center gap-1 transition-colors" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
+                <a href="income.html" class="flex items-center gap-1 transition-colors" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
+                <a href="calender.html" class="flex items-center gap-1 transition-colors" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
+                <a href="birthday.html" class="flex items-center gap-1 transition-colors" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
+                <a href="password.html" class="flex items-center gap-1 transition-colors" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
+            </nav>
+            <div class="flex items-center gap-4 slide-left">
+                <div class="text-right">
+                    <p id="desktopUserName" class="font-semibold" style="color: var(--text-bold);">Dashboard User</p>
+                    <p id="desktopUserEmail" class="text-sm" style="color: var(--text-muted);">user@example.com</p>
+                </div>
+                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border" style="border-color: var(--border);">
+                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 text-sm transition">Logout</button>
+            </div>
+        </header>
+    </div>
+
+    <!-- MOBILE HEADER -->
+    <div class="block md:hidden fade-in">
+        <header class="shadow-md sticky top-0 z-30 p-2 flex justify-between items-center" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-1">
+                <div class="relative flex items-center justify-center"><i class="fas fa-shield text-blue-600 text-2xl"></i><i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i></div>
+                <h1 class="font-black text-xl" style="color: var(--text-bold);">Savig</h1>
+            </div>
+            <button id="menu-btn" class="p-2 rounded-lg" style="color: var(--text-main);"><i class="fas fa-bars text-xl"></i></button>
+        </header>
+        <nav id="mobile-menu" class="hidden mt-2 px-6 pb-2 space-y-1 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
+            <a href="home.html" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
+            <a href="income.html" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
+            <a href="links.html" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
+            <a href="calender.html" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
+            <a href="password.html" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
+            <a href="profile.html" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
+            <a href="essential.html" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
+            <a href="grocery.html" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
+        </nav>
+    </div>
+
+    <!-- MAIN DASHBOARD LAYOUT -->
+    <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4">
+        <!-- DESKTOP SIDEBAR (original preserved) -->
+        <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
+            <h3 class="text-lg font-bold mb-2 border-b pb-2 uppercase text-xs" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
+            <nav class="sidebar-nav-internal flex flex-col gap-1">
+                <a href="profile.html"><i class="fas fa-user-gear mr-2"></i> Profile</a>
+                <a href="essential.html"><i class="fas fa-shopping-basket mr-2"></i> Essentials</a>
+                <a href="asset.html"><i class="fas fa-dollar-sign mr-2"></i> Assets</a>
+                <a href="place.html"><i class="fas fa-map-marker-alt mr-2"></i> Tourist Places</a>
+                <a href="contact.html"><i class="fas fa-address-book mr-2"></i> Contacts</a>
+                <a href="grocery.html"><i class="fas fa-shopping-cart mr-2"></i> Grocery</a>
+                <a href="adress.html"><i class="fas fa-map-location-dot mr-2"></i> Address</a>
+                <a href="vehicle.html"><i class="fa-solid fa-car-side mr-2"></i> Vehicle</a>
+                <a href="Panchang.html"><i class="fa-solid fa-calendar mr-2"></i> Festivals</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT: three column row with INCREASED height -->
+        <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
+            <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
+            <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
+            
+            <!-- 3 equal cards row - each now has increased height (min-height: 480px) -->
+            <div class="three-col-grid">
+                <!-- Card 1: Today's Schedule & Groceries -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2></div>
+                    <div class="card-body">
+                        <div id="dash-events-list" class="space-y-2"><p class="text-sm" style="color: var(--text-muted);">Loading events...</p></div>
+                        <hr class="my-3" style="border-color: var(--border);">
+                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list" class="space-y-1"><p class="text-sm" style="color: var(--text-muted);">Loading...</p></div></div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Celebrations Today -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2></div>
+                    <div class="card-body" id="dash-celebrations-list"><p class="text-sm" style="color: var(--text-muted);">Checking celebrations...</p></div>
+                </div>
+
+                <!-- Card 3: LINKS MANAGER (Save & Open Links) -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
+                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md hover:bg-gray-100 transition"><i class="fas fa-plus mr-1"></i>Add Link</button>
+                    </div>
+                    <div class="card-body">
+                        <div id="linkFormContainer" class="link-form-container hidden">
+                            <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
+                            <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
+                            <div class="flex gap-2 mt-2">
+                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition">Save</button>
+                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-600 transition">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="savedLinksList" class="space-y-2">
+                            <div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Productivity Section (unchanged) -->
+            <div class="mt-8 p-6 rounded-lg shadow-sm" style="background: var(--item-bg); border-left: 4px solid #059669;">
+                <div class="flex items-center mb-4"><i class="fas fa-bolt text-2xl mr-3" style="color: #059669;"></i><h4 class="text-xl font-semibold" style="color: var(--text-bold);">Quick Productivity Boost</h4></div>
+                <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Track daily work tasks</li>
+                    <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Manage secure passwords</li>
+                    <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Check grocery essentials</li>
+                    <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Monitor asset growth</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<nav id="universal-bottom-nav">
+    <a href="home.html" class="nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
+    <a href="addressmob.html" class="nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
+    <a href="password.html" class="nav-link"><i class="fa-solid fa-key"></i><div>Passwords</div></a>
+    <a href="grocery.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i><div>Grocery</div></a>
+    <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
+</nav>
+<div class="nav-spacer"></div>
+
+<button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
+
+<script>
+    // FIREBASE CONFIG
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUserId = null;
+    let linksRefListener = null;
+
+    // UPDATE UI with user name, email, and photo properly
+    function updateUI(user) {
+        const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
+        const userEmail = user.email || "user@example.com";
+        let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
+        const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
+        const userPhoto = user.photoURL || photoPlaceholder;
+        
+        document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => { if(el) el.innerText = userName; });
+        document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
+        document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
+        
+        currentUserId = user.uid;
+    }
+
+    window.logout = function() { auth.signOut().then(() => window.location.replace('index.html')).catch(console.error); };
+
+    // Dashboard data loader with original hover classes
+    function loadDashboardData(userId) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2,'0');
+        const dd = String(today.getDate()).padStart(2,'0');
+        const dateKey = `${yyyy}-${mm}-${dd}`;
+
+        // Events
+        db.ref(`users/${userId}/events/${dateKey}`).on('value', snap => {
+            const container = document.getElementById('dash-events-list');
+            if(!container) return;
+            container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
+            if(!snap.exists()) container.innerHTML += '<p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>';
+            snap.forEach(child => {
+                const ev = child.val();
+                container.innerHTML += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm mb-2" style="background: var(--item-bg); transition: all 0.2s;"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
+            });
+        });
+
+        // Grocery
+        db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap => {
+            const groceryDiv = document.getElementById('dash-grocery-list');
+            if(!groceryDiv) return;
+            groceryDiv.innerHTML = '';
+            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted);">No groceries today</p>'; return; }
+            snap.forEach(child => {
+                const item = child.val();
+                groceryDiv.innerHTML += `<div class="flex items-center gap-2 p-1 transition hover:translate-x-1"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
+            });
+        });
+
+        // Celebrations
+        const bdayRef = db.ref(`users/${userId}/birthdays`);
+        const anniRef = db.ref(`anniversaries/${userId}`);
+        Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
+            const celebDiv = document.getElementById('dash-celebrations-list');
+            if(!celebDiv) return;
+            celebDiv.innerHTML = '';
+            let found = false;
+            bSnap.forEach(child => {
+                const b = child.val();
+                if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
+                    found = true;
+                    celebDiv.innerHTML += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2 transition-all" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition"><i class="fab fa-whatsapp"></i> Wish</button></div>`;
+                }
+            });
+            aSnap.forEach(child => {
+                const a = child.val();
+                if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
+                    found = true;
+                    celebDiv.innerHTML += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2 transition-all" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition"><i class="fab fa-whatsapp"></i> Wish</button></div>`;
+                }
+            });
+            if(!found) celebDiv.innerHTML = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+        });
+    }
+
+    window.sendWhatsAppMsg = function(phone, msg) {
+        if(!phone) { alert("No phone number saved for this contact."); return; }
+        const clean = phone.replace(/\D/g, '');
+        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
+    };
+
+    // LINKS MANAGER
+    function initLinksManager(userId) {
+        const linksRef = db.ref(`users/${userId}/quickLinks`);
+        const container = document.getElementById('savedLinksList');
+        if(!container) return;
+        if(linksRefListener) linksRefListener.off();
+        linksRef.on('value', (snapshot) => {
+            const links = snapshot.val() || {};
+            container.innerHTML = '';
+            if(Object.keys(links).length === 0) {
+                container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>';
+                return;
+            }
+            Object.entries(links).forEach(([id, link]) => {
+                const title = link.title || link.url.replace(/^https?:\/\//,'').split('/')[0];
+                const url = link.url;
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link-item';
+                linkDiv.innerHTML = `
+                    <div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div>
+                    <div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt fa-xs"></i></button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-alt fa-xs"></i></button></div>
+                `;
+                container.appendChild(linkDiv);
+            });
+            document.querySelectorAll('.open-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); });
+            });
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); });
+            });
+        });
+        linksRefListener = linksRef;
+    }
+
+    function setupLinkUI(userId) {
+        const addBtn = document.getElementById('addLinkBtn');
+        const formDiv = document.getElementById('linkFormContainer');
+        const saveBtn = document.getElementById('saveLinkBtn');
+        const cancelBtn = document.getElementById('cancelLinkBtn');
+        const urlInp = document.getElementById('linkUrl');
+        const titleInp = document.getElementById('linkTitle');
+        if(!addBtn) return;
+        addBtn.onclick = () => { formDiv.classList.remove('hidden'); urlInp.value=''; titleInp.value=''; urlInp.focus(); };
+        cancelBtn.onclick = () => { formDiv.classList.add('hidden'); };
+        saveBtn.onclick = async () => {
+            let url = urlInp.value.trim();
+            if(!url) { alert("Please enter a URL"); return; }
+            if(!url.startsWith('http')) url = 'https://' + url;
+            const title = titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0];
+            const linksRef = db.ref(`users/${userId}/quickLinks`);
+            await linksRef.push({ url, title, createdAt: Date.now() });
+            formDiv.classList.add('hidden');
+            urlInp.value = '';
+            titleInp.value = '';
+        };
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    // AUTH STATE - FETCHES EMAIL, NAME, PHOTO properly
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            updateUI(user);
+            loadDashboardData(user.uid);
+            initLinksManager(user.uid);
+            setupLinkUI(user.uid);
+        } else {
+            window.location.replace("index.html");
+        }
+    });
+
+    // Mobile menu toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    // Theme toggle
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if(themeBtn) {
+        themeBtn.onclick = () => {
+            let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        };
+    }
+    
+    const desktopLogout = document.getElementById('desktopLogout');
+    if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
+</script>
+</body>
+</html>
