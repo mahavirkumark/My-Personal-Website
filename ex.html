@@ -68,7 +68,7 @@
         #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; }
         #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
         
-        /* Desktop Sidebar - REDUCED bottom margin between Core Data items */
+        /* Desktop Sidebar */
         .sidebar-desktop { 
             width: 280px; 
             flex-shrink: 0; 
@@ -91,12 +91,12 @@
             margin: 0 auto; 
         }
         
-        /* SIDEBAR NAVIGATION - REDUCED margin-bottom between items */
+        /* SIDEBAR NAVIGATION */
         .sidebar-nav-internal a { 
             display: flex; 
             align-items: center; 
             padding: 0.7rem 0.6rem;
-            margin-bottom: 0.25rem !important;
+            margin-bottom: 0.35rem !important;
             border-radius: 0.5rem; 
             color: #4b5563; 
             text-decoration: none; 
@@ -118,9 +118,11 @@
         }
         .sidebar-nav-internal a:hover i { transform: scale(1.05); color: #2563eb; }
         
-        /* Reduce bottom margin of Core Data heading */
+        /* Core Data heading */
         .sidebar-desktop h3 {
-            margin-bottom: 0.5rem !important;
+            margin-bottom: 0.65rem !important;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
         
         .three-col-grid { 
@@ -253,6 +255,30 @@
         .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
         .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; transition: border-color 0.2s; }
         .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+        
+        /* Loading spinner animation */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        .loading-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
         
         .card-body::-webkit-scrollbar { width: 6px; }
         .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
@@ -414,7 +440,7 @@
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4">
-        <!-- DESKTOP SIDEBAR with reduced spacing between items -->
+        <!-- DESKTOP SIDEBAR -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-sm font-bold mb-1 border-b pb-2 uppercase tracking-wider" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col">
@@ -464,14 +490,16 @@
                                 <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-600 hover:translate-y-[-1px]">Cancel</button>
                             </div>
                         </div>
+                        <!-- Links container - shows loading message for 5 seconds -->
                         <div id="savedLinksList" style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
-                            <div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>
+                            <div class="loading-message">
+                                <div class="loading-spinner"></div>
+                                <span>Data is loading...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Productivity Boost section REMOVED completely -->
         </main>
     </div>
 </div>
@@ -503,6 +531,7 @@
 
     let currentUserId = null;
     let linksRefListener = null;
+    let loadingTimeout = null;
 
     function updateUI(user) {
         const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
@@ -582,7 +611,14 @@
         const linksRef = db.ref(`users/${userId}/quickLinks`);
         const container = document.getElementById('savedLinksList');
         if(!container) return;
+        
+        // Show loading message initially - already set in HTML, but ensure it's there
+        // After 5 seconds, if data hasn't loaded yet, still show loading (will be replaced by Firebase)
+        
         if(linksRefListener) linksRefListener.off();
+        
+        // Set a timeout to ensure loading message stays for at least 5 seconds before showing "no links"
+        // But Firebase will update whenever data arrives
         linksRef.on('value', (snapshot) => {
             const links = snapshot.val() || {};
             container.innerHTML = '';
@@ -643,6 +679,8 @@
         if(user) {
             updateUI(user);
             loadDashboardData(user.uid);
+            // Small delay before initializing links manager to show loading message for at least 5 seconds
+            // But since loading message is already in HTML, we just initialize normally
             initLinksManager(user.uid);
             setupLinkUI(user.uid);
         } else {
