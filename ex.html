@@ -84,19 +84,92 @@
         .card-header { padding: 0.9rem 1rem; }
         .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; }
         
-        /* Links list items */
-        .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.75rem; background: var(--item-bg); border-radius: 0.75rem; margin-bottom: 0.5rem; transition: all 0.2s ease; border: 1px solid var(--border-light); }
-        .link-item:hover { background: var(--item-hover); transform: translateX(3px) translateY(-1px); }
-        .link-info { flex: 1; overflow: hidden; }
+        /* Links list items - NO HOVER ON THE WHOLE ITEM, only buttons */
+        .link-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0.65rem 0.75rem; 
+            background: var(--item-bg); 
+            border-radius: 0.75rem; 
+            margin-bottom: 0.5rem; 
+            border: 1px solid var(--border-light); 
+            transition: background 0.2s ease;
+        }
+        /* Remove the transform hover from the whole link item */
+        .link-item:hover { 
+            background: var(--item-hover); 
+        }
+        .link-info { flex: 1; overflow: hidden; pointer-events: none; } /* Prevents hover on text area */
         .link-title { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
         .link-url { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .link-actions { display: flex; gap: 0.5rem; }
-        .icon-btn { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; cursor: pointer; border: none; background: transparent; }
-        .icon-btn:hover { transform: scale(1.1) translateY(-1px); }
-        .open-btn { background: var(--accent-light); color: var(--accent-dark); }
-        .open-btn:hover { background: var(--primary); color: white; }
-        .delete-btn { background: var(--danger-light); color: var(--danger-dark); }
-        .delete-btn:hover { background: #dc2626; color: white; }
+        .link-actions { display: flex; gap: 0.6rem; }
+        
+        /* MODERN ICON BUTTONS - Only these have hover effects */
+        .icon-btn { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 10px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+            cursor: pointer; 
+            border: none; 
+            font-size: 0.9rem;
+            backdrop-filter: blur(2px);
+        }
+        /* Open button - modern external link style */
+        .open-btn { 
+            background: rgba(59, 130, 246, 0.1); 
+            color: #3b82f6; 
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            border-color: transparent;
+        }
+        .open-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        /* Delete button - modern trash style */
+        .delete-btn { 
+            background: rgba(239, 68, 68, 0.1); 
+            color: #ef4444; 
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            border-color: transparent;
+        }
+        .delete-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        /* Dark mode button styles */
+        [data-theme="dark"] .open-btn { 
+            background: rgba(96, 165, 250, 0.15); 
+            color: #60a5fa; 
+            border-color: rgba(96, 165, 250, 0.25);
+        }
+        [data-theme="dark"] .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+        [data-theme="dark"] .delete-btn { 
+            background: rgba(248, 113, 113, 0.15); 
+            color: #f87171; 
+            border-color: rgba(248, 113, 113, 0.25);
+        }
+        [data-theme="dark"] .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
         
         /* Form styling */
         .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
@@ -199,14 +272,17 @@
         .grocery-item:hover { transform: translateX(3px) translateY(-1px); color: var(--primary) !important; }
         
         /* Add link button hover */
-        #addLinkBtn { transition: all 0.2s ease; }
-        #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #f8fafc !important; }
+        #addLinkBtn { transition: all 0.2s ease; cursor: pointer; }
+        #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); background: #f8fafc !important; color: #4f46e5 !important; }
+        
+        [data-theme="dark"] #addLinkBtn { background: #1e293b !important; color: #a5b4fc !important; border: 1px solid #4f46e5; }
+        [data-theme="dark"] #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); background: #2d3a5e !important; color: #c7d2fe !important; border-color: #818cf8; }
     </style>
 </head>
 <body>
 
 <div class="content-wrapper">
-    <!-- DESKTOP HEADER - with enhanced blue hover and lift -->
+    <!-- DESKTOP HEADER -->
     <div class="hidden md:block fade-in">
         <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
             <div class="flex items-center gap-1 slide-left">
@@ -257,7 +333,6 @@
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4">
-        <!-- DESKTOP SIDEBAR with enhanced hover -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-lg font-bold mb-2 border-b pb-2 uppercase text-xs" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col gap-1">
@@ -273,14 +348,11 @@
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
             
-            <!-- 3 equal cards row -->
             <div class="three-col-grid">
-                <!-- Card 1: Today's Schedule & Groceries -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2></div>
                     <div class="card-body">
@@ -290,13 +362,11 @@
                     </div>
                 </div>
 
-                <!-- Card 2: Celebrations Today -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2></div>
                     <div class="card-body" id="dash-celebrations-list"><p class="text-sm" style="color: var(--text-muted);">Checking celebrations...</p></div>
                 </div>
 
-                <!-- Card 3: LINKS MANAGER with proper scrollbar -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
@@ -318,7 +388,6 @@
                 </div>
             </div>
 
-            <!-- Quick Productivity Section -->
             <div class="mt-8 p-6 rounded-lg shadow-sm transition-all hover:shadow-md" style="background: var(--item-bg); border-left: 4px solid #059669;">
                 <div class="flex items-center mb-4"><i class="fas fa-bolt text-2xl mr-3" style="color: #059669;"></i><h4 class="text-xl font-semibold" style="color: var(--text-bold);">Quick Productivity Boost</h4></div>
                 <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -332,7 +401,6 @@
     </div>
 </div>
 
-<!-- Bottom Navigation with enhanced hover -->
 <nav id="universal-bottom-nav">
     <a href="home.html" class="nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
     <a href="addressmob.html" class="nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
@@ -345,7 +413,6 @@
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
-    // FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
         authDomain: "sk12-58e9e.firebaseapp.com",
@@ -368,11 +435,9 @@
         let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
         const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
         const userPhoto = user.photoURL || photoPlaceholder;
-        
         document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => { if(el) el.innerText = userName; });
         document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
         document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
-        
         currentUserId = user.uid;
     }
 
@@ -457,7 +522,10 @@
                 linkDiv.className = 'link-item';
                 linkDiv.innerHTML = `
                     <div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div>
-                    <div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt fa-xs"></i></button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-alt fa-xs"></i></button></div>
+                    <div class="link-actions">
+                        <button class="icon-btn open-btn" data-url="${escapeHtml(url)}" title="Open link"><i class="fas fa-arrow-up-right-from-square"></i></button>
+                        <button class="icon-btn delete-btn" data-id="${id}" title="Delete link"><i class="fas fa-trash-can"></i></button>
+                    </div>
                 `;
                 container.appendChild(linkDiv);
             });
@@ -525,82 +593,5 @@
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
 </script>
-    <style>
-        /* Add Link Button - Base Styles */
-#addLinkBtn {
-    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Light Mode Hover Effect */
-#addLinkBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-    background: #f8fafc !important;
-    color: #4f46e5 !important;
-}
-
-/* Light Mode Active/Click Effect */
-#addLinkBtn:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Dark Mode Hover Effect */
-[data-theme="dark"] #addLinkBtn {
-    background: #1e293b !important;
-    color: #a5b4fc !important;
-    border: 1px solid #4f46e5;
-}
-
-[data-theme="dark"] #addLinkBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
-    background: #2d3a5e !important;
-    color: #c7d2fe !important;
-    border-color: #818cf8;
-}
-
-[data-theme="dark"] #addLinkBtn:active {
-    transform: translateY(1px);
-    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
-}
-
-/* Optional Ripple Effect on Click */
-#addLinkBtn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(79, 70, 229, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.4s ease, height 0.4s ease;
-}
-
-#addLinkBtn:active::after {
-    width: 120px;
-    height: 120px;
-    opacity: 0;
-    transition: 0s;
-}
-
-/* Focus styles for accessibility */
-#addLinkBtn:focus {
-    outline: none;
-    ring: 2px;
-    ring-color: #4f46e5;
-}
-
-/* Ensure smooth dark mode transition */
-#addLinkBtn,
-#addLinkBtn * {
-    transition: all 0.25s ease;
-}
-    </style>
 </body>
 </html>
