@@ -1,444 +1,760 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Savig | Premium Food Expense Tracker</title>
-  <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Google Fonts Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Chart.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Savig</title>
+    
+    <!-- Tailwind + Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Firebase SDKs (v8 compat) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* Reusable Animations */
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
+        .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
+        .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
+        .animate-card { animation: cardPop 0.5s ease-out both; }
+        
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+        @keyframes cardPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+        /* IMPROVED NAV HOVER EFFECTS */
+        nav a { 
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        nav a:hover { 
+            color: #2563eb !important; 
+            transform: translateY(-3px); 
+        }
+        
+        header nav { gap: 0.5rem !important; }
+        header nav a { font-weight: 600; padding: 0.25rem 0; margin-left: 16px !important; }
+        header nav a:first-child { margin-left: 0 !important; }
+        .savig-logo { margin-right: 20px; }
+        
+        body { min-height: 100vh; display: flex; flex-direction: column; }
+        .content-wrapper { flex-grow: 1; }
+
+        /* Mobile Menu */
+        #mobile-menu { position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20; transition: max-height 0.3s ease-out, opacity 0.3s ease-out; max-height: 0; overflow: hidden; opacity: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        #mobile-menu:not(.hidden) { max-height: 80vh; overflow-y: auto; opacity: 1; }
+        #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; }
+        #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
+        
+        /* Desktop Sidebar - Enhanced Dark Mode Support */
+        .sidebar-desktop { 
+            width: 280px; 
+            flex-shrink: 0; 
+            background-color: var(--bg-card); 
+            padding: 1.5rem 1rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
+            transition: background-color 0.2s, border-color 0.2s;
+            border: 1px solid var(--border);
+        }
+        .dashboard-main-content { flex: 1; min-width: 0; width: calc(100% - 280px - 1.5rem + 50px); }
+        .dashboard-wrapper { max-width: 1590px; width: 92%; margin: 0 auto; }
+        
+        /* SIDEBAR NAVIGATION - Enhanced dark mode styling */
+        .sidebar-nav-internal a { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.7rem 0.6rem;
+            margin-bottom: 0.35rem !important;
+            border-radius: 0.5rem; 
+            color: var(--text-main); 
+            text-decoration: none; 
+            font-weight: 500; 
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+        }
+        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { 
+            background-color: var(--sidebar-hover); 
+            color: var(--primary); 
+            transform: translateX(5px) translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        .sidebar-nav-internal i { 
+            margin-right: 0.75rem; 
+            width: 1.25rem; 
+            text-align: center; 
+            transition: transform 0.2s, color 0.2s; 
+        }
+        .sidebar-nav-internal a:hover i { transform: scale(1.1); color: var(--primary); }
+        
+        /* Core Data heading styling in dark mode */
+        .sidebar-desktop h3 {
+            margin-bottom: 0.65rem !important;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-bold);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+        
+        /* 3-COLUMN GRID */
+        .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; align-items: stretch; }
+        @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
+        
+        /* Card styling */
+        .dashboard-card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; transition: background 0.2s, border 0.2s; }
+        .card-header { padding: 0.9rem 1rem; }
+        .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; }
+        
+        /* Link items - Enhanced hovers */
+        .link-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0.65rem 0.75rem; 
+            background: var(--item-bg); 
+            border-radius: 0.75rem; 
+            margin-bottom: 0.5rem; 
+            border: 1px solid var(--border-light); 
+            transition: all 0.2s ease;
+        }
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+        .link-info { flex: 1; overflow: hidden; pointer-events: none; }
+        .link-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
+        .link-url { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .link-actions { display: flex; gap: 0.6rem; }
+        
+        /* MODERN BUTTONS - Enhanced hover effects for both themes */
+        .icon-btn { 
+            padding: 0 12px;
+            height: 32px; 
+            border-radius: 8px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+            cursor: pointer; 
+            border: none; 
+            font-size: 0.75rem;
+            font-weight: 600;
+            gap: 4px;
+        }
+        
+        .open-btn { 
+            background: rgba(59, 130, 246, 0.1); 
+            color: #3b82f6; 
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 14px rgba(59, 130, 246, 0.35);
+            border-color: transparent;
+        }
+        .open-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        .delete-btn { 
+            width: 32px;
+            background: rgba(239, 68, 68, 0.1); 
+            color: #ef4444; 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .delete-btn i { font-size: 0.8rem; }
+        .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+            border-color: transparent;
+        }
+        .delete-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        /* Dark mode button overrides */
+        [data-theme="dark"] .open-btn { 
+            background: rgba(96, 165, 250, 0.15); 
+            color: #60a5fa; 
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+        [data-theme="dark"] .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+        [data-theme="dark"] .delete-btn { 
+            background: rgba(248, 113, 113, 0.15); 
+            color: #f87171; 
+            border-color: rgba(248, 113, 113, 0.4);
+        }
+        [data-theme="dark"] .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+        }
+        
+        /* ADD LINK BUTTON - Enhanced hover across themes */
+        #addLinkBtn { 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+            cursor: pointer; 
+            background: rgba(255,255,255,0.95);
+            color: #4f46e5;
+            border: none;
+        }
+        #addLinkBtn:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            background: white !important;
+            color: #6366f1 !important;
+        }
+        #addLinkBtn:active { transform: translateY(1px); }
+        
+        [data-theme="dark"] #addLinkBtn { 
+            background: #1e293b !important; 
+            color: #a5b4fc !important; 
+            border: 1px solid #6366f1;
+        }
+        [data-theme="dark"] #addLinkBtn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            background: #2d3a5e !important; 
+            color: #c7d2fe !important;
+            border-color: #818cf8;
+        }
+        
+        /* Form buttons enhanced */
+        #saveLinkBtn, #cancelLinkBtn { transition: all 0.2s ease; cursor: pointer; }
+        #saveLinkBtn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        #cancelLinkBtn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+        
+        /* Link Form */
+        .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
+        .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; transition: all 0.2s; }
+        .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.2); transform: translateY(-1px); }
+        
+        /* LOADING SPINNER */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        .loading-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        /* Left container data items margin-bottom: 2px */
+        #dash-events-list > div, #dash-grocery-list > div {
+            margin-bottom: 2px;
+        }
+        .event-item, .grocery-item, .celeb-card {
+            transition: all 0.2s ease;
+        }
+        .event-item:hover, .grocery-item:hover, .celeb-card:hover {
+            transform: translateX(3px);
+            background: var(--item-hover) !important;
+        }
+        
+        .card-body::-webkit-scrollbar { width: 6px; }
+        .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb:hover { background: var(--accent-dark); }
+        
+        #savedLinksList { max-height: 320px; overflow-y: auto; padding-right: 4px; }
+        #savedLinksList::-webkit-scrollbar { width: 5px; }
+        #savedLinksList::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        #savedLinksList::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* Theme Variables - Enhanced for better dark mode contrast */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-bold: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --item-bg: #f8fafc;
+            --item-hover: #f1f5f9;
+            --form-bg: #f8fafc;
+            --input-bg: #ffffff;
+            --primary: #3b82f6;
+            --accent-dark: #2563eb;
+            --sidebar-hover: #eff6ff;
+            --nav-bg: #ffffff;
+            --nav-text: #0f172a;
+            --nav-height: 65px;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0b1120;
+            --bg-card: #1a2332;
+            --text-main: #cbd5e6;
+            --text-bold: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #2d3a4f;
+            --border-light: #253141;
+            --item-bg: #1e2a3a;
+            --item-hover: #2d3a4f;
+            --form-bg: #0f172a;
+            --input-bg: #1e2a3a;
+            --primary: #3b82f6;
+            --accent-dark: #60a5fa;
+            --sidebar-hover: #1e3a8a;
+            --nav-bg: #0f172a;
+            --nav-text: #e2e8f0;
+        }
+        
+        body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.2s, color 0.2s; }
+        .bg-white, header, aside, main, #mobile-menu, footer, .dashboard-card { background-color: var(--bg-card) !important; border-color: var(--border) !important; transition: background 0.2s; }
+        h1, h2, h3, h4, .font-bold, .font-semibold { color: var(--text-bold) !important; }
+        p, li, span, .text-gray-700, .text-gray-600 { color: var(--text-main) !important; }
+        
+        /* Dark mode specific improvements for Core Data */
+        [data-theme="dark"] .sidebar-desktop {
+            background: linear-gradient(145deg, #1a2332 0%, #161f2c 100%);
+            border: 1px solid #2d3a4f;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a {
+            color: #cbd5e6 !important;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a i {
+            color: #818cf8 !important;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a:hover {
+            background: linear-gradient(90deg, #1e3a8a 0%, #1e2a3a 100%);
+            color: #60a5fa !important;
+            transform: translateX(5px) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .sidebar-nav-internal a:hover i {
+            color: #60a5fa !important;
+            transform: scale(1.1);
+        }
+        [data-theme="dark"] .sidebar-desktop h3 {
+            color: #e2e8f0 !important;
+            border-bottom-color: #3b4a62 !important;
+        }
+        
+        #universal-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 999999; }
+        .nav-link { text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; }
+        .nav-link i { font-size: 20px; display: block; margin-bottom: 2px; font-weight: 900; color: var(--nav-text); transition: all 0.25s ease; }
+        .nav-link div { font-size: 11px; font-weight: 800; color: var(--nav-text); transition: all 0.25s ease; }
+        .nav-link:hover { transform: translateY(-4px); }
+        .nav-link:hover i { color: #3b82f6 !important; transform: scale(1.1); }
+        .nav-link:hover div { color: #3b82f6 !important; }
+        .nav-spacer { height: 75px; }
+        @media (min-width: 768px) { #universal-bottom-nav, .nav-spacer { display: none !important; } }
+        
+        #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: all 0.25s ease; }
+        #theme-toggle-btn:hover { transform: scale(1.1) translateY(-3px); background: #1d4ed8; box-shadow: 0 8px 20px rgba(59,130,246,0.4); }
+        #theme-toggle-btn:active { transform: scale(0.95); }
+        
+        .dashboard-wrapper { display: flex; flex-direction: row; align-items: flex-start; gap: 1.5rem; }
+        
+        /* Celebration card hover */
+        .celeb-card button {
+            transition: all 0.2s ease;
+        }
+        .celeb-card button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+        }
+    </style>
 </head>
 <body>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
 
-    /* Light Mode (default) */
-    body {
-      background-color: #f3f4f6;
-      color: #1f2937;
-      transition: background-color 0.25s ease, color 0.2s ease;
-    }
-
-    /* Dark Mode Class */
-    body.dark-mode {
-      background-color: #0a0f1c;
-      color: #e2e8f0;
-    }
-
-    /* Container cards */
-    .card-glass {
-      background-color: #ffffff;
-      border: 1px solid #e9eef3;
-      transition: all 0.2s;
-    }
-    body.dark-mode .card-glass {
-      background-color: #111827;
-      border-color: #1f2a3e;
-    }
-
-    .input-modern {
-      background-color: #f9fafb;
-      border: 1.5px solid #e5e7eb;
-      transition: all 0.2s;
-    }
-    body.dark-mode .input-modern {
-      background-color: #1e293b;
-      border-color: #334155;
-      color: #f1f5f9;
-    }
-    .input-modern:focus {
-      outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
-    }
-    body.dark-mode .input-modern:focus {
-      border-color: #60a5fa;
-      box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
-    }
-
-    /* Modern Circular Dining Type Selector */
-    .dining-circle {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-    .circle-icon {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #f0f2f5, #ffffff);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-      border: 2px solid transparent;
-    }
-    body.dark-mode .circle-icon {
-      background: linear-gradient(145deg, #1e293b, #0f172a);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    .dining-circle.selected .circle-icon {
-      border-color: #3b82f6;
-      background: linear-gradient(145deg, #dbeafe, #eff6ff);
-      transform: scale(1.02);
-      box-shadow: 0 8px 20px rgba(59,130,246,0.3);
-    }
-    body.dark-mode .dining-circle.selected .circle-icon {
-      background: linear-gradient(145deg, #1e3a8a, #1e40af);
-      border-color: #60a5fa;
-      box-shadow: 0 8px 20px rgba(96,165,250,0.3);
-    }
-    .dining-circle span {
-      font-size: 12px;
-      font-weight: 600;
-    }
-    @media (max-width: 640px) {
-      .circle-icon { width: 55px; height: 55px; font-size: 26px; }
-      .dining-circle span { font-size: 11px; }
-    }
-
-    /* Dish tags */
-    .dish-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-      border-radius: 40px;
-      padding: 5px 14px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    body.dark-mode .dish-tag {
-      background: linear-gradient(135deg, #334155, #1e293b);
-      color: #cbd5e1;
-    }
-    .dish-option {
-      cursor: pointer;
-      transition: all 0.15s;
-      padding: 7px 8px;
-      border-radius: 12px;
-      font-weight: 500;
-    }
-    .dish-option:hover {
-      background-color: #dbeafe;
-      transform: translateX(2px);
-    }
-    body.dark-mode .dish-option:hover {
-      background-color: #1e293b;
-    }
-
-    /* Expense card hover effects desktop */
-    .expense-card {
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    @media (min-width: 1024px) {
-      .expense-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.2);
-      }
-      .action-btn {
-        font-size: 24px !important;
-        width: 42px;
-        height: 42px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: all 0.2s;
-      }
-      .action-btn:hover {
-        background-color: rgba(0,0,0,0.08);
-        transform: scale(1.08);
-      }
-      body.dark-mode .action-btn:hover {
-        background-color: rgba(255,255,255,0.1);
-      }
-    }
-    @media (max-width: 1023px) {
-      .action-btn { font-size: 18px; padding: 8px; }
-    }
-
-    /* Mobile slide panel */
-    .slide-panel {
-      transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-    .panel-hidden { transform: translateX(-100%); }
-    .panel-visible { transform: translateX(0); }
-    @media (min-width: 1024px) {
-      .slide-panel { transform: translateX(0) !important; position: relative !important; width: 42% !important; box-shadow: none !important; }
-      .mobile-float-btn, .close-panel-btn, .overlay-blur { display: none; }
-    }
-    @media (max-width: 1023px) {
-      .slide-panel {
-        position: fixed; top: 0; left: 0; width: 88%; max-width: 380px; height: 100vh; z-index: 1000; overflow-y: auto;
-        border-radius: 0 28px 28px 0; box-shadow: 8px 0 30px rgba(0,0,0,0.3);
-        background-color: #ffffff;
-      }
-      body.dark-mode .slide-panel { background-color: #0f172a; border-right: 1px solid #334155; }
-      .overlay-blur { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 999; transition: opacity 0.2s; }
-    }
-
-    /* Custom scroll */
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
-    body.dark-mode ::-webkit-scrollbar-track { background: #1e293b; }
-    ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-  </style>
-  <div class="container mx-auto px-4 py-4 md:py-6 max-w-7xl relative">
-    <!-- Header with logo (no theme toggle, theme controlled by localStorage) -->
-    <div class="flex justify-between items-center mb-5 pb-2 border-b border-gray-200 dark:border-gray-700">
-      <div class="flex items-center gap-2">
-        <div class="relative flex items-center justify-center">
-          <i class="fas fa-shield text-blue-600" style="font-size:32px;"></i>
-          <i class="fas fa-database text-white absolute" style="font-size: 14px; top: 50%; transform: translateY(-50%);"></i>
-        </div>
-        <span class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-indigo-300">Savig</span>
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 ml-1">| Premium Tracker</span>
-      </div>
+<div class="content-wrapper">
+    <!-- DESKTOP HEADER -->
+    <div class="hidden md:block fade-in">
+        <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
+            <div class="flex items-center gap-1 slide-left">
+                <div class="relative flex items-center justify-center">
+                    <i class="fas fa-shield text-blue-600 text-3xl"></i>
+                    <i class="fas fa-database text-white absolute text-sm top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                </div>
+                <span class="font-black tracking-tighter text-2xl margin-right:60px savig-logo" style="color: var(--text-bold);">Savig</span>
+            </div>
+            <nav class="flex items-center text-lg font-semibold" style="gap: 0.5rem;">
+                <a href="home.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
+                <a href="income.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
+                <a href="calender.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
+                <a href="birthday.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
+                <a href="password.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
+            </nav>
+            <div class="flex items-center gap-4 slide-left">
+                <div class="text-right">
+                    <p id="desktopUserName" class="font-semibold" style="color: var(--text-bold);">Dashboard User</p>
+                    <p id="desktopUserEmail" class="text-sm" style="color: var(--text-muted);">user@example.com</p>
+                </div>
+                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border" style="border-color: var(--border);">
+                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all hover:scale-105 hover:translate-y-[-2px] text-sm">Logout</button>
+            </div>
+        </header>
     </div>
 
-    <!-- Mobile Floating Button -->
-    <button id="mobileOpenBtn" class="mobile-float-btn fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-full shadow-2xl flex items-center gap-2 lg:hidden">
-      <i class="fas fa-plus-circle text-xl"></i>
-      <span class="font-semibold">Add</span>
-    </button>
-    <div id="mobileOverlay" class="overlay-blur hidden lg:hidden"></div>
-
-    <!-- LEFT PANEL: Slide-in on mobile -->
-    <div id="entryPanel" class="slide-panel panel-hidden lg:panel-visible fixed lg:relative top-0 left-0 z-[1000] lg:z-auto card-glass p-5 rounded-r-2xl lg:rounded-2xl shadow-xl">
-      <div class="flex justify-between items-center mb-4 lg:hidden">
-        <h2 class="text-xl font-bold">New Expense</h2>
-        <button id="closePanelBtn" class="text-gray-500 text-2xl p-2 w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fas fa-times"></i></button>
-      </div>
-      <h2 class="text-xl font-semibold hidden lg:flex items-center gap-2 mb-5"><i class="fas fa-pen-alt text-blue-500"></i> Log expense</h2>
-      
-      <!-- Modern Circular Dining Type Selector -->
-      <div class="mb-6">
-        <label class="block text-sm font-semibold mb-3">🍽️ Dining type</label>
-        <div class="flex flex-wrap justify-around gap-4 sm:gap-6">
-          <div class="dining-circle" data-type="hotel">
-            <div class="circle-icon"><i class="fas fa-hotel"></i></div>
-            <span>Hotel</span>
-          </div>
-          <div class="dining-circle" data-type="zomato">
-            <div class="circle-icon"><i class="fas fa-pizza-slice"></i></div>
-            <span>Zomato</span>
-          </div>
-          <div class="dining-circle" data-type="swiggy">
-            <div class="circle-icon"><i class="fas fa-hamburger"></i></div>
-            <span>Swiggy</span>
-          </div>
-          <div class="dining-circle" data-type="other" id="otherCircle">
-            <div class="circle-icon"><i class="fas fa-ellipsis-h"></i></div>
-            <span>Other</span>
-          </div>
-        </div>
-        <input type="hidden" id="selectedPlatform" value="hotel">
-        <div id="customPlatformWrapper" class="mt-3 hidden">
-          <input type="text" id="customPlatformInput" placeholder="Platform name (e.g., UberEats)" class="w-full p-2.5 rounded-xl border input-modern">
-        </div>
-      </div>
-
-      <!-- Hotel Name -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1.5">🏨 Hotel / Restaurant *</label>
-        <input type="text" id="hotelName" placeholder="e.g., Shree Datta, Sagar Ratna, The Grand" class="w-full p-3 rounded-xl border input-modern">
-      </div>
-
-      <!-- City + District -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1.5">📍 City / District (Maharashtra)</label>
-        <select id="citySelect" class="w-full p-3 rounded-xl border input-modern mb-2">
-          <option value="">-- Select district --</option>
-        </select>
-        <input type="text" id="customCityInput" placeholder="Or type any city name" class="w-full p-3 rounded-xl border input-modern">
-      </div>
-
-      <!-- Family Count -->
-      <div class="mb-4">
-        <label class="block text-sm font-semibold mb-1.5">👨‍👩‍👧‍👦 Family / Group count</label>
-        <input type="number" id="familyCount" min="1" max="50" value="2" class="w-full p-3 rounded-xl border input-modern">
-      </div>
-
-      <!-- Dishes with search + custom add -->
-      <div class="mb-4">
-        <div class="flex justify-between items-center mb-2">
-          <label class="text-sm font-semibold">🍲 Dishes *</label>
-          <span class="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full font-bold" id="selectedDishCount">0</span>
-        </div>
-        <div class="relative mb-2">
-          <input type="text" id="dishSearchInput" placeholder="Search or type custom dish..." class="w-full p-3 pr-9 rounded-xl border input-modern">
-          <i class="fas fa-search absolute right-3 top-4 text-gray-400"></i>
-        </div>
-        <button id="addCustomDishBtn" class="text-sm bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 px-4 py-1.5 rounded-full mb-2 font-medium flex items-center gap-1"><i class="fas fa-plus-circle"></i> Add custom dish</button>
-        <div class="border rounded-xl max-h-40 overflow-y-auto p-2 bg-gray-50 dark:bg-gray-800/40 mb-2">
-          <div id="dishOptionsList" class="grid grid-cols-2 gap-1 text-sm"></div>
-        </div>
-        <div id="selectedDishesContainer" class="flex flex-wrap gap-2 mt-2 min-h-[55px]"></div>
-      </div>
-
-      <!-- Dish details fields (price, rating, review) -->
-      <div id="dishesDetailsArea" class="space-y-3 mt-3 max-h-56 overflow-y-auto"></div>
-
-      <button id="saveExpenseBtn" class="mt-5 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-3.5 rounded-xl shadow-lg transition hover:shadow-xl active:scale-95 text-base">
-        <i class="fas fa-save"></i> Save to Savig
-      </button>
+    <!-- MOBILE HEADER -->
+    <div class="block md:hidden fade-in">
+        <header class="shadow-md sticky top-0 z-30 p-2 flex justify-between items-center" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-1"><div class="relative flex items-center justify-center"><i class="fas fa-shield text-blue-600 text-2xl"></i><i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i></div><h1 class="font-black text-xl" style="color: var(--text-bold);">Savig</h1></div>
+            <button id="menu-btn" class="p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700" style="color: var(--text-main);"><i class="fas fa-bars text-xl"></i></button>
+        </header>
+        <nav id="mobile-menu" class="hidden mt-2 px-6 pb-2 space-y-1 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
+            <a href="home.html" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
+            <a href="income.html" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
+            <a href="links.html" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
+            <a href="calender.html" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
+            <a href="password.html" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
+            <a href="profile.html" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
+            <a href="essential.html" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
+            <a href="grocery.html" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
+        </nav>
     </div>
 
-    <!-- RIGHT PANEL: Dashboard & Records -->
-    <div class="lg:w-[55%] lg:ml-auto mt-5 lg:mt-0">
-      <div class="card-glass rounded-2xl shadow-md p-4 md:p-5">
-        <!-- Search -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
-          <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-chart-pie text-green-500"></i> Dashboard & Records</h2>
-          <div class="relative w-full sm:w-72">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-            <input type="text" id="searchRecords" placeholder="Search hotel, dish, city..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border input-modern text-sm">
-          </div>
-        </div>
+    <!-- MAIN DASHBOARD LAYOUT -->
+    <div class="dashboard-wrapper mt-6 flex flex-col md:flex-row gap-6 px-4">
+        <!-- DESKTOP SIDEBAR - Core Data (Enhanced Dark Mode) -->
+        <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
+            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider"><i class="fas fa-database mr-2"></i> Core Data</h3>
+            <nav class="sidebar-nav-internal flex flex-col">
+                <a href="profile.html"><i class="fas fa-user-gear"></i> Profile</a>
+                <a href="essential.html"><i class="fas fa-shopping-basket"></i> Essentials</a>
+                <a href="asset.html"><i class="fas fa-dollar-sign"></i> Assets</a>
+                <a href="place.html"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
+                <a href="contact.html"><i class="fas fa-address-book"></i> Contacts</a>
+                <a href="grocery.html"><i class="fas fa-shopping-cart"></i> Grocery</a>
+                <a href="adress.html"><i class="fas fa-map-location-dot"></i> Address</a>
+                <a href="vehicle.html"><i class="fa-solid fa-car-side"></i> Vehicle</a>
+                <a href="Panchang.html"><i class="fa-solid fa-calendar"></i> Festivals</a>
+            </nav>
+        </aside>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
-          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">🏨 Today Hotel</p><p id="todayHotelCount" class="text-2xl font-bold text-blue-600">0</p></div>
-          <div class="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📱 Today Online</p><p id="todayOnlineCount" class="text-2xl font-bold text-orange-600">0</p></div>
-          <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📅 Monthly Visits</p><p id="monthlyVisitsCount" class="text-2xl font-bold text-purple-600">0</p></div>
-          <div class="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-2 text-center"><p class="text-xs font-medium">📆 Yearly Visits</p><p id="yearlyVisitsCount" class="text-2xl font-bold text-teal-600">0</p></div>
-        </div>
+        <!-- MAIN CONTENT -->
+        <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
+            <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
+            <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
+            
+            <div class="three-col-grid">
+                <!-- COLUMN 1 -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2></div>
+                    <div class="card-body">
+                        <div id="dash-events-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading events...</span></div></div>
+                        <hr class="my-3" style="border-color: var(--border);">
+                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
+                    </div>
+                </div>
 
-        <!-- Pie Chart + Expense Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-          <div class="bg-gray-50 dark:bg-gray-800/30 rounded-xl p-3">
-            <p class="text-sm font-bold mb-2"><i class="fas fa-chart-pie text-blue-500"></i> Orders by platform</p>
-            <canvas id="platformPieChart" width="200" height="160" style="max-height: 170px;"></canvas>
-          </div>
-          <div class="space-y-2">
-            <div class="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📆 Monthly Expense</span><span id="monthlyTotal" class="text-xl font-bold text-indigo-700">₹0</span></div>
-            <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📅 Yearly Expense</span><span id="yearlyTotal" class="text-xl font-bold text-green-700">₹0</span></div>
-            <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">🏨 Hotel (This Month)</span><span id="monthlyHotelCount" class="text-xl font-bold">0</span></div>
-            <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3 flex justify-between items-center"><span class="font-medium">📱 Online Orders (Month)</span><span id="monthlyOnlineCount" class="text-xl font-bold">0</span></div>
-          </div>
-        </div>
+                <!-- COLUMN 2 -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2></div>
+                    <div class="card-body" id="dash-celebrations-list"><div class="loading-message"><div class="loading-spinner"></div><span>Checking celebrations...</span></div></div>
+                </div>
 
-        <!-- Entries List -->
-        <div id="entriesList" class="space-y-3 max-h-[400px] overflow-y-auto pr-1">
-          <div class="text-center text-gray-400 py-10">✨ No records yet. Tap + to add expense</div>
-        </div>
-      </div>
+                <!-- COLUMN 3 -->
+                <div class="dashboard-card">
+                    <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
+                        <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
+                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md"><i class="fas fa-plus mr-1"></i>Add Link</button>
+                    </div>
+                    <div class="card-body" style="display: flex; flex-direction: column;">
+                        <div id="linkFormContainer" class="link-form-container hidden">
+                            <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
+                            <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
+                            <div class="flex gap-2 mt-2">
+                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">Save</button>
+                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all">Cancel</button>
+                            </div>
+                        </div>
+                        <div id="savedLinksList"><div class="loading-message"><div class="loading-spinner"></div><span>Data is loading...</span></div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-  </div>
+</div>
 
-  <script>
-    // ========== PURE VEG DISH DATABASE (300+ items) ==========
-    const vegMaster = [
-      "Paneer Butter Masala", "Shahi Paneer", "Kadai Paneer", "Palak Paneer", "Dal Makhani", "Chana Masala", "Veg Biryani", "Masala Dosa", "Idli Sambhar", "Pav Bhaji", "Samosa", "Dhokla", "Vada Pav", "Chole Bhature", "Aloo Paratha", "Veg Manchurian", "Chilli Paneer", "Gobi Manchurian", "Hakka Noodles", "Spring Rolls", "Veg Pizza", "Garlic Bread", "Cheese Balls", "French Fries", "Gulab Jamun", "Jalebi", "Rasmalai", "Kheer", "Mango Lassi", "Masala Chai", "Veg Burger", "Aloo Tikki", "Malai Kofta", "Dal Tadka", "Jeera Rice", "Naan", "Butter Naan", "Rava Dosa", "Uttapam", "Medu Vada", "Upma", "Bhindi Masala", "Aloo Gobi", "Baingan Bharta", "Rajma", "Kadhi Pakora", "Veg Kolhapuri", "Methi Malai Matar", "Schezwan Noodles", "Honey Chilli Potato", "Paneer Momos", "Veg Momos", "Corn Cheese Balls", "Crispy Corn", "Stuffed Mushroom", "Tandoori Aloo", "Veg Seekh Kebab", "Paneer Tikka", "Samosa Chaat", "Papdi Chaat", "Bhel Puri", "Pani Puri", "Veg Thali", "Poori Bhaji", "Khaman", "Fafda", "Undhiyu", "Misal Pav", "Sabudana Khichdi", "Paneer Pasanda"
-    ];
-    const DISH_LIB = [...new Set(vegMaster)].slice(0, 330);
-    
-    // Maharashtra 36 districts
-    const maharashtraCities = [
-      "Mumbai City", "Mumbai Suburban", "Thane", "Palghar", "Raigad", "Ratnagiri", "Sindhudurg", "Pune", "Satara", "Sangli", "Kolhapur", "Solapur", "Ahmednagar", "Nashik", "Jalgaon", "Dhule", "Nandurbar", "Aurangabad", "Jalna", "Parbhani", "Hingoli", "Nanded", "Latur", "Osmanabad", "Beed", "Nagpur", "Wardha", "Bhandara", "Gondia", "Chandrapur", "Gadchiroli", "Amravati", "Akola", "Buldhana", "Yavatmal", "Washim"
-    ];
-    
-    let expenseEntries = [];
-    let currentSelectedDishes = [];
-    let pieChart = null;
-    
-    // Helpers
-    function formatDate(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }); }
-    
-    function loadData() { const stored = localStorage.getItem("savig_db"); if(stored) expenseEntries = JSON.parse(stored); updateDashboard(); renderRightPanel(); renderPieChart(); }
-    function saveData() { localStorage.setItem("savig_db", JSON.stringify(expenseEntries)); updateDashboard(); renderRightPanel(); renderPieChart(); }
-    
-    // Theme from localStorage (no toggle button shown)
-    function applyTheme() { const theme = localStorage.getItem("savig_theme"); if(theme === "dark") document.body.classList.add("dark-mode"); else document.body.classList.remove("dark-mode"); }
-    
-    function populateCities() { let sel = document.getElementById("citySelect"); sel.innerHTML = '<option value="">-- Select Maharashtra district --</option>'; maharashtraCities.forEach(c => { sel.innerHTML += `<option value="${c}">${c}</option>`; }); }
-    
-    // Circular Dining Selector
-    function initDiningSelector() {
-      const circles = document.querySelectorAll('.dining-circle');
-      circles.forEach(circle => {
-        circle.addEventListener('click', () => {
-          circles.forEach(c => c.classList.remove('selected'));
-          circle.classList.add('selected');
-          let type = circle.getAttribute('data-type');
-          document.getElementById("selectedPlatform").value = type;
-          if(type === 'other') {
-            document.getElementById("customPlatformWrapper").classList.remove("hidden");
-          } else {
-            document.getElementById("customPlatformWrapper").classList.add("hidden");
-            document.getElementById("customPlatformInput").value = "";
-          }
+<nav id="universal-bottom-nav">
+    <a href="home.html" class="nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
+    <a href="addressmob.html" class="nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
+    <a href="password.html" class="nav-link"><i class="fa-solid fa-key"></i><div>Passwords</div></a>
+    <a href="grocery.html" class="nav-link"><i class="fa-solid fa-cart-shopping"></i><div>Grocery</div></a>
+    <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
+</nav>
+<div class="nav-spacer"></div>
+<button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
+
+<script>
+    // Firebase Config & Core Logic (same as original with full functionality preserved)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.appspot.com",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    let currentUserId = null;
+    let linksRefListener = null;
+
+    function updateUI(user) {
+        const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
+        const userEmail = user.email || "user@example.com";
+        let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
+        const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
+        const userPhoto = user.photoURL || photoPlaceholder;
+        document.querySelectorAll('#desktopUserName').forEach(el => { if(el) el.innerText = userName; });
+        document.querySelectorAll('#desktopUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
+        document.querySelectorAll('#desktopUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
+        currentUserId = user.uid;
+    }
+
+    window.logout = function() { auth.signOut().then(() => window.location.replace('index.html')).catch(console.error); };
+    window.sendWhatsAppMsg = function(phone, msg) { if(!phone) { alert("No phone number saved."); return; } const clean = phone.replace(/\D/g, ''); window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank'); };
+
+    function loadDashboardData(userId) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2,'0');
+        const dd = String(today.getDate()).padStart(2,'0');
+        const dateKey = `${yyyy}-${mm}-${dd}`;
+
+        db.ref(`users/${userId}/events/${dateKey}`).on('value', snap => {
+            const container = document.getElementById('dash-events-list');
+            if(!container) return;
+            if(!snap.exists()) { container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3><p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>'; return; }
+            let html = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
+            snap.forEach(child => {
+                const ev = child.val();
+                html += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm" style="background: var(--item-bg); margin-bottom: 2px;"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
+            });
+            container.innerHTML = html;
         });
-      });
-      // default select hotel
-      document.querySelector('.dining-circle[data-type="hotel"]').classList.add('selected');
+
+        db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap => {
+            const groceryDiv = document.getElementById('dash-grocery-list');
+            if(!groceryDiv) return;
+            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted); margin-bottom: 2px;">No groceries today</p>'; return; }
+            let html = '';
+            snap.forEach(child => {
+                const item = child.val();
+                html += `<div class="grocery-item flex items-center gap-2 p-1" style="margin-bottom: 2px;"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
+            });
+            groceryDiv.innerHTML = html;
+        });
+
+        const bdayRef = db.ref(`users/${userId}/birthdays`);
+        const anniRef = db.ref(`anniversaries/${userId}`);
+        Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
+            const celebDiv = document.getElementById('dash-celebrations-list');
+            if(!celebDiv) return;
+            let html = '';
+            let found = false;
+            bSnap.forEach(child => {
+                const b = child.val();
+                if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
+                    found = true;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+                }
+            });
+            aSnap.forEach(child => {
+                const a = child.val();
+                if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
+                    found = true;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+                }
+            });
+            if(!found) html = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+            celebDiv.innerHTML = html;
+        });
     }
-    
-    // Dish search and add
-    function renderDishOptions(search = "") { let container = document.getElementById("dishOptionsList"); let filtered = DISH_LIB.filter(d => d.toLowerCase().includes(search.toLowerCase())).slice(0, 45); container.innerHTML = filtered.map(dish => `<div class="dish-option text-sm" data-dish="${dish.replace(/"/g, '&quot;')}">🌱 ${dish}</div>`).join(''); document.querySelectorAll('.dish-option').forEach(el => { el.addEventListener('click', () => { let dishName = el.getAttribute('data-dish'); if(!currentSelectedDishes.some(d => d.dishName === dishName)) { currentSelectedDishes.push({ dishName, price: 0, rating: 3, review: "" }); updateSelectedUI(); } document.getElementById("dishSearchInput").value = ""; renderDishOptions(""); }); }); }
-    
-    function addCustomDish() { let input = document.getElementById("dishSearchInput"); let custom = input.value.trim(); if(custom && !currentSelectedDishes.some(d => d.dishName === custom)) { currentSelectedDishes.push({ dishName: custom, price: 0, rating: 3, review: "" }); updateSelectedUI(); input.value = ""; renderDishOptions(""); } else if(!custom) alert("Type a dish name"); else alert("Already added"); }
-    
-    function updateSelectedUI() { let container = document.getElementById("selectedDishesContainer"); let countSpan = document.getElementById("selectedDishCount"); countSpan.innerText = `${currentSelectedDishes.length}`; if(currentSelectedDishes.length===0) { container.innerHTML = '<span class="text-gray-400 text-xs">No dishes. Search or add custom dish.</span>'; } else { container.innerHTML = currentSelectedDishes.map((d,i) => `<span class="dish-tag">🍽️ ${d.dishName} <i class="fas fa-times-circle cursor-pointer text-red-500 ml-1" data-index="${i}"></i></span>`).join(''); document.querySelectorAll('.dish-tag .fa-times-circle').forEach(el => { el.addEventListener('click', (e) => { let idx = parseInt(el.getAttribute('data-index')); currentSelectedDishes.splice(idx,1); updateSelectedUI(); renderDishDetails(); }); }); } renderDishDetails(); }
-    
-    function renderDishDetails() { let area = document.getElementById("dishesDetailsArea"); if(currentSelectedDishes.length===0) { area.innerHTML = '<div class="text-sm text-gray-400 italic p-2">✨ Add dishes — price required for each.</div>'; return; } area.innerHTML = currentSelectedDishes.map((dish, idx) => `<div class="border rounded-xl p-3 bg-gray-50 dark:bg-gray-800/60"><div class="font-semibold text-sm mb-2 flex justify-between"><span>🍽️ ${dish.dishName}</span><span class="text-xs text-gray-500">#${idx+1}</span></div><div class="grid grid-cols-2 gap-2"><div><label class="text-xs font-medium">💰 Price (₹) *</label><input type="number" class="dish-price w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.price||0}" step="1" min="1"></div><div><label class="text-xs font-medium">⭐ Rating (0-5)</label><input type="number" class="dish-rating w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.rating||3}" step="0.5" min="0" max="5"></div></div><div class="mt-2"><label class="text-xs font-medium">📝 Review</label><input type="text" class="dish-review w-full p-2 rounded-lg border input-modern" data-idx="${idx}" value="${dish.review||''}" placeholder="Delicious, authentic..."></div></div>`).join(''); document.querySelectorAll('.dish-price').forEach(inp=>inp.addEventListener('change',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].price=parseFloat(inp.value)||0;})); document.querySelectorAll('.dish-rating').forEach(inp=>inp.addEventListener('change',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].rating=parseFloat(inp.value)||0;})); document.querySelectorAll('.dish-review').forEach(inp=>inp.addEventListener('input',(e)=>{let i=parseInt(inp.dataset.idx); currentSelectedDishes[i].review=inp.value;})); }
-    
-    function saveExpense() { 
-      let platformType = document.getElementById("selectedPlatform").value;
-      let customPlat = document.getElementById("customPlatformInput");
-      if(platformType === 'other' && customPlat && customPlat.value.trim()) platformType = customPlat.value.trim();
-      let hotelName = document.getElementById("hotelName").value.trim();
-      let city = document.getElementById("citySelect").value || document.getElementById("customCityInput").value.trim();
-      let familyCount = parseInt(document.getElementById("familyCount").value) || 1;
-      if(!hotelName) { alert("Hotel name required"); return; }
-      if(!city) city = "Maharashtra";
-      if(currentSelectedDishes.length===0 || currentSelectedDishes.some(d=>d.price<=0)) { alert("Add at least one dish with price >0"); return; }
-      let newEntry = { id: Date.now()+Math.random(), type: platformType, hotelName, city, familyCount, dishes: currentSelectedDishes.map(d=>({dishName:d.dishName, price:d.price, rating:d.rating, review:d.review})), createdAt: new Date().toISOString() };
-      expenseEntries.unshift(newEntry); saveData(); resetForm(); alert("✅ Expense saved!"); if(window.innerWidth<1024) closeMobilePanel(); }
-    
-    function resetForm() { currentSelectedDishes = []; updateSelectedUI(); document.getElementById("hotelName").value = ""; document.getElementById("citySelect").value = ""; document.getElementById("customCityInput").value = ""; document.getElementById("familyCount").value = "2"; document.querySelector('.dining-circle[data-type="hotel"]').click(); document.getElementById("customPlatformInput").value=""; document.getElementById("customPlatformWrapper").classList.add("hidden"); }
-    
-    function updateDashboard() { let today = new Date().toDateString(); let now=new Date(), curMonth=now.getMonth(), curYear=now.getFullYear(); let todayHotel=0,todayOnline=0,monthlyVisits=0,yearlyVisits=0,monthlyHotel=0,monthlyOnline=0,monthlySum=0,yearlySum=0; expenseEntries.forEach(entry=>{ let d=new Date(entry.createdAt); let total=entry.dishes.reduce((s,di)=>s+di.price,0); if(d.getFullYear()===curYear) yearlySum+=total; if(d.getMonth()===curMonth && d.getFullYear()===curYear){ monthlySum+=total; monthlyVisits++; if(entry.type==="hotel") monthlyHotel++; else monthlyOnline++; } if(d.getFullYear()===curYear) yearlyVisits++; if(d.toDateString()===today){ if(entry.type==="hotel") todayHotel++; else todayOnline++; } }); document.getElementById("todayHotelCount").innerText=todayHotel; document.getElementById("todayOnlineCount").innerText=todayOnline; document.getElementById("monthlyVisitsCount").innerText=monthlyVisits; document.getElementById("yearlyVisitsCount").innerText=yearlyVisits; document.getElementById("monthlyHotelCount").innerText=monthlyHotel; document.getElementById("monthlyOnlineCount").innerText=monthlyOnline; document.getElementById("monthlyTotal").innerHTML=`₹${monthlySum.toFixed(2)}`; document.getElementById("yearlyTotal").innerHTML=`₹${yearlySum.toFixed(2)}`; }
-    
-    function renderPieChart() { let cnt={hotel:0,zomato:0,swiggy:0,other:0}; expenseEntries.forEach(e=>{if(e.type==="hotel") cnt.hotel++; else if(e.type==="zomato") cnt.zomato++; else if(e.type==="swiggy") cnt.swiggy++; else cnt.other++;}); let ctx=document.getElementById('platformPieChart').getContext('2d'); if(pieChart) pieChart.destroy(); pieChart=new Chart(ctx,{type:'pie',data:{labels:['Hotel 🏨','Zomato 🍕','Swiggy 🍔','Other'],datasets:[{data:[cnt.hotel,cnt.zomato,cnt.swiggy,cnt.other],backgroundColor:['#3b82f6','#f97316','#ef4444','#8b5cf6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}}}}}); }
-    
-    function renderRightPanel() { let kw=document.getElementById("searchRecords")?.value.toLowerCase()||""; let filtered=expenseEntries.filter(e=>e.hotelName.toLowerCase().includes(kw)||e.city.toLowerCase().includes(kw)||e.dishes.some(d=>d.dishName.toLowerCase().includes(kw))); let container=document.getElementById("entriesList"); if(filtered.length===0){container.innerHTML='<div class="text-center text-gray-400 py-8">📭 No matching records.</div>'; return;} container.innerHTML=filtered.map(entry=>{let total=entry.dishes.reduce((s,d)=>s+d.price,0); let preview=entry.dishes.map(d=>`${d.dishName} (₹${d.price})`).join(', '); return `<div class="expense-card bg-gray-50 dark:bg-gray-700/40 rounded-xl p-3 border-l-4 border-green-500"><div class="flex justify-between items-start flex-wrap"><div class="flex-1"><div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-base">${escapeHtml(entry.hotelName)}</span><span class="text-xs bg-blue-100 dark:bg-blue-900 px-2 py-0.5 rounded-full">${entry.type}</span></div><div class="text-xs text-gray-500 flex gap-2 flex-wrap mt-1"><span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(entry.city)}</span><span><i class="fas fa-users"></i> 👥 ${entry.familyCount}</span><span><i class="far fa-calendar"></i> ${formatDate(entry.createdAt)}</span></div><div class="text-xs mt-1">🍽️ ${preview.substring(0,85)}${preview.length>85?'...':''}</div><div class="text-sm font-bold mt-1">₹${total.toFixed(2)}</div><div class="text-xs text-gray-400 mt-0.5">⭐ ${entry.dishes[0]?.rating} ${entry.dishes[0]?.review ? `“${entry.dishes[0].review.substring(0,35)}”`:''}</div></div><div class="flex gap-1 items-center"><button class="editBtn action-btn text-blue-600 p-1" data-id="${entry.id}"><i class="fas fa-edit"></i></button><button class="deleteBtn action-btn text-red-500 p-1" data-id="${entry.id}"><i class="fas fa-trash-alt"></i></button><button class="shareBtn action-btn text-green-600 p-1" data-id="${entry.id}"><i class="fas fa-share-alt"></i></button></div></div></div>`;}).join(''); attachEvents(); }
-    
-    function attachEvents(){ document.querySelectorAll('.editBtn').forEach(btn=>btn.addEventListener('click',()=>{let id=parseInt(btn.dataset.id); editEntry(id);})); document.querySelectorAll('.deleteBtn').forEach(btn=>btn.addEventListener('click',()=>{if(confirm("Delete permanently?")){expenseEntries=expenseEntries.filter(e=>e.id!==parseInt(btn.dataset.id)); saveData();}})); document.querySelectorAll('.shareBtn').forEach(btn=>btn.addEventListener('click',()=>{let entry=expenseEntries.find(e=>e.id===parseInt(btn.dataset.id)); if(entry){let text=`🍽️ ${entry.hotelName} (${entry.type}) | ${entry.city} | Family:${entry.familyCount} | Total ₹${entry.dishes.reduce((s,d)=>s+d.price,0)}`; if(navigator.share)navigator.share({title:'Savig Expense',text}); else prompt("Share:",text);}})); }
-    
-    function editEntry(id){ let entry=expenseEntries.find(e=>e.id===id); if(!entry) return; document.getElementById("hotelName").value=entry.hotelName; let citySel=document.getElementById("citySelect"); if(maharashtraCities.includes(entry.city)) citySel.value=entry.city; else { citySel.value=""; document.getElementById("customCityInput").value=entry.city; } document.getElementById("familyCount").value=entry.familyCount; let targetCircle = document.querySelector(`.dining-circle[data-type="${entry.type}"]`); if(targetCircle) targetCircle.click(); else { document.querySelector('.dining-circle[data-type="other"]').click(); document.getElementById("customPlatformInput").value=entry.type; } currentSelectedDishes=entry.dishes.map(d=>({...d})); updateSelectedUI(); expenseEntries=expenseEntries.filter(e=>e.id!==id); saveData(); alert("✏️ Edit mode: Modify and click Save."); if(window.innerWidth<1024) openMobilePanel(); }
-    
-    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;});}
-    
-    function openMobilePanel(){ document.getElementById("entryPanel").classList.remove("panel-hidden"); document.getElementById("entryPanel").classList.add("panel-visible"); document.getElementById("mobileOverlay").classList.remove("hidden"); document.body.style.overflow="hidden"; }
-    function closeMobilePanel(){ document.getElementById("entryPanel").classList.add("panel-hidden"); document.getElementById("entryPanel").classList.remove("panel-visible"); document.getElementById("mobileOverlay").classList.add("hidden"); document.body.style.overflow="auto"; }
-    
-    // Event Listeners
-    document.getElementById("saveExpenseBtn").addEventListener("click", saveExpense);
-    document.getElementById("searchRecords").addEventListener("input", ()=>renderRightPanel());
-    document.getElementById("dishSearchInput").addEventListener("input",(e)=>renderDishOptions(e.target.value));
-    document.getElementById("addCustomDishBtn").addEventListener("click", addCustomDish);
-    document.getElementById("mobileOpenBtn")?.addEventListener("click", openMobilePanel);
-    document.getElementById("closePanelBtn")?.addEventListener("click", closeMobilePanel);
-    document.getElementById("mobileOverlay")?.addEventListener("click", closeMobilePanel);
-    
-    populateCities(); renderDishOptions(""); updateSelectedUI(); initDiningSelector(); applyTheme(); loadData();
-  </script>
+
+    function initLinksManager(userId) {
+        const linksRef = db.ref(`users/${userId}/quickLinks`);
+        const container = document.getElementById('savedLinksList');
+        if(!container) return;
+        if(linksRefListener) linksRefListener.off();
+        linksRef.on('value', (snapshot) => {
+            const links = snapshot.val() || {};
+            container.innerHTML = '';
+            if(Object.keys(links).length === 0) { container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>'; return; }
+            Object.entries(links).forEach(([id, link]) => {
+                const title = link.title || link.url.replace(/^https?:\/\//,'').split('/')[0];
+                const url = link.url;
+                const linkDiv = document.createElement('div');
+                linkDiv.className = 'link-item';
+                linkDiv.innerHTML = `<div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}">Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
+                container.appendChild(linkDiv);
+            });
+            document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); }); });
+            document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
+        });
+        linksRefListener = linksRef;
+    }
+
+    function setupLinkUI(userId) {
+        const addBtn = document.getElementById('addLinkBtn');
+        const formDiv = document.getElementById('linkFormContainer');
+        const saveBtn = document.getElementById('saveLinkBtn');
+        const cancelBtn = document.getElementById('cancelLinkBtn');
+        const urlInp = document.getElementById('linkUrl');
+        const titleInp = document.getElementById('linkTitle');
+        if(!addBtn) return;
+        addBtn.onclick = () => { formDiv.classList.remove('hidden'); urlInp.value=''; titleInp.value=''; urlInp.focus(); };
+        cancelBtn.onclick = () => { formDiv.classList.add('hidden'); };
+        saveBtn.onclick = async () => {
+            let url = urlInp.value.trim();
+            if(!url) { alert("Please enter a URL"); return; }
+            if(!url.startsWith('http')) url = 'https://' + url;
+            const title = titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0];
+            await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
+            formDiv.classList.add('hidden');
+            urlInp.value = '';
+            titleInp.value = '';
+        };
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+    auth.onAuthStateChanged(user => {
+        if(user) { updateUI(user); loadDashboardData(user.uid); initLinksManager(user.uid); setupLinkUI(user.uid); } 
+        else { window.location.replace("index.html"); }
+    });
+
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if(themeBtn) { themeBtn.onclick = () => { let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('theme', next); }; }
+    const desktopLogout = document.getElementById('desktopLogout');
+    if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
+</script>
+    <style>
+        /* Remove hover effect from link items - no transform, no shadow, no border change */
+.link-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0.65rem 0.75rem; 
+    background: var(--item-bg); 
+    border-radius: 0.75rem; 
+    margin-bottom: 0.5rem; 
+    border: 1px solid var(--border-light); 
+    transition: none; /* No transition at all */
+}
+.link-item:hover {
+    transform: none; /* No transform */
+    box-shadow: none; /* No shadow */
+    border-color: var(--border-light); /* Keep border same */
+    background: var(--item-bg); /* Keep background same */
+}
+
+/* Keep button hover effects as they are */
+.icon-btn { 
+    padding: 0 12px;
+    height: 32px; 
+    border-radius: 8px; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+    cursor: pointer; 
+    border: none; 
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 4px;
+}
+
+.open-btn { 
+    background: rgba(59, 130, 246, 0.1); 
+    color: #3b82f6; 
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.open-btn:hover { 
+    background: #3b82f6; 
+    color: white; 
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(59, 130, 246, 0.35);
+    border-color: transparent;
+}
+.open-btn:active { transform: translateY(1px) scale(0.98); }
+
+.delete-btn { 
+    width: 32px;
+    background: rgba(239, 68, 68, 0.1); 
+    color: #ef4444; 
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.delete-btn i { font-size: 0.8rem; }
+.delete-btn:hover { 
+    background: #ef4444; 
+    color: white; 
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+    border-color: transparent;
+}
+.delete-btn:active { transform: translateY(1px) scale(0.98); }
+
+/* Dark mode button styles remain */
+[data-theme="dark"] .open-btn { 
+    background: rgba(96, 165, 250, 0.15); 
+    color: #60a5fa; 
+    border-color: rgba(96, 165, 250, 0.4);
+}
+[data-theme="dark"] .open-btn:hover { 
+    background: #3b82f6; 
+    color: white; 
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+}
+[data-theme="dark"] .delete-btn { 
+    background: rgba(248, 113, 113, 0.15); 
+    color: #f87171; 
+    border-color: rgba(248, 113, 113, 0.4);
+}
+[data-theme="dark"] .delete-btn:hover { 
+    background: #ef4444; 
+    color: white; 
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+}
+
+/* Link info text - no pointer events change needed, but ensure no hover on parent affects children */
+.link-info { 
+    flex: 1; 
+    overflow: hidden; 
+    pointer-events: none; /* This already prevents clicks on text */
+}
+    </style>
 </body>
 </html>
