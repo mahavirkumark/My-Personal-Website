@@ -39,16 +39,21 @@
             transform: translateY(-3px); 
         }
         
-        /* Desktop header nav specific - ADDED 50px LEFT MARGIN */
+        /* Desktop header nav specific - REDUCED margin */
         header nav a { 
             font-weight: 600;
             padding: 0.25rem 0;
-            margin-left: 50px !important;
+            margin-left: 20px !important;
         }
         
-        /* First nav item doesn't need extra left margin to keep balance */
+        /* First nav item */
         header nav a:first-child {
             margin-left: 0 !important;
+        }
+        
+        /* Savig logo - added margin-right 20px */
+        .savig-logo {
+            margin-right: 20px;
         }
         
         body { min-height: 100vh; display: flex; flex-direction: column; }
@@ -60,15 +65,32 @@
         #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; }
         #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
         
-        /* Desktop Sidebar - Original styling */
-        .sidebar-desktop { width: 320px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); align-self: flex-start; position: sticky; top: 6rem; min-height: calc(100vh - 8rem); }
+        /* Desktop Sidebar - REDUCED width by 40px (from 320px to 280px) */
+        .sidebar-desktop { 
+            width: 280px; 
+            flex-shrink: 0; 
+            background-color: white; 
+            padding: 1.5rem 1rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
+            align-self: flex-start; 
+            position: sticky; 
+            top: 6rem; 
+            min-height: calc(100vh - 8rem);
+        }
+        
+        /* Main content - INCREASED width (flex-grow will handle, but we can ensure) */
+        .dashboard-main-content { 
+            flex-grow: 1;
+            min-width: 0; /* Prevents overflow issues */
+        }
+        
         .sidebar-nav-internal a { display: flex; align-items: center; padding: 0.8rem 0.6rem; margin-bottom: 0.5rem; border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500; font-size: 1.05rem; transition: all 0.25s ease; }
         .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { background-color: #eff6ff; color: #2563eb; transform: translateX(5px) translateY(-1px); box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08); }
         .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; transition: transform 0.2s; }
         .sidebar-nav-internal a:hover i { transform: scale(1.05); color: #2563eb; }
         
         .dashboard-wrapper { max-width: 1400px; width: 90%; margin: 0 auto; }
-        .dashboard-main-content { flex-grow: 1; }
         
         /* Three column grid */
         .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; }
@@ -104,17 +126,17 @@
         
         .link-info { flex: 1; overflow: hidden; pointer-events: none; }
         
-        /* INCREASED FONT SIZE BY 2px for link title and URL */
+        /* INCREASED FONT SIZE for link title and URL */
         .link-title { 
             font-weight: 700; 
-            font-size: 0.95rem; /* Increased from 0.85rem (by ~2px) */
+            font-size: 0.95rem;
             white-space: nowrap; 
             overflow: hidden; 
             text-overflow: ellipsis; 
             color: var(--text-bold); 
         }
         .link-url { 
-            font-size: 0.8rem; /* Increased from 0.7rem (by ~2px) */
+            font-size: 0.8rem;
             color: var(--text-muted); 
             white-space: nowrap; 
             overflow: hidden; 
@@ -122,7 +144,7 @@
         }
         .link-actions { display: flex; gap: 0.6rem; }
         
-        /* MODERN BUTTONS - Open button now shows "Open" text instead of icon */
+        /* MODERN BUTTONS */
         .icon-btn { 
             padding: 0 12px;
             height: 32px; 
@@ -138,7 +160,7 @@
             gap: 4px;
         }
         
-        /* Open button - text style */
+        /* Open button */
         .open-btn { 
             background: rgba(59, 130, 246, 0.1); 
             color: #3b82f6; 
@@ -153,7 +175,7 @@
         }
         .open-btn:active { transform: translateY(1px) scale(0.98); }
         
-        /* Delete button - icon only */
+        /* Delete button */
         .delete-btn { 
             width: 32px;
             background: rgba(239, 68, 68, 0.1); 
@@ -304,6 +326,23 @@
         /* Wish button hover */
         .celeb-card button { transition: all 0.2s ease; cursor: pointer; }
         .celeb-card button:hover { transform: scale(1.05); }
+        
+        /* SYNCHRONIZED SCROLLING - left sidebar and main content scroll together */
+        .scroll-container {
+            position: relative;
+        }
+        
+        /* Make sidebar sticky and scroll with main content naturally */
+        .sidebar-desktop {
+            position: sticky;
+            top: 6rem;
+            align-self: flex-start;
+        }
+        
+        /* Ensure main content scrolls normally */
+        .dashboard-main-content {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body>
@@ -317,7 +356,7 @@
                     <i class="fas fa-shield text-blue-600 text-3xl"></i>
                     <i class="fas fa-database text-white absolute text-sm top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                 </div>
-                <span class="font-black tracking-tighter text-2xl" style="color: var(--text-bold);">Savig</span>
+                <span class="font-black tracking-tighter text-2xl savig-logo" style="color: var(--text-bold);">Savig</span>
             </div>
             <nav class="flex items-center gap-6 text-lg font-semibold">
                 <a href="home.html" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
@@ -360,6 +399,7 @@
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4">
+        <!-- DESKTOP SIDEBAR - Sticky and scrolls with main content -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-lg font-bold mb-2 border-b pb-2 uppercase text-xs" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col gap-1">
@@ -375,6 +415,7 @@
             </nav>
         </aside>
 
+        <!-- MAIN CONTENT - This scrolls and sidebar stays sticky -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
