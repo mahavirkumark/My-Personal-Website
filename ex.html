@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Savig - Smart Dashboard</title>
+    <title>Savig - Smart Dashboard | Enhanced Loaders & Margin</title>
     
     <!-- Tailwind + Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,7 +27,7 @@
         @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
         @keyframes cardPop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* IMPROVED NAV HOVER EFFECTS - Blue color + slight upward movement */
+        /* IMPROVED NAV HOVER EFFECTS */
         nav a { 
             transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
             display: inline-flex;
@@ -39,25 +39,10 @@
             transform: translateY(-3px); 
         }
         
-        /* Desktop header nav specific - REDUCED margin between nav links */
-        header nav { 
-            gap: 0.5rem !important;
-        }
-        header nav a { 
-            font-weight: 600;
-            padding: 0.25rem 0;
-            margin-left: 16px !important;
-        }
-        
-        /* First nav item */
-        header nav a:first-child {
-            margin-left: 0 !important;
-        }
-        
-        /* Savig logo - added margin-right 20px */
-        .savig-logo {
-            margin-right: 20px;
-        }
+        header nav { gap: 0.5rem !important; }
+        header nav a { font-weight: 600; padding: 0.25rem 0; margin-left: 16px !important; }
+        header nav a:first-child { margin-left: 0 !important; }
+        .savig-logo { margin-right: 20px; }
         
         body { min-height: 100vh; display: flex; flex-direction: column; }
         .content-wrapper { flex-grow: 1; }
@@ -69,198 +54,54 @@
         #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
         
         /* Desktop Sidebar */
-        .sidebar-desktop { 
-            width: 280px; 
-            flex-shrink: 0; 
-            background-color: white; 
-            padding: 1.5rem 1rem; 
-            border-radius: 0.5rem; 
-            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
-        }
+        .sidebar-desktop { width: 280px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+        .dashboard-main-content { flex: 1; min-width: 0; width: calc(100% - 280px - 1.5rem + 50px); }
+        .dashboard-wrapper { max-width: 1590px; width: 92%; margin: 0 auto; }
         
-        /* Main content - INCREASED WIDTH by 50px */
-        .dashboard-main-content { 
-            flex: 1;
-            min-width: 0;
-            width: calc(100% - 280px - 1.5rem + 50px); /* Added 50px extra width */
-        }
-        
-        /* Dashboard wrapper - wider overall to accommodate increased content width */
-        .dashboard-wrapper { 
-            max-width: 1590px; /* Increased from 1500px to give 50px more room */
-            width: 92%; 
-            margin: 0 auto; 
-        }
-        
-        /* SIDEBAR NAVIGATION */
-        .sidebar-nav-internal a { 
-            display: flex; 
-            align-items: center; 
-            padding: 0.7rem 0.6rem;
-            margin-bottom: 0.35rem !important;
-            border-radius: 0.5rem; 
-            color: #4b5563; 
-            text-decoration: none; 
-            font-weight: 500; 
-            font-size: 1rem;
-            transition: all 0.25s ease; 
-        }
-        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { 
-            background-color: #eff6ff; 
-            color: #2563eb; 
-            transform: translateX(5px) translateY(-1px); 
-            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08); 
-        }
-        .sidebar-nav-internal i { 
-            margin-right: 0.75rem; 
-            width: 1.25rem; 
-            text-align: center; 
-            transition: transform 0.2s; 
-        }
+        /* Sidebar nav */
+        .sidebar-nav-internal a { display: flex; align-items: center; padding: 0.7rem 0.6rem; margin-bottom: 0.35rem !important; border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500; font-size: 1rem; transition: all 0.25s ease; }
+        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { background-color: #eff6ff; color: #2563eb; transform: translateX(5px) translateY(-1px); box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08); }
+        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; transition: transform 0.2s; }
         .sidebar-nav-internal a:hover i { transform: scale(1.05); color: #2563eb; }
         
-        /* Core Data heading */
-        .sidebar-desktop h3 {
-            margin-bottom: 0.65rem !important;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-        }
+        .sidebar-desktop h3 { margin-bottom: 0.65rem !important; font-weight: 700; letter-spacing: 0.05em; }
         
-        .three-col-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 1.75rem;
-            align-items: stretch; 
-        }
-        @media (max-width: 768px) { 
-            .three-col-grid { 
-                grid-template-columns: 1fr; 
-                gap: 1rem; 
-            } 
-        }
+        /* 3-COLUMN GRID */
+        .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; align-items: stretch; }
+        @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
         
         /* Card styling */
-        .dashboard-card { 
-            background: var(--bg-card); 
-            border-radius: 1rem; 
-            border: 1px solid var(--border); 
-            overflow: hidden; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 400px;
-            transition: none;
-        }
-        
+        .dashboard-card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; transition: none; }
         .card-header { padding: 0.9rem 1rem; }
         .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; }
         
-        /* Links list items */
-        .link-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 0.65rem 0.75rem; 
-            background: var(--item-bg); 
-            border-radius: 0.75rem; 
-            margin-bottom: 0.5rem; 
-            border: 1px solid var(--border-light); 
-        }
-        
+        /* Link items */
+        .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.75rem; background: var(--item-bg); border-radius: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); }
         .link-info { flex: 1; overflow: hidden; pointer-events: none; }
-        
-        .link-title { 
-            font-weight: 700; 
-            font-size: 0.95rem;
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            color: var(--text-bold); 
-        }
-        .link-url { 
-            font-size: 0.8rem;
-            color: var(--text-muted); 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
+        .link-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
+        .link-url { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .link-actions { display: flex; gap: 0.6rem; }
         
         /* MODERN BUTTONS */
-        .icon-btn { 
-            padding: 0 12px;
-            height: 32px; 
-            border-radius: 8px; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
-            cursor: pointer; 
-            border: none; 
-            font-size: 0.75rem;
-            font-weight: 600;
-            gap: 4px;
-        }
-        
-        .open-btn { 
-            background: rgba(59, 130, 246, 0.1); 
-            color: #3b82f6; 
-            border: 1px solid rgba(59, 130, 246, 0.2);
-        }
-        .open-btn:hover { 
-            background: #3b82f6; 
-            color: white; 
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-            border-color: transparent;
-        }
-        .open-btn:active { transform: translateY(1px) scale(0.98); }
-        
-        .delete-btn { 
-            width: 32px;
-            background: rgba(239, 68, 68, 0.1); 
-            color: #ef4444; 
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
+        .icon-btn { padding: 0 12px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.2); cursor: pointer; border: none; font-size: 0.75rem; font-weight: 600; gap: 4px; }
+        .open-btn { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .open-btn:hover { background: #3b82f6; color: white; transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); border-color: transparent; }
+        .delete-btn { width: 32px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
         .delete-btn i { font-size: 0.8rem; }
-        .delete-btn:hover { 
-            background: #ef4444; 
-            color: white; 
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-            border-color: transparent;
-        }
-        .delete-btn:active { transform: translateY(1px) scale(0.98); }
+        .delete-btn:hover { background: #ef4444; color: white; transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); border-color: transparent; }
         
-        [data-theme="dark"] .open-btn { 
-            background: rgba(96, 165, 250, 0.15); 
-            color: #60a5fa; 
-            border-color: rgba(96, 165, 250, 0.25);
-        }
-        [data-theme="dark"] .open-btn:hover { 
-            background: #3b82f6; 
-            color: white; 
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
-        }
-        [data-theme="dark"] .delete-btn { 
-            background: rgba(248, 113, 113, 0.15); 
-            color: #f87171; 
-            border-color: rgba(248, 113, 113, 0.25);
-        }
-        [data-theme="dark"] .delete-btn:hover { 
-            background: #ef4444; 
-            color: white; 
-            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
-        }
+        [data-theme="dark"] .open-btn { background: rgba(96, 165, 250, 0.15); color: #60a5fa; border-color: rgba(96, 165, 250, 0.25); }
+        [data-theme="dark"] .open-btn:hover { background: #3b82f6; color: white; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
+        [data-theme="dark"] .delete-btn { background: rgba(248, 113, 113, 0.15); color: #f87171; border-color: rgba(248, 113, 113, 0.25); }
+        [data-theme="dark"] .delete-btn:hover { background: #ef4444; color: white; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4); }
         
+        /* Link Form */
         .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
         .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; transition: border-color 0.2s; }
         .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
         
-        /* Loading spinner animation */
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        /* STANDARD LOADING SPINNER (same type used across all columns) */
+        @keyframes spin { to { transform: rotate(360deg); } }
         .loading-spinner {
             display: inline-block;
             width: 20px;
@@ -281,10 +122,26 @@
             font-size: 0.9rem;
         }
         
+        /* Left container data items margin-bottom: 2px (Events & Grocery items) */
+        .data-item-with-margin {
+            margin-bottom: 2px !important;
+        }
+        .event-item, .grocery-item, .celeb-card {
+            transition: none;
+            cursor: default;
+        }
+        /* Ensure left container items respect 2px bottom margin */
+        #dash-events-list > div, #dash-grocery-list > div {
+            margin-bottom: 2px;
+        }
+        /* Override any larger margins inside left column specifically */
+        .events-container > div, .grocery-container > div {
+            margin-bottom: 2px;
+        }
+        
         .card-body::-webkit-scrollbar { width: 6px; }
         .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
         .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-        .card-body::-webkit-scrollbar-thumb:hover { background: var(--accent-dark); }
         
         #savedLinksList { max-height: 320px; overflow-y: auto; padding-right: 4px; }
         #savedLinksList::-webkit-scrollbar { width: 5px; }
@@ -301,14 +158,9 @@
             --border: #e5e7eb;
             --border-light: #f0f2f5;
             --item-bg: #f9fafb;
-            --item-hover: #f3f4f6;
             --form-bg: #f9fafb;
             --input-bg: #ffffff;
             --primary: #3b82f6;
-            --accent-light: #e0e7ff;
-            --accent-dark: #4338ca;
-            --danger-light: #fee2e2;
-            --danger-dark: #b91c1c;
             --nav-bg: #ffffff;
             --nav-text: #000000;
             --nav-height: 65px;
@@ -322,14 +174,9 @@
             --border: #334155;
             --border-light: #2d3a4f;
             --item-bg: #1e293b;
-            --item-hover: #334155;
             --form-bg: #0f172a;
             --input-bg: #1e293b;
             --primary: #3b82f6;
-            --accent-light: #1e3a8a;
-            --accent-dark: #60a5fa;
-            --danger-light: #7f1d1d;
-            --danger-dark: #fca5a5;
             --nav-bg: #0f172a;
             --nav-text: #ffffff;
         }
@@ -337,13 +184,6 @@
         body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.2s, color 0.2s; }
         .bg-white, header, aside, main, #mobile-menu, footer, .dashboard-card { background-color: var(--bg-card) !important; border-color: var(--border) !important; }
         h1, h2, h3, h4, .font-bold, .font-semibold { color: var(--text-bold) !important; }
-        p, li, span, .text-gray-700, .text-gray-600 { color: var(--text-main) !important; }
-        
-        [data-theme="dark"] .sidebar-nav-internal a { color: #e2e8f0 !important; font-weight: 500 !important; }
-        [data-theme="dark"] .sidebar-nav-internal a i { color: #94a3b8 !important; }
-        [data-theme="dark"] .sidebar-nav-internal a:hover { background-color: #1e3a8a !important; color: #60a5fa !important; transform: translateX(5px) translateY(-1px); }
-        [data-theme="dark"] .sidebar-nav-internal a:hover i { color: #60a5fa !important; }
-        [data-theme="dark"] .sidebar-desktop h3 { color: #f1f5f9 !important; border-bottom-color: #334155 !important; }
         
         #universal-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 999999; }
         .nav-link { text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; }
@@ -357,34 +197,10 @@
         
         #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: all 0.2s ease; }
         #theme-toggle-btn:hover { transform: scale(1.05) translateY(-2px); background: #1d4ed8; }
-        #theme-toggle-btn:active { transform: scale(0.96); }
-        
-        .celeb-card { transition: none; cursor: default; }
-        .event-item { transition: none; cursor: default; }
-        .grocery-item { transition: none; cursor: default; }
         
         #addLinkBtn { transition: all 0.2s ease; cursor: pointer; }
-        #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); background: #f8fafc !important; color: #4f46e5 !important; }
-        
-        [data-theme="dark"] #addLinkBtn { background: #1e293b !important; color: #a5b4fc !important; border: 1px solid #4f46e5; }
-        [data-theme="dark"] #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); background: #2d3a5e !important; color: #c7d2fe !important; border-color: #818cf8; }
-        
-        #saveLinkBtn, #cancelLinkBtn { transition: all 0.2s ease; cursor: pointer; }
-        #saveLinkBtn:hover { transform: translateY(-1px); }
-        #cancelLinkBtn:hover { transform: translateY(-1px); }
-        
-        .celeb-card button { transition: all 0.2s ease; cursor: pointer; }
-        .celeb-card button:hover { transform: scale(1.05); }
-        
-        .dashboard-wrapper {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-        }
-        
-        .sidebar-desktop {
-            position: relative;
-        }
+        #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
+        .dashboard-wrapper { display: flex; flex-direction: row; align-items: flex-start; }
     </style>
 </head>
 <body>
@@ -413,7 +229,7 @@
                     <p id="desktopUserEmail" class="text-sm" style="color: var(--text-muted);">user@example.com</p>
                 </div>
                 <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border" style="border-color: var(--border);">
-                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all hover:scale-105 hover:translate-y-[-2px] text-sm">Logout</button>
+                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all hover:scale-105 text-sm">Logout</button>
             </div>
         </header>
     </div>
@@ -421,27 +237,24 @@
     <!-- MOBILE HEADER -->
     <div class="block md:hidden fade-in">
         <header class="shadow-md sticky top-0 z-30 p-2 flex justify-between items-center" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border);">
-            <div class="flex items-center gap-1">
-                <div class="relative flex items-center justify-center"><i class="fas fa-shield text-blue-600 text-2xl"></i><i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i></div>
-                <h1 class="font-black text-xl" style="color: var(--text-bold);">Savig</h1>
-            </div>
+            <div class="flex items-center gap-1"><div class="relative flex items-center justify-center"><i class="fas fa-shield text-blue-600 text-2xl"></i><i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i></div><h1 class="font-black text-xl" style="color: var(--text-bold);">Savig</h1></div>
             <button id="menu-btn" class="p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700" style="color: var(--text-main);"><i class="fas fa-bars text-xl"></i></button>
         </header>
         <nav id="mobile-menu" class="hidden mt-2 px-6 pb-2 space-y-1 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
-            <a href="home.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-house mr-3"></i> Home</a>
-            <a href="income.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-wallet mr-3"></i> Income</a>
-            <a href="links.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-link mr-3"></i> Links</a>
-            <a href="calender.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
-            <a href="password.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-lock mr-3"></i> Passwords</a>
-            <a href="profile.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-user-gear mr-3"></i> Profile</a>
-            <a href="essential.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
-            <a href="grocery.html" style="color: var(--text-main); transition: all 0.2s;"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
+            <a href="home.html" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
+            <a href="income.html" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
+            <a href="links.html" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
+            <a href="calender.html" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
+            <a href="password.html" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
+            <a href="profile.html" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
+            <a href="essential.html" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
+            <a href="grocery.html" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
         </nav>
     </div>
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-6 flex flex-col md:flex-row gap-8 px-4">
-        <!-- DESKTOP SIDEBAR -->
+        <!-- SIDEBAR -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-sm font-bold mb-1 border-b pb-4 uppercase tracking-wider" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col">
@@ -457,26 +270,29 @@
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT - WIDER by 50px -->
+        <!-- MAIN CONTENT (3 COLUMNS) -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
             
             <div class="three-col-grid">
+                <!-- COLUMN 1: Today's Schedule & Groceries (Left Container: margin-bottom 2px added to data items) -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2></div>
                     <div class="card-body">
-                        <div id="dash-events-list" class="space-y-2"><p class="text-sm" style="color: var(--text-muted);">Loading events...</p></div>
+                        <div id="dash-events-list" class="space-y-0"><div class="loading-message"><div class="loading-spinner"></div><span>Loading events...</span></div></div>
                         <hr class="my-3" style="border-color: var(--border);">
-                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list" class="space-y-1"><p class="text-sm" style="color: var(--text-muted);">Loading...</p></div></div>
+                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list" class="space-y-0"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
                     </div>
                 </div>
 
+                <!-- COLUMN 2: Celebrations Today (Same Loader Type) -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2></div>
-                    <div class="card-body" id="dash-celebrations-list"><p class="text-sm" style="color: var(--text-muted);">Checking celebrations...</p></div>
+                    <div class="card-body" id="dash-celebrations-list"><div class="loading-message"><div class="loading-spinner"></div><span>Checking celebrations...</span></div></div>
                 </div>
 
+                <!-- COLUMN 3: Quick Links (Same Loader Type) -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
@@ -487,15 +303,12 @@
                             <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
                             <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
                             <div class="flex gap-2 mt-2">
-                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-indigo-700 hover:translate-y-[-1px]">Save</button>
-                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-600 hover:translate-y-[-1px]">Cancel</button>
+                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-indigo-700">Save</button>
+                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-600">Cancel</button>
                             </div>
                         </div>
                         <div id="savedLinksList" style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
-                            <div class="loading-message">
-                                <div class="loading-spinner"></div>
-                                <span>Data is loading...</span>
-                            </div>
+                            <div class="loading-message"><div class="loading-spinner"></div><span>Data is loading...</span></div>
                         </div>
                     </div>
                 </div>
@@ -512,7 +325,6 @@
     <a href="contact.html" class="nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
 </nav>
 <div class="nav-spacer"></div>
-
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
@@ -538,13 +350,14 @@
         let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
         const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
         const userPhoto = user.photoURL || photoPlaceholder;
-        document.querySelectorAll('#desktopUserName, #mobileUserName').forEach(el => { if(el) el.innerText = userName; });
-        document.querySelectorAll('#desktopUserEmail, #mobileUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
-        document.querySelectorAll('#desktopUserPhoto, #mobileUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
+        document.querySelectorAll('#desktopUserName').forEach(el => { if(el) el.innerText = userName; });
+        document.querySelectorAll('#desktopUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
+        document.querySelectorAll('#desktopUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
         currentUserId = user.uid;
     }
 
     window.logout = function() { auth.signOut().then(() => window.location.replace('index.html')).catch(console.error); };
+    window.sendWhatsAppMsg = function(phone, msg) { if(!phone) { alert("No phone number saved."); return; } const clean = phone.replace(/\D/g, ''); window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank'); };
 
     function loadDashboardData(userId) {
         const today = new Date();
@@ -553,66 +366,64 @@
         const dd = String(today.getDate()).padStart(2,'0');
         const dateKey = `${yyyy}-${mm}-${dd}`;
 
+        // Left column: Events with margin-bottom: 2px applied automatically via CSS
         db.ref(`users/${userId}/events/${dateKey}`).on('value', snap => {
             const container = document.getElementById('dash-events-list');
             if(!container) return;
-            container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
-            if(!snap.exists()) container.innerHTML += '<p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>';
+            if(!snap.exists()) { container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3><p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>'; return; }
+            let html = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
             snap.forEach(child => {
                 const ev = child.val();
-                container.innerHTML += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm mb-2" style="background: var(--item-bg);"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
+                html += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm" style="background: var(--item-bg); margin-bottom: 2px;"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
             });
+            container.innerHTML = html;
         });
 
+        // Left column Grocery with 2px bottom margin
         db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap => {
             const groceryDiv = document.getElementById('dash-grocery-list');
             if(!groceryDiv) return;
-            groceryDiv.innerHTML = '';
-            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted);">No groceries today</p>'; return; }
+            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted); margin-bottom: 2px;">No groceries today</p>'; return; }
+            let html = '';
             snap.forEach(child => {
                 const item = child.val();
-                groceryDiv.innerHTML += `<div class="grocery-item flex items-center gap-2 p-1"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
+                html += `<div class="grocery-item flex items-center gap-2 p-1" style="margin-bottom: 2px;"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
             });
+            groceryDiv.innerHTML = html;
         });
 
+        // Column 2 (Celebrations) using same loader pattern
         const bdayRef = db.ref(`users/${userId}/birthdays`);
         const anniRef = db.ref(`anniversaries/${userId}`);
         Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
             const celebDiv = document.getElementById('dash-celebrations-list');
             if(!celebDiv) return;
-            celebDiv.innerHTML = '';
+            let html = '';
             let found = false;
             bSnap.forEach(child => {
                 const b = child.val();
                 if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
                     found = true;
-                    celebDiv.innerHTML += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
                 }
             });
             aSnap.forEach(child => {
                 const a = child.val();
                 if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
                     found = true;
-                    celebDiv.innerHTML += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
                 }
             });
-            if(!found) celebDiv.innerHTML = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+            if(!found) html = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+            celebDiv.innerHTML = html;
         });
     }
-
-    window.sendWhatsAppMsg = function(phone, msg) {
-        if(!phone) { alert("No phone number saved."); return; }
-        const clean = phone.replace(/\D/g, '');
-        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
-    };
 
     function initLinksManager(userId) {
         const linksRef = db.ref(`users/${userId}/quickLinks`);
         const container = document.getElementById('savedLinksList');
         if(!container) return;
-        
         if(linksRefListener) linksRefListener.off();
-        
         linksRef.on('value', (snapshot) => {
             const links = snapshot.val() || {};
             container.innerHTML = '';
@@ -634,12 +445,8 @@
                 `;
                 container.appendChild(linkDiv);
             });
-            document.querySelectorAll('.open-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); });
-            });
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); });
-            });
+            document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); }); });
+            document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
         });
         linksRefListener = linksRef;
     }
@@ -694,7 +501,6 @@
             localStorage.setItem('theme', next);
         };
     }
-    
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
 </script>
