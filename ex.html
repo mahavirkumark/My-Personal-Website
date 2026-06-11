@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Savig - Smart Dashboard | Enhanced Loaders & Margin</title>
+    <title>Savig - Smart Dashboard | Dark Mode Core Data & Enhanced Hovers</title>
     
     <!-- Tailwind + Icons -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +16,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        /* Reusable Animations - ORIGINAL preserved */
+        /* Reusable Animations */
         .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
         .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
         .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
@@ -53,54 +53,198 @@
         #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; }
         #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
         
-        /* Desktop Sidebar */
-        .sidebar-desktop { width: 280px; flex-shrink: 0; background-color: white; padding: 1.5rem 1rem; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
+        /* Desktop Sidebar - Enhanced Dark Mode Support */
+        .sidebar-desktop { 
+            width: 280px; 
+            flex-shrink: 0; 
+            background-color: var(--bg-card); 
+            padding: 1.5rem 1rem; 
+            border-radius: 0.5rem; 
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
+            transition: background-color 0.2s, border-color 0.2s;
+            border: 1px solid var(--border);
+        }
         .dashboard-main-content { flex: 1; min-width: 0; width: calc(100% - 280px - 1.5rem + 50px); }
         .dashboard-wrapper { max-width: 1590px; width: 92%; margin: 0 auto; }
         
-        /* Sidebar nav */
-        .sidebar-nav-internal a { display: flex; align-items: center; padding: 0.7rem 0.6rem; margin-bottom: 0.35rem !important; border-radius: 0.5rem; color: #4b5563; text-decoration: none; font-weight: 500; font-size: 1rem; transition: all 0.25s ease; }
-        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { background-color: #eff6ff; color: #2563eb; transform: translateX(5px) translateY(-1px); box-shadow: 0 2px 4px 0 rgba(0,0,0,0.08); }
-        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; transition: transform 0.2s; }
-        .sidebar-nav-internal a:hover i { transform: scale(1.05); color: #2563eb; }
+        /* SIDEBAR NAVIGATION - Enhanced dark mode styling */
+        .sidebar-nav-internal a { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.7rem 0.6rem;
+            margin-bottom: 0.35rem !important;
+            border-radius: 0.5rem; 
+            color: var(--text-main); 
+            text-decoration: none; 
+            font-weight: 500; 
+            font-size: 1rem;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+        }
+        .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { 
+            background-color: var(--sidebar-hover); 
+            color: var(--primary); 
+            transform: translateX(5px) translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        .sidebar-nav-internal i { 
+            margin-right: 0.75rem; 
+            width: 1.25rem; 
+            text-align: center; 
+            transition: transform 0.2s, color 0.2s; 
+        }
+        .sidebar-nav-internal a:hover i { transform: scale(1.1); color: var(--primary); }
         
-        .sidebar-desktop h3 { margin-bottom: 0.65rem !important; font-weight: 700; letter-spacing: 0.05em; }
+        /* Core Data heading styling in dark mode */
+        .sidebar-desktop h3 {
+            margin-bottom: 0.65rem !important;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--text-bold);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
         
         /* 3-COLUMN GRID */
         .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; align-items: stretch; }
         @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
         
         /* Card styling */
-        .dashboard-card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; transition: none; }
+        .dashboard-card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; transition: background 0.2s, border 0.2s; }
         .card-header { padding: 0.9rem 1rem; }
         .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; }
         
-        /* Link items */
-        .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.75rem; background: var(--item-bg); border-radius: 0.75rem; margin-bottom: 0.5rem; border: 1px solid var(--border-light); }
+        /* Link items - Enhanced hovers */
+        .link-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0.65rem 0.75rem; 
+            background: var(--item-bg); 
+            border-radius: 0.75rem; 
+            margin-bottom: 0.5rem; 
+            border: 1px solid var(--border-light); 
+            transition: all 0.2s ease;
+        }
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
         .link-info { flex: 1; overflow: hidden; pointer-events: none; }
         .link-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
         .link-url { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .link-actions { display: flex; gap: 0.6rem; }
         
-        /* MODERN BUTTONS */
-        .icon-btn { padding: 0 12px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.2); cursor: pointer; border: none; font-size: 0.75rem; font-weight: 600; gap: 4px; }
-        .open-btn { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .open-btn:hover { background: #3b82f6; color: white; transform: translateY(-2px) scale(1.02); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); border-color: transparent; }
-        .delete-btn { width: 32px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .delete-btn i { font-size: 0.8rem; }
-        .delete-btn:hover { background: #ef4444; color: white; transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); border-color: transparent; }
+        /* MODERN BUTTONS - Enhanced hover effects for both themes */
+        .icon-btn { 
+            padding: 0 12px;
+            height: 32px; 
+            border-radius: 8px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+            cursor: pointer; 
+            border: none; 
+            font-size: 0.75rem;
+            font-weight: 600;
+            gap: 4px;
+        }
         
-        [data-theme="dark"] .open-btn { background: rgba(96, 165, 250, 0.15); color: #60a5fa; border-color: rgba(96, 165, 250, 0.25); }
-        [data-theme="dark"] .open-btn:hover { background: #3b82f6; color: white; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); }
-        [data-theme="dark"] .delete-btn { background: rgba(248, 113, 113, 0.15); color: #f87171; border-color: rgba(248, 113, 113, 0.25); }
-        [data-theme="dark"] .delete-btn:hover { background: #ef4444; color: white; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4); }
+        .open-btn { 
+            background: rgba(59, 130, 246, 0.1); 
+            color: #3b82f6; 
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 14px rgba(59, 130, 246, 0.35);
+            border-color: transparent;
+        }
+        .open-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        .delete-btn { 
+            width: 32px;
+            background: rgba(239, 68, 68, 0.1); 
+            color: #ef4444; 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .delete-btn i { font-size: 0.8rem; }
+        .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+            border-color: transparent;
+        }
+        .delete-btn:active { transform: translateY(1px) scale(0.98); }
+        
+        /* Dark mode button overrides */
+        [data-theme="dark"] .open-btn { 
+            background: rgba(96, 165, 250, 0.15); 
+            color: #60a5fa; 
+            border-color: rgba(96, 165, 250, 0.4);
+        }
+        [data-theme="dark"] .open-btn:hover { 
+            background: #3b82f6; 
+            color: white; 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+        }
+        [data-theme="dark"] .delete-btn { 
+            background: rgba(248, 113, 113, 0.15); 
+            color: #f87171; 
+            border-color: rgba(248, 113, 113, 0.4);
+        }
+        [data-theme="dark"] .delete-btn:hover { 
+            background: #ef4444; 
+            color: white; 
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+        }
+        
+        /* ADD LINK BUTTON - Enhanced hover across themes */
+        #addLinkBtn { 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+            cursor: pointer; 
+            background: rgba(255,255,255,0.95);
+            color: #4f46e5;
+            border: none;
+        }
+        #addLinkBtn:hover { 
+            transform: translateY(-3px) scale(1.02); 
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+            background: white !important;
+            color: #6366f1 !important;
+        }
+        #addLinkBtn:active { transform: translateY(1px); }
+        
+        [data-theme="dark"] #addLinkBtn { 
+            background: #1e293b !important; 
+            color: #a5b4fc !important; 
+            border: 1px solid #6366f1;
+        }
+        [data-theme="dark"] #addLinkBtn:hover { 
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            background: #2d3a5e !important; 
+            color: #c7d2fe !important;
+            border-color: #818cf8;
+        }
+        
+        /* Form buttons enhanced */
+        #saveLinkBtn, #cancelLinkBtn { transition: all 0.2s ease; cursor: pointer; }
+        #saveLinkBtn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        #cancelLinkBtn:hover { transform: translateY(-2px); filter: brightness(1.05); }
         
         /* Link Form */
         .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
-        .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; transition: border-color 0.2s; }
-        .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+        .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; transition: all 0.2s; }
+        .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.2); transform: translateY(-1px); }
         
-        /* STANDARD LOADING SPINNER (same type used across all columns) */
+        /* LOADING SPINNER */
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-spinner {
             display: inline-block;
@@ -122,85 +266,122 @@
             font-size: 0.9rem;
         }
         
-        /* Left container data items margin-bottom: 2px (Events & Grocery items) */
-        .data-item-with-margin {
-            margin-bottom: 2px !important;
-        }
-        .event-item, .grocery-item, .celeb-card {
-            transition: none;
-            cursor: default;
-        }
-        /* Ensure left container items respect 2px bottom margin */
+        /* Left container data items margin-bottom: 2px */
         #dash-events-list > div, #dash-grocery-list > div {
             margin-bottom: 2px;
         }
-        /* Override any larger margins inside left column specifically */
-        .events-container > div, .grocery-container > div {
-            margin-bottom: 2px;
+        .event-item, .grocery-item, .celeb-card {
+            transition: all 0.2s ease;
+        }
+        .event-item:hover, .grocery-item:hover, .celeb-card:hover {
+            transform: translateX(3px);
+            background: var(--item-hover) !important;
         }
         
         .card-body::-webkit-scrollbar { width: 6px; }
         .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
         .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb:hover { background: var(--accent-dark); }
         
         #savedLinksList { max-height: 320px; overflow-y: auto; padding-right: 4px; }
         #savedLinksList::-webkit-scrollbar { width: 5px; }
         #savedLinksList::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
         #savedLinksList::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
         
-        /* Theme Variables */
+        /* Theme Variables - Enhanced for better dark mode contrast */
         :root {
-            --bg-body: #f9fafb;
+            --bg-body: #f8fafc;
             --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --text-bold: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
-            --border-light: #f0f2f5;
-            --item-bg: #f9fafb;
-            --form-bg: #f9fafb;
+            --text-main: #334155;
+            --text-bold: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --item-bg: #f8fafc;
+            --item-hover: #f1f5f9;
+            --form-bg: #f8fafc;
             --input-bg: #ffffff;
             --primary: #3b82f6;
+            --accent-dark: #2563eb;
+            --sidebar-hover: #eff6ff;
             --nav-bg: #ffffff;
-            --nav-text: #000000;
+            --nav-text: #0f172a;
             --nav-height: 65px;
         }
         [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #cbd5e1;
+            --bg-body: #0b1120;
+            --bg-card: #1a2332;
+            --text-main: #cbd5e6;
             --text-bold: #f1f5f9;
             --text-muted: #94a3b8;
-            --border: #334155;
-            --border-light: #2d3a4f;
-            --item-bg: #1e293b;
+            --border: #2d3a4f;
+            --border-light: #253141;
+            --item-bg: #1e2a3a;
+            --item-hover: #2d3a4f;
             --form-bg: #0f172a;
-            --input-bg: #1e293b;
+            --input-bg: #1e2a3a;
             --primary: #3b82f6;
+            --accent-dark: #60a5fa;
+            --sidebar-hover: #1e3a8a;
             --nav-bg: #0f172a;
-            --nav-text: #ffffff;
+            --nav-text: #e2e8f0;
         }
         
         body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.2s, color 0.2s; }
-        .bg-white, header, aside, main, #mobile-menu, footer, .dashboard-card { background-color: var(--bg-card) !important; border-color: var(--border) !important; }
+        .bg-white, header, aside, main, #mobile-menu, footer, .dashboard-card { background-color: var(--bg-card) !important; border-color: var(--border) !important; transition: background 0.2s; }
         h1, h2, h3, h4, .font-bold, .font-semibold { color: var(--text-bold) !important; }
+        p, li, span, .text-gray-700, .text-gray-600 { color: var(--text-main) !important; }
+        
+        /* Dark mode specific improvements for Core Data */
+        [data-theme="dark"] .sidebar-desktop {
+            background: linear-gradient(145deg, #1a2332 0%, #161f2c 100%);
+            border: 1px solid #2d3a4f;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a {
+            color: #cbd5e6 !important;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a i {
+            color: #818cf8 !important;
+        }
+        [data-theme="dark"] .sidebar-nav-internal a:hover {
+            background: linear-gradient(90deg, #1e3a8a 0%, #1e2a3a 100%);
+            color: #60a5fa !important;
+            transform: translateX(5px) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        [data-theme="dark"] .sidebar-nav-internal a:hover i {
+            color: #60a5fa !important;
+            transform: scale(1.1);
+        }
+        [data-theme="dark"] .sidebar-desktop h3 {
+            color: #e2e8f0 !important;
+            border-bottom-color: #3b4a62 !important;
+        }
         
         #universal-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 999999; }
         .nav-link { text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; }
         .nav-link i { font-size: 20px; display: block; margin-bottom: 2px; font-weight: 900; color: var(--nav-text); transition: all 0.25s ease; }
         .nav-link div { font-size: 11px; font-weight: 800; color: var(--nav-text); transition: all 0.25s ease; }
         .nav-link:hover { transform: translateY(-4px); }
-        .nav-link:hover i { color: #3b82f6 !important; transform: scale(1.05); }
+        .nav-link:hover i { color: #3b82f6 !important; transform: scale(1.1); }
         .nav-link:hover div { color: #3b82f6 !important; }
         .nav-spacer { height: 75px; }
         @media (min-width: 768px) { #universal-bottom-nav, .nav-spacer { display: none !important; } }
         
-        #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: all 0.2s ease; }
-        #theme-toggle-btn:hover { transform: scale(1.05) translateY(-2px); background: #1d4ed8; }
+        #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: all 0.25s ease; }
+        #theme-toggle-btn:hover { transform: scale(1.1) translateY(-3px); background: #1d4ed8; box-shadow: 0 8px 20px rgba(59,130,246,0.4); }
+        #theme-toggle-btn:active { transform: scale(0.95); }
         
-        #addLinkBtn { transition: all 0.2s ease; cursor: pointer; }
-        #addLinkBtn:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
-        .dashboard-wrapper { display: flex; flex-direction: row; align-items: flex-start; }
+        .dashboard-wrapper { display: flex; flex-direction: row; align-items: flex-start; gap: 1.5rem; }
+        
+        /* Celebration card hover */
+        .celeb-card button {
+            transition: all 0.2s ease;
+        }
+        .celeb-card button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+        }
     </style>
 </head>
 <body>
@@ -229,7 +410,7 @@
                     <p id="desktopUserEmail" class="text-sm" style="color: var(--text-muted);">user@example.com</p>
                 </div>
                 <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border" style="border-color: var(--border);">
-                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all hover:scale-105 text-sm">Logout</button>
+                <button id="desktopLogout" onclick="logout()" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all hover:scale-105 hover:translate-y-[-2px] text-sm">Logout</button>
             </div>
         </header>
     </div>
@@ -253,63 +434,61 @@
     </div>
 
     <!-- MAIN DASHBOARD LAYOUT -->
-    <div class="dashboard-wrapper mt-6 flex flex-col md:flex-row gap-8 px-4">
-        <!-- SIDEBAR -->
+    <div class="dashboard-wrapper mt-6 flex flex-col md:flex-row gap-6 px-4">
+        <!-- DESKTOP SIDEBAR - Core Data (Enhanced Dark Mode) -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
-            <h3 class="text-sm font-bold mb-1 border-b pb-4 uppercase tracking-wider" style="color: var(--text-bold); border-color: var(--border);">Core Data</h3>
+            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider"><i class="fas fa-database mr-2"></i> Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col">
-                <a href="profile.html"><i class="fas fa-user-gear mr-2"></i> Profile</a>
-                <a href="essential.html"><i class="fas fa-shopping-basket mr-2"></i> Essentials</a>
-                <a href="asset.html"><i class="fas fa-dollar-sign mr-2"></i> Assets</a>
-                <a href="place.html"><i class="fas fa-map-marker-alt mr-2"></i> Tourist Places</a>
-                <a href="contact.html"><i class="fas fa-address-book mr-2"></i> Contacts</a>
-                <a href="grocery.html"><i class="fas fa-shopping-cart mr-2"></i> Grocery</a>
-                <a href="adress.html"><i class="fas fa-map-location-dot mr-2"></i> Address</a>
-                <a href="vehicle.html"><i class="fa-solid fa-car-side mr-2"></i> Vehicle</a>
-                <a href="Panchang.html"><i class="fa-solid fa-calendar mr-2"></i> Festivals</a>
+                <a href="profile.html"><i class="fas fa-user-gear"></i> Profile</a>
+                <a href="essential.html"><i class="fas fa-shopping-basket"></i> Essentials</a>
+                <a href="asset.html"><i class="fas fa-dollar-sign"></i> Assets</a>
+                <a href="place.html"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
+                <a href="contact.html"><i class="fas fa-address-book"></i> Contacts</a>
+                <a href="grocery.html"><i class="fas fa-shopping-cart"></i> Grocery</a>
+                <a href="adress.html"><i class="fas fa-map-location-dot"></i> Address</a>
+                <a href="vehicle.html"><i class="fa-solid fa-car-side"></i> Vehicle</a>
+                <a href="Panchang.html"><i class="fa-solid fa-calendar"></i> Festivals</a>
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT (3 COLUMNS) -->
+        <!-- MAIN CONTENT -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
             
             <div class="three-col-grid">
-                <!-- COLUMN 1: Today's Schedule & Groceries (Left Container: margin-bottom 2px added to data items) -->
+                <!-- COLUMN 1 -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2></div>
                     <div class="card-body">
-                        <div id="dash-events-list" class="space-y-0"><div class="loading-message"><div class="loading-spinner"></div><span>Loading events...</span></div></div>
+                        <div id="dash-events-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading events...</span></div></div>
                         <hr class="my-3" style="border-color: var(--border);">
-                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list" class="space-y-0"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
+                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
                     </div>
                 </div>
 
-                <!-- COLUMN 2: Celebrations Today (Same Loader Type) -->
+                <!-- COLUMN 2 -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);"><h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2></div>
                     <div class="card-body" id="dash-celebrations-list"><div class="loading-message"><div class="loading-spinner"></div><span>Checking celebrations...</span></div></div>
                 </div>
 
-                <!-- COLUMN 3: Quick Links (Same Loader Type) -->
+                <!-- COLUMN 3 -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
-                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md transition-all"><i class="fas fa-plus mr-1"></i>Add Link</button>
+                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md"><i class="fas fa-plus mr-1"></i>Add Link</button>
                     </div>
                     <div class="card-body" style="display: flex; flex-direction: column;">
                         <div id="linkFormContainer" class="link-form-container hidden">
                             <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
                             <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
                             <div class="flex gap-2 mt-2">
-                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all hover:bg-indigo-700">Save</button>
-                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-600">Cancel</button>
+                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-all">Save</button>
+                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all">Cancel</button>
                             </div>
                         </div>
-                        <div id="savedLinksList" style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
-                            <div class="loading-message"><div class="loading-spinner"></div><span>Data is loading...</span></div>
-                        </div>
+                        <div id="savedLinksList"><div class="loading-message"><div class="loading-spinner"></div><span>Data is loading...</span></div></div>
                     </div>
                 </div>
             </div>
@@ -328,6 +507,7 @@
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
+    // Firebase Config & Core Logic (same as original with full functionality preserved)
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
         authDomain: "sk12-58e9e.firebaseapp.com",
@@ -366,7 +546,6 @@
         const dd = String(today.getDate()).padStart(2,'0');
         const dateKey = `${yyyy}-${mm}-${dd}`;
 
-        // Left column: Events with margin-bottom: 2px applied automatically via CSS
         db.ref(`users/${userId}/events/${dateKey}`).on('value', snap => {
             const container = document.getElementById('dash-events-list');
             if(!container) return;
@@ -379,7 +558,6 @@
             container.innerHTML = html;
         });
 
-        // Left column Grocery with 2px bottom margin
         db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap => {
             const groceryDiv = document.getElementById('dash-grocery-list');
             if(!groceryDiv) return;
@@ -392,7 +570,6 @@
             groceryDiv.innerHTML = html;
         });
 
-        // Column 2 (Celebrations) using same loader pattern
         const bdayRef = db.ref(`users/${userId}/birthdays`);
         const anniRef = db.ref(`anniversaries/${userId}`);
         Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
@@ -404,14 +581,14 @@
                 const b = child.val();
                 if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
                     found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
                 }
             });
             aSnap.forEach(child => {
                 const a = child.val();
                 if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
                     found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow hover:bg-green-700 transition-all hover:scale-105">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
                 }
             });
             if(!found) html = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
@@ -427,22 +604,13 @@
         linksRef.on('value', (snapshot) => {
             const links = snapshot.val() || {};
             container.innerHTML = '';
-            if(Object.keys(links).length === 0) {
-                container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>';
-                return;
-            }
+            if(Object.keys(links).length === 0) { container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>'; return; }
             Object.entries(links).forEach(([id, link]) => {
                 const title = link.title || link.url.replace(/^https?:\/\//,'').split('/')[0];
                 const url = link.url;
                 const linkDiv = document.createElement('div');
                 linkDiv.className = 'link-item';
-                linkDiv.innerHTML = `
-                    <div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div>
-                    <div class="link-actions">
-                        <button class="icon-btn open-btn" data-url="${escapeHtml(url)}" title="Open link">Open</button>
-                        <button class="icon-btn delete-btn" data-id="${id}" title="Delete link"><i class="fas fa-trash-can"></i></button>
-                    </div>
-                `;
+                linkDiv.innerHTML = `<div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}">Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
                 container.appendChild(linkDiv);
             });
             document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); }); });
@@ -466,8 +634,7 @@
             if(!url) { alert("Please enter a URL"); return; }
             if(!url.startsWith('http')) url = 'https://' + url;
             const title = titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0];
-            const linksRef = db.ref(`users/${userId}/quickLinks`);
-            await linksRef.push({ url, title, createdAt: Date.now() });
+            await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
             formDiv.classList.add('hidden');
             urlInp.value = '';
             titleInp.value = '';
@@ -477,14 +644,8 @@
     function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
 
     auth.onAuthStateChanged(user => {
-        if(user) {
-            updateUI(user);
-            loadDashboardData(user.uid);
-            initLinksManager(user.uid);
-            setupLinkUI(user.uid);
-        } else {
-            window.location.replace("index.html");
-        }
+        if(user) { updateUI(user); loadDashboardData(user.uid); initLinksManager(user.uid); setupLinkUI(user.uid); } 
+        else { window.location.replace("index.html"); }
     });
 
     const menuBtn = document.getElementById('menu-btn');
@@ -494,13 +655,7 @@
     const themeBtn = document.getElementById('theme-toggle-btn');
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    if(themeBtn) {
-        themeBtn.onclick = () => {
-            let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        };
-    }
+    if(themeBtn) { themeBtn.onclick = () => { let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('theme', next); }; }
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
 </script>
