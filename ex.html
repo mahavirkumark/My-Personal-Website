@@ -525,5 +525,82 @@
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
 </script>
+    <style>
+        /* Add Link Button - Base Styles */
+#addLinkBtn {
+    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Light Mode Hover Effect */
+#addLinkBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    background: #f8fafc !important;
+    color: #4f46e5 !important;
+}
+
+/* Light Mode Active/Click Effect */
+#addLinkBtn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode Hover Effect */
+[data-theme="dark"] #addLinkBtn {
+    background: #1e293b !important;
+    color: #a5b4fc !important;
+    border: 1px solid #4f46e5;
+}
+
+[data-theme="dark"] #addLinkBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+    background: #2d3a5e !important;
+    color: #c7d2fe !important;
+    border-color: #818cf8;
+}
+
+[data-theme="dark"] #addLinkBtn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+}
+
+/* Optional Ripple Effect on Click */
+#addLinkBtn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(79, 70, 229, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+}
+
+#addLinkBtn:active::after {
+    width: 120px;
+    height: 120px;
+    opacity: 0;
+    transition: 0s;
+}
+
+/* Focus styles for accessibility */
+#addLinkBtn:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #4f46e5;
+}
+
+/* Ensure smooth dark mode transition */
+#addLinkBtn,
+#addLinkBtn * {
+    transition: all 0.25s ease;
+}
+    </style>
 </body>
 </html>
