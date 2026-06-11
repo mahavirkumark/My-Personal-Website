@@ -78,15 +78,16 @@
             box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
         }
         
-        /* Main content - wider */
+        /* Main content - INCREASED WIDTH by 50px */
         .dashboard-main-content { 
-            flex-grow: 1;
+            flex: 1;
             min-width: 0;
+            width: calc(100% - 280px - 1.5rem + 50px); /* Added 50px extra width */
         }
         
-        /* Dashboard wrapper - wider overall */
+        /* Dashboard wrapper - wider overall to accommodate increased content width */
         .dashboard-wrapper { 
-            max-width: 1500px; 
+            max-width: 1550px; /* Increased from 1500px to give 50px more room */
             width: 92%; 
             margin: 0 auto; 
         }
@@ -456,7 +457,7 @@
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT -->
+        <!-- MAIN CONTENT - WIDER by 50px -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
@@ -490,7 +491,6 @@
                                 <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm transition-all hover:bg-gray-600 hover:translate-y-[-1px]">Cancel</button>
                             </div>
                         </div>
-                        <!-- Links container - shows loading message for 5 seconds -->
                         <div id="savedLinksList" style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
                             <div class="loading-message">
                                 <div class="loading-spinner"></div>
@@ -531,7 +531,6 @@
 
     let currentUserId = null;
     let linksRefListener = null;
-    let loadingTimeout = null;
 
     function updateUI(user) {
         const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
@@ -612,13 +611,8 @@
         const container = document.getElementById('savedLinksList');
         if(!container) return;
         
-        // Show loading message initially - already set in HTML, but ensure it's there
-        // After 5 seconds, if data hasn't loaded yet, still show loading (will be replaced by Firebase)
-        
         if(linksRefListener) linksRefListener.off();
         
-        // Set a timeout to ensure loading message stays for at least 5 seconds before showing "no links"
-        // But Firebase will update whenever data arrives
         linksRef.on('value', (snapshot) => {
             const links = snapshot.val() || {};
             container.innerHTML = '';
@@ -679,8 +673,6 @@
         if(user) {
             updateUI(user);
             loadDashboardData(user.uid);
-            // Small delay before initializing links manager to show loading message for at least 5 seconds
-            // But since loading message is already in HTML, we just initialize normally
             initLinksManager(user.uid);
             setupLinkUI(user.uid);
         } else {
