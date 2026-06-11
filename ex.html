@@ -659,5 +659,102 @@
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
 </script>
+    <style>
+        /* Remove hover effect from link items - no transform, no shadow, no border change */
+.link-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 0.65rem 0.75rem; 
+    background: var(--item-bg); 
+    border-radius: 0.75rem; 
+    margin-bottom: 0.5rem; 
+    border: 1px solid var(--border-light); 
+    transition: none; /* No transition at all */
+}
+.link-item:hover {
+    transform: none; /* No transform */
+    box-shadow: none; /* No shadow */
+    border-color: var(--border-light); /* Keep border same */
+    background: var(--item-bg); /* Keep background same */
+}
+
+/* Keep button hover effects as they are */
+.icon-btn { 
+    padding: 0 12px;
+    height: 32px; 
+    border-radius: 8px; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.2); 
+    cursor: pointer; 
+    border: none; 
+    font-size: 0.75rem;
+    font-weight: 600;
+    gap: 4px;
+}
+
+.open-btn { 
+    background: rgba(59, 130, 246, 0.1); 
+    color: #3b82f6; 
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+.open-btn:hover { 
+    background: #3b82f6; 
+    color: white; 
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 14px rgba(59, 130, 246, 0.35);
+    border-color: transparent;
+}
+.open-btn:active { transform: translateY(1px) scale(0.98); }
+
+.delete-btn { 
+    width: 32px;
+    background: rgba(239, 68, 68, 0.1); 
+    color: #ef4444; 
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.delete-btn i { font-size: 0.8rem; }
+.delete-btn:hover { 
+    background: #ef4444; 
+    color: white; 
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.35);
+    border-color: transparent;
+}
+.delete-btn:active { transform: translateY(1px) scale(0.98); }
+
+/* Dark mode button styles remain */
+[data-theme="dark"] .open-btn { 
+    background: rgba(96, 165, 250, 0.15); 
+    color: #60a5fa; 
+    border-color: rgba(96, 165, 250, 0.4);
+}
+[data-theme="dark"] .open-btn:hover { 
+    background: #3b82f6; 
+    color: white; 
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+}
+[data-theme="dark"] .delete-btn { 
+    background: rgba(248, 113, 113, 0.15); 
+    color: #f87171; 
+    border-color: rgba(248, 113, 113, 0.4);
+}
+[data-theme="dark"] .delete-btn:hover { 
+    background: #ef4444; 
+    color: white; 
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5);
+}
+
+/* Link info text - no pointer events change needed, but ensure no hover on parent affects children */
+.link-info { 
+    flex: 1; 
+    overflow: hidden; 
+    pointer-events: none; /* This already prevents clicks on text */
+}
+    </style>
 </body>
 </html>
