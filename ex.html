@@ -49,11 +49,11 @@
         .dashboard-wrapper { max-width: 1400px; width: 90%; margin: 0 auto; }
         .dashboard-main-content { flex-grow: 1; }
         
-        /* Three column grid - INCREASED HEIGHT by 100px */
+        /* Three column grid */
         .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: stretch; }
         @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
         
-        /* Card styling with increased height (min-height increased by 100px) */
+        /* Card styling - HEIGHT REDUCED BY 30px (from 480px to 450px) */
         .dashboard-card { 
             background: var(--bg-card); 
             border-radius: 1rem; 
@@ -63,11 +63,11 @@
             height: 100%; 
             display: flex; 
             flex-direction: column; 
-            min-height: 480px; /* Increased by ~100px from original ~380px */
+            min-height: 450px; /* Reduced by 30px from 480px */
         }
         .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         .card-header { padding: 0.9rem 1rem; }
-        .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 420px; /* Increased to accommodate more content */ }
+        .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; /* Adjusted accordingly */ }
         
         /* Links list items */
         .link-item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.75rem; background: var(--item-bg); border-radius: 0.75rem; margin-bottom: 0.5rem; transition: all 0.2s; border: 1px solid var(--border-light); }
@@ -85,6 +85,18 @@
         .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
         .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; }
         .link-input:focus { border-color: var(--primary); ring: 2px; }
+        
+        /* Proper Scrollbar Styling for Links Container and all card bodies */
+        .card-body::-webkit-scrollbar { width: 6px; }
+        .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .card-body::-webkit-scrollbar-thumb:hover { background: var(--accent-dark); }
+        
+        /* Specific scrollbar for links list area */
+        #savedLinksList { max-height: 340px; overflow-y: auto; padding-right: 4px; }
+        #savedLinksList::-webkit-scrollbar { width: 5px; }
+        #savedLinksList::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        #savedLinksList::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
         
         /* Theme Variables - full dark/light support */
         :root {
@@ -152,18 +164,17 @@
         #theme-toggle-btn { position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; border-radius: 50%; background: var(--primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: transform 0.1s; }
         #theme-toggle-btn:active { transform: scale(0.94); }
         
-        /* Custom scrollbar */
-        .card-body::-webkit-scrollbar { width: 5px; }
-        .card-body::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
-        .card-body::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-        
         /* Celebration card hover effects - original style */
         .celeb-card { transition: all 0.2s; }
-        .celeb-card:hover { transform: translateX(3px); }
+        .celeb-card:hover { transform: translateX(3px); background: var(--item-hover) !important; }
         
         /* Event item hover */
-        .event-item { transition: all 0.2s; }
-        .event-item:hover { background: var(--item-hover); transform: translateX(2px); }
+        .event-item { transition: all 0.2s; cursor: pointer; }
+        .event-item:hover { background: var(--item-hover) !important; transform: translateX(2px); }
+        
+        /* Grocery item hover */
+        .grocery-item { transition: all 0.2s; cursor: pointer; }
+        .grocery-item:hover { transform: translateX(2px); color: var(--primary) !important; }
     </style>
 </head>
 <body>
@@ -236,12 +247,12 @@
             </nav>
         </aside>
 
-        <!-- MAIN CONTENT: three column row with INCREASED height -->
+        <!-- MAIN CONTENT: three column row with REDUCED height -->
         <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
             <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
             
-            <!-- 3 equal cards row - each now has increased height (min-height: 480px) -->
+            <!-- 3 equal cards row - each now has reduced height (min-height: 450px, reduced by 30px) -->
             <div class="three-col-grid">
                 <!-- Card 1: Today's Schedule & Groceries -->
                 <div class="dashboard-card">
@@ -259,13 +270,13 @@
                     <div class="card-body" id="dash-celebrations-list"><p class="text-sm" style="color: var(--text-muted);">Checking celebrations...</p></div>
                 </div>
 
-                <!-- Card 3: LINKS MANAGER (Save & Open Links) -->
+                <!-- Card 3: LINKS MANAGER with proper scrollbar -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
                         <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md hover:bg-gray-100 transition"><i class="fas fa-plus mr-1"></i>Add Link</button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="display: flex; flex-direction: column;">
                         <div id="linkFormContainer" class="link-form-container hidden">
                             <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
                             <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
@@ -274,7 +285,8 @@
                                 <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-600 transition">Cancel</button>
                             </div>
                         </div>
-                        <div id="savedLinksList" class="space-y-2">
+                        <!-- Links list with proper scrollbar - independent scrolling -->
+                        <div id="savedLinksList" style="max-height: 320px; overflow-y: auto; padding-right: 4px;">
                             <div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>
                         </div>
                     </div>
@@ -370,7 +382,7 @@
             if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted);">No groceries today</p>'; return; }
             snap.forEach(child => {
                 const item = child.val();
-                groceryDiv.innerHTML += `<div class="flex items-center gap-2 p-1 transition hover:translate-x-1"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
+                groceryDiv.innerHTML += `<div class="grocery-item flex items-center gap-2 p-1 transition-all" style="cursor: pointer;"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
             });
         });
 
@@ -406,7 +418,7 @@
         window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
-    // LINKS MANAGER
+    // LINKS MANAGER with proper scrollbar handling
     function initLinksManager(userId) {
         const linksRef = db.ref(`users/${userId}/quickLinks`);
         const container = document.getElementById('savedLinksList');
