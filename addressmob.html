@@ -108,7 +108,7 @@
         .button-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 5px;
             margin-top: 12px;
             padding-top: 12px;
             border-top: 1px solid var(--border);
@@ -121,27 +121,27 @@
             gap: 6px;
             padding: 8px 4px;
             border-radius: 9999px;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 500;
             transition: all 0.2s;
             white-space: nowrap;
         }
         
         .button-row button i {
-            font-size: 12px;
+            font-size: 14px;
         }
         
         /* Responsive button row for very small screens */
         @media (max-width: 480px) {
             .button-row button {
-                font-size: 10px;
+                font-size: 14px;
                 padding: 6px 2px;
             }
             .button-row button i {
-                font-size: 10px;
+                font-size: 14px;
             }
             .button-row {
-                gap: 6px;
+                gap: 2px;
             }
         }
         
@@ -425,7 +425,8 @@
     </div>
 
     <!-- SEARCH BAR WITH REDUCED WIDTH BY 30PX -->
-    <div class="search-container px-4 mt-4" style="max-width: calc(100% - 30px); margin: 0 auto;">
+    <div class="search-container px-4 pt-2
+         mt-4" style="max-width: calc(100% - 30px); margin: 0 auto;">
         <div id="searchWrapper" class="relative flex items-center">
             <button id="backBtn" onclick="exitSearchFocus()" class="hidden mr-2 text-2xl p-2 rounded-full" style="color: var(--text-search); background: var(--bg-card);">
                 <i class="fas fa-arrow-left"></i>
