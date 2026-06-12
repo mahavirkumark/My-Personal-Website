@@ -10,11 +10,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <!-- Google Maps API - IMPORTANT: Restrict this key in Google Cloud Console -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc&libraries=geometry,places&callback=initGeocoder" defer></script>
 
     <style>
-        /* Theme System */
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -60,7 +58,6 @@
             border-color: var(--border) !important;
         }
         
-        /* Search Input - Text color based on theme */
         #searchInput {
             border-radius: 9999px !important;
             border: 2px solid transparent;
@@ -73,12 +70,7 @@
             color: var(--placeholder-color) !important;
             opacity: 1;
         }
-        #searchInput:focus {
-            border-color: #6366f1;
-            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1);
-        }
         
-        /* All input fields placeholder visibility */
         input::placeholder, textarea::placeholder {
             color: var(--placeholder-color) !important;
             opacity: 1;
@@ -90,12 +82,10 @@
             border-color: var(--input-border) !important;
         }
         
-        /* Mobile Search Active - Hide everything except search and results */
         @media (max-width: 767px) {
             body.search-active { overflow: hidden; }
             body.search-active .left-container, 
             body.search-active .main-header-section,
-            body.search-active .page-header-box,
             body.search-active footer,
             body.search-active #universal-bottom-nav,
             body.search-active #theme-toggle-btn,
@@ -123,16 +113,12 @@
             body.search-active .right-container h2 {
                 display: none !important;
             }
-            body.search-active .address-list-container {
-                margin-top: 0;
-            }
         }
         
         @media (min-width: 768px) {
             .left-container { position: sticky; top: 6rem; }
         }
         
-        /* Back Button */
         #backBtn {
             display: none !important;
         }
@@ -140,7 +126,6 @@
             display: flex !important;
         }
         
-        /* Spinner Animation */
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -150,10 +135,8 @@
             animation: spin 1s linear infinite;
         }
         
-        /* Address Items */
         .address-item { transition: all 0.2s ease; }
         
-        /* Bottom Navigation */
         #universal-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -194,7 +177,6 @@
             color: #6366f1 !important;
         }
         
-        /* Theme Toggle Button */
         #theme-toggle-btn {
             position: fixed;
             bottom: 85px;
@@ -216,16 +198,10 @@
         #theme-toggle-btn:active { transform: scale(0.95); }
         
         .nav-spacer { height: 0px !important; display: none; }
-        
-        /* Hide "Your Saved Addresses" title on mobile when searching */
-        .right-container h2 {
-            transition: display 0.3s;
-        }
     </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- Header -->
     <div class="main-header-section pt-4 px-4">
         <div class="max-w-4xl mx-auto">
             <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight">
@@ -234,7 +210,6 @@
         </div>
     </div>
 
-    <!-- Search Bar -->
     <div class="max-w-4xl mx-auto px-4 mt-4">
         <div id="searchWrapper" class="relative flex items-center w-full">
             <button id="backBtn" onclick="exitSearchFocus()" class="hidden mr-2 text-2xl p-2 rounded-full" style="color: var(--text-search); background: var(--bg-card);">
@@ -257,9 +232,7 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8 grid md:grid-cols-2 gap-8">
-        <!-- Left Panel - Add Address -->
         <div class="p-5 rounded-xl shadow-lg h-fit md:sticky md:top-20 left-container" style="background-color: var(--bg-card);">
             <div class="flex justify-between items-center cursor-pointer border-b pb-2" style="border-color: var(--border);" onclick="document.getElementById('addressFormContent').classList.toggle('hidden')">
                 <h2 class="text-xl font-bold text-indigo-700">➕ Save New Address</h2>
@@ -301,7 +274,6 @@
             </div>
         </div>
 
-        <!-- Right Panel - Address List -->
         <div class="right-container">
             <h2 class="text-xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
             <div id="addressList" class="space-y-4">
@@ -316,7 +288,6 @@
         </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <nav id="universal-bottom-nav">
         <a href="homemob.html" class="nav-link flex flex-col items-center">
             <i class="fa-solid fa-house"></i>
@@ -340,7 +311,6 @@
         </a>
     </nav>
 
-    <!-- Theme Toggle Button -->
     <button id="theme-toggle-btn" onclick="toggleTheme()">
         <i class="fas fa-moon"></i>
     </button>
@@ -349,8 +319,6 @@
 
     <script>
         // ==================== SECURITY & SANITIZATION ====================
-        
-        // XSS Protection: Escape HTML content
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -361,7 +329,6 @@
                 .replace(/'/g, '&#39;');
         }
         
-        // XSS Protection: Escape for HTML attributes
         function escapeAttribute(str) {
             if (!str) return '';
             return String(str)
@@ -372,7 +339,6 @@
                 .replace(/>/g, '&gt;');
         }
         
-        // XSS Protection: Escape for JavaScript strings
         function escapeJsString(str) {
             if (!str) return '';
             return String(str)
@@ -388,7 +354,6 @@
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeIcon(savedTheme);
-            applyThemeToDynamicElements(savedTheme);
         })();
 
         function toggleTheme() {
@@ -397,7 +362,6 @@
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
-            applyThemeToDynamicElements(newTheme);
         }
 
         function updateThemeIcon(theme) {
@@ -405,11 +369,6 @@
             if (btn) {
                 btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
             }
-        }
-        
-        function applyThemeToDynamicElements(theme) {
-            const isDark = theme === 'dark';
-            document.body.style.backgroundColor = isDark ? '#0f172a' : '#f8fafc';
         }
 
         // ==================== FIREBASE CONFIG ====================
@@ -436,7 +395,6 @@
         window.initGeocoder = function() {
             if (window.google && google.maps) {
                 geocoder = new google.maps.Geocoder();
-                console.log("Geocoder ready");
             }
         };
 
@@ -485,21 +443,52 @@
             }
         }
 
-        // ==================== NAVIGATION FUNCTION ====================
-        function navigateToLocation(lat, lng, mapLink, placeName) {
+        // ==================== NAVIGATION FUNCTION (Shows Place Name, Not Coordinates) ====================
+        function navigateToLocation(lat, lng, mapLink, placeName, landmark) {
             let url = null;
-            if (lat !== null && lat !== undefined && lng !== null && lng !== undefined) {
-                url = "https://www.google.com/maps?q=" + lat + "," + lng;
-            } else if (mapLink && mapLink.trim()) {
+            
+            // PRIORITY 1: Use original map link if available (shows the actual place name)
+            if (mapLink && mapLink.trim()) {
                 url = mapLink.trim();
-            } else if (placeName) {
-                url = "https://www.google.com/maps?q=" + encodeURIComponent(placeName);
+            } 
+            // PRIORITY 2: Search by place name (shows place name, not coordinates)
+            else if (placeName) {
+                const searchQuery = placeName + (landmark ? " " + landmark : "");
+                url = "https://www.google.com/maps?q=" + encodeURIComponent(searchQuery);
+            }
+            // PRIORITY 3: Use coordinates (last resort)
+            else if (lat !== null && lat !== undefined && lng !== null && lng !== undefined) {
+                url = "https://www.google.com/maps?q=" + lat + "," + lng;
             }
             
             if (url) {
                 window.open(url, "_blank", "noopener,noreferrer");
             } else {
                 alert("No navigation data available");
+            }
+        }
+
+        // ==================== SHARE FUNCTION (No footer text) ====================
+        function shareAddress(place, landmark, mapLink, method) {
+            // Build clean share text without any footer
+            let text = `📍 *${place}*\n📝 ${landmark}`;
+            
+            if (mapLink && mapLink.trim()) {
+                text += `\n🗺️ Google Maps: ${mapLink}`;
+            } else {
+                const searchUrl = `https://www.google.com/maps?q=${encodeURIComponent(place + " " + landmark)}`;
+                text += `\n🗺️ Google Maps: ${searchUrl}`;
+            }
+            
+            if (method === "whatsapp") {
+                window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener,noreferrer");
+            } else if (navigator.share) {
+                navigator.share({ 
+                    title: `📍 ${place}`, 
+                    text: text
+                });
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert("Address copied to clipboard!"));
             }
         }
 
@@ -585,23 +574,19 @@
             const uid = firebase.auth().currentUser?.uid;
             
             dataList.forEach(data => {
-                const hasCoords = (data.lat !== null && data.lat !== undefined && data.lng !== null && data.lng !== undefined);
                 const div = document.createElement("div");
                 div.className = "address-item p-4 rounded-xl shadow-md border mb-3";
                 div.style.backgroundColor = "var(--bg-card)";
                 div.style.borderColor = "var(--border)";
                 
+                // Navigation button - uses place name first (not coordinates)
                 let navButton = '';
-                if (hasCoords) {
-                    navButton = `<button onclick="navigateToLocation(${data.lat}, ${data.lng}, null, null)" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
-                                    <i class="fas fa-location-arrow mr-1"></i> Start Navigation
-                                </button>`;
-                } else if (data.mapLink) {
-                    navButton = `<button onclick="navigateToLocation(null, null, '${escapeJsString(data.mapLink)}', null)" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
+                if (data.mapLink && data.mapLink.trim()) {
+                    navButton = `<button onclick="navigateToLocation(null, null, '${escapeJsString(data.mapLink)}', '${escapeJsString(data.place)}', '${escapeJsString(data.landmark)}')" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
                                     <i class="fas fa-location-arrow mr-1"></i> Start Navigation
                                 </button>`;
                 } else {
-                    navButton = `<button onclick="navigateToLocation(null, null, null, '${escapeJsString(data.place)}')" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
+                    navButton = `<button onclick="navigateToLocation(null, null, null, '${escapeJsString(data.place)}', '${escapeJsString(data.landmark)}')" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
                                     <i class="fas fa-location-arrow mr-1"></i> Start Navigation
                                 </button>`;
                 }
@@ -611,8 +596,7 @@
                         <div>
                             <p class="text-lg font-bold" style="color: var(--text-bold);">${escapeHtml(data.place)}</p>
                             <p class="text-sm mt-1" style="color: var(--text-main);">${escapeHtml(data.landmark)}</p>
-                            ${data.mapLink ? `<p class="text-xs truncate mt-1" style="color: #3b82f6;"><i class="fas fa-link"></i> Map link saved</p>` : ''}
-                            ${hasCoords ? `<p class="text-xs mt-1" style="color: var(--placeholder-color);"><i class="fas fa-map-pin"></i> GPS: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>` : ''}
+                            ${data.mapLink ? `<p class="text-xs truncate mt-1" style="color: #3b82f6;"><i class="fas fa-link"></i> ${escapeHtml(data.mapLink.substring(0, 50))}${data.mapLink.length > 50 ? '...' : ''}</p>` : ''}
                         </div>
                         <div class="flex flex-wrap justify-end gap-2 mt-3 border-t pt-3" style="border-color: var(--border);">
                             ${navButton}
@@ -638,7 +622,7 @@
                         <h4 class="font-bold" style="color: var(--text-bold);">Editing: ${escapeHtml(data.place)}</h4>
                         <input type="text" id="edit-place-${escapeAttribute(data.id)}" value="${escapeAttribute(data.place)}" class="w-full p-2 border rounded-lg text-sm" style="background-color: var(--input-bg); color: var(--text-search); border-color: var(--input-border);" />
                         <textarea id="edit-landmark-${escapeAttribute(data.id)}" rows="2" class="w-full p-2 border rounded-lg text-sm" style="background-color: var(--input-bg); color: var(--text-search); border-color: var(--input-border);">${escapeHtml(data.landmark)}</textarea>
-                        <input type="url" id="edit-map-${escapeAttribute(data.id)}" value="${escapeAttribute(data.mapLink || '')}" class="w-full p-2 border rounded-lg text-sm" style="background-color: var(--input-bg); color: var(--text-search); border-color: var(--input-border);" />
+                        <input type="url" id="edit-map-${escapeAttribute(data.id)}" value="${escapeAttribute(data.mapLink || '')}" placeholder="Google Maps link" class="w-full p-2 border rounded-lg text-sm" style="background-color: var(--input-bg); color: var(--text-search); border-color: var(--input-border);" />
                         <div class="flex justify-end gap-2">
                             <button class="bg-green-500 text-white px-3 py-1 rounded-full text-sm" onclick="saveEditedAddress('${escapeAttribute(data.id)}')">Save</button>
                             <button class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm" onclick="toggleEditForm('${escapeAttribute(data.id)}')">Cancel</button>
@@ -703,20 +687,6 @@
         function deleteAddress(uid, id) {
             if (confirm("Are you sure you want to permanently delete this address?")) {
                 firebase.database().ref("addresses/" + uid + "/" + id).remove();
-            }
-        }
-
-        // ==================== SHARE FUNCTION ====================
-        function shareAddress(place, landmark, mapLink, method) {
-            let text = `📍 ${place}\n📝 ${landmark}`;
-            if (mapLink) text += `\n🗺️ ${mapLink}`;
-            
-            if (method === "whatsapp") {
-                window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank", "noopener,noreferrer");
-            } else if (navigator.share) {
-                navigator.share({ title: place, text: text });
-            } else {
-                navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
             }
         }
 
@@ -836,9 +806,6 @@
                 databaseRef = null;
             }
             firebase.auth().signOut().then(() => {
-                window.location.href = "indexmob.html";
-            }).catch((error) => {
-                console.error("Logout error:", error);
                 window.location.href = "indexmob.html";
             });
         }
