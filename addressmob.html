@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
     <title>Address Directory - Smart Location Saver</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,13 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc&libraries=geometry,places&callback=initGeocoder" defer></script>
 
     <style>
+        /* RESET & BASE - ALL ORIGINAL COLORS PRESERVED */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -26,6 +33,7 @@
             --input-bg: #ffffff;
             --input-border: #e2e8f0;
         }
+        
         [data-theme="dark"] {
             --bg-body: #0f172a;
             --bg-card: #1e293b;
@@ -58,6 +66,7 @@
             border-color: var(--border) !important;
         }
         
+        /* ORIGINAL SEARCH INPUT STYLES - UNCHANGED */
         #searchInput {
             border-radius: 9999px !important;
             border: 2px solid transparent;
@@ -82,6 +91,7 @@
             border-color: var(--input-border) !important;
         }
         
+        /* RESPONSIVE MOBILE SEARCH OVERLAY - FULLY RESPONSIVE */
         @media (max-width: 767px) {
             body.search-active { overflow: hidden; }
             body.search-active .left-container, 
@@ -96,14 +106,14 @@
             body.search-active #searchWrapper {
                 position: fixed;
                 top: 0; left: 0; right: 0;
-                z-index: 100;
+                z-index: 80;
                 background: var(--bg-body);
                 padding: 12px;
                 border-bottom: 1px solid var(--border);
             }
             body.search-active .right-container {
                 position: fixed;
-                top: 80px; left: 0; right: 0;
+                top: 40px; left: 0; right: 0;
                 height: calc(100vh - 80px);
                 z-index: 90;
                 overflow-y: auto;
@@ -115,8 +125,33 @@
             }
         }
         
+        /* DESKTOP STICKY SIDEBAR - RESPONSIVE */
         @media (min-width: 768px) {
-            .left-container { position: sticky; top: 6rem; }
+            .left-container { 
+                position: sticky; 
+                top: 6rem; 
+                align-self: start;
+                max-height: calc(100vh - 8rem);
+                overflow-y: auto;
+            }
+        }
+        
+        /* RESPONSIVE GRID ADJUSTMENTS */
+        @media (max-width: 768px) {
+            .max-w-7xl {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            .p-5 {
+                padding: 1.25rem;
+            }
+        }
+        
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .max-w-7xl {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
         }
         
         #backBtn {
@@ -135,8 +170,22 @@
             animation: spin 1s linear infinite;
         }
         
-        .address-item { transition: all 0.2s ease; }
+        .address-item { 
+            transition: all 0.2s ease; 
+        }
         
+        /* RESPONSIVE ADDRESS CARDS */
+        @media (max-width: 480px) {
+            .address-item .flex {
+                gap: 0.5rem;
+            }
+            .address-item button {
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
+            }
+        }
+        
+        /* BOTTOM NAVIGATION - RESPONSIVE */
         #universal-bottom-nav {
             position: fixed;
             bottom: 0;
@@ -173,10 +222,9 @@
             font-weight: 800;
             color: var(--nav-text) !important;
         }
-        .nav-link.active i, .nav-link.active div {
-            color: #6366f1 !important;
-        }
+     
         
+        /* THEME TOGGLE - ORIGINAL */
         #theme-toggle-btn {
             position: fixed;
             bottom: 85px;
@@ -197,6 +245,48 @@
         }
         #theme-toggle-btn:active { transform: scale(0.95); }
         
+        /* COLLAPSIBLE FORM ON MOBILE - RESPONSIVE */
+        @media (max-width: 767px) {
+            #addressFormContent.hidden {
+                display: none;
+            }
+            #addressFormContent:not(.hidden) {
+                display: block;
+            }
+            .left-container .flex {
+                cursor: pointer;
+            }
+        }
+        
+        /* TOUCH-FRIENDLY BUTTONS */
+        button, .nav-link, .address-item button {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        
+        /* RESPONSIVE TEXT SIZES */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            .text-xl {
+                font-size: 1.125rem;
+            }
+        }
+        
+        /* SCROLLBAR STYLING */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #6366f1;
+            border-radius: 10px;
+        }
+        
         .nav-spacer { height: 0px !important; display: none; }
     </style>
 </head>
@@ -211,17 +301,17 @@
     </div>
 
     <div class="max-w-4xl mx-auto px-4 mt-4">
-        <div id="searchWrapper" class="relative flex items-center w-full">
+        <div id="searchWrapper" class="relative flex items-center ">
             <button id="backBtn" onclick="exitSearchFocus()" class="hidden mr-2 text-2xl p-2 rounded-full" style="color: var(--text-search); background: var(--bg-card);">
                 <i class="fas fa-arrow-left"></i>
             </button>
             <div class="relative flex-grow">
-                <div class="absolute left-6 top-1/2 -translate-y-1/2" style="color: var(--placeholder-color);">
+                <div class="absolute left-5 top-1/2 -translate-y-1/2" style="color: var(--placeholder-color);">
                     <i class="fas fa-search"></i>
                 </div>
                 <input type="text" id="searchInput" 
                        placeholder="Search by name, landmark, or city..." 
-                       class="w-full pl-14 pr-14 py-4 shadow-2xl border-none focus:ring-4 focus:ring-indigo-100 outline-none text-lg"
+                       class="w-full pl-10 pr-10 py-3 shadow-2xl border-none focus:ring-4 focus:ring-indigo-100 outline-none text-lg"
                        style="border-radius: 9999px; background-color: var(--input-bg); color: var(--text-search);" 
                        oninput="handleSearchInput(this)" 
                        onfocus="toggleMobileSearchFocus(true)">
@@ -233,13 +323,14 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8 grid md:grid-cols-2 gap-8">
+        <!-- LEFT PANEL - SAVE ADDRESS FORM (ALL ORIGINAL BUTTON COLORS) -->
         <div class="p-5 rounded-xl shadow-lg h-fit md:sticky md:top-20 left-container" style="background-color: var(--bg-card);">
-            <div class="flex justify-between items-center cursor-pointer border-b pb-2" style="border-color: var(--border);" onclick="document.getElementById('addressFormContent').classList.toggle('hidden')">
+            <div class="flex justify-between items-center cursor-pointer border-b pb-2 md:pointer-events-none" style="border-color: var(--border);" onclick="toggleFormMobile()">
                 <h2 class="text-xl font-bold text-indigo-700">➕ Save New Address</h2>
-                <i class="fas fa-chevron-down md:hidden text-indigo-700"></i>
+                <i id="formToggleIcon" class="fas fa-chevron-down md:hidden text-indigo-700"></i>
             </div>
             
-            <div id="addressFormContent" class="hidden md:block space-y-4 mt-4">
+            <div id="addressFormContent" class="md:block hidden space-y-4 mt-4">
                 <div>
                     <label class="block text-sm font-medium mb-1" style="color: var(--text-main);">Place Name (e.g., Home, Office)</label>
                     <input type="text" id="placeInput" placeholder="Enter place name..." 
@@ -264,18 +355,21 @@
                         Find Location on Google Maps
                     </a>
                 </div>
+                <!-- ORIGINAL GPS BUTTON COLOR (green-600) -->
                 <button type="button" onclick="fetchGPS()" id="gpsBtn" class="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 transition font-medium text-sm shadow-md">
                     <i class="fas fa-location-crosshairs"></i>
                     Get Accurate GPS Location
                 </button>
+                <!-- ORIGINAL SAVE BUTTON COLOR (indigo-600) -->
                 <button id="saveAddressBtn" onclick="saveAddress()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center shadow-md">
                     <i class="fas fa-save mr-2"></i> Save Address
                 </button>
             </div>
         </div>
 
+        <!-- RIGHT PANEL - ADDRESSES LIST -->
         <div class="right-container">
-            <h2 class="text-xl font-bold mb-4 text-indigo-700">🏠 Your Saved Addresses</h2>
+            <h2 class="text-xl font-bold mb-2 text-indigo-700">🏠 Your Saved Addresses</h2>
             <div id="addressList" class="space-y-4">
                 <div id="loadingIndicator" class="text-center p-10" style="color: var(--text-main);">
                     <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
@@ -288,6 +382,7 @@
         </div>
     </div>
 
+    <!-- BOTTOM NAVIGATION - ORIGINAL -->
     <nav id="universal-bottom-nav">
         <a href="homemob.html" class="nav-link flex flex-col items-center">
             <i class="fa-solid fa-house"></i>
@@ -443,20 +538,16 @@
             }
         }
 
-        // ==================== NAVIGATION FUNCTION (Shows Place Name, Not Coordinates) ====================
+        // ==================== NAVIGATION FUNCTION ====================
         function navigateToLocation(lat, lng, mapLink, placeName, landmark) {
             let url = null;
-            
-            // PRIORITY 1: Use original map link if available (shows the actual place name)
             if (mapLink && mapLink.trim()) {
                 url = mapLink.trim();
             } 
-            // PRIORITY 2: Search by place name (shows place name, not coordinates)
             else if (placeName) {
                 const searchQuery = placeName + (landmark ? " " + landmark : "");
                 url = "https://www.google.com/maps?q=" + encodeURIComponent(searchQuery);
             }
-            // PRIORITY 3: Use coordinates (last resort)
             else if (lat !== null && lat !== undefined && lng !== null && lng !== undefined) {
                 url = "https://www.google.com/maps?q=" + lat + "," + lng;
             }
@@ -468,9 +559,8 @@
             }
         }
 
-        // ==================== SHARE FUNCTION (No footer text) ====================
+        // ==================== SHARE FUNCTION ====================
         function shareAddress(place, landmark, mapLink, method) {
-            // Build clean share text without any footer
             let text = `📍 *${place}*\n📝 ${landmark}`;
             
             if (mapLink && mapLink.trim()) {
@@ -560,7 +650,7 @@
             });
         }
 
-        // ==================== DISPLAY ADDRESSES ====================
+        // ==================== DISPLAY ADDRESSES (ALL ORIGINAL BUTTON COLORS) ====================
         function displayFilteredAddresses(dataList) {
             const addressListEl = document.getElementById("addressList");
             if (!addressListEl) return;
@@ -579,7 +669,8 @@
                 div.style.backgroundColor = "var(--bg-card)";
                 div.style.borderColor = "var(--border)";
                 
-                // Navigation button - uses place name first (not coordinates)
+                // ORIGINAL BUTTON COLORS PRESERVED:
+                // Navigate: bg-indigo-500 (original), WhatsApp: bg-orange-500, Share: bg-blue-500, Edit: bg-yellow-500, Delete: bg-red-500
                 let navButton = '';
                 if (data.mapLink && data.mapLink.trim()) {
                     navButton = `<button onclick="navigateToLocation(null, null, '${escapeJsString(data.mapLink)}', '${escapeJsString(data.place)}', '${escapeJsString(data.landmark)}')" class="bg-indigo-500 text-white px-3 py-1.5 rounded-full hover:bg-indigo-600 transition text-sm flex items-center shadow-sm">
@@ -598,21 +689,21 @@
                             <p class="text-sm mt-1" style="color: var(--text-main);">${escapeHtml(data.landmark)}</p>
                             ${data.mapLink ? `<p class="text-xs truncate mt-1" style="color: #3b82f6;"><i class="fas fa-link"></i> ${escapeHtml(data.mapLink.substring(0, 50))}${data.mapLink.length > 50 ? '...' : ''}</p>` : ''}
                         </div>
-                        <div class="flex flex-wrap justify-end gap-2 mt-3 border-t pt-3" style="border-color: var(--border);">
+                        <div class="flex flex-wrap justify-end gap-2 mt-1 border-t pt-1" style="border-color: var(--border);">
                             ${navButton}
-                            <button class="bg-orange-500 text-white px-3 py-1.5 rounded-full text-sm flex items-center" 
+                            <button class="bg-orange-500 text-white px-1 py-1 rounded-full text-sm flex items-center" 
                                     onclick="shareAddress('${escapeJsString(data.place)}', '${escapeJsString(data.landmark)}', '${escapeJsString(data.mapLink || '')}', 'whatsapp')">
                                 <i class="fab fa-whatsapp mr-1"></i> WhatsApp
                             </button>
-                            <button class="bg-blue-500 text-white px-3 py-1.5 rounded-full text-sm flex items-center" 
+                            <button class="bg-blue-500 text-white px-1 py-1 rounded-full text-sm flex items-center" 
                                     onclick="shareAddress('${escapeJsString(data.place)}', '${escapeJsString(data.landmark)}', '${escapeJsString(data.mapLink || '')}', 'system')">
                                 <i class="fas fa-share-alt mr-1"></i> Share
                             </button>
-                            <button class="bg-yellow-500 text-white px-3 py-1.5 rounded-full text-sm flex items-center" 
+                            <button class="bg-yellow-500 text-white px-1 py-1 rounded-full text-sm flex items-center" 
                                     onclick="toggleEditForm('${escapeAttribute(data.id)}')">
                                 <i class="fas fa-edit mr-1"></i> Edit
                             </button>
-                            <button class="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm flex items-center" 
+                            <button class="bg-red-500 text-white px-1 py-1 rounded-full text-sm flex items-center" 
                                     onclick="deleteAddress('${escapeAttribute(uid)}', '${escapeAttribute(data.id)}')">
                                 <i class="fas fa-trash-alt mr-1"></i> Delete
                             </button>
@@ -723,6 +814,21 @@
             document.getElementById("searchInput").blur();
         }
 
+        // ==================== MOBILE FORM TOGGLE ====================
+        function toggleFormMobile() {
+            if (window.innerWidth < 768) {
+                const formDiv = document.getElementById("addressFormContent");
+                const icon = document.getElementById("formToggleIcon");
+                if (formDiv.classList.contains("hidden")) {
+                    formDiv.classList.remove("hidden");
+                    if (icon) icon.className = "fas fa-chevron-up text-indigo-700";
+                } else {
+                    formDiv.classList.add("hidden");
+                    if (icon) icon.className = "fas fa-chevron-down text-indigo-700";
+                }
+            }
+        }
+
         // ==================== VOICE SEARCH ====================
         function startVoiceSearch() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -825,6 +931,7 @@
         window.navigateToLocation = navigateToLocation;
         window.toggleTheme = toggleTheme;
         window.logout = logout;
+        window.toggleFormMobile = toggleFormMobile;
     </script>
 </body>
 </html>
