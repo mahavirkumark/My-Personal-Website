@@ -507,157 +507,360 @@
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
-    // Firebase Config & Core Logic (same as original with full functionality preserved)
-    const firebaseConfig = {
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-        authDomain: "sk12-58e9e.firebaseapp.com",
-        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-        projectId: "sk12-58e9e",
-        storageBucket: "sk12-58e9e.appspot.com",
-        messagingSenderId: "470207874652",
-        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+  // Firebase Config & Core Logic (FIXED VERSION)
+const firebaseConfig = {
+    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+    authDomain: "sk12-58e9e.firebaseapp.com",
+    databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+    projectId: "sk12-58e9e",
+    storageBucket: "sk12-58e9e.appspot.com",
+    messagingSenderId: "470207874652",
+    appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+};
 
-    let currentUserId = null;
-    let linksRefListener = null;
+// Initialize Firebase only once
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+} else {
+    firebase.app(); // use existing app
+}
 
-    function updateUI(user) {
-        const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
-        const userEmail = user.email || "user@example.com";
-        let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
-        const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
-        const userPhoto = user.photoURL || photoPlaceholder;
-        document.querySelectorAll('#desktopUserName').forEach(el => { if(el) el.innerText = userName; });
-        document.querySelectorAll('#desktopUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
-        document.querySelectorAll('#desktopUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
-        currentUserId = user.uid;
-    }
+const auth = firebase.auth();
+const db = firebase.database();
 
-    window.logout = function() { auth.signOut().then(() => window.location.replace('index.html')).catch(console.error); };
-    window.sendWhatsAppMsg = function(phone, msg) { if(!phone) { alert("No phone number saved."); return; } const clean = phone.replace(/\D/g, ''); window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank'); };
+// IMPORTANT: Set persistence to LOCAL to avoid token issues
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .catch(console.error);
 
-    function loadDashboardData(userId) {
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2,'0');
-        const dd = String(today.getDate()).padStart(2,'0');
-        const dateKey = `${yyyy}-${mm}-${dd}`;
+let currentUserId = null;
+let linksRefListener = null;
+let authCheckInProgress = false;
 
-        db.ref(`users/${userId}/events/${dateKey}`).on('value', snap => {
-            const container = document.getElementById('dash-events-list');
-            if(!container) return;
-            if(!snap.exists()) { container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3><p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>'; return; }
-            let html = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
-            snap.forEach(child => {
-                const ev = child.val();
-                html += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm" style="background: var(--item-bg); margin-bottom: 2px;"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
-            });
-            container.innerHTML = html;
-        });
+function updateUI(user) {
+    if (!user) return;
+    
+    const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
+    const userEmail = user.email || "user@example.com";
+    let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
+    const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
+    const userPhoto = user.photoURL || photoPlaceholder;
+    
+    document.querySelectorAll('#desktopUserName').forEach(el => { if(el) el.innerText = userName; });
+    document.querySelectorAll('#desktopUserEmail').forEach(el => { if(el) el.innerText = userEmail; });
+    document.querySelectorAll('#desktopUserPhoto').forEach(el => { if(el) el.src = userPhoto; });
+    currentUserId = user.uid;
+}
 
-        db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap => {
-            const groceryDiv = document.getElementById('dash-grocery-list');
-            if(!groceryDiv) return;
-            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted); margin-bottom: 2px;">No groceries today</p>'; return; }
-            let html = '';
-            snap.forEach(child => {
-                const item = child.val();
-                html += `<div class="grocery-item flex items-center gap-2 p-1" style="margin-bottom: 2px;"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
-            });
-            groceryDiv.innerHTML = html;
-        });
+window.logout = function() { 
+    auth.signOut().then(() => {
+        // Clear any stored data
+        localStorage.removeItem('firebase:previousUser');
+        window.location.replace('login.html'); // Change to your actual login page
+    }).catch(console.error); 
+};
 
-        const bdayRef = db.ref(`users/${userId}/birthdays`);
-        const anniRef = db.ref(`anniversaries/${userId}`);
-        Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
-            const celebDiv = document.getElementById('dash-celebrations-list');
-            if(!celebDiv) return;
-            let html = '';
-            let found = false;
-            bSnap.forEach(child => {
-                const b = child.val();
-                if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
-                    found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
-                }
-            });
-            aSnap.forEach(child => {
-                const a = child.val();
-                if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
-                    found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
-                }
-            });
-            if(!found) html = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
-            celebDiv.innerHTML = html;
-        });
-    }
+window.sendWhatsAppMsg = function(phone, msg) { 
+    if(!phone) { 
+        alert("No phone number saved."); 
+        return; 
+    } 
+    const clean = phone.replace(/\D/g, ''); 
+    window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank'); 
+};
 
-    function initLinksManager(userId) {
-        const linksRef = db.ref(`users/${userId}/quickLinks`);
-        const container = document.getElementById('savedLinksList');
+function loadDashboardData(userId) {
+    if (!userId) return;
+    
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2,'0');
+    const dd = String(today.getDate()).padStart(2,'0');
+    const dateKey = `${yyyy}-${mm}-${dd}`;
+
+    // Events listener
+    const eventsRef = db.ref(`users/${userId}/events/${dateKey}`);
+    eventsRef.off(); // Remove previous listeners
+    eventsRef.on('value', snap => {
+        const container = document.getElementById('dash-events-list');
         if(!container) return;
-        if(linksRefListener) linksRefListener.off();
-        linksRef.on('value', (snapshot) => {
-            const links = snapshot.val() || {};
-            container.innerHTML = '';
-            if(Object.keys(links).length === 0) { container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>'; return; }
-            Object.entries(links).forEach(([id, link]) => {
-                const title = link.title || link.url.replace(/^https?:\/\//,'').split('/')[0];
-                const url = link.url;
-                const linkDiv = document.createElement('div');
-                linkDiv.className = 'link-item';
-                linkDiv.innerHTML = `<div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}">Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
-                container.appendChild(linkDiv);
-            });
-            document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u) window.open(u, '_blank'); }); });
-            document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
+        if(!snap.exists()) { 
+            container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3><p class="text-sm italic" style="color: var(--text-muted);">No events today.</p>'; 
+            return; 
+        }
+        let html = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">📌 Events</h3>';
+        snap.forEach(child => {
+            const ev = child.val();
+            html += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm" style="background: var(--item-bg); margin-bottom: 2px;"><div><div class="font-bold text-sm" style="color: var(--text-bold);">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
         });
-        linksRefListener = linksRef;
-    }
-
-    function setupLinkUI(userId) {
-        const addBtn = document.getElementById('addLinkBtn');
-        const formDiv = document.getElementById('linkFormContainer');
-        const saveBtn = document.getElementById('saveLinkBtn');
-        const cancelBtn = document.getElementById('cancelLinkBtn');
-        const urlInp = document.getElementById('linkUrl');
-        const titleInp = document.getElementById('linkTitle');
-        if(!addBtn) return;
-        addBtn.onclick = () => { formDiv.classList.remove('hidden'); urlInp.value=''; titleInp.value=''; urlInp.focus(); };
-        cancelBtn.onclick = () => { formDiv.classList.add('hidden'); };
-        saveBtn.onclick = async () => {
-            let url = urlInp.value.trim();
-            if(!url) { alert("Please enter a URL"); return; }
-            if(!url.startsWith('http')) url = 'https://' + url;
-            const title = titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0];
-            await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
-            formDiv.classList.add('hidden');
-            urlInp.value = '';
-            titleInp.value = '';
-        };
-    }
-
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
-
-    auth.onAuthStateChanged(user => {
-        if(user) { updateUI(user); loadDashboardData(user.uid); initLinksManager(user.uid); setupLinkUI(user.uid); } 
-        else { window.location.replace("index.html"); }
+        container.innerHTML = html;
     });
 
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    // Grocery listener
+    const groceryRef = db.ref(`users/${userId}/groceryList/${dateKey}`);
+    groceryRef.off();
+    groceryRef.on('value', snap => {
+        const groceryDiv = document.getElementById('dash-grocery-list');
+        if(!groceryDiv) return;
+        if(!snap.exists()) { 
+            groceryDiv.innerHTML = '<p class="text-sm" style="color: var(--text-muted); margin-bottom: 2px;">No groceries today</p>'; 
+            return; 
+        }
+        let html = '';
+        snap.forEach(child => {
+            const item = child.val();
+            html += `<div class="grocery-item flex items-center gap-2 p-1" style="margin-bottom: 2px;"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium" style="color: var(--text-main);">${escapeHtml(item.name)}</span></div>`;
+        });
+        groceryDiv.innerHTML = html;
+    });
 
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    if(themeBtn) { themeBtn.onclick = () => { let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem('theme', next); }; }
-    const desktopLogout = document.getElementById('desktopLogout');
-    if(desktopLogout) desktopLogout.addEventListener('click', () => logout());
+    // Celebrations (using once() instead of on() to avoid multiple calls)
+    const bdayRef = db.ref(`users/${userId}/birthdays`);
+    const anniRef = db.ref(`anniversaries/${userId}`);
+    
+    Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
+        const celebDiv = document.getElementById('dash-celebrations-list');
+        if(!celebDiv) return;
+        let html = '';
+        let found = false;
+        
+        bSnap.forEach(child => {
+            const b = child.val();
+            if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
+                found = true;
+                html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(b.name)}</span> <span class="text-xs" style="color: var(--text-muted);">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+            }
+        });
+        
+        aSnap.forEach(child => {
+            const a = child.val();
+            if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
+                found = true;
+                html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold" style="color: var(--text-bold);">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs" style="color: var(--text-muted);">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+            }
+        });
+        
+        if(!found) html = '<div class="text-center py-6" style="color: var(--text-muted);"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+        celebDiv.innerHTML = html;
+    }).catch(err => {
+        console.error("Error loading celebrations:", err);
+        const celebDiv = document.getElementById('dash-celebrations-list');
+        if(celebDiv) celebDiv.innerHTML = '<div class="text-center py-6" style="color: var(--text-muted);">Error loading celebrations</div>';
+    });
+}
+
+function initLinksManager(userId) {
+    if (!userId) return;
+    
+    const linksRef = db.ref(`users/${userId}/quickLinks`);
+    const container = document.getElementById('savedLinksList');
+    if(!container) return;
+    
+    if(linksRefListener) {
+        linksRefListener.off();
+        linksRefListener = null;
+    }
+    
+    linksRef.on('value', (snapshot) => {
+        if (!container) return;
+        
+        const links = snapshot.val() || {};
+        container.innerHTML = '';
+        
+        if(Object.keys(links).length === 0) { 
+            container.innerHTML = '<div class="text-center py-4" style="color: var(--text-muted);"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>'; 
+            return; 
+        }
+        
+        Object.entries(links).forEach(([id, link]) => {
+            const title = link.title || (link.url ? link.url.replace(/^https?:\/\//,'').split('/')[0] : 'Untitled');
+            const url = link.url || '#';
+            const linkDiv = document.createElement('div');
+            linkDiv.className = 'link-item';
+            linkDiv.innerHTML = `<div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}">Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
+            container.appendChild(linkDiv);
+        });
+        
+        document.querySelectorAll('.open-btn').forEach(btn => { 
+            btn.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                const u = btn.getAttribute('data-url'); 
+                if(u && u !== '#') window.open(u, '_blank'); 
+            }); 
+        });
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => { 
+            btn.addEventListener('click', async (e) => { 
+                e.stopPropagation(); 
+                const id = btn.getAttribute('data-id'); 
+                if(confirm('Delete this link?')) await linksRef.child(id).remove(); 
+            }); 
+        });
+    });
+    
+    linksRefListener = linksRef;
+}
+
+function setupLinkUI(userId) {
+    const addBtn = document.getElementById('addLinkBtn');
+    const formDiv = document.getElementById('linkFormContainer');
+    const saveBtn = document.getElementById('saveLinkBtn');
+    const cancelBtn = document.getElementById('cancelLinkBtn');
+    const urlInp = document.getElementById('linkUrl');
+    const titleInp = document.getElementById('linkTitle');
+    
+    if(!addBtn) return;
+    
+    // Remove existing listeners to prevent duplicates
+    const newAddBtn = addBtn.cloneNode(true);
+    addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+    
+    newAddBtn.onclick = () => { 
+        if(formDiv) formDiv.classList.remove('hidden'); 
+        if(urlInp) urlInp.value=''; 
+        if(titleInp) titleInp.value=''; 
+        if(urlInp) urlInp.focus(); 
+    };
+    
+    if(cancelBtn) {
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        newCancelBtn.onclick = () => { 
+            if(formDiv) formDiv.classList.add('hidden'); 
+        };
+    }
+    
+    if(saveBtn) {
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
+        newSaveBtn.onclick = async () => {
+            if(!urlInp) return;
+            
+            let url = urlInp.value.trim();
+            if(!url) { 
+                alert("Please enter a URL"); 
+                return; 
+            }
+            if(!url.startsWith('http')) url = 'https://' + url;
+            const title = titleInp ? (titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0]) : url.replace(/^https?:\/\//,'').split('/')[0];
+            
+            try {
+                await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
+                if(formDiv) formDiv.classList.add('hidden');
+                if(urlInp) urlInp.value = '';
+                if(titleInp) titleInp.value = '';
+            } catch(error) {
+                console.error("Error saving link:", error);
+                alert("Error saving link. Please try again.");
+            }
+        };
+    }
+}
+
+function escapeHtml(str) { 
+    if(!str) return ''; 
+    return str.replace(/[&<>]/g, function(m){
+        if(m==='&') return '&amp;'; 
+        if(m==='<') return '&lt;'; 
+        if(m==='>') return '&gt;'; 
+        return m;
+    }); 
+}
+
+// FIXED: Auth State Listener with proper redirect handling
+let isInitialCheck = true;
+
+auth.onAuthStateChanged(user => {
+    // Prevent multiple simultaneous redirects
+    if (authCheckInProgress) return;
+    authCheckInProgress = true;
+    
+    if (user) {
+        // User is logged in
+        console.log("User logged in:", user.email);
+        
+        // Check if we're on the login page and redirect to home
+        const currentPath = window.location.pathname;
+        const isLoginPage = currentPath.includes('index.html') || 
+                           currentPath === '/' || 
+                           currentPath.includes('login.html');
+        
+        if (isLoginPage && !isInitialCheck) {
+            window.location.replace('home.html');
+            authCheckInProgress = false;
+            return;
+        }
+        
+        // Update UI and load data
+        updateUI(user);
+        loadDashboardData(user.uid);
+        initLinksManager(user.uid);
+        setupLinkUI(user.uid);
+        
+        // Show the main content (hide any login overlays if present)
+        document.querySelector('.content-wrapper')?.classList.remove('hidden');
+        
+    } else {
+        // No user is logged in
+        console.log("No user logged in");
+        
+        // Check if we're already on a public page or login page
+        const currentPath = window.location.pathname;
+        const isPublicPage = currentPath.includes('index.html') || 
+                            currentPath === '/' || 
+                            currentPath.includes('login.html') ||
+                            currentPath.includes('signup.html');
+        
+        if (!isPublicPage) {
+            // Redirect to login page only if not already there
+            window.location.replace('index.html');
+        }
+    }
+    
+    isInitialCheck = false;
+    authCheckInProgress = false;
+});
+
+// Mobile menu toggle
+const menuBtn = document.getElementById('menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+if(menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+}
+
+// Theme toggle
+const themeBtn = document.getElementById('theme-toggle-btn');
+const savedTheme = localStorage.getItem('theme') || 'light';
+document.documentElement.setAttribute('data-theme', savedTheme);
+if(themeBtn) { 
+    themeBtn.onclick = () => { 
+        let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
+        document.documentElement.setAttribute('data-theme', next); 
+        localStorage.setItem('theme', next); 
+        
+        // Update icon if needed
+        const themeIcon = document.getElementById('theme-icon');
+        if(themeIcon) themeIcon.textContent = next === 'dark' ? '☀️' : '🌙';
+    }; 
+}
+
+// Desktop logout
+const desktopLogout = document.getElementById('desktopLogout');
+if(desktopLogout) {
+    desktopLogout.addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+    });
+}
+
+// Also handle any potential token refresh issues
+auth.currentUser?.getIdToken(true).catch(error => {
+    console.error("Token refresh error:", error);
+    if(error.code === 'auth/network-request-failed') {
+        console.log("Network issue, will retry on next request");
+    }
+});
 </script>
     <style>
         /* Remove hover effect from link items - no transform, no shadow, no border change */
