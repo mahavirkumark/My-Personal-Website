@@ -21,7 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        /* Your existing styles - keeping them unchanged */
+        /* Your existing styles */
         .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
         .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
         .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
@@ -37,6 +37,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
+            cursor: pointer;
         }
         nav a:hover { 
             color: #2563eb !important; 
@@ -53,7 +54,7 @@
 
         #mobile-menu { position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20; transition: max-height 0.3s ease-out, opacity 0.3s ease-out; max-height: 0; overflow: hidden; opacity: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         #mobile-menu:not(.hidden) { max-height: 80vh; overflow-y: auto; opacity: 1; }
-        #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; }
+        #mobile-menu a, #profile-toggle-btn { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; cursor: pointer; }
         #mobile-menu a:hover, #profile-toggle-btn:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
         
         .sidebar-desktop { 
@@ -79,7 +80,8 @@
             text-decoration: none; 
             font-weight: 500; 
             font-size: 1rem;
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
         }
         .sidebar-nav-internal a:hover, .sidebar-nav-internal a.active { 
             background-color: var(--sidebar-hover); 
@@ -294,7 +296,7 @@
         body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.2s, color 0.2s; }
         
         #universal-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--border); z-index: 999999; }
-        .nav-link { text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; }
+        .nav-link { text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 8px 0; cursor: pointer; }
         .nav-link i { font-size: 20px; display: block; margin-bottom: 2px; font-weight: 900; color: var(--nav-text); transition: all 0.25s ease; }
         .nav-link div { font-size: 11px; font-weight: 800; color: var(--nav-text); transition: all 0.25s ease; }
         .nav-link:hover { transform: translateY(-4px); }
@@ -307,6 +309,16 @@
         #theme-toggle-btn:hover { transform: scale(1.1) translateY(-3px); background: #1d4ed8; box-shadow: 0 8px 20px rgba(59,130,246,0.4); }
         
         .dashboard-wrapper { display: flex; flex-direction: row; align-items: flex-start; gap: 1.5rem; }
+        
+        /* Active page indicator */
+        .nav-active {
+            color: #2563eb !important;
+            font-weight: bold;
+        }
+        .sidebar-nav-internal a.nav-active {
+            background-color: var(--sidebar-hover);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -320,14 +332,14 @@
                     <i class="fas fa-shield text-blue-600 text-3xl"></i>
                     <i class="fas fa-database text-white absolute text-sm top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                 </div>
-                <span class="font-black tracking-tighter text-2xl margin-right:60px savig-logo" style="color: var(--text-bold);">Savig</span>
+                <span class="font-black tracking-tighter text-2xl savig-logo" style="color: var(--text-bold);">Savig</span>
             </div>
             <nav class="flex items-center text-lg font-semibold" style="gap: 0.5rem;">
-                <a href="#" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
-                <a href="#" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
-                <a href="#" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
-                <a href="#" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
-                <a href="#" class="flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
+                <a class="nav-home flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
+                <a class="nav-income flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
+                <a class="nav-calendar flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
+                <a class="nav-birthday flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
+                <a class="nav-passwords flex items-center gap-1" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
             </nav>
             <div class="flex items-center gap-4 slide-left">
                 <div class="text-right">
@@ -347,14 +359,14 @@
             <button id="menu-btn" class="p-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700" style="color: var(--text-main);"><i class="fas fa-bars text-xl"></i></button>
         </header>
         <nav id="mobile-menu" class="hidden mt-2 px-6 pb-2 space-y-1 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
-            <a href="#" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
+            <a class="mobile-nav-home" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
+            <a class="mobile-nav-income" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
+            <a class="mobile-nav-links" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
+            <a class="mobile-nav-calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
+            <a class="mobile-nav-passwords" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
+            <a class="mobile-nav-profile" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
+            <a class="mobile-nav-essentials" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
+            <a class="mobile-nav-grocery" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
         </nav>
     </div>
 
@@ -363,15 +375,15 @@
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-sm font-bold mb-4 uppercase tracking-wider"><i class="fas fa-database mr-2"></i> Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col">
-                <a href="#"><i class="fas fa-user-gear"></i> Profile</a>
-                <a href="#"><i class="fas fa-shopping-basket"></i> Essentials</a>
-                <a href="#"><i class="fas fa-dollar-sign"></i> Assets</a>
-                <a href="#"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
-                <a href="#"><i class="fas fa-address-book"></i> Contacts</a>
-                <a href="#"><i class="fas fa-shopping-cart"></i> Grocery</a>
-                <a href="#"><i class="fas fa-map-location-dot"></i> Address</a>
-                <a href="#"><i class="fa-solid fa-car-side"></i> Vehicle</a>
-                <a href="#"><i class="fa-solid fa-calendar"></i> Festivals</a>
+                <a class="sidebar-profile"><i class="fas fa-user-gear"></i> Profile</a>
+                <a class="sidebar-essentials"><i class="fas fa-shopping-basket"></i> Essentials</a>
+                <a class="sidebar-assets"><i class="fas fa-dollar-sign"></i> Assets</a>
+                <a class="sidebar-places"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
+                <a class="sidebar-contacts"><i class="fas fa-address-book"></i> Contacts</a>
+                <a class="sidebar-grocery"><i class="fas fa-shopping-cart"></i> Grocery</a>
+                <a class="sidebar-address"><i class="fas fa-map-location-dot"></i> Address</a>
+                <a class="sidebar-vehicle"><i class="fa-solid fa-car-side"></i> Vehicle</a>
+                <a class="sidebar-festivals"><i class="fa-solid fa-calendar"></i> Festivals</a>
             </nav>
         </aside>
 
@@ -417,17 +429,17 @@
 </div>
 
 <nav id="universal-bottom-nav">
-    <a href="#" class="nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
-    <a href="#" class="nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
-    <a href="#" class="nav-link"><i class="fa-solid fa-key"></i><div>Passwords</div></a>
-    <a href="#" class="nav-link"><i class="fa-solid fa-cart-shopping"></i><div>Grocery</div></a>
-    <a href="#" class="nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
+    <a class="bottom-nav-home nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
+    <a class="bottom-nav-address nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
+    <a class="bottom-nav-passwords nav-link"><i class="fa-solid fa-key"></i><div>Passwords</div></a>
+    <a class="bottom-nav-grocery nav-link"><i class="fa-solid fa-cart-shopping"></i><div>Grocery</div></a>
+    <a class="bottom-nav-contacts nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
 </nav>
 <div class="nav-spacer"></div>
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
-    // FIREBASE FIXED CONFIGURATION
+    // FIREBASE CONFIGURATION
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
         authDomain: "sk12-58e9e.firebaseapp.com",
@@ -439,27 +451,29 @@
     };
     
     // Initialize Firebase
-    let app;
-    try {
-        if (!firebase.apps.length) {
-            app = firebase.initializeApp(firebaseConfig);
-        } else {
-            app = firebase.app();
-        }
-    } catch(e) {
-        console.error("Firebase init error:", e);
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
     }
     
     const auth = firebase.auth();
     const db = firebase.database();
     
-    // IMPORTANT: Set persistence
+    // Set persistence
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => console.log("Persistence set to LOCAL"))
         .catch(err => console.error("Persistence error:", err));
     
     let currentUserId = null;
     let linksRefListener = null;
+    
+    // Page routing function
+    function navigateTo(page) {
+        console.log("Navigating to:", page);
+        // For now, just show an alert since actual pages may not exist
+        // In production, you would redirect to actual HTML files
+        alert(`Navigating to ${page} page. This would open ${page}.html in production.`);
+        // Uncomment below when pages exist:
+        // window.location.href = `${page}.html`;
+    }
     
     function updateUI(user) {
         if (!user) return;
@@ -486,7 +500,7 @@
         auth.signOut().then(() => {
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }).catch(console.error); 
     };
     
@@ -682,33 +696,70 @@
         }
     }
     
-    // CRITICAL FIX: Auth state handler with NO redirect loop
+    // Setup all navigation event listeners
+    function setupNavigation() {
+        // Desktop header navigation
+        document.querySelector('.nav-home')?.addEventListener('click', () => navigateTo('home'));
+        document.querySelector('.nav-income')?.addEventListener('click', () => navigateTo('income'));
+        document.querySelector('.nav-calendar')?.addEventListener('click', () => navigateTo('calendar'));
+        document.querySelector('.nav-birthday')?.addEventListener('click', () => navigateTo('birthday'));
+        document.querySelector('.nav-passwords')?.addEventListener('click', () => navigateTo('password'));
+        
+        // Mobile menu navigation
+        document.querySelector('.mobile-nav-home')?.addEventListener('click', () => navigateTo('home'));
+        document.querySelector('.mobile-nav-income')?.addEventListener('click', () => navigateTo('income'));
+        document.querySelector('.mobile-nav-links')?.addEventListener('click', () => navigateTo('links'));
+        document.querySelector('.mobile-nav-calendar')?.addEventListener('click', () => navigateTo('calendar'));
+        document.querySelector('.mobile-nav-passwords')?.addEventListener('click', () => navigateTo('password'));
+        document.querySelector('.mobile-nav-profile')?.addEventListener('click', () => navigateTo('profile'));
+        document.querySelector('.mobile-nav-essentials')?.addEventListener('click', () => navigateTo('essential'));
+        document.querySelector('.mobile-nav-grocery')?.addEventListener('click', () => navigateTo('grocery'));
+        
+        // Sidebar navigation
+        document.querySelector('.sidebar-profile')?.addEventListener('click', () => navigateTo('profile'));
+        document.querySelector('.sidebar-essentials')?.addEventListener('click', () => navigateTo('essential'));
+        document.querySelector('.sidebar-assets')?.addEventListener('click', () => navigateTo('asset'));
+        document.querySelector('.sidebar-places')?.addEventListener('click', () => navigateTo('place'));
+        document.querySelector('.sidebar-contacts')?.addEventListener('click', () => navigateTo('contact'));
+        document.querySelector('.sidebar-grocery')?.addEventListener('click', () => navigateTo('grocery'));
+        document.querySelector('.sidebar-address')?.addEventListener('click', () => navigateTo('adress'));
+        document.querySelector('.sidebar-vehicle')?.addEventListener('click', () => navigateTo('vehicle'));
+        document.querySelector('.sidebar-festivals')?.addEventListener('click', () => navigateTo('Panchang'));
+        
+        // Bottom navigation
+        document.querySelector('.bottom-nav-home')?.addEventListener('click', () => navigateTo('home'));
+        document.querySelector('.bottom-nav-address')?.addEventListener('click', () => navigateTo('addressmob'));
+        document.querySelector('.bottom-nav-passwords')?.addEventListener('click', () => navigateTo('password'));
+        document.querySelector('.bottom-nav-grocery')?.addEventListener('click', () => navigateTo('grocery'));
+        document.querySelector('.bottom-nav-contacts')?.addEventListener('click', () => navigateTo('contact'));
+    }
+    
+    // Auth state handler
     let authInitialized = false;
     
     auth.onAuthStateChanged(user => {
         console.log("Auth state changed:", user ? "Logged in" : "Logged out");
         
         if (user) {
-            // User is logged in
             updateUI(user);
             loadDashboardData(user.uid);
             initLinksManager(user.uid);
             setupLinkUI(user.uid);
+            setupNavigation(); // Setup navigation after auth
             authInitialized = true;
         } else {
-            // No user - redirect to login page only if not already there
             if (!authInitialized) {
                 console.log("Redirecting to login page...");
-                window.location.replace("index.html");
+                window.location.replace("login.html");
             }
         }
     });
     
-    // Manual auth check on page load
+    // Manual auth check
     setTimeout(() => {
         if (!auth.currentUser && !authInitialized) {
             console.log("No user after timeout, redirecting...");
-            window.location.replace("index.html");
+            window.location.replace("login.html");
         }
     }, 2000);
     
