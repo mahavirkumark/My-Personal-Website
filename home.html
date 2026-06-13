@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Savig - Dashboard | Smart Hub</title>
+    <title>Savig - Dashboard | Core Hub</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -26,8 +26,8 @@
         body { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-body); color: var(--text-main); transition: background 0.2s, color 0.2s; }
         .content-wrapper { flex-grow: 1; }
         
-        /* ENHANCED NAVIGATION LINKS - LARGER FONTS */
-        nav a, .nav-link, .sidebar-nav-internal a, .bottom-nav-link, .desktop-nav, .mobile-nav-item { 
+        /* ===== GLOBAL NAVIGATION STYLES (no hover on link items themselves in quick links box) ===== */
+        nav a, .nav-link, .desktop-nav, .mobile-nav-item, .bottom-nav-link {
             transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
             cursor: pointer;
             display: inline-flex;
@@ -35,7 +35,7 @@
             gap: 8px;
         }
         
-        /* Desktop nav links - increased font size */
+        /* Desktop nav links - larger font */
         .desktop-nav {
             font-size: 1.05rem !important;
             font-weight: 600 !important;
@@ -43,20 +43,134 @@
             letter-spacing: 0.01em;
         }
         
-        /* Sidebar core data links - larger & more readable */
+        /* ===== CORE DATA SIDEBAR LINKS - PRESERVED PREVIOUS HOVER EFFECT (original styling) ===== */
         .sidebar-nav-internal a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0.9rem !important;
+            margin-bottom: 0.5rem;
+            border-radius: 0.75rem;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 600;
             font-size: 1rem !important;
-            font-weight: 600 !important;
-            padding: 0.8rem 0.9rem !important;
-            letter-spacing: 0.01em;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+            gap: 12px;
         }
-        
+        /* PREVIOUS HOVER STYLE FOR CORE DATA LINKS (translateX + background + color) */
+        .sidebar-nav-internal a:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--primary);
+            transform: translateX(5px) translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
         .sidebar-nav-internal i {
             font-size: 1.2rem !important;
             width: 1.6rem;
+            text-align: center;
         }
         
-        /* Bottom navigation larger */
+        /* ===== QUICK LINKS BOX: NO HOVER ON THE LINK ITEM ITSELF (only buttons get hover) ===== */
+        .quick-links-container .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0.9rem;
+            background: var(--item-bg);
+            border-radius: 0.9rem;
+            margin-bottom: 0.65rem;
+            border: 1px solid var(--border-light);
+            transition: none; /* NO transition on hover for the whole card */
+            cursor: default;
+        }
+        /* Remove any hover effect on the link-item container */
+        .quick-links-container .link-item:hover {
+            transform: none;
+            border-color: var(--border-light);
+            background: var(--item-bg);
+        }
+        
+        /* Link info area - no pointer events to avoid interfering */
+        .link-info {
+            flex: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .link-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-bold);
+        }
+        .link-url {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+        
+        /* ===== BUTTONS WITHIN QUICK LINKS - EXCLUSIVE HOVER EFFECTS ===== */
+        .link-actions {
+            display: flex;
+            gap: 0.65rem;
+        }
+        .icon-btn {
+            padding: 0 12px;
+            height: 32px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            font-weight: 700;
+            gap: 6px;
+            font-size: 0.75rem;
+            border: none;
+        }
+        .open-btn {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .open-btn:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 4px 10px rgba(59,130,246,0.4);
+        }
+        .delete-btn {
+            width: 34px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(239,68,68,0.3);
+        }
+        
+        /* Add link button inside card header - retains hover */
+        #addLinkBtn {
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+        #addLinkBtn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 14px rgba(79,70,229,0.3);
+        }
+        
+        /* bottom navigation larger */
         .bottom-nav-link {
             font-size: 0.85rem;
         }
@@ -67,20 +181,25 @@
             font-size: 0.7rem !important;
             font-weight: 700;
         }
+        .bottom-nav-link:hover {
+            color: #2563eb !important;
+            transform: translateY(-3px);
+        }
         
-        /* Mobile menu links increased size */
+        /* mobile menu links increased size */
         #mobile-menu a {
             font-size: 1rem !important;
             font-weight: 600;
             padding: 0.85rem 1.5rem !important;
+            transition: all 0.2s;
+        }
+        #mobile-menu a:hover {
+            background-color: var(--sidebar-hover);
+            color: #2563eb !important;
+            transform: translateX(5px);
         }
         
-        nav a:hover, .nav-link:hover, .bottom-nav-link:hover, .desktop-nav:hover, .sidebar-nav-internal a:hover { 
-            color: #2563eb !important; 
-            transform: translateY(-2px); 
-        }
-        
-        /* mobile menu improved */
+        /* mobile menu container */
         #mobile-menu { 
             position: absolute; 
             top: 4rem; 
@@ -97,7 +216,7 @@
         }
         #mobile-menu:not(.hidden) { max-height: 70vh; overflow-y: auto; opacity: 1; padding: 0.5rem 0; }
         
-        /* sidebar core data links */
+        /* Sidebar container */
         .sidebar-desktop { 
             width: 280px; 
             flex-shrink: 0; 
@@ -117,47 +236,6 @@
         .dashboard-card { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 420px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
         .card-header { padding: 1rem 1.2rem; }
         .card-body { padding: 1rem 1.2rem; flex: 1; overflow-y: auto; max-height: 440px; }
-        
-        /* FIXED QUICK LINKS BOX - improved styling & stability */
-        .quick-links-container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        .link-item { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 0.75rem 0.9rem; 
-            background: var(--item-bg); 
-            border-radius: 0.9rem; 
-            margin-bottom: 0.65rem; 
-            border: 1px solid var(--border-light); 
-            transition: all 0.2s ease;
-        }
-        .link-item:hover { transform: translateX(4px); border-color: var(--primary); background: var(--sidebar-hover); }
-        .link-info { flex: 1; overflow: hidden; pointer-events: none; }
-        .link-title { font-weight: 800; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
-        .link-url { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-        .link-actions { display: flex; gap: 0.65rem; }
-        
-        .icon-btn { 
-            padding: 0 12px;
-            height: 32px; 
-            border-radius: 10px; 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: all 0.2s ease; 
-            cursor: pointer; 
-            font-weight: 700;
-            gap: 6px;
-            font-size: 0.75rem;
-        }
-        .open-btn { background: rgba(59, 130, 246, 0.12); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .open-btn:hover { background: #3b82f6; color: white; transform: translateY(-2px) scale(1.02); box-shadow: 0 2px 8px rgba(59,130,246,0.3); }
-        .delete-btn { width: 34px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .delete-btn:hover { background: #ef4444; color: white; transform: translateY(-2px); }
         
         .link-form-container { 
             background: var(--form-bg); 
@@ -289,7 +367,7 @@
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4 pb-8">
-        <!-- DESKTOP SIDEBAR - CORE DATA LINKS (LARGER FONTS) -->
+        <!-- DESKTOP SIDEBAR - CORE DATA LINKS (preserved previous hover effect) -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-md font-bold mb-3 border-b pb-2 uppercase tracking-wide" style="color: var(--text-bold); border-color: var(--border);"><i class="fas fa-database mr-2"></i> Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col gap-1">
@@ -330,7 +408,7 @@
                     <div class="card-body" id="dash-celebrations-list"><div class="loading-message"><div class="loading-spinner"></div><span>Checking celebrations...</span></div></div>
                 </div>
 
-                <!-- FIXED QUICK LINKS BOX - enhanced UI & stability -->
+                <!-- FIXED QUICK LINKS BOX: no hover on link containers, only buttons -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
@@ -353,7 +431,7 @@
     </div>
 </div>
 
-<!-- Bottom Navigation (larger icons) -->
+<!-- Bottom Navigation -->
 <nav id="universal-bottom-nav">
     <a class="bottom-nav-link" data-page="home"><i class="fa-solid fa-house"></i><div>Home</div></a>
     <a class="bottom-nav-link" data-page="adress"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
@@ -384,7 +462,7 @@
     let currentUserId = null;
     let linksRefListener = null;
     
-    // ========== NAVIGATION (fixed core data & all links) ==========
+    // Navigation mapping
     const pageMapping = {
         'home': 'home.html', 'income': 'income.html', 'calendar': 'calender.html', 'birthday': 'birthday.html',
         'password': 'password.html', 'links': 'links.html', 'profile': 'profile.html', 'essential': 'essential.html',
@@ -413,7 +491,6 @@
         if (page) navigateTo(page);
     }
     
-    // Helper functions
     function updateUI(user) {
         if (!user) return;
         const userName = user.displayName || (user.email ? user.email.split('@')[0] : "User");
@@ -441,7 +518,6 @@
         return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m] || m)); 
     }
     
-    // Dashboard data loader
     function loadDashboardData(userId) {
         if (!userId) return;
         const today = new Date();
@@ -497,7 +573,6 @@
         }).catch(err => console.error(err));
     }
     
-    // Quick Links Manager (fixed)
     function initLinksManager(userId) {
         if (!userId) return;
         const linksRef = db.ref(`users/${userId}/quickLinks`);
@@ -516,6 +591,7 @@
                 linkDiv.innerHTML = `<div class="link-info"><div class="link-title">🔗 ${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 50 ? url.substring(0,50)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt"></i> Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
                 container.appendChild(linkDiv);
             });
+            // attach button events only (no hover on parent)
             document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u && u !== '#') window.open(u, '_blank'); }); });
             document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
         });
@@ -562,12 +638,10 @@
     });
     setTimeout(() => { if (!auth.currentUser && !authChecked) window.location.replace("login.html"); }, 1800);
     
-    // Mobile menu toggle
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
     
-    // Theme toggle
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     const themeBtn = document.getElementById('theme-toggle-btn');
@@ -577,7 +651,6 @@
         localStorage.setItem('theme', next); 
     };
     
-    // Desktop logout
     const desktopLogout = document.getElementById('desktopLogout');
     if(desktopLogout) desktopLogout.addEventListener('click', (e) => { e.preventDefault(); auth.signOut().then(() => { window.location.href = 'login.html'; }); });
     
