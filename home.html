@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Savig - Dashboard | Core Hub</title>
+    <title>Savig - Dashboard | Smart Hub</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -26,7 +26,7 @@
         body { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-body); color: var(--text-main); transition: background 0.2s, color 0.2s; }
         .content-wrapper { flex-grow: 1; }
         
-        /* ===== GLOBAL NAVIGATION STYLES (no hover on link items themselves in quick links box) ===== */
+        /* ===== GLOBAL NAVIGATION STYLES WITH HOVER EFFECTS ===== */
         nav a, .nav-link, .desktop-nav, .mobile-nav-item, .bottom-nav-link {
             transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
             cursor: pointer;
@@ -35,15 +35,57 @@
             gap: 8px;
         }
         
-        /* Desktop nav links - larger font */
+        /* DESKTOP NAV LINKS - larger font + distinct hover */
         .desktop-nav {
             font-size: 1.05rem !important;
             font-weight: 600 !important;
             padding: 0.5rem 1rem !important;
             letter-spacing: 0.01em;
+            border-radius: 9999px;
+            transition: all 0.25s ease;
+        }
+        .desktop-nav:hover {
+            background-color: var(--sidebar-hover) !important;
+            color: #2563eb !important;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(37,99,235,0.15);
         }
         
-        /* ===== CORE DATA SIDEBAR LINKS - PRESERVED PREVIOUS HOVER EFFECT (original styling) ===== */
+        /* BOTTOM NAVIGATION HOVER */
+        .bottom-nav-link {
+            font-size: 0.85rem;
+            transition: all 0.25s ease;
+            border-radius: 12px;
+            padding: 6px 0;
+        }
+        .bottom-nav-link i {
+            font-size: 1.35rem !important;
+        }
+        .bottom-nav-link div {
+            font-size: 0.7rem !important;
+            font-weight: 700;
+        }
+        .bottom-nav-link:hover {
+            color: #2563eb !important;
+            transform: translateY(-4px);
+            background: rgba(59,130,246,0.1);
+        }
+        
+        /* MOBILE MENU LINKS HOVER */
+        #mobile-menu a {
+            font-size: 1rem !important;
+            font-weight: 600;
+            padding: 0.85rem 1.5rem !important;
+            transition: all 0.2s ease;
+            border-radius: 0;
+        }
+        #mobile-menu a:hover {
+            background-color: var(--sidebar-hover);
+            color: #2563eb !important;
+            transform: translateX(6px);
+        }
+        
+        /* ===== CORE DATA SIDEBAR LINKS - PRESERVED PREVIOUS HOVER EFFECT ===== */
         .sidebar-nav-internal a {
             display: flex;
             align-items: center;
@@ -61,7 +103,7 @@
             width: 100%;
             gap: 12px;
         }
-        /* PREVIOUS HOVER STYLE FOR CORE DATA LINKS (translateX + background + color) */
+        /* PREVIOUS HOVER STYLE FOR CORE DATA LINKS */
         .sidebar-nav-internal a:hover {
             background-color: var(--sidebar-hover);
             color: var(--primary);
@@ -84,7 +126,7 @@
             border-radius: 0.9rem;
             margin-bottom: 0.65rem;
             border: 1px solid var(--border-light);
-            transition: none; /* NO transition on hover for the whole card */
+            transition: none;
             cursor: default;
         }
         /* Remove any hover effect on the link-item container */
@@ -168,35 +210,6 @@
         #addLinkBtn:hover {
             transform: translateY(-2px) scale(1.02);
             box-shadow: 0 6px 14px rgba(79,70,229,0.3);
-        }
-        
-        /* bottom navigation larger */
-        .bottom-nav-link {
-            font-size: 0.85rem;
-        }
-        .bottom-nav-link i {
-            font-size: 1.35rem !important;
-        }
-        .bottom-nav-link div {
-            font-size: 0.7rem !important;
-            font-weight: 700;
-        }
-        .bottom-nav-link:hover {
-            color: #2563eb !important;
-            transform: translateY(-3px);
-        }
-        
-        /* mobile menu links increased size */
-        #mobile-menu a {
-            font-size: 1rem !important;
-            font-weight: 600;
-            padding: 0.85rem 1.5rem !important;
-            transition: all 0.2s;
-        }
-        #mobile-menu a:hover {
-            background-color: var(--sidebar-hover);
-            color: #2563eb !important;
-            transform: translateX(5px);
         }
         
         /* mobile menu container */
@@ -310,7 +323,7 @@
 <body>
 
 <div class="content-wrapper">
-    <!-- DESKTOP HEADER - larger nav fonts -->
+    <!-- DESKTOP HEADER - larger nav fonts with hover -->
     <div class="hidden md:block fade-in">
         <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
             <div class="flex items-center gap-2">
@@ -321,11 +334,11 @@
                 <span class="font-black tracking-tighter text-2xl" style="color: var(--text-bold);">Savig</span>
             </div>
             <nav class="flex items-center gap-1 lg:gap-2">
-                <a class="desktop-nav cursor-pointer rounded-full transition" data-page="home" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
-                <a class="desktop-nav cursor-pointer rounded-full transition" data-page="income" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
-                <a class="desktop-nav cursor-pointer rounded-full transition" data-page="calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
-                <a class="desktop-nav cursor-pointer rounded-full transition" data-page="birthday" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
-                <a class="desktop-nav cursor-pointer rounded-full transition" data-page="password" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
+                <a class="desktop-nav cursor-pointer" data-page="home" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
+                <a class="desktop-nav cursor-pointer" data-page="income" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
+                <a class="desktop-nav cursor-pointer" data-page="calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
+                <a class="desktop-nav cursor-pointer" data-page="birthday" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
+                <a class="desktop-nav cursor-pointer" data-page="password" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
             </nav>
             <div class="flex items-center gap-4">
                 <div class="text-right">
@@ -367,7 +380,7 @@
 
     <!-- MAIN DASHBOARD LAYOUT -->
     <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4 pb-8">
-        <!-- DESKTOP SIDEBAR - CORE DATA LINKS (preserved previous hover effect) -->
+        <!-- DESKTOP SIDEBAR - CORE DATA LINKS -->
         <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
             <h3 class="text-md font-bold mb-3 border-b pb-2 uppercase tracking-wide" style="color: var(--text-bold); border-color: var(--border);"><i class="fas fa-database mr-2"></i> Core Data</h3>
             <nav class="sidebar-nav-internal flex flex-col gap-1">
@@ -412,7 +425,7 @@
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
-                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md hover:scale-105 transition duration-200"><i class="fas fa-plus mr-1"></i>Add Link</button>
+                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md"><i class="fas fa-plus mr-1"></i>Add Link</button>
                     </div>
                     <div class="card-body quick-links-container">
                         <div id="linkFormContainer" class="link-form-container hidden">
@@ -431,7 +444,7 @@
     </div>
 </div>
 
-<!-- Bottom Navigation -->
+<!-- Bottom Navigation with hover -->
 <nav id="universal-bottom-nav">
     <a class="bottom-nav-link" data-page="home"><i class="fa-solid fa-house"></i><div>Home</div></a>
     <a class="bottom-nav-link" data-page="adress"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
@@ -462,7 +475,7 @@
     let currentUserId = null;
     let linksRefListener = null;
     
-    // Navigation mapping
+    // Navigation mapping - all pages target their respective HTML files
     const pageMapping = {
         'home': 'home.html', 'income': 'income.html', 'calendar': 'calender.html', 'birthday': 'birthday.html',
         'password': 'password.html', 'links': 'links.html', 'profile': 'profile.html', 'essential': 'essential.html',
@@ -591,7 +604,6 @@
                 linkDiv.innerHTML = `<div class="link-info"><div class="link-title">🔗 ${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 50 ? url.substring(0,50)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt"></i> Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
                 container.appendChild(linkDiv);
             });
-            // attach button events only (no hover on parent)
             document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u && u !== '#') window.open(u, '_blank'); }); });
             document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
         });
@@ -621,7 +633,7 @@
         };
     }
     
-    // Auth state
+    // Auth state - redirect to index.html (login page) on logout/unauthenticated
     let authChecked = false;
     auth.onAuthStateChanged(user => {
         if (user) {
@@ -632,16 +644,25 @@
             attachNavEvents();
             authChecked = true;
         } else {
-            if (!authChecked) window.location.replace("login.html");
-            else window.location.replace("login.html");
+            // Redirect to index.html (login page) when logged out or no user
+            if (!authChecked || !user) {
+                window.location.replace("index.html");
+            }
         }
     });
-    setTimeout(() => { if (!auth.currentUser && !authChecked) window.location.replace("login.html"); }, 1800);
+    // Fallback timeout: if no auth after 2 seconds, redirect to index.html
+    setTimeout(() => { 
+        if (!auth.currentUser && !authChecked) {
+            window.location.replace("index.html");
+        }
+    }, 2000);
     
+    // Mobile menu toggle
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
     
+    // Theme toggle
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
     const themeBtn = document.getElementById('theme-toggle-btn');
@@ -651,8 +672,14 @@
         localStorage.setItem('theme', next); 
     };
     
+    // Desktop logout - redirects to index.html
     const desktopLogout = document.getElementById('desktopLogout');
-    if(desktopLogout) desktopLogout.addEventListener('click', (e) => { e.preventDefault(); auth.signOut().then(() => { window.location.href = 'login.html'; }); });
+    if(desktopLogout) desktopLogout.addEventListener('click', (e) => { 
+        e.preventDefault(); 
+        auth.signOut().then(() => { 
+            window.location.href = 'index.html'; 
+        }).catch(() => { window.location.href = 'index.html'; });
+    });
     
     window.addEventListener('load', () => { attachNavEvents(); });
 </script>
