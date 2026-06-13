@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Savig - Dashboard</title>
+    <title>Savig - Dashboard | Secure Hub</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -20,112 +20,135 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s forwards; }
-        .slide-left { opacity: 0; transform: translateX(-20px); animation: slideLeft 0.8s forwards; }
-        .slide-right { opacity: 0; transform: translateX(20px); animation: slideRight 0.8s forwards; }
-        
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s forwards; }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideLeft { to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
-        
-        nav a, .nav-link, .sidebar-nav-internal a, .bottom-nav-link { 
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
-            cursor: pointer;
-        }
-        
-        nav a:hover, .nav-link:hover, .bottom-nav-link:hover { 
-            color: #2563eb !important; 
-            transform: translateY(-3px); 
-        }
         
         body { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-body); color: var(--text-main); transition: background 0.2s, color 0.2s; }
         .content-wrapper { flex-grow: 1; }
         
-        #mobile-menu { position: absolute; top: 4rem; left: 0; width: 100%; z-index: 20; transition: max-height 0.3s ease-out, opacity 0.3s ease-out; max-height: 0; overflow: hidden; opacity: 0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        #mobile-menu:not(.hidden) { max-height: 80vh; overflow-y: auto; opacity: 1; }
-        #mobile-menu a { display: flex; align-items: center; padding: 0.6rem 0.8rem; margin: 0.2rem 0; border-radius: 0.375rem; width: 100%; transition: all 0.2s; cursor: pointer; }
-        #mobile-menu a:hover { background-color: #eff6ff; color: #2563eb !important; transform: translateX(4px); }
+        /* enhanced navigation link styles - fully fixed click behavior */
+        nav a, .nav-link, .sidebar-nav-internal a, .bottom-nav-link, .desktop-nav, .mobile-nav-item { 
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1); 
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
         
+        nav a:hover, .nav-link:hover, .bottom-nav-link:hover, .desktop-nav:hover, .sidebar-nav-internal a:hover { 
+            color: #2563eb !important; 
+            transform: translateY(-2px); 
+        }
+        
+        /* mobile menu improved */
+        #mobile-menu { 
+            position: absolute; 
+            top: 4rem; 
+            left: 0; 
+            width: 100%; 
+            z-index: 50; 
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out; 
+            max-height: 0; 
+            overflow: hidden; 
+            opacity: 0; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+        #mobile-menu:not(.hidden) { max-height: 70vh; overflow-y: auto; opacity: 1; padding: 1rem 0; }
+        #mobile-menu a { 
+            display: flex; 
+            align-items: center; 
+            padding: 0.75rem 1.5rem; 
+            margin: 0; 
+            width: 100%; 
+            transition: all 0.2s; 
+            cursor: pointer; 
+            color: var(--text-main);
+            font-weight: 500;
+            gap: 12px;
+        }
+        #mobile-menu a:hover { background-color: var(--sidebar-hover); color: #2563eb !important; transform: translateX(5px); }
+        
+        /* sidebar core data links - robust & clickable */
         .sidebar-desktop { 
             width: 280px; 
             flex-shrink: 0; 
             background-color: var(--bg-card); 
             padding: 1.5rem 1rem; 
-            border-radius: 0.5rem; 
-            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); 
+            border-radius: 1rem; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
             border: 1px solid var(--border);
+            transition: all 0.2s;
         }
         
         .dashboard-main-content { flex: 1; min-width: 0; }
-        .dashboard-wrapper { max-width: 1590px; width: 92%; margin: 0 auto; display: flex; flex-direction: row; align-items: flex-start; gap: 1.5rem; }
+        .dashboard-wrapper { max-width: 1590px; width: 92%; margin: 0 auto; display: flex; flex-direction: row; align-items: flex-start; gap: 1.8rem; }
         
         .sidebar-nav-internal a { 
             display: flex; 
             align-items: center; 
-            padding: 0.7rem 0.6rem;
-            margin-bottom: 0.35rem;
-            border-radius: 0.5rem; 
+            padding: 0.75rem 0.8rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.75rem; 
             color: var(--text-main); 
             text-decoration: none; 
             font-weight: 500; 
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.25s ease;
             cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
         }
         .sidebar-nav-internal a:hover { 
             background-color: var(--sidebar-hover); 
             color: var(--primary); 
             transform: translateX(5px) translateY(-2px); 
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
-        .sidebar-nav-internal i { margin-right: 0.75rem; width: 1.25rem; text-align: center; }
+        .sidebar-nav-internal i { margin-right: 0.85rem; width: 1.35rem; text-align: center; font-size: 1.1rem; }
         
         .three-col-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.75rem; align-items: stretch; }
-        @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1rem; } }
+        @media (max-width: 768px) { .three-col-grid { grid-template-columns: 1fr; gap: 1.2rem; } }
         
-        .dashboard-card { background: var(--bg-card); border-radius: 1rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; }
-        .card-header { padding: 0.9rem 1rem; }
-        .card-body { padding: 1rem; flex: 1; overflow-y: auto; max-height: 390px; }
+        .dashboard-card { background: var(--bg-card); border-radius: 1.25rem; border: 1px solid var(--border); overflow: hidden; height: 100%; display: flex; flex-direction: column; min-height: 400px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+        .card-header { padding: 1rem 1.2rem; }
+        .card-body { padding: 1rem 1.2rem; flex: 1; overflow-y: auto; max-height: 420px; }
         
         .link-item { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 0.65rem 0.75rem; 
+            padding: 0.7rem 0.85rem; 
             background: var(--item-bg); 
-            border-radius: 0.75rem; 
-            margin-bottom: 0.5rem; 
+            border-radius: 0.9rem; 
+            margin-bottom: 0.6rem; 
             border: 1px solid var(--border-light); 
+            transition: all 0.2s;
         }
-        .link-info { flex: 1; overflow: hidden; pointer-events: none; }
-        .link-title { font-weight: 700; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
-        .link-url { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .link-actions { display: flex; gap: 0.6rem; }
-        
+        .link-item:hover { transform: translateX(3px); border-color: var(--primary); }
+        .link-title { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-bold); }
+        .link-url { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .icon-btn { 
-            padding: 0 12px;
-            height: 32px; 
+            padding: 0 10px;
+            height: 30px; 
             border-radius: 8px; 
             display: inline-flex; 
             align-items: center; 
             justify-content: center; 
-            transition: all 0.25s ease; 
+            transition: all 0.2s ease; 
             cursor: pointer; 
-            border: none; 
-            font-size: 0.75rem;
             font-weight: 600;
             gap: 4px;
         }
-        
         .open-btn { background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
-        .open-btn:hover { background: #3b82f6; color: white; transform: translateY(-3px) scale(1.02); }
+        .open-btn:hover { background: #3b82f6; color: white; transform: translateY(-2px); }
         .delete-btn { width: 32px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .delete-btn:hover { background: #ef4444; color: white; transform: translateY(-3px) scale(1.05); }
+        .delete-btn:hover { background: #ef4444; color: white; transform: translateY(-2px); }
         
-        #addLinkBtn { transition: all 0.25s ease; cursor: pointer; background: rgba(255,255,255,0.95); color: #4f46e5; border: none; }
-        #addLinkBtn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
-        
-        .link-form-container { background: var(--form-bg); border-radius: 0.75rem; padding: 0.8rem; margin-bottom: 1rem; border: 1px solid var(--border); }
-        .link-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.5rem; outline: none; }
+        .link-form-container { background: var(--form-bg); border-radius: 1rem; padding: 1rem; margin-bottom: 1.2rem; border: 1px solid var(--border); }
+        .link-input { width: 100%; padding: 0.6rem 0.9rem; border-radius: 0.75rem; border: 1px solid var(--border); background: var(--input-bg); color: var(--text-main); font-size: 0.85rem; margin-bottom: 0.7rem; outline: none; transition: all 0.2s; }
         .link-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
         
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -146,8 +169,6 @@
             --primary: #3b82f6;
             --sidebar-hover: #eff6ff;
             --nav-bg: #ffffff;
-            --nav-text: #0f172a;
-            --nav-height: 65px;
         }
         [data-theme="dark"] {
             --bg-body: #0b1120;
@@ -163,112 +184,121 @@
             --primary: #3b82f6;
             --sidebar-hover: #1e3a8a;
             --nav-bg: #0f172a;
-            --nav-text: #e2e8f0;
         }
         
         #universal-bottom-nav { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); 
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 68px; 
             background-color: var(--nav-bg); display: flex; justify-content: space-around; 
             align-items: center; border-top: 1px solid var(--border); z-index: 999999; 
+            backdrop-filter: blur(4px);
         }
         .bottom-nav-link { 
             text-decoration: none; text-align: center; flex: 1; transition: all 0.25s ease; 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             padding: 8px 0; cursor: pointer;
+            color: var(--text-main);
         }
-        .bottom-nav-link i { font-size: 20px; margin-bottom: 2px; color: var(--nav-text); }
-        .bottom-nav-link div { font-size: 11px; font-weight: 800; color: var(--nav-text); }
-        .bottom-nav-link:hover { transform: translateY(-4px); }
-        .bottom-nav-link:hover i, .bottom-nav-link:hover div { color: #3b82f6 !important; }
-        .nav-spacer { height: 75px; }
+        .bottom-nav-link i { font-size: 20px; margin-bottom: 3px; }
+        .bottom-nav-link div { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+        .bottom-nav-link:hover { transform: translateY(-3px); color: #3b82f6; }
+        .nav-spacer { height: 78px; }
         @media (min-width: 768px) { #universal-bottom-nav, .nav-spacer { display: none !important; } }
         
         #theme-toggle-btn { 
             position: fixed; bottom: 85px; right: 20px; z-index: 1000; width: 48px; height: 48px; 
             border-radius: 50%; background: var(--primary); color: white; cursor: pointer; 
             display: flex; align-items: center; justify-content: center; font-size: 1.3rem; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; transition: all 0.25s ease; 
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25); border: none; transition: all 0.25s ease; 
         }
-        #theme-toggle-btn:hover { transform: scale(1.1) translateY(-3px); background: #1d4ed8; }
+        #theme-toggle-btn:hover { transform: scale(1.08) translateY(-3px); background: #1d4ed8; }
+        
+        .celeb-card, .event-item { transition: all 0.15s ease; }
+        .btn-wish-sm { background: #10b981; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; color: white; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-wish-sm:hover { background: #059669; transform: scale(1.02); }
     </style>
 </head>
 <body>
 
 <div class="content-wrapper">
-    <!-- DESKTOP HEADER -->
+    <!-- DESKTOP HEADER with working nav links -->
     <div class="hidden md:block fade-in">
         <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
                 <div class="relative flex items-center justify-center">
                     <i class="fas fa-shield text-blue-600 text-3xl"></i>
                     <i class="fas fa-database text-white absolute text-sm top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                 </div>
                 <span class="font-black tracking-tighter text-2xl" style="color: var(--text-bold);">Savig</span>
             </div>
-            <nav class="flex items-center text-lg font-semibold" style="gap: 0.5rem;">
-                <a class="desktop-nav" data-page="home" style="color: var(--text-main);"><i class="fas fa-house"></i> Home</a>
-                <a class="desktop-nav" data-page="income" style="color: var(--text-main);"><i class="fas fa-wallet"></i> Income</a>
-                <a class="desktop-nav" data-page="calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days"></i> Calendar</a>
-                <a class="desktop-nav" data-page="birthday" style="color: var(--text-main);"><i class="fas fa-cake-candles"></i> Birthday</a>
-                <a class="desktop-nav" data-page="password" style="color: var(--text-main);"><i class="fas fa-lock"></i> Passwords</a>
+            <nav class="flex items-center text-md font-semibold gap-1 lg:gap-2">
+                <a class="desktop-nav cursor-pointer px-3 py-2 rounded-full hover:bg-blue-50 transition" data-page="home" style="color: var(--text-main);"><i class="fas fa-house mr-1"></i> Home</a>
+                <a class="desktop-nav cursor-pointer px-3 py-2 rounded-full hover:bg-blue-50 transition" data-page="income" style="color: var(--text-main);"><i class="fas fa-wallet mr-1"></i> Income</a>
+                <a class="desktop-nav cursor-pointer px-3 py-2 rounded-full hover:bg-blue-50 transition" data-page="calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-1"></i> Calendar</a>
+                <a class="desktop-nav cursor-pointer px-3 py-2 rounded-full hover:bg-blue-50 transition" data-page="birthday" style="color: var(--text-main);"><i class="fas fa-cake-candles mr-1"></i> Birthday</a>
+                <a class="desktop-nav cursor-pointer px-3 py-2 rounded-full hover:bg-blue-50 transition" data-page="password" style="color: var(--text-main);"><i class="fas fa-lock mr-1"></i> Passwords</a>
             </nav>
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <p id="desktopUserName" class="font-semibold" style="color: var(--text-bold);">Loading...</p>
                     <p id="desktopUserEmail" class="text-sm" style="color: var(--text-muted);">Please wait</p>
                 </div>
-                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-12 h-12 rounded-full border" style="border-color: var(--border);">
-                <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all text-sm">Logout</button>
+                <img id="desktopUserPhoto" src="https://ui-avatars.com/api/?name=U&background=3b82f6&color=fff&size=100" alt="User Photo" class="w-11 h-11 rounded-full border-2" style="border-color: var(--border);">
+                <button id="desktopLogout" class="bg-red-700 text-white px-4 py-2 rounded-full shadow-md hover:bg-red-800 transition-all text-sm font-semibold">Logout</button>
             </div>
         </header>
     </div>
 
     <!-- MOBILE HEADER -->
     <div class="block md:hidden fade-in">
-        <header class="shadow-md sticky top-0 z-30 p-2 flex justify-between items-center" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border);">
-            <div class="flex items-center gap-1">
-                <div class="relative flex items-center justify-center">
-                    <i class="fas fa-shield text-blue-600 text-2xl"></i>
-                    <i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
-                </div>
+        <header class="shadow-md sticky top-0 z-30 p-3 flex justify-between items-center" style="background-color: var(--bg-card); border-bottom: 1px solid var(--border);">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-shield text-blue-600 text-2xl"></i>
                 <h1 class="font-black text-xl" style="color: var(--text-bold);">Savig</h1>
             </div>
             <button id="menu-btn" class="p-2 rounded-lg transition-all" style="color: var(--text-main);"><i class="fas fa-bars text-xl"></i></button>
         </header>
-        <nav id="mobile-menu" class="hidden mt-2 px-6 pb-2 space-y-1 border-b" style="background-color: var(--bg-card); border-color: var(--border);">
-            <a class="mobile-nav" data-page="home" style="color: var(--text-main);"><i class="fas fa-house mr-3"></i> Home</a>
-            <a class="mobile-nav" data-page="income" style="color: var(--text-main);"><i class="fas fa-wallet mr-3"></i> Income</a>
-            <a class="mobile-nav" data-page="links" style="color: var(--text-main);"><i class="fas fa-link mr-3"></i> Links</a>
-            <a class="mobile-nav" data-page="calendar" style="color: var(--text-main);"><i class="fas fa-calendar-days mr-3"></i> Calendar</a>
-            <a class="mobile-nav" data-page="password" style="color: var(--text-main);"><i class="fas fa-lock mr-3"></i> Passwords</a>
-            <a class="mobile-nav" data-page="profile" style="color: var(--text-main);"><i class="fas fa-user-gear mr-3"></i> Profile</a>
-            <a class="mobile-nav" data-page="essential" style="color: var(--text-main);"><i class="fas fa-shopping-basket mr-3"></i> Essentials</a>
-            <a class="mobile-nav" data-page="grocery" style="color: var(--text-main);"><i class="fas fa-shopping-cart mr-3"></i> Grocery</a>
+        <nav id="mobile-menu" class="hidden" style="background-color: var(--bg-card);">
+            <a href="#" data-page="home" class="mobile-nav-item"><i class="fas fa-house w-6"></i> Dashboard</a>
+            <a href="#" data-page="income" class="mobile-nav-item"><i class="fas fa-wallet w-6"></i> Income</a>
+            <a href="#" data-page="calendar" class="mobile-nav-item"><i class="fas fa-calendar-days w-6"></i> Calendar</a>
+            <a href="#" data-page="birthday" class="mobile-nav-item"><i class="fas fa-cake-candles w-6"></i> Birthday</a>
+            <a href="#" data-page="password" class="mobile-nav-item"><i class="fas fa-lock w-6"></i> Passwords</a>
+            <a href="#" data-page="profile" class="mobile-nav-item"><i class="fas fa-user-gear w-6"></i> Profile</a>
+            <a href="#" data-page="essential" class="mobile-nav-item"><i class="fas fa-shopping-basket w-6"></i> Essentials</a>
+            <a href="#" data-page="grocery" class="mobile-nav-item"><i class="fas fa-shopping-cart w-6"></i> Grocery</a>
+            <a href="#" data-page="asset" class="mobile-nav-item"><i class="fas fa-dollar-sign w-6"></i> Assets</a>
+            <a href="#" data-page="place" class="mobile-nav-item"><i class="fas fa-map-marker-alt w-6"></i> Tourist Places</a>
+            <a href="#" data-page="contact" class="mobile-nav-item"><i class="fas fa-address-book w-6"></i> Contacts</a>
+            <a href="#" data-page="adress" class="mobile-nav-item"><i class="fas fa-map-location-dot w-6"></i> Address</a>
+            <a href="#" data-page="vehicle" class="mobile-nav-item"><i class="fa-solid fa-car-side w-6"></i> Vehicle</a>
+            <a href="#" data-page="Panchang" class="mobile-nav-item"><i class="fa-solid fa-calendar w-6"></i> Festivals</a>
         </nav>
     </div>
 
     <!-- MAIN DASHBOARD LAYOUT -->
-    <div class="dashboard-wrapper mt-6 flex flex-col md:flex-row gap-6 px-4">
-        <aside class="sidebar-desktop hidden md:block">
-            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider"><i class="fas fa-database mr-2"></i> Core Data</h3>
-            <nav class="sidebar-nav-internal flex flex-col">
-                <a class="sidebar-nav" data-page="profile"><i class="fas fa-user-gear"></i> Profile</a>
-                <a class="sidebar-nav" data-page="essential"><i class="fas fa-shopping-basket"></i> Essentials</a>
-                <a class="sidebar-nav" data-page="asset"><i class="fas fa-dollar-sign"></i> Assets</a>
-                <a class="sidebar-nav" data-page="place"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
-                <a class="sidebar-nav" data-page="contact"><i class="fas fa-address-book"></i> Contacts</a>
-                <a class="sidebar-nav" data-page="grocery"><i class="fas fa-shopping-cart"></i> Grocery</a>
-                <a class="sidebar-nav" data-page="adress"><i class="fas fa-map-location-dot"></i> Address</a>
-                <a class="sidebar-nav" data-page="vehicle"><i class="fa-solid fa-car-side"></i> Vehicle</a>
-                <a class="sidebar-nav" data-page="Panchang"><i class="fa-solid fa-calendar"></i> Festivals</a>
+    <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4 pb-8">
+        <!-- DESKTOP SIDEBAR - CORE DATA LINKS (FIXED OPEN ISSUE) -->
+        <aside class="sidebar-desktop hidden md:block" style="background-color: var(--bg-card);">
+            <h3 class="text-lg font-bold mb-3 border-b pb-2 text-sm uppercase tracking-wider" style="color: var(--text-bold); border-color: var(--border);"><i class="fas fa-database mr-2"></i> Core Data</h3>
+            <nav class="sidebar-nav-internal flex flex-col gap-1">
+                <a href="#" data-page="profile"><i class="fas fa-user-gear"></i> Profile</a>
+                <a href="#" data-page="essential"><i class="fas fa-shopping-basket"></i> Essentials</a>
+                <a href="#" data-page="asset"><i class="fas fa-dollar-sign"></i> Assets</a>
+                <a href="#" data-page="place"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
+                <a href="#" data-page="contact"><i class="fas fa-address-book"></i> Contacts</a>
+                <a href="#" data-page="grocery"><i class="fas fa-shopping-cart"></i> Grocery</a>
+                <a href="#" data-page="adress"><i class="fas fa-map-location-dot"></i> Address</a>
+                <a href="#" data-page="vehicle"><i class="fa-solid fa-car-side"></i> Vehicle</a>
+                <a href="#" data-page="Panchang"><i class="fa-solid fa-calendar"></i> Festivals</a>
             </nav>
         </aside>
-
-        <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card);">
+        
+        <main class="dashboard-main-content flex-1 rounded-2xl shadow p-5 md:p-6" style="background-color: var(--bg-card); border: 1px solid var(--border);">
             <h2 class="text-3xl font-extrabold mb-1" style="color: var(--text-bold);">Welcome to Your Web Hub 💼</h2>
-            <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Savig is your private hub for productivity, security, and daily planning.</p>
+            <p class="mb-5 border-b pb-3" style="color: var(--text-muted); border-color: var(--border);">Secure dashboard — manage links, events, celebrations seamlessly.</p>
             
             <div class="three-col-grid">
+                <!-- Today's Events & Grocery -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-calendar-day"></i> Today's Schedule & Groceries</h2>
@@ -276,10 +306,11 @@
                     <div class="card-body">
                         <div id="dash-events-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading events...</span></div></div>
                         <hr class="my-3" style="border-color: var(--border);">
-                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);">Grocery Items</h3><div id="dash-grocery-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
+                        <div><h3 class="text-xs font-bold uppercase tracking-wider mb-2" style="color: var(--text-muted);"><i class="fas fa-apple-alt mr-1"></i> Grocery Items</h3><div id="dash-grocery-list"><div class="loading-message"><div class="loading-spinner"></div><span>Loading groceries...</span></div></div></div>
                     </div>
                 </div>
 
+                <!-- Celebrations Today -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #e11d48, #be123c);">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-heart"></i> Celebrations Today</h2>
@@ -287,21 +318,22 @@
                     <div class="card-body" id="dash-celebrations-list"><div class="loading-message"><div class="loading-spinner"></div><span>Checking celebrations...</span></div></div>
                 </div>
 
+                <!-- Quick Links with add functionality -->
                 <div class="dashboard-card">
                     <div class="card-header" style="background: linear-gradient(135deg, #4f46e5, #4338ca); display: flex; justify-content: space-between; align-items: center;">
                         <h2 class="text-white font-bold flex items-center gap-2"><i class="fas fa-link"></i> Quick Links</h2>
-                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md"><i class="fas fa-plus mr-1"></i>Add Link</button>
+                        <button id="addLinkBtn" class="bg-white text-indigo-700 text-xs px-3 py-1.5 rounded-full font-bold shadow-md hover:scale-105 transition"><i class="fas fa-plus mr-1"></i>Add Link</button>
                     </div>
                     <div class="card-body" style="display: flex; flex-direction: column;">
                         <div id="linkFormContainer" class="link-form-container hidden">
                             <input type="url" id="linkUrl" placeholder="https://example.com" class="link-input">
                             <input type="text" id="linkTitle" placeholder="Title (optional)" class="link-input">
                             <div class="flex gap-2 mt-2">
-                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold">Save</button>
-                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm">Cancel</button>
+                                <button id="saveLinkBtn" class="flex-1 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-semibold hover:bg-indigo-700">Save</button>
+                                <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-600">Cancel</button>
                             </div>
                         </div>
-                        <div id="savedLinksList"><div class="loading-message"><div class="loading-spinner"></div><span>Data is loading...</span></div></div>
+                        <div id="savedLinksList"><div class="loading-message"><div class="loading-spinner"></div><span>Loading links...</span></div></div>
                     </div>
                 </div>
             </div>
@@ -309,9 +341,10 @@
     </div>
 </div>
 
+<!-- Bottom Navigation & Theme Toggle -->
 <nav id="universal-bottom-nav">
     <a class="bottom-nav-link" data-page="home"><i class="fa-solid fa-house"></i><div>Home</div></a>
-    <a class="bottom-nav-link" data-page="addressmob"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
+    <a class="bottom-nav-link" data-page="adress"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
     <a class="bottom-nav-link" data-page="password"><i class="fa-solid fa-key"></i><div>Passwords</div></a>
     <a class="bottom-nav-link" data-page="grocery"><i class="fa-solid fa-cart-shopping"></i><div>Grocery</div></a>
     <a class="bottom-nav-link" data-page="contact"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
@@ -320,7 +353,7 @@
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
 <script>
-    // Firebase Config
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
         authDomain: "sk12-58e9e.firebaseapp.com",
@@ -334,126 +367,80 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     
     let currentUserId = null;
     let linksRefListener = null;
     
-    // ========== NAVIGATION SYSTEM ==========
+    // ========== ROBUST NAVIGATION (fixes core data / bottom nav / desktop nav) ==========
+    const pageMapping = {
+        'home': 'home.html', 'income': 'income.html', 'calendar': 'calender.html', 'birthday': 'birthday.html',
+        'password': 'password.html', 'links': 'links.html', 'profile': 'profile.html', 'essential': 'essential.html',
+        'grocery': 'grocery.html', 'asset': 'asset.html', 'place': 'place.html', 'contact': 'contact.html',
+        'adress': 'adress.html', 'vehicle': 'vehicle.html', 'Panchang': 'Panchang.html', 'addressmob': 'addressmob.html'
+    };
+    
     function navigateTo(page) {
-        console.log("Navigating to:", page);
-        // Map page names to actual HTML files
-        const pageMap = {
-            'home': 'home.html',
-            'income': 'income.html',
-            'calendar': 'calender.html',
-            'birthday': 'birthday.html',
-            'password': 'password.html',
-            'links': 'links.html',
-            'profile': 'profile.html',
-            'essential': 'essential.html',
-            'grocery': 'grocery.html',
-            'asset': 'asset.html',
-            'place': 'place.html',
-            'contact': 'contact.html',
-            'adress': 'adress.html',
-            'vehicle': 'vehicle.html',
-            'Panchang': 'Panchang.html',
-            'addressmob': 'addressmob.html'
-        };
-        
-        const targetFile = pageMap[page];
-        if (targetFile) {
-            window.location.href = targetFile;
+        if (!page) return;
+        const target = pageMapping[page];
+        if (target) {
+            window.location.href = target;
         } else {
-            alert(`Page "${page}" not found. Would navigate to ${page}.html`);
+            console.warn(`No mapping for page: ${page}, trying fallback`);
+            window.location.href = `${page}.html`;
         }
     }
     
-    // Initialize all navigation event listeners
-    function initNavigation() {
-        // Desktop navigation
-        document.querySelectorAll('.desktop-nav').forEach(el => {
-            el.removeEventListener('click', handleNavClick);
-            el.addEventListener('click', handleNavClick);
+    // universal click handler for any navigation element with data-page
+    function attachNavEvents() {
+        const selectors = [
+            '.desktop-nav', '.sidebar-nav-internal a', '.bottom-nav-link', '.mobile-nav-item', 
+            '[data-page]'
+        ];
+        document.querySelectorAll(selectors.join(',')).forEach(el => {
+            // avoid duplicate listeners
+            el.removeEventListener('click', navClickHandler);
+            el.addEventListener('click', navClickHandler);
         });
-        
-        // Mobile navigation
-        document.querySelectorAll('.mobile-nav').forEach(el => {
-            el.removeEventListener('click', handleNavClick);
-            el.addEventListener('click', handleNavClick);
-        });
-        
-        // Sidebar navigation
-        document.querySelectorAll('.sidebar-nav').forEach(el => {
-            el.removeEventListener('click', handleNavClick);
-            el.addEventListener('click', handleNavClick);
-        });
-        
-        // Bottom navigation
-        document.querySelectorAll('.bottom-nav-link').forEach(el => {
-            el.removeEventListener('click', handleNavClick);
-            el.addEventListener('click', handleNavClick);
-        });
-        
-        console.log("Navigation initialized");
     }
     
-    function handleNavClick(e) {
+    function navClickHandler(e) {
         e.preventDefault();
         const page = this.getAttribute('data-page');
-        if (page) {
-            navigateTo(page);
-        }
+        if (page) navigateTo(page);
+        else console.warn("data-page missing", this);
     }
-    // ========== END NAVIGATION SYSTEM ==========
     
+    // ========== HELPER FUNCTIONS ==========
     function updateUI(user) {
         if (!user) return;
-        const userName = user.displayName || (user.email ? user.email.split('@')[0] : "Dashboard User");
+        const userName = user.displayName || (user.email ? user.email.split('@')[0] : "User");
         const userEmail = user.email || "user@example.com";
-        let initial = (userEmail && userEmail.length > 0) ? userEmail[0].toUpperCase() : 'U';
+        const initial = userEmail[0].toUpperCase();
         const photoPlaceholder = `https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
-        
         const nameEl = document.getElementById('desktopUserName');
         const emailEl = document.getElementById('desktopUserEmail');
         const photoEl = document.getElementById('desktopUserPhoto');
-        
         if(nameEl) nameEl.innerText = userName;
         if(emailEl) emailEl.innerText = userEmail;
         if(photoEl) photoEl.src = photoPlaceholder;
-        
         currentUserId = user.uid;
     }
     
-    window.logout = function() { 
-        auth.signOut().then(() => {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'index.html';
-        }).catch(console.error); 
-    };
-    
     window.sendWhatsAppMsg = function(phone, msg) { 
-        if(!phone) { alert("No phone number saved."); return; } 
+        if(!phone || phone === 'undefined') { alert("No phone number saved."); return; } 
         const clean = phone.replace(/\D/g, ''); 
-        window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank'); 
+        if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
+        else alert("Invalid phone number");
     };
     
     function escapeHtml(str) { 
         if(!str) return ''; 
-        return str.replace(/[&<>]/g, function(m){
-            if(m==='&') return '&amp;'; 
-            if(m==='<') return '&lt;'; 
-            if(m==='>') return '&gt;'; 
-            return m;
-        }); 
+        return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m] || m)); 
     }
     
     function loadDashboardData(userId) {
         if (!userId) return;
-        
         const today = new Date();
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2,'0');
@@ -461,36 +448,24 @@
         const dateKey = `${yyyy}-${mm}-${dd}`;
         
         const eventsRef = db.ref(`users/${userId}/events/${dateKey}`);
-        eventsRef.off();
         eventsRef.on('value', snap => {
             const container = document.getElementById('dash-events-list');
             if(!container) return;
-            if(!snap.exists()) { 
-                container.innerHTML = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2">📌 Events</h3><p class="text-sm italic">No events today.</p>'; 
-                return; 
-            }
-            let html = '<h3 class="text-xs font-bold uppercase tracking-wider mb-2">📌 Events</h3>';
-            snap.forEach(child => {
-                const ev = child.val();
-                html += `<div class="event-item flex items-center p-2 rounded-xl border-l-4 border-l-indigo-500 shadow-sm" style="background: var(--item-bg); margin-bottom: 2px;"><div><div class="font-bold text-sm">${escapeHtml(ev.title)}</div><div class="text-xs" style="color: var(--primary);"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div></div>`;
-            });
+            if(!snap.exists()) { container.innerHTML = '<div class="text-center py-4 text-sm"><i class="fas fa-check-circle text-green-500"></i> No events scheduled today.</div>'; return; }
+            let html = '<div class="space-y-2">';
+            snap.forEach(child => { const ev = child.val(); html += `<div class="event-item p-2 rounded-xl border-l-4 border-l-indigo-500 bg-opacity-40" style="background: var(--item-bg);"><div class="font-bold text-sm">📌 ${escapeHtml(ev.title)}</div><div class="text-xs text-blue-500"><i class="far fa-clock"></i> ${ev.time || 'All day'}</div></div>`; });
+            html += '</div>';
             container.innerHTML = html;
         });
         
         const groceryRef = db.ref(`users/${userId}/groceryList/${dateKey}`);
-        groceryRef.off();
         groceryRef.on('value', snap => {
             const groceryDiv = document.getElementById('dash-grocery-list');
             if(!groceryDiv) return;
-            if(!snap.exists()) { 
-                groceryDiv.innerHTML = '<p class="text-sm">No groceries today</p>'; 
-                return; 
-            }
-            let html = '';
-            snap.forEach(child => {
-                const item = child.val();
-                html += `<div class="grocery-item flex items-center gap-2 p-1"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span class="text-sm font-medium">${escapeHtml(item.name)}</span></div>`;
-            });
+            if(!snap.exists()) { groceryDiv.innerHTML = '<p class="text-sm italic text-gray-400">No groceries for today.</p>'; return; }
+            let html = '<ul class="space-y-1">';
+            snap.forEach(child => { const item = child.val(); html += `<li class="flex items-center gap-2 text-sm"><i class="fas fa-shopping-basket text-emerald-500 text-xs"></i><span>${escapeHtml(item.name)}</span></li>`; });
+            html += '</ul>';
             groceryDiv.innerHTML = html;
         });
         
@@ -499,23 +474,22 @@
         Promise.all([bdayRef.once('value'), anniRef.once('value')]).then(([bSnap, aSnap]) => {
             const celebDiv = document.getElementById('dash-celebrations-list');
             if(!celebDiv) return;
-            let html = '';
-            let found = false;
+            let html = ''; let found = false;
             bSnap.forEach(child => {
                 const b = child.val();
-                if(b.birthdate && b.birthdate.endsWith(`${mm}-${dd}`)) {
+                if(b.birthdate && b.birthdate.endsWith(`-${mm}-${dd}`)) {
                     found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${escapeHtml(b.name)}</span> <span class="text-xs">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${escapeHtml(b.name)}</span> <span class="text-xs">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile || ''}', 'Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="btn-wish-sm">Wish</button></div>`;
                 }
             });
             aSnap.forEach(child => {
                 const a = child.val();
-                if(a.d && a.d.endsWith(`${mm}-${dd}`)) {
+                if(a.d && a.d.endsWith(`-${mm}-${dd}`)) {
                     found = true;
-                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="bg-green-600 text-white px-3 py-1 rounded-full text-xs shadow">Wish</button></div>`;
+                    html += `<div class="celeb-card flex justify-between items-center p-2 rounded-xl mb-2" style="background: var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile || ''}', 'Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="btn-wish-sm">Wish</button></div>`;
                 }
             });
-            if(!found) html = '<div class="text-center py-6"><i class="fas fa-mug-hot block text-2xl mb-1"></i>No celebrations today</div>';
+            if(!found) html = '<div class="text-center py-6"><i class="fas fa-mug-hot text-3xl mb-2 block"></i>No celebrations today<br><span class="text-xs">Relax :)</span></div>';
             celebDiv.innerHTML = html;
         }).catch(err => console.error("Celebrations error:", err));
     }
@@ -526,37 +500,20 @@
         const container = document.getElementById('savedLinksList');
         if(!container) return;
         if(linksRefListener) linksRefListener.off();
-        
         linksRef.on('value', (snapshot) => {
-            if (!container) return;
             const links = snapshot.val() || {};
             container.innerHTML = '';
-            if(Object.keys(links).length === 0) { 
-                container.innerHTML = '<div class="text-center py-4"><i class="fas fa-link mr-1"></i> No saved links. Click "Add Link".</div>'; 
-                return; 
-            }
+            if(Object.keys(links).length === 0) { container.innerHTML = '<div class="text-center py-4 text-sm opacity-70"><i class="fas fa-link mr-1"></i> No saved links yet. Add a quick link.</div>'; return; }
             Object.entries(links).forEach(([id, link]) => {
                 const title = link.title || (link.url ? link.url.replace(/^https?:\/\//,'').split('/')[0] : 'Untitled');
                 const url = link.url || '#';
                 const linkDiv = document.createElement('div');
                 linkDiv.className = 'link-item';
-                linkDiv.innerHTML = `<div class="link-info"><div class="link-title">${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 40 ? url.substring(0,40)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}">Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
+                linkDiv.innerHTML = `<div class="link-info"><div class="link-title">🔗 ${escapeHtml(title)}</div><div class="link-url">${escapeHtml(url.length > 45 ? url.substring(0,45)+'...' : url)}</div></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt"></i> Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
                 container.appendChild(linkDiv);
             });
-            document.querySelectorAll('.open-btn').forEach(btn => { 
-                btn.addEventListener('click', (e) => { 
-                    e.stopPropagation(); 
-                    const u = btn.getAttribute('data-url'); 
-                    if(u && u !== '#') window.open(u, '_blank'); 
-                }); 
-            });
-            document.querySelectorAll('.delete-btn').forEach(btn => { 
-                btn.addEventListener('click', async (e) => { 
-                    e.stopPropagation(); 
-                    const id = btn.getAttribute('data-id'); 
-                    if(confirm('Delete this link?')) await linksRef.child(id).remove(); 
-                }); 
-            });
+            document.querySelectorAll('.open-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const u = btn.getAttribute('data-url'); if(u && u !== '#') window.open(u, '_blank'); }); });
+            document.querySelectorAll('.delete-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.getAttribute('data-id'); if(confirm('Delete this link?')) await linksRef.child(id).remove(); }); });
         });
         linksRefListener = linksRef;
     }
@@ -568,81 +525,60 @@
         const cancelBtn = document.getElementById('cancelLinkBtn');
         const urlInp = document.getElementById('linkUrl');
         const titleInp = document.getElementById('linkTitle');
-        
         if(!addBtn) return;
-        addBtn.onclick = () => { 
-            if(formDiv) formDiv.classList.remove('hidden'); 
-            if(urlInp) urlInp.value=''; 
-            if(titleInp) titleInp.value=''; 
-            if(urlInp) urlInp.focus(); 
-        };
+        addBtn.onclick = () => { if(formDiv) formDiv.classList.remove('hidden'); if(urlInp) urlInp.value=''; if(titleInp) titleInp.value=''; if(urlInp) urlInp.focus(); };
         if(cancelBtn) cancelBtn.onclick = () => { if(formDiv) formDiv.classList.add('hidden'); };
-        if(saveBtn) {
-            saveBtn.onclick = async () => {
-                if(!urlInp) return;
-                let url = urlInp.value.trim();
-                if(!url) { alert("Please enter a URL"); return; }
-                if(!url.startsWith('http')) url = 'https://' + url;
-                const title = titleInp ? (titleInp.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0]) : url.replace(/^https?:\/\//,'').split('/')[0];
-                try {
-                    await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
-                    if(formDiv) formDiv.classList.add('hidden');
-                    if(urlInp) urlInp.value = '';
-                    if(titleInp) titleInp.value = '';
-                } catch(error) {
-                    console.error("Error saving link:", error);
-                    alert("Error saving link. Please try again.");
-                }
-            };
-        }
+        if(saveBtn) saveBtn.onclick = async () => {
+            let url = urlInp?.value.trim();
+            if(!url) { alert("Please enter a URL"); return; }
+            if(!url.startsWith('http')) url = 'https://' + url;
+            const title = titleInp?.value.trim() || url.replace(/^https?:\/\//,'').split('/')[0];
+            try {
+                await db.ref(`users/${userId}/quickLinks`).push({ url, title, createdAt: Date.now() });
+                if(formDiv) formDiv.classList.add('hidden');
+                if(urlInp) urlInp.value = ''; if(titleInp) titleInp.value = '';
+            } catch(error) { alert("Error saving link."); }
+        };
     }
     
-    // Auth state handler
-    let authInitialized = false;
+    // Auth watcher
+    let authChecked = false;
     auth.onAuthStateChanged(user => {
-        console.log("Auth state:", user ? "Logged in" : "Logged out");
         if (user) {
             updateUI(user);
             loadDashboardData(user.uid);
             initLinksManager(user.uid);
             setupLinkUI(user.uid);
-            initNavigation(); // Initialize navigation after auth
-            authInitialized = true;
+            attachNavEvents();
+            authChecked = true;
         } else {
-            if (!authInitialized) {
-                window.location.replace("index.html");
-            }
+            if (!authChecked) window.location.replace("login.html");
+            else window.location.replace("index.html");
         }
     });
-    
-    setTimeout(() => {
-        if (!auth.currentUser && !authInitialized) {
-            window.location.replace("index.html");
-        }
-    }, 2000);
+    setTimeout(() => { if (!auth.currentUser && !authChecked) window.location.replace("login.html"); }, 1800);
     
     // Mobile menu toggle
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    if(menuBtn && mobileMenu) {
-        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
-    }
+    if(menuBtn && mobileMenu) menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
     
     // Theme toggle
-    const themeBtn = document.getElementById('theme-toggle-btn');
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
-    if(themeBtn) { 
-        themeBtn.onclick = () => { 
-            let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
-            document.documentElement.setAttribute('data-theme', next); 
-            localStorage.setItem('theme', next); 
-        }; 
-    }
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    if(themeBtn) themeBtn.onclick = () => { 
+        let next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; 
+        document.documentElement.setAttribute('data-theme', next); 
+        localStorage.setItem('theme', next); 
+    };
     
     // Desktop logout
     const desktopLogout = document.getElementById('desktopLogout');
-    if(desktopLogout) desktopLogout.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+    if(desktopLogout) desktopLogout.addEventListener('click', (e) => { e.preventDefault(); auth.signOut().then(() => { window.location.href = 'login.html'; }); });
+    
+    // force reattach after dynamic loads
+    window.addEventListener('load', () => { attachNavEvents(); });
 </script>
 </body>
 </html>
