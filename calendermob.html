@@ -2,760 +2,925 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Savig</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Savig · Calendar</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-<style>
-<script>
-    // 1. Apply theme before page renders
-    (function() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-
-    // 2. Listen for theme changes in other open tabs
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'theme') {
-            document.documentElement.setAttribute('data-theme', event.newValue);
-        }
-    });
-</script>
-body {
-    font-family: 'Times New Roman', Times, serif; 
-    color: #334155; 
-    background-color: #f8fafc; 
-}
-
-.main-content-padding {
-    padding-top: 1px; 
-}
-
-/* --- Responsive Search & Action Container --- */
-.search-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-/* Arrange buttons in 2x2 grid on mobile, single row on desktop */
-.search-controls-row {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    width: 100%;
-}
-
-@media (min-width: 1024px) {
-    .search-container {
-        flex-direction: row;
-    }
-    .search-controls-row {
-        display: flex !important;
-        width: auto;
-    }
-}
-
-/* --- Calendar Header (Mon-Sun) --- */
-.calendar-header {
-    display: none; /* Hidden on mobile */
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-weight: bold;
-    padding-bottom: 10px;
-    color: #4b5563; 
-}
-
-@media (min-width: 768px) {
-    .calendar-header {
-        display: grid; /* Shown on desktop */
-    }
-}
-
-/* --- The Responsive Grid --- */
-#calendar {
-    display: grid;
-    /* Mobile: 2 dates per row */
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
-    padding: 0 10px;
-}
-
-@media (min-width: 768px) {
-    #calendar {
-        /* Desktop: 7 dates per row */
-        grid-template-columns: repeat(7, 1fr) !important;
-        gap: 8px;
-        padding: 0;
-    }
-}
-
-/* --- Cell Styling --- */
-.calendar-cell {
-    border: 1px solid #e5e7eb; 
-    border-radius: 12px;
-    padding: 10px;
-    background-color: white;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    transition: transform 0.2s, box-shadow 0.2s;
-    height: auto; 
-    min-height: 130px; 
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-@media (min-width: 768px) {
-    .calendar-cell {
-        height: 170px; /* Fixed height only on desktop */
-        border-radius: 8px;
-    }
-    .calendar-cell:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    }
-}
-
-/* --- Highlights & Modals --- */
-.sunday-cell { background-color: #fff1f2; border-color: #fda4af; }
-.today { border: 3px solid #4f46e5; background-color: #e0f2fe; }
-
-#taskModal, #eventModal {
-    width: 95% !important;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 20px !important;
-}
-
-@media (min-width: 768px) {
-    #taskModal, #eventModal {
-        width: 75% !important;
-    }
-}
-/* --- Full Page Task Mode --- */
-body.focus-active {
-    overflow: hidden !important;
-}
-
-/* Hide the background: Nav, Search, Calendar, and Bottom Bar */
-body.focus-active nav, 
-body.focus-active .search-container, 
-body.focus-active #calendar-controls, 
-body.focus-active .calendar-header, 
-body.focus-active #calendar, 
-body.focus-active #universal-bottom-nav {
-    display: none !important;
-}
-
-/* Force the Modal to be the only thing visible (Full Screen) */
-body.focus-active #taskModal {
-    display: block !important;
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: none !important;
-    max-height: none !important;
-    transform: none !important;
-    z-index: 10000 !important;
-    background: white !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    padding: 20px !important;
-    overflow-y: auto !important;
-}
-
-/* Ensure the task list inside the modal takes enough space */
-body.focus-active #existingTasks {
-    max-height: none !important; 
-    flex: 1;
-}
-</style>
-
-<body class="bg-f8fafc">
-
-
-<div id="calendar-controls" class="flex justify-between items-center px-4 md:px-0 mt-2 mb-2">
-
-
-    <div class="text-center">
-        <h1 class="text-xl font-black text-indigo-700 uppercase tracking-tighter leading-none">Calendar</h1>
-      
-    </div>
-
-
-</div>
-
-<div class="search-overlay-background"></div>
-
-<main class="main-content-padding flex flex-col gap-1 mx-auto w-full max-w-7xl">
-
-    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-1 md:gap-1 px-3 md:px-0 pt-1 md:pt-0 ">
-        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-1">
-            <input type="text" id="searchInput" placeholder="Search tasks..."
-                class="p-2 px-5 md:p-3 md:px-5 md:py-2 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm md:text-base w-full flex-1">
-            
-            <div class="search-controls-row flex flex-wrap gap-2 items-center">
-                <select id="searchTimeframe" class="p-2 rounded-full border border-gray-300 shadow-md outline-none cursor-pointer text-sm">
-                    <option value="1year">Search Last 1 Year</option>
-                    <option value="alltime">Search All Time</option>
-                </select>
-                
-                <button id="downloadMonthTasks" class="btn-control bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-emerald-700 transition-all text-sm">
-                    <i class="fas fa-download mr-1"></i> Download 
-                </button>
-                
-                <button id="openEventModalBtn" class="btn-control bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-700 transition-all text-sm">
-                    <i class="fas fa-plus mr-1"></i> Add Event
-                </button>
-
-                <button id="openCompletedEventsBtn" class="btn-control bg-green-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-green-700 transition-all text-sm" onclick="openTrackingModal('completed')">
-                    <i class="fas fa-check-circle mr-1"></i> Completed
-                </button>
-
-                <button id="openIncompleteEventsBtn" class="btn-control bg-red-600 text-white px-4 py-2 rounded-xl shadow-sm hover:bg-red-700 transition-all text-sm" onclick="openTrackingModal('incomplete')">
-                    <i class="fas fa-times-circle mr-1"></i> Incomplete
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="searchResults" class="mt-[1px] px-3 md:px-0"></div> 
-
-    <div id="calendar-controls" class="flex justify-between items-center mb-1 px-3 md:px-0">
-        <button onclick="changeMonth(-1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">← Prev</button>
-        <h2 id="monthYear" class="text-lg md:text-xl font-bold text-center flex-1">Month Year</h2>
-        <button onclick="changeMonth(1)" class="px-2.5 py-1 border border-gray-300 rounded-lg hover:bg-gray-100 transition shadow-sm font-bold text-sm">Next →</button>
-    </div>
-    
-    <div class="calendar-header hidden md:grid text-sm">
-        <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div>
-        <div class="text-red-500">Sat</div><div class="text-red-500">Sun</div>
-    </div>
-    
-    <div id="calendar" class="text-sm md:text-[14px] pb-1"></div>
-
-</main>
-<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40 text-white text-xl flex items-center justify-center">
-</div>
-
-<div id="taskModal" 
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-8xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[560px] md:h-auto border border-gray-100">
-
-
-    <div class="flex justify-between items-center mb-1 border-b pb-1">
-        <h2 id="modalDate" class="text-base md:text-base font-extrabold text-indigo-700">Tasks for date</h2> 
-        <button id="closeModal" 
-                class="text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-1"> 
-        
-        <div class="flex flex-col">
-            <input id="taskTitle" type="text" placeholder="Title" 
-                class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
-            <textarea id="taskDesc" placeholder="Details (optional)" 
-                     class="border border-gray-300 rounded-lg p-2 w-full mb-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm flex-1 min-h-[30px] md:min-h-[30px] shadow-sm"></textarea>
-            <div class="flex gap-1 mt-1">
-                <button id="saveTaskBtn" 
-                        class="flex-1 bg-indigo-600 text-white px-4 py-1 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
-                    Save Task
-                </button>
-                <button id="cancelTaskBtn" 
-                        class="flex-1 bg-gray-400 text-white px-4 py-1 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
-                    Cancel
-                </button>
-            </div>
-        </div>
-
-        <div id="existingTasks" class="border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner">
-            <div class="text-center text-gray-500 italic p-3">No tasks or events yet.</div>
-        </div>
-
-    </div>
-</div>
-
-<div id="eventModal" 
- class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-2xl z-50 top-[54%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[570px] border border-gray-100">
-    
-  
-
-
-    <div class="flex justify-between items-center mb-1 border-b pb-2">
-        <h2 id="eventModalTitle" class="text-xl md:text-base font-extrabold text-black-700">Add New Event</h2> 
-        <button id="closeEventModal" 
-                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
-    </div>
-
-    <div class="flex flex-col gap-1"> 
-        <input id="eventTitle" type="text" placeholder="Event Name (e.g., Doctor Appointment)" 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-base shadow-sm">
-        
-        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Date and Time Selection</h3>
-        <div class="flex flex-col gap-1">
-            <div class="flex flex-col md:flex-row gap-2">
-                <div class="modern-input-group w-full md:w-1/2">
-                    <i class="fas fa-calendar-alt text-gray-500 self-center"></i>
-                    <input type="date" id="eventDate" required aria-label="Event Date">
-                </div>
-                <div class="modern-input-group w-full md:w-1/2">
-                    <i class="fas fa-clock text-gray-500 self-center"></i>
-                    <input type="time" id="eventTime" required value="09:00" aria-label="Event Time">
-                </div>
-            </div>
-             </div>
-        
-        <h3 class="text-lg font-semibold text-gray-700 mt-1 border-b pb-1">Location and Details</h3>
-        
-        <input id="eventLocation" type="text" placeholder="Location (Optional)" 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-sm shadow-sm">
-            
-        <textarea id="eventDesc" placeholder="Details (Optional)" 
-                 class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 transition duration-200 text-sm flex-1 min-h-[10px] shadow-sm resize-none"></textarea>
-                 
-        <div class="flex gap-3 mt-2">
-            <button id="saveEventBtn" 
-                    class="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-emerald-700 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
-                <i class="fas fa-bell mr-2"></i> Save Event
-            </button>
-            <button id="cancelEventBtn" 
-                    class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-sm transform hover:scale-[1.01]">
-                Cancel
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="rescheduleModal"
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
-    
-    <div class="flex justify-between items-center mb-2 border-b pb-1">
-        <h2 class="text-xl md:text-xl font-extrabold text-indigo-700">Reschedule Event</h2> 
-        <button id="closeRescheduleModal" 
-                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
-    </div>
-    
-    <p class="mb-1 text-sm text-gray-800">
-        Reschedule: <strong id="rescheduleEventTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
-    </p>
-
-    <div class="flex flex-col gap-2">
-        <input type="date" id="rescheduleDate" required 
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
-        <input type="time" id="rescheduleTime" required value="09:00"
-            class="border border-gray-300 rounded-lg p-3 w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-sm shadow-sm">
-        
-        <button id="confirmRescheduleBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-sm">
-            Confirm New Date/Time
-        </button>
-    </div>
-</div>
-
-
-<div id="statusPromptModal"
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-1/3 max-w-md z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden">
-    
-    <div class="flex justify-between items-center mb-2 border-b pb-2">
-        <h2 class="text-base md:text-base font-extrabold text-yellow-700">Update Event Status</h2> 
-        <button id="closeStatusPromptModal" 
-                class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
-    </div>
-    
-    <div id="promptContent">
-        <p class="mb-1 text-lg text-gray-800">
-            Did you complete the event: 
-            <strong id="eventToPromptTitle" class="text-indigo-600 block my-1">Loading Event...</strong>
-        </p>
-        <p class="text-sm text-gray-500 italic mb-2">Date: <span id="eventToPromptDate"></span> | Time: <span id="eventToPromptTime"></span></p>
-
-        <div class="flex flex-col gap-1">
-            <button id="completeEventBtn" class="bg-green-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-green-700 transition duration-200 font-bold text-sm">
-                <i class="fas fa-check"></i> Completed Event
-            </button>
-            <button id="incompleteEventBtn" class="bg-red-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-red-700 transition duration-200 font-bold text-sm">
-                <i class="fas fa-times"></i> Incomplete Event
-            </button>
-            
-            <hr class="my-2 border-gray-200"/>
-
-            <button id="reschedulePromptBtn" class="bg-indigo-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-600 transition duration-200 font-bold text-sm">
-                <i class="fas fa-calendar-alt"></i> Change Date & Time
-            </button>
-            <button id="cancelPromptBtn" class="bg-gray-500 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-600 transition duration-200 font-bold text-sm">
-                <i class="fas fa-trash-can"></i> Cancel Event Permanently
-            </button>
-        </div>
-    </div>
-</div>
-
-<div id="eventTrackingSection"
-    class="fixed bg-white shadow-2xl p-6 text-base rounded-xl w-11/12 md:w-3/4 max-w-4xl z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 hidden h-[90vh] md:h-auto border border-gray-100">
-
-    <div class="flex justify-between items-center mb-2 border-b pb-1">
-        <h2 id="trackingModalTitle" class="text-base md:text-base font-extrabold text-gray-700">Event History</h2> 
-        <button id="closeTrackingModal" 
-                class="text-red-500 hover:text-white text-[22px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
-    </div>
-
-    <div id="trackingEventsList" class="max-h-[70vh] overflow-y-auto custom-scroll">
-        <p class="text-center text-gray-500 italic p-3">Loading events...</p>
-    </div>
-</div>
-<nav id="universal-bottom-nav">
-   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold text-xm">Home</div>
-    </a>
-
-    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
-    </a>
-
-    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
-    </a>
-
-    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
-    </a>
-          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-600"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calendar</div>
-    </a>
-    </nav>
-
 
 <style>
-/* 1. Theme Variables & Reset */
+    * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --text: #1a2332;
+  --text-light: #6b7a8f;
+  --border: #dce3ec;
+  --primary: #4f46e5;
+  --primary-light: #eef2ff;
+  --green: #059669;
+  --red: #dc2626;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --radius: 14px;
+  --today-border: #4f46e5;
 }
 
-[data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
+[data-theme="dark"] {
+  --bg: #0f1a2e;
+  --card: #1a2a40;
+  --text: #eef2f6;
+  --text-light: #9aa9b9;
+  --border: #2d4055;
+  --primary: #818cf8;
+  --primary-light: #1a2a40;
+  --shadow: 0 2px 12px rgba(0,0,0,0.3);
+  --today-border: #818cf8;
 }
 
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 12px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background 0.3s, color 0.3s;
+  padding-bottom: 80px;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+/* ===== SEARCH MODE - Full Screen ===== */
+body.search-mode {
+  overflow: hidden;
 }
 
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 40px;
+body.search-mode .header,
+body.search-mode .weekdays,
+body.search-mode #calendar,
+body.search-mode .bottom-nav,
+body.search-mode .search-wrap .actions {
+  display: none !important;
 }
 
-.nav-link i {
-    font-size: 25px;
-    margin-bottom: 4px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
+body.search-mode .search-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg);
+  padding: 16px 16px 12px 16px;
+  max-width: 100%;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
-.nav-link div {
-    font-size: 9px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 5px;
+body.search-mode .search-wrap input {
+  font-size: 1.1rem;
+  padding: 14px 18px;
+  flex: 1;
 }
 
-.nav-link.active {
-    color: var(--active-color) !important;
+body.search-mode .search-wrap .search-back {
+  display: flex !important;
 }
 
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
+body.search-mode #searchResults {
+  position: fixed;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: var(--bg);
+  padding: 12px 16px;
+  overflow-y: auto;
+  max-width: 100%;
 }
 
-
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
+/* Search Back Button */
+.search-back {
+  display: none !important;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
 }
 
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
+.search-back:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: scale(1.05);
 }
 
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+.search-back:active {
+  transform: scale(0.92);
 }
 
+.search-wrap .search-back.show {
+  display: flex !important;
+}
 
-.theme-toggle:hover {
+/* ===== CALENDAR GRID ===== */
+#calendar {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 12px 20px 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  #calendar {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 0 8px 20px 8px;
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 380px) {
+  #calendar {
+    gap: 6px;
+    padding: 0 6px 16px 6px;
+  }
+}
+
+/* ===== CALENDAR CELL ===== */
+.cell {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 8px 8px 8px;
+  min-height: 100px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.3s;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+}
+
+.cell:active {
+  transform: scale(0.97);
+}
+
+@media (min-width: 640px) {
+  .cell {
+    min-height: 120px;
+    padding: 12px 10px 10px 10px;
+  }
+  .cell:hover {
     transform: translateY(-2px);
-    background: var(--hover-bg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
 }
 
-
-
-
-
-
-
-
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
+.cell.today {
+  border-color: var(--today-border);
+  border-width: 3px;
+  background: var(--primary-light);
 }
 
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-#tableContainer {
-    max-height: 500px; /* Adjust height as needed */
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+.cell.sunday {
+  background: #fef2f2;
+  border-color: #fca5a5;
 }
 
-#tableContainer::-webkit-scrollbar {
-    width: 5px;
+[data-theme="dark"] .cell.sunday {
+  background: #2d1b24;
+  border-color: #f87171;
 }
 
-#tableContainer::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 20px;
-}
-/* Fix for the sticky header background */
-thead th {
-    background-color: white !important;
-}
-
-/* Professional Scrollbar for the data list */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f5f9;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+.cell .day {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-/* Adjust main content to not be hidden by bottom nav */
-#mainContent {
-    padding-bottom: 100px;
+@media (max-width: 380px) {
+  .cell .day {
+    font-size: 0.85rem;
+  }
 }
 
-/* 1. Reset Body and Layout Logic */
-
-/* 3. Fix the Grid Columns for Mobile */
-
-
-/* 4. Positioning the Profile Box back to the top right */
-
-
-/* 5. Data Visibility and Contrast */
-
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
-/* --- Focus Mode Styles --- */
-.focus-active nav, 
-.focus-active #calendar-controls, 
-.focus-active .calendar-header, 
-.focus-active #calendar, 
-.focus-active .search-container,
-.focus-active #universal-bottom-nav {
-    display: none !important;
+.cell .day .weekday {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light);
 }
 
-/* --- Search Focus Mode --- */
-body.search-mode-active .search-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    background: white;
-    padding: 15px;
+.cell .tasks {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  overflow: hidden;
 }
 
-body.search-mode-active main > *:not(.search-container):not(#searchResults) {
-    display: none !important;
+.cell .tasks .pill {
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--primary-light);
+  color: var(--text);
+  border-left: 3px solid var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  width: 100%;
 }
 
+@media (max-width: 380px) {
+  .cell .tasks .pill {
+    font-size: 0.85rem;
+    padding: 1px 6px;
+  }
+}
+
+.cell .tasks .pill.event {
+  background: #d1fae5;
+  border-left-color: var(--green);
+}
+
+[data-theme="dark"] .cell .tasks .pill {
+  background: #2d4055;
+  border-left-color: var(--primary);
+}
+
+[data-theme="dark"] .cell .tasks .pill.event {
+  background: #1a3a3a;
+  border-left-color: #34d399;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 12px 8px 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .header {
+    max-width: 1000px;
+    padding: 16px 12px 12px 12px;
+  }
+}
+
+.header h2 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (min-width: 640px) {
+  .header h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ===== WEEKDAY HEADER ===== */
+.weekdays {
+  display: none;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-light);
+  padding: 4px 8px 8px 8px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .weekdays {
+    display: grid;
+  }
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 40px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: var(--shadow);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+
+.btn-green {
+  background: var(--green);
+  color: #fff;
+  border: none;
+}
+
+.btn-red {
+  background: var(--red);
+  color: #fff;
+  border: none;
+}
+
+/* ===== SEARCH BAR ===== */
+.search-wrap {
+  padding: 0 12px 10px 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .search-wrap {
+    max-width: 1000px;
+    padding: 0 12px 12px 12px;
+    flex-wrap: nowrap;
+  }
+}
+
+.search-wrap input {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  border-radius: 40px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border 0.2s;
+  width: 100%;
+}
+
+.search-wrap input:focus {
+  border-color: var(--primary);
+}
+
+.search-wrap .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+@media (max-width: 480px) {
+  .search-wrap .actions .btn {
+    font-size: 0.6rem;
+    padding: 4px 10px;
+  }
+  .search-wrap input {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+}
+
+/* ===== SEARCH RESULTS ===== */
 #searchResults {
-    margin-top: 80px; /* Space for fixed search bar */
+  padding: 0 12px 12px 12px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-/* --- Back Arrow Styling --- */
-.back-arrow {
-    font-size: 24px;
-    cursor: pointer;
-    margin-right: 15px;
-    color: #4f46e5;
+@media (min-width: 640px) {
+  #searchResults {
+    max-width: 1000px;
+  }
 }
 
-/* Ensure Search bar is always at top when active */
-.search-active-header {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-/* --- Full Page Search Mode --- */
-body.search-mode-active {
-    overflow: hidden !important;
-}
-
-/* Hide everything else */
-body.search-mode-active nav, 
-body.search-mode-active #calendar-controls, 
-body.search-mode-active .calendar-header, 
-body.search-mode-active #calendar, 
-body.search-mode-active #universal-bottom-nav,
-body.search-mode-active #calendar-controls + div, /* Hide current month header */
-body.search-mode-active .search-controls-row {
-    display: none !important;
+#searchResults .result {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: 0.15s;
 }
 
-/* Force Search Bar to the very top in a single row */
-body.search-mode-active .search-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    background: white !important;
-    z-index: 9999 !important;
-    padding: 10px 15px !important;
-    display: flex !important;
-    flex-direction: row !important; /* Row layout for Arrow + Input */
-    align-items: center !important;
-    gap: 10px !important;
-    border-bottom: 1px solid #ddd;
+#searchResults .result:active {
+  transform: scale(0.98);
 }
 
-/* The Search Input within the container */
-body.search-mode-active .search-container > div {
-    flex-direction: row !important;
-    width: 100% !important;
+#searchResults .result .title {
+  font-weight: 600;
+  font-size: 0.9rem;
 }
 
-/* Search Results covering the whole screen below the bar */
-#searchResults.active-view {
-    position: fixed !important;
-    top: 60px !important; 
-    left: 0 !important;
-    width: 100% !important;
-    height: calc(100vh - 60px) !important;
-    background: #f8fafc !important;
-    z-index: 9998 !important;
-    overflow-y: auto !important;
-    display: block !important;
-    padding: 15px !important;
+#searchResults .result .meta {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 2px;
 }
 
-/* Back Arrow Styling */
-.search-back-btn {
-    font-size: 22px;
-    color: #4f46e5;
-    cursor: pointer;
-    padding-right: 10px;
+/* ===== MODALS ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 16px;
 }
 
+.modal-overlay.show {
+  display: flex;
+}
 
+.modal {
+  background: var(--card);
+  border-radius: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 16px;
+    border-radius: 18px;
+  }
+}
+
+.modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.modal .modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.modal .modal-header .close {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: var(--red);
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.modal input, .modal textarea, .modal select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  outline: none;
+}
+
+.modal input:focus, .modal textarea:focus {
+  border-color: var(--primary);
+}
+
+.modal textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.modal .row {
+  display: flex;
+  gap: 8px;
+}
+
+.modal .row > * {
+  flex: 1;
+}
+
+.modal .task-list {
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.modal .task-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  background: var(--card);
+  border-left: 4px solid var(--primary);
+  font-size: 0.85rem;
+  gap: 8px;
+}
+
+.modal .task-item.event-item {
+  border-left-color: var(--green);
+}
+
+.modal .task-item .info {
+  flex: 1;
+  min-width: 0;
+}
+
+.modal .task-item .info .title {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.modal .task-item .info .desc {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.modal .task-item .actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.modal .task-item .actions button {
+  padding: 2px 10px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal .task-item .actions .edit {
+  background: var(--primary);
+  color: #fff;
+}
+
+.modal .task-item .actions .delete {
+  background: var(--red);
+  color: #fff;
+}
+
+.modal .task-item .actions .done {
+  background: var(--green);
+  color: #fff;
+}
+
+/* ===== BOTTOM NAVIGATION ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 72px;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  padding: 0 4px;
+}
+
+@media (max-width: 480px) {
+  .bottom-nav {
+    height: 60px;
+  }
+}
+
+/* ===== NAV LINKS - LIGHT MODE (Black icons & text, font-weight 700) ===== */
+.bottom-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #000000;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  gap: 1px;
+  position: relative;
+}
+
+.bottom-nav a i {
+  font-size: 1.4rem;
+  color: #000000;
+  transition: all 0.3s ease;
+  font-weight: 700;
+}
+
+.bottom-nav a span {
+  font-weight: 700;
+}
+
+@media (max-width: 480px) {
+  .bottom-nav a i {
+    font-size: 1.2rem;
+  }
+  .bottom-nav a {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== CLICK/HOVER EFFECT - BLUE & LIFT ===== */
+.bottom-nav a:hover,
+.bottom-nav a:focus,
+.bottom-nav a:active {
+  color: #4f46e5 !important;
+  transform: translateY(-4px);
+}
+
+.bottom-nav a:hover i,
+.bottom-nav a:focus i,
+.bottom-nav a:active i {
+  color: #4f46e5 !important;
+  transform: translateY(-4px);
+}
+
+/* ===== DARK MODE - White icons & text, font-weight 700 ===== */
+[data-theme="dark"] .bottom-nav {
+  background: #0f1a2e;
+  border-top-color: #1e2a3a;
+}
+
+[data-theme="dark"] .bottom-nav a {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .bottom-nav a i {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .bottom-nav a span {
+  font-weight: 700;
+}
+
+/* ===== DARK MODE - HOVER EFFECT ===== */
+[data-theme="dark"] .bottom-nav a:hover,
+[data-theme="dark"] .bottom-nav a:focus,
+[data-theme="dark"] .bottom-nav a:active {
+  color: #818cf8 !important;
+  transform: translateY(-4px);
+}
+
+[data-theme="dark"] .bottom-nav a:hover i,
+[data-theme="dark"] .bottom-nav a:focus i,
+[data-theme="dark"] .bottom-nav a:active i {
+  color: #818cf8 !important;
+  transform: translateY(-4px);
+}
+
+/* ===== REMOVE ACTIVE INDICATOR ===== */
+.bottom-nav a.active::before {
+  display: none !important;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  color: var(--text-light);
+  padding: 20px;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* ===== FOCUS MODE ===== */
+body.focus-mode .bottom-nav,
+body.focus-mode .search-wrap,
+body.focus-mode .header,
+body.focus-mode .weekdays,
+body.focus-mode #calendar {
+  display: none !important;
+}
+
+body.focus-mode .modal-overlay#taskModal {
+  display: flex !important;
+  background: var(--bg) !important;
+  padding: 0 !important;
+}
+
+body.focus-mode .modal-overlay#taskModal .modal {
+  border-radius: 0 !important;
+  max-width: 100% !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  background: var(--bg) !important;
+  border: none !important;
+  padding: 16px !important;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 </style>
+</head>
+<body>
 
+<!-- ===== HEADER ===== -->
+<div class="header">
+  <button class="btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i> Prev</button>
+  <h2 id="monthYear">January 2024</h2>
+  <button class="btn" onclick="changeMonth(1)">Next <i class="fas fa-chevron-right"></i></button>
+</div>
 
+<!-- ===== SEARCH ===== -->
+<div class="search-wrap">
+  <button class="search-back" id="searchBackBtn" onclick="exitSearchMode()" aria-label="Go back">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <input type="text" id="searchInput" placeholder="🔍 Search tasks & events...">
+  <div class="actions">
+    <select id="searchTimeframe" class="btn" style="appearance:auto;padding:6px 12px;">
+      <option value="1year">1 Year</option>
+      <option value="alltime">All time</option>
+    </select>
+    <button class="btn btn-green" id="downloadPDF"><i class="fas fa-download"></i> PDF</button>
+    <button class="btn btn-primary" id="openEventBtn"><i class="fas fa-plus"></i> Event</button>
+    <button class="btn btn-green" onclick="openTracking('completed')"><i class="fas fa-check-circle"></i> Done</button>
+    <button class="btn btn-red" onclick="openTracking('incomplete')"><i class="fas fa-times-circle"></i> Pending</button>
+  </div>
+</div>
+
+<!-- ===== SEARCH RESULTS ===== -->
+<div id="searchResults"></div>
+
+<!-- ===== WEEKDAYS ===== -->
+<div class="weekdays">
+  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span>
+  <span>Fri</span><span class="text-red-500">Sat</span><span class="text-red-500">Sun</span>
+</div>
+
+<!-- ===== CALENDAR ===== -->
+<div id="calendar"></div>
+
+<!-- ===== TASK MODAL ===== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Tasks for date</h3>
+      <button class="close" id="closeTaskModal">&times;</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px;">
+      <div>
+        <input type="text" id="taskTitle" placeholder="Task title">
+        <textarea id="taskDesc" placeholder="Details (optional)"></textarea>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" style="flex:1;justify-content:center;" id="saveTask">Save</button>
+          <button class="btn" style="flex:1;justify-content:center;" id="cancelTask">Cancel</button>
+        </div>
+      </div>
+      <div>
+        <div class="task-list" id="taskList">
+          <div class="empty-state">No tasks or events</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== EVENT MODAL ===== -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="eventModalTitle">Add Event</h3>
+      <button class="close" id="closeEventModal">&times;</button>
+    </div>
+    <input type="text" id="eventTitle" placeholder="Event name *">
+    <div class="row">
+      <input type="date" id="eventDate">
+      <input type="time" id="eventTime" value="09:00">
+    </div>
+    <input type="text" id="eventLocation" placeholder="Location (optional)">
+    <textarea id="eventDesc" placeholder="Details (optional)"></textarea>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" id="saveEvent"><i class="fas fa-bell"></i> Save</button>
+      <button class="btn" style="flex:1;justify-content:center;" id="cancelEvent">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STATUS PROMPT ===== -->
+<div class="modal-overlay" id="statusModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>Update Status</h3>
+      <button class="close" id="closeStatusModal">&times;</button>
+    </div>
+    <p style="margin-bottom:12px;">Did you complete <strong id="statusEventTitle" style="color:var(--primary);">event</strong>?</p>
+    <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:12px;">Date: <span id="statusDate"></span> · Time: <span id="statusTime"></span></p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <button class="btn btn-green" style="flex:1;justify-content:center;" id="statusDone">✅ Done</button>
+      <button class="btn btn-red" style="flex:1;justify-content:center;" id="statusNotDone">❌ Not done</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center;" id="statusReschedule"><i class="fas fa-calendar-alt"></i> Reschedule</button>
+      <button class="btn" style="flex:1;justify-content:center;background:var(--red);color:#fff;border:none;" id="statusCancel"><i class="fas fa-trash"></i> Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESCHEDULE MODAL ===== -->
+<div class="modal-overlay" id="rescheduleModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>Reschedule Event</h3>
+      <button class="close" id="closeRescheduleModal">&times;</button>
+    </div>
+    <p style="margin-bottom:8px;font-size:0.9rem;">Event: <strong id="rescheduleTitle" style="color:var(--primary);">loading...</strong></p>
+    <div class="row">
+      <input type="date" id="rescheduleDate">
+      <input type="time" id="rescheduleTime" value="09:00">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="confirmReschedule">Confirm New Date & Time</button>
+  </div>
+</div>
+
+<!-- ===== TRACKING MODAL ===== -->
+<div class="modal-overlay" id="trackingModal">
+  <div class="modal" style="max-width:550px;">
+    <div class="modal-header">
+      <h3 id="trackingTitle">Event History</h3>
+      <button class="close" id="closeTrackingModal">&times;</button>
+    </div>
+    <div id="trackingList" class="task-list" style="max-height:400px;"></div>
+  </div>
+</div>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+  <a href="home.html"><i class="fas fa-house"></i><span>Home</span></a>
+  <a href="addressmob.html"><i class="fas fa-location-dot"></i><span>Address</span></a>
+  <a href="passwordmob.html"><i class="fas fa-key"></i><span>Password</span></a>
+  <a href="contactmob.html"><i class="fas fa-envelope"></i><span>Contact</span></a>
+  <a href="calendarmob.html" class="active"><i class="fas fa-calendar-alt"></i><span>Calendar</span></a>
+</nav>
 
 <script>
-// --- Mobile Menu Toggle (from previous code) ---
-const menuBtn = document.getElementById("menu-btn");
-const mobileMenu = document.getElementById("mobileMenu"); 
-if (menuBtn && mobileMenu) {
-    menuBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden"); 
-    });
-}
-    
-// --- Firebase Config (NOTE: Use your actual keys) ---
+// ===== FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
   authDomain: "sk12-58e9e.firebaseapp.com",
@@ -763,1623 +928,639 @@ const firebaseConfig = {
   projectId: "sk12-58e9e",
   storageBucket: "sk12-58e9e.firebasestorage.app",
   messagingSenderId: "470207874652",
-  appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
-  measurementId: "G-QKCRDR9QML"
+  appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// --- Globals & Enums ---
-let currentUser = null;
+// ===== STATE =====
+let user = null;
 let currentDate = new Date();
-let selectedDate = null;      // Declared once
-let editTaskId = null;        // Declared once
-let editEventId = null;       // Declared once
-let eventsToPrompt = [];      // Queue for status prompts
-let realTimeCheckInterval;    // Reference for the recurring timer
-let currentEventForAction = null; 
+let selectedDate = null;
+let editTaskId = null;
+let editEventId = null;
+let pendingEvents = [];
+let currentEvent = null;
+const STATUS = { PENDING: 'pending', COMPLETED: 'completed', INCOMPLETE: 'incomplete' };
 
-const EVENT_STATUS = {
-    PENDING: 'pending',
-    COMPLETED: 'completed',
-    INCOMPLETE: 'incomplete'
-};
-// 24 hours in milliseconds
-const PROMPT_DELAY_MS = 24 * 60 * 60 * 1000; 
-// 12 hours in milliseconds for notification tolerance (12 * 60 * 60 * 1000)
-const NOTIFICATION_TOLERANCE_MS = 12 * 3600000; 
+// ===== THEME =====
+(function initTheme() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
 
-
-// --- DOM Element References (New and Updated) ---
-const searchInput = document.getElementById("searchInput");
-const searchTimeframe = document.getElementById("searchTimeframe");
-const searchResults = document.getElementById("searchResults");
-const body = document.body;
-const downloadButton = document.getElementById("downloadMonthTasks");
-const taskModalElement = document.getElementById("taskModal");
-const eventModalElement = document.getElementById("eventModal");
-const statusPromptModal = document.getElementById("statusPromptModal");
-const eventTrackingSection = document.getElementById("eventTrackingSection");
-const trackingModalTitle = document.getElementById("trackingModalTitle");
-const trackingEventsList = document.getElementById("trackingEventsList");
-const rescheduleModal = document.getElementById("rescheduleModal"); 
-
-const overlayElement = document.getElementById("overlay");
-const closeModalBtn = document.getElementById("closeModal");
-const cancelTaskBtn = document.getElementById("cancelTaskBtn");
-const closeEventModalBtn = document.getElementById("closeEventModal");
-const cancelEventBtn = document.getElementById("cancelEventBtn");
-const openEventModalBtn = document.getElementById("openEventModalBtn");
-const closeStatusPromptModalBtn = document.getElementById("closeStatusPromptModal");
-const completeEventBtn = document.getElementById("completeEventBtn");
-const incompleteEventBtn = document.getElementById("incompleteEventBtn");
-const closeTrackingModalBtn = document.getElementById("closeTrackingModal");
-const reschedulePromptBtn = document.getElementById("reschedulePromptBtn"); 
-const cancelPromptBtn = document.getElementById("cancelPromptBtn"); 
-const searchOverlayBackground = document.querySelector('.search-overlay-background');
-
-// --- Helpers ---
-const toISODate = d => {
-    // Uses UTC methods to ensure date key is YYYY-MM-DD regardless of local timezone
-    const dt = d;
-    return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`;
-};
-
-function capitalizeFirstLetter(str) {
-    if (!str) return "";
-    // FIXED: Ensure every word's first letter is capitalized
-    return str.toLowerCase().split(' ').map(word => {
-        if (word.length === 0) return ""; 
-        return word.charAt(0).toUpperCase() + word.slice(1);
-    }).join(' ');
+// ===== HELPERS =====
+function toISO(d) {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
 }
 
-function formatDate(dateISO) {
-    const parts = dateISO.split('-').map(Number);
-    // Create a UTC date object from ISO parts
-    const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); 
-    const day = String(dt.getUTCDate()).padStart(2, "0");
-    const month = String(dt.getUTCMonth() + 1).padStart(2, "0");
-    const year = dt.getUTCFullYear();
-    const weekday = dt.toLocaleDateString("en-US", { weekday: "long", timeZone: 'UTC' });
-    return `${day}-${month}-${year} (${weekday})`;
+function capitalize(s) {
+  if (!s) return '';
+  return s.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
 }
 
-// --- NEW: Real-Time Polling Logic ---
-function startRealTimeChecks() {
-    // Clear any existing interval to prevent duplicates
-    if (realTimeCheckInterval) {
-        clearInterval(realTimeCheckInterval);
-    }
-
-    // Call immediately upon start
-    checkAndShowNotifications();
-    
-    // Set up recurring check every 60 seconds (60000 ms)
-    realTimeCheckInterval = setInterval(() => {
-        checkAndShowNotifications();
-        // Also periodically re-check for overdue prompts
-        checkAndPromptForEventStatus();
-    }, 60000); 
-}
-// --- END Real-Time Polling Logic ---
-
-
-// --- Updated Auth Block ---
-auth.onAuthStateChanged(user => {
-    if(user){
-        currentUser = user;
-        
-        // Fill profile info
-        if(document.getElementById("userName")) document.getElementById("userName").textContent = user.displayName || "User";
-        if(document.getElementById("userEmail")) document.getElementById("userEmail").textContent = user.email;
-        
-        // 1. CRITICAL: Initialize the date object if it somehow got lost
-        if (!currentDate) currentDate = new Date();
-
-        // 2. CRITICAL: Trigger the render immediately
-        console.log("User authenticated, rendering calendar...");
-        renderCalendar(); 
-
-        // Start background services
-        startRealTimeChecks();
-        checkAndPromptForEventStatus();
-    } else {
-        // Redirect to login if no user
-        if (!window.location.pathname.includes('index.html')) {
-            window.location.href = "index.html"; 
-        }
-    }
-});
-
-// 3. ADD THIS: Force a render if the page finishes loading and user is already cached
-window.onload = () => {
-    if (firebase.auth().currentUser) {
-        renderCalendar();
-    }
-};
-function logout(){
-    auth.signOut().then(() => {
-        location.href="index.html";
-    }); 
+function formatDate(iso) {
+  const [y,m,d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d));
+  return `${String(d).padStart(2,'0')}-${String(m).padStart(2,'0')}-${y}`;
 }
 
-// --- Calendar ---
-function changeMonth(offset){
-    currentDate.setMonth(currentDate.getMonth()+offset);
+// ===== AUTH =====
+auth.onAuthStateChanged(u => {
+  if (u) {
+    user = u;
     renderCalendar();
-}
-
-function renderCalendar(){
-    if (!currentUser) return; 
-    
-    const cal=document.getElementById("calendar");
-    if(!cal) return;
-
-    cal.innerHTML="";
-    const y=currentDate.getFullYear(), m=currentDate.getMonth();
-    document.getElementById("monthYear").textContent=
-        currentDate.toLocaleString("default",{month:"long",year:"numeric"});
-
-    const firstDay=new Date(y,m,1);
-    const start=(firstDay.getDay()+6)%7; 
-    const days=new Date(y,m+1,0).getDate();
-
-    if (window.innerWidth >= 768) {
-        for(let i=0;i<start;i++) cal.appendChild(document.createElement("div"));
-    }
-
-    for(let d=1;d<=days;d++){
-        const dateObj=new Date(Date.UTC(y, m, d)); 
-        const iso=toISODate(dateObj);
-        const cell=document.createElement("div");
-        cell.className="calendar-cell text-center text-gray-800";
-        
-        const today = new Date();
-        const todayISO = toISODate(today);
-
-        if(iso === todayISO) cell.classList.add("today");
-        
-        const dayOfWeek = dateObj.getUTCDay(); 
-        if(dayOfWeek === 6) cell.classList.add("weekend"); 
-        
-        if(dayOfWeek === 0) { 
-            cell.classList.add("sunday-cell");
-        }
-        
-        let dayOfWeekText = '';
-        if (window.innerWidth < 768) {
-            dayOfWeekText = `<span class="text-sm text-gray-600">${dateObj.toLocaleDateString("en-US",{weekday:"short", timeZone: 'UTC'})}</span>`;
-        }
-
-
-        cell.innerHTML=`
-            <div class="flex justify-start items-center gap-1 font-semibold text-gray-800">
-                <span class="text-sm md:text-sm">${d}</span>
-                ${dayOfWeekText}
-            </div>
-            <div id="tasks-${iso}" class="mt-1 text-sm text-left text-gray-700 min-h-[60px] custom-scroll"></div>
-        `;
-        cell.onclick=()=>openModal(iso); 
-        cal.appendChild(cell);
-        loadTasks(iso);
-    }
-}
-
-function openModal(dateISO) {
-    if (!currentUser) return;
-    
-    // Activate Focus Mode
-    document.body.classList.add("focus-active");
-    
-    // Change Close button to a Back Arrow
-    closeModalBtn.innerHTML = '<i class="fas fa-arrow-left"></i>';
-    closeModalBtn.className = "text-indigo-600 text-2xl p-2";
-
-    selectedDate = dateISO;
-    document.getElementById("modalDate").textContent = `Tasks: ${formatDate(dateISO)}`;
-    loadModalTasks(dateISO);
-}
-
-function closeModal() {
-    document.body.classList.remove("focus-active");
-    
-    // Reset Close button to X
-    closeModalBtn.innerHTML = "&times;";
-    closeModalBtn.className = "text-red-500 hover:text-white text-[33px] font-bold p-1 hover:bg-red-500 rounded-full";
-    
-    document.body.style.overflow = 'auto';
-}
-
-
-function openEventModal(dateISO = null) {
-    if (!currentUser) return alert("Please sign in to manage events.");
-    closeModal(); 
-    closeTrackingModal();
-    closeStatusPromptModal();
-
-    const defaultDate = dateISO || toISODate(new Date()); 
-    document.getElementById("eventDate").value = defaultDate;
-    document.getElementById("eventTime").value = "09:00"; 
-    document.getElementById("eventTitle").value = "";
-    document.getElementById("eventLocation").value = "";
-    document.getElementById("eventDesc").value = "";
-    editEventId = null;
-    
-    document.getElementById("eventModalTitle").textContent = editEventId ? "Edit Event" : "Add New Event";
-    
-    overlayElement.classList.remove("hidden");
-    eventModalElement.classList.remove("hidden");
-}
-
-// NEW: Open Tracking Modal
-function openTrackingModal(status) {
-    if (!currentUser) return alert("Please sign in.");
-    closeModal();
-    closeEventModal();
-    closeStatusPromptModal();
-
-    trackingModalTitle.textContent = status === EVENT_STATUS.COMPLETED ? "Completed Events (Last 30 Days)" : "Incomplete Events (Last 30 Days)";
-
-    overlayElement.classList.remove("hidden");
-    eventTrackingSection.classList.remove("hidden");
-
-    loadTrackingEvents(status);
-}
-
-// NEW: Open Reschedule Modal (Retained as prompt option uses it)
-function openRescheduleModal(event) {
-    closeModal(); // Close task modal if open
-    closeStatusPromptModal(); // Close status prompt if open
-
-    currentEventForAction = event; // Store event data globally
-
-    document.getElementById("rescheduleEventTitle").textContent = event.title;
-    document.getElementById("rescheduleDate").value = event.date; // Use current date for pre-fill
-    document.getElementById("rescheduleTime").value = event.time; // Use current time for pre-fill
-
-    overlayElement.classList.remove("hidden");
-    rescheduleModal.classList.remove("hidden");
-}
-
-function closeModal() {
-    // 1. Remove Focus Mode
-    document.body.classList.remove("focus-active");
-
-    // 2. Restore Modal to original popup classes
-    taskModalElement.classList.add("hidden", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2");
-    taskModalElement.classList.remove("inset-0", "w-full", "h-full", "max-w-none", "rounded-none");
-    
-    // 3. Reset Close Button
-    closeModalBtn.innerHTML = "&times;";
-    closeModalBtn.className = "text-red-500 hover:text-white text-[33px] font-bold transition duration-200 p-1 hover:bg-red-50 rounded-full";
-
-    document.body.style.overflow = 'auto';
-}
-function closeEventModal(){
-    editEventId = null;
-    overlayElement.classList.add("hidden");
-    eventModalElement.classList.add("hidden");
-}
-
-// NEW: Close Status Prompt Modal
-function closeStatusPromptModal() {
-    overlayElement.classList.add("hidden");
-    statusPromptModal.classList.add("hidden");
-    currentEventForAction = null; 
-    // Resume checking the queue
-    if (eventsToPrompt.length > 0) {
-        processNextPendingEvent();
-    }
-}
-
-// NEW: Close Tracking Modal
-function closeTrackingModal() {
-    overlayElement.classList.add("hidden");
-    eventTrackingSection.classList.add("hidden");
-}
-
-
-// Attach event listeners for close buttons
-closeModalBtn.addEventListener("click", closeModal);
-cancelTaskBtn.addEventListener("click", closeModal);
-closeEventModalBtn.addEventListener("click", closeEventModal);
-cancelEventBtn.addEventListener("click", closeEventModal);
-openEventModalBtn.addEventListener("click", () => openEventModal(toISODate(currentDate)));
-closeStatusPromptModalBtn.addEventListener("click", closeStatusPromptModal);
-closeTrackingModalBtn.addEventListener("click", closeTrackingModal);
-searchOverlayBackground.addEventListener("click", closeModal);
-
-
-// NEW: Reschedule Confirmation Logic
-confirmRescheduleBtn.addEventListener('click', () => {
-    if (!currentEventForAction) return alert("Error: No event selected.");
-
-    const newDate = document.getElementById("rescheduleDate").value;
-    const newTime = document.getElementById("rescheduleTime").value;
-
-    if (!newDate || !newTime) return alert("Please select a new date and time.");
-
-    rescheduleEvent(currentEventForAction, newDate, newTime);
+    startChecks();
+    checkPending();
+  } else {
+    window.location.href = 'index.html';
+  }
 });
 
+// ===== RENDER CALENDAR =====
+function renderCalendar() {
+  if (!user) return;
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  document.getElementById('monthYear').textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+  const first = new Date(y, m, 1);
+  let start = (first.getDay() + 6) % 7;
+  const days = new Date(y, m+1, 0).getDate();
+  const today = toISO(new Date());
 
-// --- Save Task (Existing - Applied Capitalization, Optimized Reload) ---
-document.getElementById("saveTaskBtn").addEventListener("click",()=>{
-    if (!currentUser) return alert("User not logged in.");
-
-    let title=document.getElementById("taskTitle").value.trim();
-    let desc=document.getElementById("taskDesc").value.trim();
-    if(!title) return alert("Enter task title.");
-
-    // FIXED: Apply capitalization before saving
-    title = capitalizeFirstLetter(title);
-    desc = capitalizeFirstLetter(desc);
-    
-    const ref=`users/${currentUser.uid}/tasks/${selectedDate}`;
-
-    const taskData = {
-        title: title, 
-        desc: desc
-    };
-
-    if(editTaskId){
-        db.ref(`${ref}/${editTaskId}`).set(taskData).then(()=>{
-            editTaskId=null;
-            loadModalTasks(selectedDate);
-            loadTasks(selectedDate); // Optimized update
-        });
-    } else {
-        db.ref(ref).push(taskData).then(()=>{
-            loadModalTasks(selectedDate);
-            loadTasks(selectedDate); // Optimized update
-        });
+  if (window.innerWidth >= 640) {
+    for (let i = 0; i < start; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cell';
+      empty.style.opacity = '0.2';
+      empty.style.pointerEvents = 'none';
+      cal.appendChild(empty);
     }
-    document.getElementById("taskTitle").value="";
-    document.getElementById("taskDesc").value="";
-});
+  }
 
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(Date.UTC(y, m, d));
+    const iso = toISO(dt);
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if (iso === today) cell.classList.add('today');
+    if (dt.getUTCDay() === 0) cell.classList.add('sunday');
 
+    const dayDiv = document.createElement('div');
+    dayDiv.className = 'day';
+    dayDiv.innerHTML = `<span>${d}</span><span class="weekday">${dt.toLocaleDateString('en', { weekday: 'short', timeZone: 'UTC' })}</span>`;
+    cell.appendChild(dayDiv);
 
+    const tasksDiv = document.createElement('div');
+    tasksDiv.className = 'tasks';
+    tasksDiv.id = `tasks-${iso}`;
+    cell.appendChild(tasksDiv);
 
-function loadTasks(date) {
-    if (!currentUser) return;
-    const c = document.getElementById(`tasks-${date}`);
-    if (!c) return;
-    c.innerHTML = "";
+    cell.onclick = () => openTaskModal(iso);
+    cal.appendChild(cell);
+    loadCellTasks(iso);
+  }
+}
 
-    // Optimization: Single path fetch to increase loading speed
-    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
-        const data = snap.val() || {};
-        const tasks = data.tasks?.[date] || {};
-        const events = data.events?.[date] || {};
-        
-        let allItems = [];
-        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
-        Object.values(events)
-            .filter(e => e.status === EVENT_STATUS.PENDING)
-            .forEach(e => allItems.push({ type: 'event', ...e }));
-
-        // Sort: Events first
-        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
-
-        allItems.slice(0, 3).forEach(item => { 
-            const isEvent = item.type === 'event';
-            const line = document.createElement("div");
-            
-            // UI Requirement: 16px font, slightly darker but not black
-          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
-                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
-            }`;
-            line.style.fontSize = "14px"; 
-            
-            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
-            line.innerHTML = `${icon}${item.title}`;
-            c.appendChild(line);
-        });
+function loadCellTasks(iso) {
+  const container = document.getElementById(`tasks-${iso}`);
+  if (!container || !user) return;
+  container.innerHTML = '';
+  db.ref(`users/${user.uid}`).once('value').then(snap => {
+    const data = snap.val() || {};
+    const tasks = data.tasks?.[iso] || {};
+    const events = data.events?.[iso] || {};
+    const items = [];
+    Object.values(tasks).forEach(t => items.push({ type: 'task', ...t }));
+    Object.values(events).filter(e => e.status === STATUS.PENDING).forEach(e => items.push({ type: 'event', ...e }));
+    items.sort((a, b) => a.type === 'event' ? -1 : 1);
+    const maxItems = window.innerWidth < 640 ? 3 : 4;
+    items.slice(0, maxItems).forEach(item => {
+      const pill = document.createElement('div');
+      pill.className = `pill${item.type === 'event' ? ' event' : ''}`;
+      pill.textContent = `${item.type === 'event' ? '🔔 ' : '• '}${item.title}`;
+      container.appendChild(pill);
     });
-}
-document.getElementById("saveEventBtn").addEventListener("click",()=>{
-    if (!currentUser) return alert("User not logged in.");
-
-    let title=document.getElementById("eventTitle").value.trim();
-    const date=document.getElementById("eventDate").value.trim();
-    const time=document.getElementById("eventTime").value.trim();
-    const location=document.getElementById("eventLocation").value.trim();
-    const desc=document.getElementById("eventDesc").value.trim();
-
-    if(!title || !date || !time) return alert("Enter event name, date, and time.");
-
-    // FIXED: Apply capitalization before saving
-    title = capitalizeFirstLetter(title);
-    const capitalizedLocation = capitalizeFirstLetter(location);
-    const capitalizedDesc = capitalizeFirstLetter(desc);
-    
-    const eventDateISO = date;
-    
-    // Determine if we are editing an existing event or creating a new one
-    const isEditing = !!editEventId;
-    const refPath = isEditing ? `users/${currentUser.uid}/events/${selectedDate}/${editEventId}` : `users/${currentUser.uid}/events/${eventDateISO}`;
-
-    const timestamp = new Date(`${date}T${time}:00`).getTime(); 
-
-    const eventData = {
-        title: title, 
-        time: time,
-        location: capitalizedLocation,
-        desc: capitalizedDesc,
-        timestamp: timestamp, 
-        savedTimestamp: new Date().getTime(), 
-        status: EVENT_STATUS.PENDING 
-    };
-
-    const savePromise = isEditing 
-        ? db.ref(refPath).update(eventData) 
-        : db.ref(refPath).push(eventData);
-
-    savePromise.then(() => {
-        editEventId=null;
-        closeEventModal();
-        // Optimized updates: only refresh the calendar cell
-        loadTasks(eventDateISO); 
-        checkAndShowNotifications();
-        
-        // If the task modal was open on the relevant date, reload its content (optional, but clean)
-        if(selectedDate === eventDateISO) {
-             loadModalTasks(eventDateISO);
-        }
-    }).catch(err => {
-        console.error("Event save error:", err);
-        alert("Failed to save event.");
-    });
-});
-
-function loadTasks(date) {
-    if (!currentUser) return;
-    const c = document.getElementById(`tasks-${date}`);
-    if (!c) return;
-    c.innerHTML = "";
-
-    // Optimization: Single path fetch to increase loading speed
-    db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
-        const data = snap.val() || {};
-        const tasks = data.tasks?.[date] || {};
-        const events = data.events?.[date] || {};
-        
-        let allItems = [];
-        Object.values(tasks).forEach(t => allItems.push({ type: 'task', ...t }));
-        Object.values(events)
-            .filter(e => e.status === EVENT_STATUS.PENDING)
-            .forEach(e => allItems.push({ type: 'event', ...e }));
-
-        // Sort: Events first
-        allItems.sort((a, b) => a.type === 'event' ? -1 : 1);
-
-        allItems.slice(0, 3).forEach(item => { 
-            const isEvent = item.type === 'event';
-            const line = document.createElement("div");
-            
-            // UI Requirement: 16px font, slightly darker but not black
-          line.className = `truncate px-2 py-0.5 mb-1 rounded-md leading-tight text-black ${
-                isEvent ? 'bg-emerald-50 border-l-2 border-emerald-400' : ''
-            }`;
-            line.style.fontSize = "14px"; 
-            
-            const icon = isEvent ? `<i class="fas fa-bell mr-1" style="font-size: 12px;"></i>` : '• ';
-            line.innerHTML = `${icon}${item.title}`;
-            c.appendChild(line);
-        });
-    });
+  });
 }
 
-
-// --- 2. Modal Task List (Vertical Actions, Description Below Title, No Overlap) ---
-function loadModalTasks(date) {
-    if (!currentUser) return;
-    selectedDate = date; 
-    const cont = document.getElementById("existingTasks");
-    if (!cont) return;
-
-    // UI Setup: Reverted to standardunded-2xl border border-gray-200 mx-auto w-half mt-1 md:max-w-[99%] shado modern container weights
-    cont.className = "max-h-[370px] overflow-y-auto custom-scroll px-3 md:px-5 py-4 bg-gray-50/50 row-inner";
-    
-    cont.innerHTML = `
-        <div class="flex flex-col items-center justify-center py-12 gap-1">
-            <div class="animate-spin rounded-full h-7 w-7 border-b-2 border-indigo-600"></div>
-            <p class="text-indigo-500 italic text-sm">Syncing schedule...</p>
-        </div>`;
-
-    const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
-    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
-
-    Promise.all([taskRef.once("value"), eventRef.once("value")]).then(([taskSnap, eventSnap]) => {
-        let allItems = [];
-        const tasks = taskSnap.val() || {};
-        const events = eventSnap.val() || {};
-
-        Object.entries(tasks).forEach(([id, t]) => {
-            allItems.push({ type: 'task', id, date, ...t });
-        });
-        
-        Object.entries(events)
-            .filter(([id, e]) => e.status === EVENT_STATUS.PENDING)
-            .forEach(([id, e]) => {
-                allItems.push({ type: 'event', id, date, ...e });
-            });
-
-        allItems.sort((a, b) => {
-            if (a.type === 'event' && b.type === 'task') return -1;
-            if (a.type === 'task' && b.type === 'event') return 1;
-            return (a.time || "").localeCompare(b.time || "");
-        });
-
-        cont.innerHTML = '';
-        if (allItems.length === 0) {
-            cont.innerHTML = `<div class="text-center py-16 text-slate-400 text-lg italic uppercase tracking-widest">Clear Schedule</div>`;
-            return;
-        }
-
-        allItems.forEach(item => {
-            const isEvent = item.type === 'event';
-            const hasDesc = item.desc && item.desc.trim() !== "";
-            const div = document.createElement("div");
-            
-            div.className = `grid grid-cols-1 md:grid-cols-[1fr_120px] items-start gap-1 p-5 mb-1 rounded-xl border transition-all duration-300 bg-white hover:shadow-md ${
-                isEvent ? 'border-l-[3px] border-l-emerald-500' : 'border-l-[3px] border-l-indigo-500'
-            }`;
-
-            const contentContainer = document.createElement("div");
-            contentContainer.className = "flex flex-col gap-1 min-w-0";
-            contentContainer.innerHTML = `
-                <div class="flex flex-col gap-1 ">
-                    <div class="flex items-center gap-1 ">
-                        <span class="text-base">${isEvent ? '🗓️' : '📝'}</span>
-                        <strong class="text-sm md:text-sm font-bold text-slate-800 break-words leading-tight">${item.title}</strong>
-                    </div>
-                    ${isEvent ? `<div class="text-sm font-bold text-emerald-600 uppercase tracking-tight ">🕒 ${item.time}</div>` : ''}
-                </div>
-                ${hasDesc ? `<div class="border-t border-slate-100  mt-1  text-sm text-slate-700 whitespace-pre-wrap">${item.desc}</div>` : ''}
-            `;
-
-            const actionsSection = document.createElement("div");
-            actionsSection.className = "flex flex-col gap-1 shrink-0 md:border-l border-slate-100 md:pl-4 w-full md:w-auto";
-
-            const crudRow = document.createElement("div");
-            crudRow.className = "flex flex-row md:flex-col gap-1";
-
-            // --- INCREASED SIZE EDIT BUTTON ---
-            const editBtn = document.createElement("button");
-            editBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> <span>EDIT</span>`;
-           editBtn.className = "flex-1 md:w-[15px] h-8 flex items-center justify-center gap-1 bg-indigo-500 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-indigo-600 active:scale-90 transition-all cursor-pointer shadow-sm";
-            editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
-
-            // --- INCREASED SIZE DELETE BUTTON (SOLID RED) ---
-            const delBtn = document.createElement("button");
-            delBtn.innerHTML = `<i class="fa-solid fa-trash-can"></i> <span>DELETE</span>`;
-            delBtn.className = "flex-1 md:w-[27px] h-8 flex items-center justify-center gap-1 bg-pink-600 text-white font-bold tracking-widest text-[12px] rounded-full hover:bg-red-700 active:scale-90 transition-all cursor-pointer shadow-sm";
-            delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
-
-            crudRow.appendChild(editBtn);
-            crudRow.appendChild(delBtn);
-            actionsSection.appendChild(crudRow);
-
-            if (isEvent) {
-                const statusGroup = document.createElement("div");
-                statusGroup.className = "flex flex-col gap-1 w-full pt-1 border-t border-slate-100";
-                statusGroup.innerHTML = `
-                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.COMPLETED}', true)" 
-                        class="bg-emerald-600 text-white text-[10px] h-10 rounded-lg hover:bg-emerald-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
-                        <i class="fas fa-check"></i> COMPLETED
-                    </button>
-                    <button onclick="updateEventStatus({ date: '${item.date}', id: '${item.id}' }, '${EVENT_STATUS.INCOMPLETE}', true)" 
-                        class="bg-rose-600 text-white text-[10px] h-10 rounded-lg hover:bg-rose-700 active:scale-95 transition shadow-sm font-bold uppercase tracking-widest w-full">
-                        <i class="fas fa-times"></i> INCOMPLETE
-                    </button>
-                `;
-                actionsSection.appendChild(statusGroup);
-            }
-
-            div.appendChild(contentContainer);
-            div.appendChild(actionsSection);
-            cont.appendChild(div);
-        });
-    }).catch(err => {
-        console.error("Data Load Error:", err);
-        cont.innerHTML = `<div class="text-center text-rose-500 font-bold py-10">Sync Failed.</div>`;
-    });
+function changeMonth(offset) {
+  currentDate.setMonth(currentDate.getMonth() + offset);
+  renderCalendar();
 }
 
-
-// --- 3. CRUD Action Helpers ---
-function handleEdit(type, id, date) {
-    const isEvent = type === 'event';
-    db.ref(`users/${currentUser.uid}/${isEvent ? 'events' : 'tasks'}/${date}/${id}`).once('value').then(snap => {
-        const item = snap.val();
-        if (isEvent) {
-            editEventId = id;
-            document.getElementById("eventTitle").value = item.title;
-            document.getElementById("eventDate").value = date;
-            document.getElementById("eventTime").value = item.time;
-            document.getElementById("eventDesc").value = item.desc || "";
-            closeModal();
-            eventModalElement.classList.remove("hidden");
-            overlayElement.classList.remove("hidden");
-        } else {
-            editTaskId = id;
-            selectedDate = date;
-            document.getElementById("taskTitle").value = item.title;
-            document.getElementById("taskDesc").value = item.desc || "";
-        }
-    });
+// ===== SEARCH MODE =====
+function enterSearchMode() {
+  document.body.classList.add('search-mode');
+  document.getElementById('searchBackBtn').classList.add('show');
+  document.getElementById('searchInput').focus();
 }
 
-function handleDelete(type, id, date) {
-    if (confirm(`Remove this ${type} permanently?`)) {
-        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
-            .then(() => {
-                loadModalTasks(date);
-                loadTasks(date);
-            });
+function exitSearchMode() {
+  document.body.classList.remove('search-mode');
+  document.getElementById('searchBackBtn').classList.remove('show');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+
+// ===== TASK MODAL =====
+function openTaskModal(iso) {
+  selectedDate = iso;
+  document.getElementById('modalTitle').textContent = `Tasks: ${formatDate(iso)}`;
+  document.getElementById('taskModal').classList.add('show');
+  document.body.classList.add('focus-mode');
+  loadTasks(iso);
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('show');
+  document.body.classList.remove('focus-mode');
+  editTaskId = null;
+}
+
+document.getElementById('closeTaskModal').addEventListener('click', closeTaskModal);
+document.getElementById('cancelTask').addEventListener('click', closeTaskModal);
+
+function loadTasks(iso) {
+  const list = document.getElementById('taskList');
+  if (!user) return;
+  list.innerHTML = '<div class="empty-state">Loading...</div>';
+  const taskRef = db.ref(`users/${user.uid}/tasks/${iso}`);
+  const eventRef = db.ref(`users/${user.uid}/events/${iso}`);
+  Promise.all([taskRef.once('value'), eventRef.once('value')]).then(([ts, es]) => {
+    const tasks = ts.val() || {};
+    const events = es.val() || {};
+    const items = [];
+    Object.entries(tasks).forEach(([id, t]) => items.push({ type: 'task', id, ...t }));
+    Object.entries(events).filter(([id, e]) => e.status === STATUS.PENDING).forEach(([id, e]) => items.push({ type: 'event', id, ...e }));
+    items.sort((a, b) => a.type === 'event' ? -1 : 1);
+    list.innerHTML = '';
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state">✨ All clear</div>';
+      return;
     }
-}
-
-function handleDelete(type, id, date) {
-    if (confirm(`Remove this ${type} permanently?`)) {
-        db.ref(`users/${currentUser.uid}/${type === 'event' ? 'events' : 'tasks'}/${date}/${id}`).remove()
-            .then(() => {
-                loadModalTasks(date);
-                loadTasks(date);
-            });
-    }
-}
-/**
- * Permanently deletes an event, typically used from the 24hr prompt modal.
- */
-function cancelEventPermanent(event) {
-    if (!currentUser) return;
-    closeStatusPromptModal();
-    
-    if (confirm(`Are you sure you want to permanently cancel and delete '${event.title}'? This action cannot be undone.`)) {
-        const refPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-        db.ref(refPath).remove().then(() => {
-            alert(`Event '${event.title}' has been permanently cancelled.`);
-            renderCalendar();
-        }).catch(err => {
-            console.error("Cancellation error:", err);
-            alert("Failed to cancel event.");
-        });
-    }
-}
-
-
-
-
-// --- FIXED: Prompt for status the day AFTER the event date ---
-async function checkAndPromptForEventStatus() {
-    if (!currentUser) return;
-    
-    try {
-        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
-        const allEvents = snapshot.val() || {};
-        
-        eventsToPrompt = []; 
-        const now = new Date();
-        // Set 'now' to the start of the current day to compare dates easily
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-        
-        Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
-            Object.entries(dayEvents).forEach(([id, event]) => {
-                
-                // 1. Create a Date object for the event day
-                const eventDateParts = dateISO.split('-').map(Number);
-                // Create date at 00:00:00 of that day
-                const eventDayObj = new Date(eventDateParts[0], eventDateParts[1] - 1, eventDateParts[2]);
-                const eventDayTime = eventDayObj.getTime();
-
-                // 2. LOGIC: 
-                // We prompt if status is PENDING 
-                // AND Today is strictly GREATER than the Event Date
-                if (event.status === EVENT_STATUS.PENDING && todayStart > eventDayTime) {
-                    eventsToPrompt.push({ date: dateISO, id, ...event });
-                }
-            });
-        });
-
-        if (eventsToPrompt.length > 0) {
-            processNextPendingEvent();
-        }
-    } catch (error) {
-        console.error("Error checking pending events:", error);
-    }
-}
-
-function processNextPendingEvent() {
-    if (!eventsToPrompt.length) {
-        closeStatusPromptModal(); 
-        return;
-    }
-    
-    const event = eventsToPrompt[0]; 
-    currentEventForAction = event; 
-
-    document.getElementById("eventToPromptTitle").textContent = event.title;
-    document.getElementById("eventToPromptDate").textContent = formatDate(event.date);
-    document.getElementById("eventToPromptTime").textContent = event.time;
-    
-    // Set listeners for prompt actions
-    completeEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.COMPLETED);
-    incompleteEventBtn.onclick = () => updateEventStatus(event, EVENT_STATUS.INCOMPLETE);
-    reschedulePromptBtn.onclick = () => openRescheduleModal(event);
-    cancelPromptBtn.onclick = () => cancelEventPermanent(event);
-
-    overlayElement.classList.remove("hidden");
-    statusPromptModal.classList.remove("hidden");
-}
-
-// --- 2. THE CENTRAL UPDATE FUNCTION (Fixed Date/Path Issues) ---
-function updateEventStatus(event, status, calledFromModal = false) {
-    if (!currentUser || !event.date || !event.id) {
-        console.error("Missing Event Data:", event);
-        return;
-    }
-
-    const eventPath = `users/${currentUser.uid}/events/${event.date}/${event.id}`;
-
-    db.ref(eventPath)
-      .update({ status: status })
-      .then(() => {
-          console.log(`Successfully updated ${event.id} to ${status}`);
-          
-          // ALWAYS refresh the main calendar cell
-          if (typeof loadTasks === "function") loadTasks(event.date);
-
-          if (calledFromModal) {
-              // Refresh the specific day/modal view
-              if (typeof loadModalTasks === "function") loadModalTasks(event.date);
-          } else {
-              // Logic for 24hr Prompt Queue
-              // Only remove from queue if this event is the one being prompted
-              if (eventsToPrompt.length > 0 && eventsToPrompt[0].id === event.id) {
-                  eventsToPrompt.shift();
-                  closeStatusPromptModal();
-                  processNextPendingEvent();
-              }
-              
-              // Refresh Tracking Modal if it is currently visible
-              const isTrackingOpen = !eventTrackingSection.classList.contains('hidden');
-              if (isTrackingOpen) {
-                  const currentStatusInView = trackingModalTitle.textContent.includes("Incomplete") 
-                      ? EVENT_STATUS.INCOMPLETE 
-                      : EVENT_STATUS.COMPLETED;
-                  loadTrackingEvents(currentStatusInView); 
-              }
-          }
-      })
-      .catch(err => {
-          console.error("Update failed:", err);
-          alert("Could not update status. Please try again.");
-      });
-}
-
-// --- 3. TRACKING EVENTS LOGIC ---
-function loadTrackingEvents(status) {
-    if (!currentUser) return;
-
-    trackingEventsList.innerHTML = `<p class="text-center text-indigo-500 italic p-3"><i class="fas fa-spinner fa-spin mr-2"></i> Loading ${status} events...</p>`;
-
-    db.ref(`users/${currentUser.uid}/events`).once("value").then(snapshot => {
-        const allEvents = snapshot.val() || {};
-        let filteredEvents = [];
-
-        const cutoffDate = new Date();
-        cutoffDate.setUTCDate(cutoffDate.getUTCDate() - 30);
-        cutoffDate.setUTCHours(0, 0, 0, 0); 
-
-        Object.entries(allEvents).forEach(([dateISO, dayEvents]) => {
-            Object.entries(dayEvents).forEach(([id, event]) => {
-                const eventDate = new Date(dateISO); 
-                
-                if (event.status === status && eventDate >= cutoffDate) {
-                    filteredEvents.push({ date: dateISO, id: id, ...event });
-                }
-            });
-        });
-
-        filteredEvents.sort((a, b) => b.timestamp - a.timestamp);
-
-        if (filteredEvents.length === 0) {
-            trackingEventsList.innerHTML = `<p class="text-center text-gray-500 italic p-3">No ${status} events found in the last 30 days.</p>`;
-            return;
-        }
-
-        trackingEventsList.innerHTML = ''; 
-
-        filteredEvents.forEach(event => {
-            const isCompleted = event.status === EVENT_STATUS.COMPLETED;
-            const bgColor = isCompleted ? 'bg-green-50' : 'bg-red-50';
-            const icon = isCompleted ? 'fa-check-circle text-green-700' : 'fa-times-circle text-red-700';
-            const locationText = (event.location && event.location.trim() !== '') ? `Location: ${event.location}` : 'Location: N/A';
-
-            const eventDiv = document.createElement("div");
-            eventDiv.className = `p-4 my-2 rounded-xl shadow-md ${bgColor} border border-gray-200`;
-            
-            let completeButton = '';
-            if (status === EVENT_STATUS.INCOMPLETE) {
-                 // Escape title for the onclick string
-                 const safeTitle = event.title.replace(/'/g, "\\'");
-                 completeButton = `
-                     <button onclick="updateEventStatus({ date: '${event.date}', id: '${event.id}', title: '${safeTitle}' }, '${EVENT_STATUS.COMPLETED}', false)"
-                             class="bg-green-600 text-white text-sm px-4 py-2 rounded-full hover:bg-green-700 transition shadow-md whitespace-nowrap font-semibold">
-                         <i class="fas fa-check"></i> Complete Event
-                     </button>
-                 `;
-            }
-            
-            eventDiv.innerHTML = `
-                <div class="flex items-start justify-between">
-                    <div class="flex-1 min-w-0">
-                        <strong class="text-lg text-gray-800 block">
-                            <i class="fas ${icon} mr-3"></i> ${event.title}
-                        </strong>
-                        <span class="text-sm text-gray-600 block">${formatDate(event.date)} at ${event.time}</span>
-                    </div>
-                    <div class="ml-4">${completeButton}</div>
-                </div>
-                <p class="mt-1 text-gray-600">${event.desc || 'No Description'}</p>
-                <p class="text-sm text-gray-500 mt-1 italic">${locationText}</p>
-            `;
-            trackingEventsList.appendChild(eventDiv);
-        });
-
-    }).catch(err => {
-        console.error("Error loading tracking events:", err);
-        trackingEventsList.innerHTML = `<p class="text-center text-red-500 italic p-3">Error loading event history.</p>`;
-    });
-}
-
-// --- PDF Download Fix (FIXED: Excludes all event data) ---
-if (downloadButton) {
-    downloadButton.addEventListener("click",async()=>{
-        if(!currentUser) return alert("User not logged in.");
-        
-        const {jsPDF}=window.jspdf || {};
-        if (!jsPDF) return alert("PDF generation failed: jsPDF library is not loaded.");
-
-        const y=currentDate.getFullYear(), m=currentDate.getMonth();
-        const snapTasks = await db.ref(`users/${currentUser.uid}/tasks`).once("value");
-        const tasksData = snapTasks.val()||{};
-        
-        const pdfData=[];
-        
-        // Loop through all days of the current displayed month
-        const daysInMonth = new Date(y,m+1,0).getDate();
-        for(let d=1; d<=daysInMonth; d++){
-            // Create UTC date for consistent ISO and display date
-            const dateObj = new Date(Date.UTC(y, m, d));
-            const iso=toISODate(dateObj);
-            
-            // Format using UTC methods for consistency
-            const dateStr = `${String(dateObj.getUTCDate()).padStart(2,"0")}-${String(dateObj.getUTCMonth()+1).padStart(2,"0")}-${dateObj.getUTCFullYear()}`; 
-            
-            // 1. Collect ONLY Tasks
-            if(tasksData[iso]) {
-                Object.values(tasksData[iso]).forEach(t=>pdfData.push([dateStr, t.title, t.desc||""]));
-            }
-        }
-
-        if(!pdfData.length) return alert("No tasks found for this month.");
-        
-        const doc=new jsPDF();
-        doc.setFontSize(18);
-        doc.text(`Tasks for ${currentDate.toLocaleString("default",{month:"long",year:"numeric"})}`,14,20);
-        
-        doc.autoTable({
-            startY:30,
-            head:[["Date","Task Title","Description"]],
-            body:pdfData,
-            styles: { fontSize: 10, cellPadding: 2, overflow: 'linebreak' },
-            headStyles: { fillColor: [51, 65, 85] } /* Charcoal color for PDF header */
-        });
-        doc.save(`Tasks_${currentDate.toLocaleString("default",{month:"short"})}_${y}.pdf`);
-    });
-}
-
-// --- Notification Logic Fixes (Timezone and Location) ---
-
-function requestNotificationPermission() {
-    if (!("Notification" in window)) {
-        console.warn("Browser does not support desktop notification");
-        return;
-    }
-    
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-                console.log("Notification permission granted.");
-            } else {
-                console.log("Notification permission denied.");
-            }
-        });
-    }
-}
-
-/**
- * Checks for pending events and triggers system notifications.
- * Uses a more robust checking logic and cleaner formatting.
- */
-async function checkAndShowNotifications() {
-    // 1. Early exits for permissions and auth
-    if (!currentUser || Notification.permission !== "granted") return;
-
-    try {
-        const snapshot = await db.ref(`users/${currentUser.uid}/events`).once("value");
-        const allEvents = snapshot.val();
-        if (!allEvents) return;
-
-        const now = Date.now();
-        
-        // Use flatMap or nested forEach to process events
-        Object.entries(allEvents).forEach(([date, dayEvents]) => {
-            Object.entries(dayEvents).forEach(([id, event]) => {
-                
-                // Logic Guard: Only process PENDING events
-                if (event.status !== EVENT_STATUS.PENDING) return;
-
-                const eventTimestamp = event.timestamp; 
-                
-                // Timing Window: Event is within the past 12 hours (tolerance) up until 'now'
-                const isWithinWindow = eventTimestamp > (now - NOTIFICATION_TOLERANCE_MS) && eventTimestamp <= now;
-
-                if (eventTimestamp && isWithinWindow) {
-                    sendProfessionalNotification(date, id, event);
-                }
-            });
-        });
-    } catch (err) {
-        console.error("Critical: Notification sync failed", err);
-    }
-}
-
-/**
- * Helper to handle the UI/UX of the notification itself
- */
-/**
- * Triggers a professionally formatted system notification
- */
-function sendProfessionalNotification(date, id, event) {
-    // Header for the body content
-    const header = "EVENT DETAILS";
-    const divider = "───────────────────";
-    
-    // Formatting the content with clean labels and spacing
-    const timeEntry = `⏰ Time:     ${event.time || 'Not specified'}`;
-    const locEntry  = event.location?.trim() ? `📍 Location: ${event.location}` : '';
-    const descEntry = `📝 Note:     ${event.desc || 'No details provided'}`;
-
-    // Construct the body: Only include location if it exists
-    const bodyContent = [
-        header,
-        divider,
-        timeEntry,
-        locEntry,
-        descEntry
-    ].filter(line => line !== '').join('\n');
-
-    const options = {
-        body: bodyContent,
-        // Using a high-quality local asset for a native app feel
-        icon: '/assets/img/calendar-notification-icon.png', 
-        badge: '/assets/img/badge-icon.png', 
-        tag: `event-${date}-${id}`,
-        vibrate: [200, 100, 200],
-        requireInteraction: false // Automatically hides after a few seconds
-    };
-
-    const title = event.title?.toUpperCase() || "EVENT REMINDER";
-
-    try {
-        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
-        } else {
-            new Notification(title, options);
-        }
-    } catch (e) {
-        console.error("Notification UI Error:", e);
-    }
-}
-// --- Search Functions (OPTIMIZED: Instant response) ---
-let debounceTimeout;
-let isSearchInputFocused = false; 
-
-function closeSearchView() {
-    isSearchInputFocused = false;
-    body.classList.remove("search-active");
-    searchResults.innerHTML = "";
-    if (downloadButton) downloadButton.style.display = 'block'; 
-    if (searchTimeframe) searchTimeframe.style.display = 'block';
-    searchOverlayBackground.style.display = 'none'; 
-    document.body.style.overflow = 'auto'; 
-}
-
-function searchTasks(isFocusEvent = false) {
-    const query = searchInput.value.toLowerCase().trim();
-    const timeframe = searchTimeframe.value;
-    
-    // 1. Instant UI Preparation
-    if (!query) {
-        closeSearchView();
-        return; 
-    }
-    
-    body.classList.add("search-active");
-    searchOverlayBackground.style.display = 'block'; 
-    if (downloadButton) downloadButton.style.display = 'none';
-    document.body.style.overflow = 'hidden';
-
-    // 2. Clear previous timer
-    clearTimeout(debounceTimeout);
-    
-    // 3. Instant feedback if results panel is not already there
-    if (!searchResults.querySelector('.search-results-panel')) {
-        searchResults.innerHTML = `
-            <div class="search-results-panel">
-                 <p class='p-3 text-center text-indigo-500 font-semibold'>
-                     <i class="fas fa-spinner fa-spin mr-2"></i> Searching...
-                 </p>
-            </div>`;
-    }
-
-    // 4. Set the actual search logic (Shortened delay for snappier feel)
-    // If it's a focus event, we run it even faster
-    const delay = isFocusEvent ? 0 : 200; 
-
-    debounceTimeout = setTimeout(() => {
-        const user = firebase.auth().currentUser;
-        if (!user) return;
-
-        // Fetching data
-        const taskPromise = db.ref(`users/${user.uid}/tasks`).once("value");
-        const eventPromise = db.ref(`users/${user.uid}/events`).once("value");
-
-        Promise.all([taskPromise, eventPromise]).then(([taskSnapshot, eventSnapshot]) => {
-            if (!searchInput.value.trim()) return; // User cleared search while loading
-
-            const allTasks = taskSnapshot.val() || {};
-            const allEvents = eventSnapshot.val() || {};
-            const combinedData = {};
-            
-            const processData = (sourceData, typePrefix) => {
-                Object.entries(sourceData).forEach(([date, dayItems]) => {
-                    if (!combinedData[date]) combinedData[date] = {};
-                    Object.entries(dayItems).forEach(([id, item]) => {
-                        combinedData[date][`${typePrefix}-${id}`] = item;
-                    });
-                });
-            };
-
-            processData(allTasks, 'task');
-            processData(allEvents, 'event');
-
-            let cutoffDate = null;
-            if (timeframe === '1year') {
-                cutoffDate = new Date();
-                cutoffDate.setUTCFullYear(cutoffDate.getUTCFullYear() - 1);
-            }
-
-            let found = 0;
-            const addedItems = new Set();
-            const listContainer = document.createElement("div");
-            listContainer.className = "search-results-panel custom-scroll";
-            
-            // Header for Mobile
-            listContainer.innerHTML = `
-                <div class="flex justify-between items-center mb-1 pb-1 border-b border-gray-200 md:hidden">
-                    <h3 class="text-lg font-bold text-gray-700">Search Results</h3>
-                    <button onclick="closeSearchView()" class="text-gray-500 hover:text-red-500 p-1 rounded-full"><i class="fas fa-times"></i> Close</button>
-                </div>`;
-
-            const sortedDates = Object.keys(combinedData).sort((a, b) => new Date(b) - new Date(a));
-
-            sortedDates.forEach(date => {
-                if (cutoffDate && new Date(date) < cutoffDate) return;
-
-                Object.entries(combinedData[date]).forEach(([prefixedId, item]) => {
-                    const title = (item.title || "").toLowerCase();
-                    const desc = (item.desc || "").toLowerCase();
-                    const queryLower = query.toLowerCase();
-
-                    if ((title.includes(queryLower) || desc.includes(queryLower)) && !addedItems.has(`${date}-${prefixedId}`)) {
-                        addedItems.add(`${date}-${prefixedId}`);
-                        found++;
-                        
-                        const isEvent = prefixedId.startsWith('event-'); 
-                        let iconClass = isEvent ? 'fa-bell text-emerald-600' : 'fa-list-check text-indigo-600';
-                        if (isEvent && item.status === EVENT_STATUS.COMPLETED) iconClass = 'fa-check-circle text-green-600';
-                        if (isEvent && item.status === EVENT_STATUS.INCOMPLETE) iconClass = 'fa-times-circle text-red-600';
-                        
-                        const formattedDate = formatDate(date).split('(')[0].trim();
-                        const itemDiv = document.createElement("div");
-                        itemDiv.className = `search-result-item cursor-pointer hover:bg-indigo-50`; 
-                        itemDiv.innerHTML = `
-                            <div class="flex justify-between items-center">
-                                <strong class="text-base font-bold text-gray-800 md:text-lg">
-                                    <i class="fas ${iconClass} mr-2"></i>${item.title || 'Untitled'}
-                                </strong>
-                                <span class="text-sm text-gray-600">${formattedDate}</span>
-                            </div>
-                            <div class="mt-0.5 truncate text-sm text-gray-500 md:text-base">${item.desc || 'No Description'}</div>
-                        `;
-
-                        itemDiv.onclick = () => {
-                            closeSearchView(); 
-                            openModal(date); 
-                        };
-                        listContainer.appendChild(itemDiv);
-                    }
-                });
-            });
-
-            // INSTANT SWAP: Remove loader and show results immediately
-            searchResults.innerHTML = '';
-            if (found > 0) {
-                searchResults.appendChild(listContainer);
-            } else {
-                searchResults.innerHTML = `
-                    <div class='search-results-panel'>
-                        <p class='p-3 bg-yellow-50 rounded-xl text-center text-yellow-700'>No matching data found.</p>
-                    </div>`;
-            }
-        });
-    }, delay);
-}
-
-// Event Listeners for Instant Trigger
-if (searchInput) {
-    searchInput.addEventListener("focus", () => {
-        isSearchInputFocused = true;
-        searchTasks(true); // Pass true for instant 0ms delay
-    }); 
-    
-    searchInput.addEventListener("input", () => searchTasks(false)); 
-    searchTimeframe.addEventListener("change", () => searchTasks(true));
-
-    searchInput.addEventListener("blur", () => {
-        isSearchInputFocused = false;
-        setTimeout(() => {
-            if (searchInput.value.trim() === "") closeSearchView();
-        }, 200);
-    }); 
-}
-// --- 1. CORRECTED DELETE LOGIC (Place this inside loadModalTasks loop) ---
-dBtn.onclick = () => {
-    const isEvent = (item.type === 'event');
-    const path = isEvent ? 'events' : 'tasks';
-    // itemId and itemDate must be correctly captured from the current loop iteration
-    const targetRef = db.ref(`users/${currentUser.uid}/${path}/${itemDate}/${itemId}`);
-
-    if (confirm(`Are you sure you want to delete this ${item.type}?`)) {
-        targetRef.remove()
-            .then(() => {
-                // Success: Refresh the specific calendar cell and the current modal
-                loadTasks(itemDate);
-                loadModalTasks(itemDate);
-                console.log(`${item.type} deleted successfully`);
-            })
-            .catch(err => {
-                console.error("Delete failed:", err);
-                alert("Could not delete item. Check Firebase permissions.");
-            });
-    }
-};
-
-// --- 2. CORRECTED EDIT LOGIC (Place this inside loadModalTasks loop) ---
-e.onclick = () => {
-    if (isEvent) {
-        editEventId = itemId; // Critical: Store the ID for the save function
-        selectedDate = itemDate;
-
-        // Populate the Event Modal fields
-        document.getElementById("eventTitle").value = item.title;
-        document.getElementById("eventDate").value = itemDate;
-        document.getElementById("eventTime").value = item.time;
-        document.getElementById("eventLocation").value = item.location || "";
-        document.getElementById("eventDesc").value = item.desc || "";
-        document.getElementById("eventModalTitle").textContent = "Edit Event";
-
-        // Switch Modals
-        taskModalElement.classList.add("hidden");
-        eventModalElement.classList.remove("hidden");
-        overlayElement.classList.remove("hidden");
-    } else {
-        // Standard Task Edit Logic
-        editTaskId = itemId;
-        document.getElementById("taskTitle").value = item.title;
-        document.getElementById("taskDesc").value = item.desc || "";
-    }
-};
-
-// --- 3. CORRECTED SAVE EVENT LOGIC (Update your saveEventBtn listener) ---
-document.getElementById("saveEventBtn").addEventListener("click", () => {
-    if (!currentUser) return;
-
-    let title = document.getElementById("eventTitle").value.trim();
-    const date = document.getElementById("eventDate").value;
-    const time = document.getElementById("eventTime").value;
-
-    if (!title || !date || !time) return alert("Please fill in Title, Date, and Time.");
-
-    // Determine if we are updating an existing entry or pushing a new one
-    const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
-    const finalRef = editEventId ? eventRef.child(editEventId) : eventRef.push();
-
-    const eventData = {
-        title: capitalizeFirstLetter(title),
-        time: time,
-        location: capitalizeFirstLetter(document.getElementById("eventLocation").value),
-        desc: capitalizeFirstLetter(document.getElementById("eventDesc").value),
-        timestamp: new Date(`${date}T${time}:00`).getTime(),
-        savedTimestamp: new Date().getTime(),
-        status: EVENT_STATUS.PENDING
-    };
-
-    // .set() will overwrite the existing data if editEventId is present
-    finalRef.set(eventData)
-        .then(() => {
-            editEventId = null; // Reset edit state
-            closeEventModal();
-            loadTasks(date);
-            // Re-open task modal if the user was originally looking at that date
-            if (selectedDate === date) openModal(date); 
-        })
-        .catch(err => alert("Save failed: " + err.message));
-});
-// Add this helper to insert a back arrow into the search container if it doesn't exist
-function injectSearchBackArrow() {
-    const container = document.querySelector('.search-container');
-    if (!document.getElementById('searchBackArrow')) {
-        const arrow = document.createElement('i');
-        arrow.className = "fas fa-arrow-left back-arrow";
-        arrow.id = "searchBackArrow";
-        arrow.onclick = closeSearchView;
-        container.prepend(arrow);
-    }
-}
-function searchTasks(isFocusEvent = false) {
-    const query = searchInput.value.toLowerCase().trim();
-    const timeframe = searchTimeframe.value;
-    
-    // 1. Activate UI State
-    if (isFocusEvent || query.length > 0) {
-        document.body.classList.add("search-mode-active");
-        document.getElementById("searchResults").classList.add("active-view");
-        
-        // Ensure Back Arrow is present in the row
-        if (!document.getElementById('searchBackBtn')) {
-            const btn = document.createElement('i');
-            btn.className = "fas fa-arrow-left search-back-btn";
-            btn.id = "searchBackBtn";
-            btn.onclick = closeSearchView;
-            // Prepend to the wrapper so it stays in the same row
-            searchInput.parentElement.prepend(btn);
-        }
-    }
-
-    if (!query) {
-        searchResults.innerHTML = "";
-        return;
-    }
-
-    // 2. Search Logic (Debounced)
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(() => {
-        if (!currentUser) return;
-
-        db.ref(`users/${currentUser.uid}`).once("value").then(snap => {
-            const data = snap.val() || {};
-            const tasks = data.tasks || {};
-            const events = data.events || {};
-            let results = [];
-
-            // Search through Tasks and Events
-            [tasks, events].forEach((source, index) => {
-                const type = index === 0 ? 'task' : 'event';
-                Object.entries(source).forEach(([date, items]) => {
-                    Object.entries(items).forEach(([id, item]) => {
-                        if (item.title?.toLowerCase().includes(query) || item.desc?.toLowerCase().includes(query)) {
-                            results.push({ ...item, date, id, type });
-                        }
-                    });
-                });
-            });
-
-            // 3. Render Results
-            renderSearchResults(results);
-        });
-    }, 300);
-}
-
-function renderSearchResults(results) {
-    const cont = document.getElementById("searchResults");
-    if (results.length === 0) {
-        cont.innerHTML = `<p class="text-center py-10 text-gray-500">No matches found for "${searchInput.value}"</p>`;
-        return;
-    }
-
-    cont.innerHTML = results.map(item => `
-        <div class="p-4 mb-2 bg-white rounded-lg shadow-sm border-l-4 ${item.type === 'event' ? 'border-emerald-500' : 'border-indigo-500'}" onclick="openModal('${item.date}')">
-            <div class="flex justify-between">
-                <strong class="text-gray-800">${item.title}</strong>
-                <span class="text-xs text-gray-500">${item.date}</span>
-            </div>
-            <p class="text-sm text-gray-600 truncate">${item.desc || ''}</p>
+    items.forEach(item => {
+      const div = document.createElement('div');
+      div.className = `task-item${item.type === 'event' ? ' event-item' : ''}`;
+      div.innerHTML = `
+        <div class="info">
+          <div class="title">${item.type === 'event' ? '📅 ' : '📌 '}${item.title}</div>
+          ${item.type === 'event' ? `<div style="font-size:0.7rem;color:var(--green);">🕒 ${item.time}</div>` : ''}
+          ${item.desc ? `<div class="desc">${item.desc}</div>` : ''}
         </div>
-    `).join('');
-}
-
-function closeSearchView() {
-    document.body.classList.remove("search-mode-active");
-    document.getElementById("searchResults").classList.remove("active-view");
-    const btn = document.getElementById("searchBackBtn");
-    if (btn) btn.remove();
-    searchInput.value = "";
-    searchResults.innerHTML = "";
-    document.body.style.overflow = 'auto';
-}
-
-</script>
-
-
-
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        <div class="actions">
+          <button class="edit" onclick="editItem('${item.type}','${item.id}','${iso}')">Edit</button>
+          <button class="delete" onclick="deleteItem('${item.type}','${item.id}','${iso}')">Delete</button>
+          ${item.type === 'event' ? `<button class="done" onclick="updateStatus({date:'${iso}',id:'${item.id}'},'${STATUS.COMPLETED}',true)">Done</button>` : ''}
+        </div>
+      `;
+      list.appendChild(div);
     });
+  });
+}
+
+// ===== SAVE TASK =====
+document.getElementById('saveTask').addEventListener('click', function() {
+  if (!user || !selectedDate) return;
+  const title = capitalize(document.getElementById('taskTitle').value.trim());
+  const desc = capitalize(document.getElementById('taskDesc').value.trim());
+  if (!title) return alert('Enter a task title');
+  const ref = db.ref(`users/${user.uid}/tasks/${selectedDate}`);
+  const data = { title, desc };
+  if (editTaskId) {
+    ref.child(editTaskId).set(data).then(() => {
+      editTaskId = null;
+      loadTasks(selectedDate);
+      renderCalendar();
+    });
+  } else {
+    ref.push(data).then(() => {
+      loadTasks(selectedDate);
+      renderCalendar();
+    });
+  }
+  document.getElementById('taskTitle').value = '';
+  document.getElementById('taskDesc').value = '';
 });
+
+// ===== EDIT / DELETE =====
+window.editItem = function(type, id, iso) {
+  if (type === 'event') {
+    db.ref(`users/${user.uid}/events/${iso}/${id}`).once('value').then(snap => {
+      const ev = snap.val();
+      if (!ev) return;
+      editEventId = id;
+      document.getElementById('eventTitle').value = ev.title || '';
+      document.getElementById('eventDate').value = iso;
+      document.getElementById('eventTime').value = ev.time || '09:00';
+      document.getElementById('eventLocation').value = ev.location || '';
+      document.getElementById('eventDesc').value = ev.desc || '';
+      document.getElementById('eventModalTitle').textContent = 'Edit Event';
+      document.getElementById('eventModal').classList.add('show');
+    });
+  } else {
+    db.ref(`users/${user.uid}/tasks/${iso}/${id}`).once('value').then(snap => {
+      const task = snap.val();
+      if (!task) return;
+      editTaskId = id;
+      document.getElementById('taskTitle').value = task.title || '';
+      document.getElementById('taskDesc').value = task.desc || '';
+      document.getElementById('taskModal').classList.add('show');
+      document.body.classList.add('focus-mode');
+    });
+  }
+};
+
+window.deleteItem = function(type, id, iso) {
+  if (!confirm(`Delete this ${type}?`)) return;
+  const path = type === 'event' ? 'events' : 'tasks';
+  db.ref(`users/${user.uid}/${path}/${iso}/${id}`).remove().then(() => {
+    loadTasks(iso);
+    renderCalendar();
+  });
+};
+
+// ===== EVENT MODAL =====
+document.getElementById('openEventBtn').addEventListener('click', () => {
+  editEventId = null;
+  document.getElementById('eventModalTitle').textContent = 'Add Event';
+  document.getElementById('eventTitle').value = '';
+  document.getElementById('eventDate').value = toISO(new Date());
+  document.getElementById('eventTime').value = '09:00';
+  document.getElementById('eventLocation').value = '';
+  document.getElementById('eventDesc').value = '';
+  document.getElementById('eventModal').classList.add('show');
+});
+
+document.getElementById('closeEventModal').addEventListener('click', () => {
+  document.getElementById('eventModal').classList.remove('show');
+  editEventId = null;
+});
+document.getElementById('cancelEvent').addEventListener('click', () => {
+  document.getElementById('eventModal').classList.remove('show');
+  editEventId = null;
+});
+
+document.getElementById('saveEvent').addEventListener('click', function() {
+  if (!user) return;
+  const title = capitalize(document.getElementById('eventTitle').value.trim());
+  const date = document.getElementById('eventDate').value;
+  const time = document.getElementById('eventTime').value;
+  if (!title || !date || !time) return alert('Title, date & time required');
+  const location = capitalize(document.getElementById('eventLocation').value.trim());
+  const desc = capitalize(document.getElementById('eventDesc').value.trim());
+  const data = {
+    title, time, location, desc,
+    timestamp: new Date(`${date}T${time}:00`).getTime(),
+    savedTimestamp: Date.now(),
+    status: STATUS.PENDING
+  };
+  const ref = db.ref(`users/${user.uid}/events/${date}`);
+  if (editEventId) {
+    ref.child(editEventId).set(data).then(() => {
+      editEventId = null;
+      document.getElementById('eventModal').classList.remove('show');
+      renderCalendar();
+      checkPending();
+    });
+  } else {
+    ref.push(data).then(() => {
+      document.getElementById('eventModal').classList.remove('show');
+      renderCalendar();
+      checkPending();
+    });
+  }
+});
+
+// ===== STATUS PROMPT =====
+async function checkPending() {
+  if (!user) return;
+  const snap = await db.ref(`users/${user.uid}/events`).once('value');
+  const all = snap.val() || {};
+  pendingEvents = [];
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  Object.entries(all).forEach(([iso, day]) => {
+    Object.entries(day).forEach(([id, ev]) => {
+      const [y, m, d] = iso.split('-').map(Number);
+      const eventDay = new Date(y, m-1, d).getTime();
+      if (ev.status === STATUS.PENDING && todayStart > eventDay) {
+        pendingEvents.push({ date: iso, id, ...ev });
+      }
+    });
+  });
+  if (pendingEvents.length) showStatusPrompt();
+}
+
+function showStatusPrompt() {
+  if (!pendingEvents.length) return;
+  const ev = pendingEvents[0];
+  currentEvent = ev;
+  document.getElementById('statusEventTitle').textContent = ev.title;
+  document.getElementById('statusDate').textContent = formatDate(ev.date);
+  document.getElementById('statusTime').textContent = ev.time;
+  document.getElementById('statusModal').classList.add('show');
+}
+
+document.getElementById('closeStatusModal').addEventListener('click', () => {
+  document.getElementById('statusModal').classList.remove('show');
+  if (pendingEvents.length) showStatusPrompt();
+});
+
+window.updateStatus = function(event, status, fromModal = false) {
+  if (!user || !event.date || !event.id) return;
+  db.ref(`users/${user.uid}/events/${event.date}/${event.id}`).update({ status }).then(() => {
+    renderCalendar();
+    if (fromModal && selectedDate === event.date) loadTasks(event.date);
+    if (pendingEvents.length && pendingEvents[0]?.id === event.id) {
+      pendingEvents.shift();
+      document.getElementById('statusModal').classList.remove('show');
+      if (pendingEvents.length) showStatusPrompt();
+    }
+    if (document.getElementById('trackingModal').classList.contains('show')) {
+      const mode = document.getElementById('trackingTitle').textContent.includes('Completed') ? 'completed' : 'incomplete';
+      loadTracking(mode);
+    }
+  });
+};
+
+document.getElementById('statusDone').addEventListener('click', () => {
+  if (currentEvent) updateStatus(currentEvent, STATUS.COMPLETED, false);
+});
+document.getElementById('statusNotDone').addEventListener('click', () => {
+  if (currentEvent) updateStatus(currentEvent, STATUS.INCOMPLETE, false);
+});
+
+// ===== RESCHEDULE =====
+document.getElementById('statusReschedule').addEventListener('click', () => {
+  if (!currentEvent) return;
+  document.getElementById('rescheduleTitle').textContent = currentEvent.title;
+  document.getElementById('rescheduleDate').value = currentEvent.date;
+  document.getElementById('rescheduleTime').value = currentEvent.time;
+  document.getElementById('statusModal').classList.remove('show');
+  document.getElementById('rescheduleModal').classList.add('show');
+});
+
+document.getElementById('closeRescheduleModal').addEventListener('click', () => {
+  document.getElementById('rescheduleModal').classList.remove('show');
+  if (pendingEvents.length) showStatusPrompt();
+});
+
+document.getElementById('confirmReschedule').addEventListener('click', function() {
+  if (!currentEvent) return alert('No event');
+  const newDate = document.getElementById('rescheduleDate').value;
+  const newTime = document.getElementById('rescheduleTime').value;
+  if (!newDate || !newTime) return alert('Select date & time');
+  const ev = currentEvent;
+  db.ref(`users/${user.uid}/events/${ev.date}/${ev.id}`).update({
+    date: newDate,
+    time: newTime,
+    timestamp: new Date(`${newDate}T${newTime}:00`).getTime()
+  }).then(() => {
+    const oldDate = ev.date;
+    const refOld = db.ref(`users/${user.uid}/events/${oldDate}/${ev.id}`);
+    refOld.once('value').then(snap => {
+      const data = snap.val();
+      if (data) {
+        db.ref(`users/${user.uid}/events/${newDate}`).push(data).then(() => {
+          refOld.remove().then(() => {
+            document.getElementById('rescheduleModal').classList.remove('show');
+            renderCalendar();
+            if (selectedDate === oldDate || selectedDate === newDate) loadTasks(selectedDate);
+            pendingEvents.shift();
+            if (pendingEvents.length) showStatusPrompt();
+          });
+        });
+      }
+    });
+  });
+});
+
+document.getElementById('statusCancel').addEventListener('click', function() {
+  if (!currentEvent) return;
+  if (confirm(`Permanently cancel "${currentEvent.title}"?`)) {
+    db.ref(`users/${user.uid}/events/${currentEvent.date}/${currentEvent.id}`).remove().then(() => {
+      document.getElementById('statusModal').classList.remove('show');
+      pendingEvents.shift();
+      renderCalendar();
+      if (pendingEvents.length) showStatusPrompt();
+    });
+  }
+});
+
+// ===== TRACKING =====
+function openTracking(status) {
+  document.getElementById('trackingTitle').textContent = status === 'completed' ? '✅ Completed (last 30 days)' : '⏳ Incomplete (last 30 days)';
+  document.getElementById('trackingModal').classList.add('show');
+  loadTracking(status);
+}
+
+document.getElementById('closeTrackingModal').addEventListener('click', () => {
+  document.getElementById('trackingModal').classList.remove('show');
+});
+
+function loadTracking(status) {
+  const list = document.getElementById('trackingList');
+  if (!user) return;
+  list.innerHTML = '<div class="empty-state">Loading...</div>';
+  db.ref(`users/${user.uid}/events`).once('value').then(snap => {
+    const all = snap.val() || {};
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    cutoff.setHours(0,0,0,0);
+    const items = [];
+    Object.entries(all).forEach(([iso, day]) => {
+      Object.entries(day).forEach(([id, ev]) => {
+        if (ev.status === status && new Date(iso) >= cutoff) {
+          items.push({ date: iso, id, ...ev });
+        }
+      });
+    });
+    items.sort((a, b) => b.timestamp - a.timestamp);
+    list.innerHTML = '';
+    if (!items.length) {
+      list.innerHTML = '<div class="empty-state">No events found</div>';
+      return;
+    }
+    items.forEach(ev => {
+      const div = document.createElement('div');
+      div.className = `task-item ${status === 'completed' ? '' : 'event-item'}`;
+      div.innerHTML = `
+        <div class="info">
+          <div class="title">${ev.title}</div>
+          <div style="font-size:0.75rem;color:var(--text-light);">${formatDate(ev.date)} at ${ev.time} ${ev.location ? '📍 '+ev.location : ''}</div>
+          ${ev.desc ? `<div class="desc">${ev.desc}</div>` : ''}
+        </div>
+        ${status === 'incomplete' ? `<div class="actions"><button class="done" onclick="updateStatus({date:'${ev.date}',id:'${ev.id}'},'${STATUS.COMPLETED}',false)">Done</button></div>` : ''}
+      `;
+      list.appendChild(div);
+    });
+  });
+}
+
+// ===== NOTIFICATIONS =====
+async function checkNotifications() {
+  if (!user || Notification.permission !== 'granted') return;
+  const snap = await db.ref(`users/${user.uid}/events`).once('value');
+  const all = snap.val() || {};
+  const now = Date.now();
+  const tolerance = 12 * 3600000;
+  Object.entries(all).forEach(([iso, day]) => {
+    Object.entries(day).forEach(([id, ev]) => {
+      if (ev.status === STATUS.PENDING && ev.timestamp && ev.timestamp <= now && ev.timestamp > now - tolerance) {
+        try {
+          new Notification(`⏰ ${ev.title}`, {
+            body: `${ev.time}${ev.location ? ' · '+ev.location : ''}`,
+            icon: '📅'
+          });
+        } catch(e) { console.log('Notification error:', e); }
+      }
+    });
+  });
+}
+
+if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+  Notification.requestPermission();
+}
+
+// ===== SEARCH =====
+let searchTimeout;
+const searchInput = document.getElementById('searchInput');
+
+// Enter search mode on focus
+searchInput.addEventListener('focus', function() {
+  if (!document.body.classList.contains('search-mode')) {
+    enterSearchMode();
+  }
+});
+
+searchInput.addEventListener('input', function() {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(performSearch, 300);
+});
+
+document.getElementById('searchTimeframe').addEventListener('change', performSearch);
+
+// Close search on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.body.classList.contains('search-mode')) {
+    exitSearchMode();
+  }
+});
+
+function performSearch() {
+  const query = searchInput.value.trim().toLowerCase();
+  const tf = document.getElementById('searchTimeframe').value;
+  const results = document.getElementById('searchResults');
+  
+  if (!query) {
+    results.innerHTML = '';
+    return;
+  }
+  
+  if (!user) return;
+  
+  db.ref(`users/${user.uid}`).once('value').then(snap => {
+    const data = snap.val() || {};
+    const tasks = data.tasks || {};
+    const events = data.events || {};
+    let matches = [];
+    const cutoff = tf === '1year' ? new Date(Date.now() - 365*24*3600000) : null;
+    
+    Object.entries(tasks).forEach(([iso, day]) => {
+      if (cutoff && new Date(iso) < cutoff) return;
+      Object.entries(day).forEach(([id, item]) => {
+        if (item.title?.toLowerCase().includes(query) || item.desc?.toLowerCase().includes(query)) {
+          matches.push({ ...item, date: iso, id, type: 'task' });
+        }
+      });
+    });
+    
+    Object.entries(events).forEach(([iso, day]) => {
+      if (cutoff && new Date(iso) < cutoff) return;
+      Object.entries(day).forEach(([id, item]) => {
+        if (item.title?.toLowerCase().includes(query) || item.desc?.toLowerCase().includes(query)) {
+          matches.push({ ...item, date: iso, id, type: 'event' });
+        }
+      });
+    });
+    
+    results.innerHTML = '';
+    if (!matches.length) {
+      results.innerHTML = '<div class="empty-state">No results found</div>';
+      return;
+    }
+    
+    matches.slice(0, 20).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'result';
+      div.innerHTML = `
+        <div class="title">${item.type === 'event' ? '📅' : '📌'} ${item.title}</div>
+        <div class="meta">${formatDate(item.date)}${item.desc ? ' · '+item.desc : ''}</div>
+      `;
+      div.onclick = () => {
+        exitSearchMode();
+        openTaskModal(item.date);
+      };
+      results.appendChild(div);
+    });
+  });
+}
+
+// ===== PDF DOWNLOAD =====
+document.getElementById('downloadPDF').addEventListener('click', async function() {
+  if (!user) return alert('Login first');
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  const snap = await db.ref(`users/${user.uid}/tasks`).once('value');
+  const tasks = snap.val() || {};
+  const rows = [];
+  const days = new Date(y, m+1, 0).getDate();
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(Date.UTC(y, m, d));
+    const iso = toISO(dt);
+    if (tasks[iso]) {
+      Object.values(tasks[iso]).forEach(t => {
+        rows.push([`${String(d).padStart(2,'0')}-${String(m+1).padStart(2,'0')}-${y}`, t.title, t.desc||'']);
+      });
+    }
+  }
+  if (!rows.length) return alert('No tasks this month');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text(`Tasks: ${currentDate.toLocaleString('default', { month: 'long' })} ${y}`, 14, 20);
+  doc.autoTable({ startY: 30, head: [['Date', 'Task', 'Description']], body: rows, styles: { fontSize: 9 } });
+  doc.save(`tasks_${y}_${m+1}.pdf`);
+});
+
+// ===== REAL TIME CHECKS =====
+function startChecks() {
+  setInterval(() => {
+    checkPending();
+    if (Notification.permission === 'granted') checkNotifications();
+  }, 60000);
+}
+
+// ===== WINDOW RESIZE =====
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+      const tasksDiv = cell.querySelector('.tasks');
+      if (tasksDiv) {
+        const iso = tasksDiv.id.replace('tasks-', '');
+        loadCellTasks(iso);
+      }
+    });
+  }, 300);
+});
+
+// ===== INIT =====
+renderCalendar();
 </script>
-    <style>
-/* --- SAVIG ULTIMATE CONSOLIDATED DARK MODE --- */
-[data-theme='dark'] {
-    /* 1. Core Variables */
-    --bg-color: #020617;        /* Deepest Navy/Black */
-    --modal-bg: #000000;        /* Pure Black for Modals */
-    --card-bg: #1e293b;         /* Slate 800 */
-    --text-main: #ffffff;       /* Pure White */
-    --text-muted: #cbd5e1;      /* Slate 300 */
-    --white-border: #ffffff;    /* High Contrast Border */
-    --active-indigo: #818cf8;
-    --active-amber: #fbbf24;
-}
-
-/* 2. Global Base & Full Page Overrides */
-[data-theme='dark'] body, 
-[data-theme='dark'] main,
-[data-theme='dark'] .search-overlay-background,
-[data-theme='dark'] body.search-mode-active,
-[data-theme='dark'] #searchResults.active-view {
-    background-color: var(--bg-color) !important;
-    color: var(--text-main) !important;
-}
-
-/* 3. Search Interface & Results Visibility */
-[data-theme='dark'] .search-container {
-    background-color: var(--bg-color) !important;
-    border-bottom: 1px solid #334155;
-    padding-bottom: 10px !important;
-}
-
-[data-theme='dark'] #searchInput {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    border: 2px solid var(--white-border) !important;
-    margin-bottom: 15px !important;
-}
-
-[data-theme='dark'] #searchResults {
-    margin-top: 10px !important;
-    background-color: var(--bg-color) !important;
-}
-
-[data-theme='dark'] .search-result-item {
-    background-color: #1e293b !important;
-    border: 2px solid var(--white-border) !important;
-    border-left: 8px solid var(--active-indigo) !important;
-    margin-bottom: 12px !important;
-    padding: 20px !important;
-    border-radius: 12px !important;
-}
-
-[data-theme='dark'] .search-result-item strong,
-[data-theme='dark'] .search-result-item p,
-[data-theme='dark'] .search-result-item div,
-[data-theme='dark'] .search-result-item span {
-    color: #ffffff !important; /* Force search text visibility */
-    opacity: 1 !important;
-}
-
-/* 4. Calendar Controls & Header (Mon-Sun) */
-[data-theme='dark'] #monthYear {
-    color: #ffffff !important;
-    font-weight: 900 !important;
-}
-
-[data-theme='dark'] #calendar-controls button {
-    background-color: #1e293b !important;
-    color: #ffffff !important;
-    border: 1.5px solid var(--white-border) !important;
-}
-
-[data-theme='dark'] .calendar-header div {
-    color: var(--active-amber) !important; /* Proper Mon-Sun Color */
-    font-weight: 900 !important;
-}
-
-[data-theme='dark'] .calendar-header .text-red-500 {
-    color: #fb7185 !important; /* Bright Rose for weekends */
-}
-
-/* 5. Calendar Cells & Row Spacing */
-[data-theme='dark'] .calendar-cell {
-    background-color: var(--card-bg) !important;
-    border: 2px solid var(--white-border) !important;
-    border-radius: 12px !important;
-    margin-bottom: 15px !important; 
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] .calendar-cell span {
-    color: #ffffff !important;
-    font-weight: 800 !important;
-}
-
-/* Fix: Extra padding for the last row to clear nav bar */
-[data-theme='dark'] #calendar {
-    padding-bottom: 120px !important;
-}
-
-[data-theme='dark'] .sunday-cell {
-    background-color: #450a0a !important;
-    border-color: #fca5a5 !important;
-}
-
-[data-theme='dark'] .today {
-    border: 3px solid #3b82f6 !important;
-    background-color: #1e3a8a !important;
-}
-
-/* 6. Modals (Task, Event, Prompts) - Full Page Dark Overlay */
-[data-theme='dark'] #taskModal, 
-[data-theme='dark'] #eventModal,
-[data-theme='dark'] #statusPromptModal,
-[data-theme='dark'] #rescheduleModal {
-    background-color: var(--modal-bg) !important;
-    border: 2px solid var(--white-border) !important;
-    color: #ffffff !important;
-    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.95) !important; /* Forces background blackout */
-}
-
-/* Ensure modal text is never hidden */
-[data-theme='dark'] #taskModal *, 
-[data-theme='dark'] #eventModal * {
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] #modalDate {
-    color: var(--active-indigo) !important;
-    font-weight: 900 !important;
-}
-
-/* Task Inner Well Background */
-[data-theme='dark'] #existingTasks {
-    background-color: #000000 !important; 
-    border: 1px solid #334155 !important;
-    border-radius: 12px !important;
-}
-
-/* Task Cards inside Modal */
-[data-theme='dark'] #existingTasks .grid,
-[data-theme='dark'] #existingTasks div.bg-white {
-    background-color: #1e293b !important;
-    border: 1.5px solid #475569 !important;
-    margin-bottom: 8px !important;
-}
-
-/* Form Inputs inside Modal */
-[data-theme='dark'] input, 
-[data-theme='dark'] textarea, 
-[data-theme='dark'] select {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-    border: 2.5px solid #475569 !important;
-}
-
-/* 7. Bottom Navigation & Nav Icons */
-[data-theme='dark'] #universal-bottom-nav {
-    background-color: #000000 !important;
-    border-top: 2px solid var(--white-border) !important;
-}
-
-[data-theme='dark'] .nav-link {
-    color: #ffffff !important;
-}
-
-[data-theme='dark'] .nav-link i {
-    -webkit-text-stroke: 0.5px #ffffff !important;
-}
-
-/* 8. Action Buttons (Save/Close) */
-[data-theme='dark'] #closeModal, 
-[data-theme='dark'] #closeEventModal {
-    background-color: #ef4444 !important;
-    color: #ffffff !important;
-    border: 2px solid white !important;
-}
-
-[data-theme='dark'] #saveTaskBtn, 
-[data-theme='dark'] #saveEventBtn {
-    background-color: #4f46e5 !important;
-    color: #ffffff !important;
-    border: 1px solid white !important;
-}
-
-/* Task Strips inside Calendar Cells */
-[data-theme='dark'] [id^="tasks-"] div {
-    background-color: #312e81 !important;
-    color: #ffffff !important;
-    border-left: 3.5px solid var(--active-indigo) !important;
-    font-weight: 700 !important;
-}
-        /* --- CRITICAL MODAL DARK MODE FIX --- */
-
-</style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+</body>
+</html>
