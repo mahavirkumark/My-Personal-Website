@@ -6,84 +6,113 @@
     <title>Savig</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<meta name="mobile-web-app-capable" content="yes">
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.init({
-      appId: "900dc167-e7a9-4a9f-82de-df51aac4eb6d",
-    });
+    <meta name="mobile-web-app-capable" content="yes">
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.init({
+                appId: "900dc167-e7a9-4a9f-82de-df51aac4eb6d",
+            });
+            firebase.auth().onAuthStateChanged((user) => {
+                if (user) {
+                    OneSignal.login(user.uid);
+                    firebase.database().ref(`users/${user.uid}/notificationStatus`).set("active_onesignal");
+                }
+            });
+        });
+    </script>
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                document.documentElement.setAttribute('data-theme', event.newValue);
+            }
+        });
+    </script>
 
-    // This is the "Bridge" - it links OneSignal to your Firebase Login
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        // Tells OneSignal: "This subscriber is User [UID]"
-        OneSignal.login(user.uid);
-        
-        // Save to your database so you know who has notifications active
-        firebase.database().ref(`users/${user.uid}/notificationStatus`).set("active_onesignal");
-      }
-    });
-  });
-</script>
-<script>
-    // 1. Apply theme before page renders
-    (function() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    })();
-
-    // 2. Listen for theme changes in other open tabs
-    window.addEventListener('storage', (event) => {
-        if (event.key === 'theme') {
-            document.documentElement.setAttribute('data-theme', event.newValue);
-        }
-    });
-</script>
-    
-
-   <style>
+    <style>
         /* 1. Theme Variables & Professional Reset */
         :root {
-            --bg-main: #0f172a; /* Deep Midnight Blue */
+            --bg-main: #0f172a;
             --text-primary: #ffffff;
             --text-dim: #94a3b8;
             --accent: #2563eb;
-            --savig-yellow: #ffe11b; /* Brand Yellow */
+            --savig-yellow: #ffe11b;
             --glass: rgba(30, 41, 59, 0.45);
             --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-text: #000000;
+            --hover-bg: #f8fafc;
+            --active-color: #2563eb;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --card: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
         }
 
-#monthSelector {
-    background-color: #ffffff !important; /* पूर्ण पांढरा */
-    color: #000000 !important;           /* मजकूर काळा */
-}
+        [data-theme='dark'] {
+            --bg-color: #0f172a;
+            --nav-bg: rgba(15, 23, 42, 0.98);
+            --nav-text: #ffffff;
+            --hover-bg: #1e293b;
+            --active-color: #60a5fa;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
 
-/* डार्क मोडमध्येही पांढराच ठेवण्यासाठी */
-[data-theme='dark'] #monthSelector {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
+        #monthSelector {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+        [data-theme='dark'] #monthSelector {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
 
-        /* 2. Unified Fixed Header */
         .nav-container {
-         position: relative;
-  
+            position: relative;
             width: 100%;
             background: var(--bg-main);
             z-index: 1000;
             border-bottom: 1px solid var(--border);
-      box-shadow: none !important; /* ही लाईन जोडा किंवा जुनी लाईन काढा */
-       
+            box-shadow: none !important;
         }
 
-        /* Mesh Glow Background Effects */
-        .mesh-bg div { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; pointer-events: none; }
-        .blob-1 { width: 250px; height: 250px; background: #0ea5e9; top: -50px; left: -20px; }
-        .blob-2 { width: 200px; height: 200px; background: #1e3a8a; bottom: -30px; right: -20px; }
-        .blob-3 { width: 180px; height: 180px; background: #38bdf8; top: 10%; left: 30%; }
+        .mesh-bg div {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+        .blob-1 {
+            width: 250px;
+            height: 250px;
+            background: #0ea5e9;
+            top: -50px;
+            left: -20px;
+        }
+        .blob-2 {
+            width: 200px;
+            height: 200px;
+            background: #1e3a8a;
+            bottom: -30px;
+            right: -20px;
+        }
+        .blob-3 {
+            width: 180px;
+            height: 180px;
+            background: #38bdf8;
+            top: 10%;
+            left: 30%;
+        }
 
-        /* 3. Grid & Component Styling */
         .grid-layout {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -106,11 +135,17 @@
             border: 1px solid var(--border);
             backdrop-filter: blur(12px);
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--text-primary);
         }
 
-        .box-savig { background: var(--savig-yellow) !important; border: none; }
+        .box-savig {
+            background: var(--savig-yellow) !important;
+            border: none;
+        }
+        .box-savig span {
+            color: #000000 !important;
+        }
 
-        /* 4. Scrollable Secondary Nav */
         .scroll-wrapper {
             display: flex;
             overflow-x: auto;
@@ -122,7 +157,9 @@
             position: relative;
             z-index: 10;
         }
-        .scroll-wrapper::-webkit-scrollbar { display: none; }
+        .scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
 
         .icon-frame {
             width: 30px;
@@ -137,7 +174,6 @@
             margin-top: -7px;
         }
 
-        /* 5. Entrance Animations */
         .animate-pop {
             animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
             opacity: 0;
@@ -145,615 +181,718 @@
         }
 
         @keyframes popIn {
-            from { transform: scale(0.6); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.6);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-.theme-toggle {
-    position: fixed;
-    bottom: 100px; 
-    right: 2rem;
-    z-index: 10001;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: var(yellow);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
-    color: var(--active-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
 
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
+        .header-container {
+            position: fixed;
+            top: 5px;
+            right: 5px;
+            z-index: 1000;
+        }
 
+        .profile-box {
+            width: 30px;
+            height: 30px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--active-color);
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        [data-theme='dark'] .profile-box {
+            background: #1e293b;
+        }
 
+        .box-container {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .group:hover .box-container {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+        .group:hover .box-savig {
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            border-color: #3b82f6;
+        }
+        .group:hover .group-hover\:border-blue-500\/50 {
+            border-color: rgba(59, 130, 246, 0.5);
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+        .group:hover .group-hover\:border-orange-500\/50 {
+            border-color: rgba(249, 115, 22, 0.5);
+            background-color: rgba(249, 115, 22, 0.05);
+        }
+        .group:hover .group-hover\:bg-blue-500\/20 {
+            background-color: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+            transform: scale(1.1);
+        }
+        .group:hover span {
+            color: #f8fafc;
+            transition: color 0.2s ease;
+        }
+        .group:active .box-container,
+        .group:active div[class*="rounded-xl"] {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
+        }
+
+        .w-12.h-12.rounded-full {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .w-12.h-12.rounded-full:hover {
+            border-color: #60a5fa;
+            background-color: rgba(59, 130, 246, 0.2);
+            transform: scale(1.05);
+        }
+        a:active,
+        .w-12.h-12:active {
+            transform: scale(0.92) !important;
+            transition: transform 0.1s ease;
+        }
+
+        html,
+        body {
+            height: auto !important;
+            overflow-x: hidden;
+            overflow-y: auto !important;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+        body {
+            padding-bottom: 100px;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2px;
+            box-shadow: none !important;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 220px;
+            width: 100%;
+            z-index: 1;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ===== BOTTOM NAVIGATION - FIXED ===== */
+        #universal-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 999999;
+            padding-bottom: env(safe-area-inset-bottom);
+            animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            font-size: 14px;
+        }
+        @keyframes navSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--nav-text) !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 40px;
+        }
+        .nav-link i {
+            font-size: 25px;
+            margin-bottom: 4px;
+            color: inherit;
+            -webkit-text-stroke: 0.5px var(--nav-text);
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-link div {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: inherit;
+            letter-spacing: 0.02em;
+            gap: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* HOVER: Blue color + Slight upward motion */
+        .nav-link:hover {
+            transform: translateY(-4px);
+            color: #2563eb !important;
+        }
+        .nav-link:hover i {
+            color: #2563eb !important;
+            -webkit-text-stroke: 0.5px #2563eb;
+        }
+        .nav-link:hover div {
+            color: #2563eb !important;
+        }
+
+        .nav-link.active {
+            color: var(--active-color) !important;
+        }
+        .nav-link.active i {
+            transform: translateY(-3px);
+            -webkit-text-stroke: 0.5px var(--active-color);
+        }
+
+        #search-input {
+            border-radius: 9999px;
+            border: 2px solid #ffe11b;
+            background: var(--bg-color);
+            padding: 12px 24px;
+            width: 100%;
+            outline: none;
+            color: var(--text-main);
+            box-shadow: 0 4px 15px -3px rgba(255, 225, 27, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #search-input:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2);
+            transform: translateY(-2px);
+            background: var(--bg-color);
+        }
+        #search-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.6;
+            font-size: 20px;
+            letter-spacing: 0.3px;
+        }
+        .search-result-card {
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .search-result-card:hover {
+            border-color: #ffe11b;
+            transform: scale(1.02);
+            background: var(--card);
+        }
+        [data-theme='light'] .search-result-card {
+            background: #ffffff !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+        }
+        [data-theme='light'] .search-result-card h4 {
+            color: #0f172a !important;
+        }
+        [data-theme='light'] .search-result-card p {
+            color: #64748b !important;
+        }
+        [data-theme='dark'] .search-result-card {
+            background: rgba(30, 41, 59, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+        }
+        .mesh-bg {
+            pointer-events: none !important;
+        }
+        #search-overlay {
+            z-index: 999999 !important;
+        }
+        #cred-list-mobile-overlay {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+        }
+        .search-result-card h4,
+        .search-result-card p,
+        .search-result-card div {
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+        }
+        .search-result-card p {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .search-result-card .w-7 {
+            width: 28px !important;
+            height: 28px !important;
+        }
+        .search-result-card {
+            border-radius: 0 !important;
+            background: transparent !important;
+        }
+
+        :root {
+            --bg: #ffffff;
+            --card: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #6366f1;
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        .active-link i,
+        .active-link div {
+            color: #4f46e5 !important;
+            font-weight: bold;
+        }
+        .active-link {
+            transform: scale(1.1);
+        }
+
+        /* News Widget Theme Fix */
+        :root {
+            --bg-main-news: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary-news: #ffffff;
+            --text-secondary-news: #bbbbbb;
+            --accent-news: #d93025;
+            --border-news: #333333;
+            --hover-shadow: rgba(0, 0, 0, 0.5);
+        }
+        [data-theme="light"] {
+            --bg-main-news: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary-news: #0f172a;
+            --text-secondary-news: #475569;
+            --border-news: #e2e8f0;
+            --hover-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        /* News Button - Repositioned to bottom-left */
+        #news-open-btn {
+            position: fixed;
+            bottom: 75px;
+            left: 10px;
+            background: var(--accent-news);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 999;
+            animation: pulse-red 2s infinite;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        #news-open-btn:active {
+            transform: scale(0.9);
+        }
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(217, 48, 37, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(217, 48, 37, 0);
+            }
+        }
+
+        .news-widget {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 92vh;
+            background: var(--bg-main-news);
+            flex-direction: column;
+            z-index: 1000;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .widget-header {
+            background: var(--accent-news);
+            color: white;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-btn {
+            cursor: pointer;
+            font-size: 40px;
+            line-height: 1;
+            color: #ffffff;
+            padding: 2px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-right: 3px;
+        }
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .close-btn:active {
+            transform: scale(0.9);
+        }
+        #news-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            color: var(--text-primary-news);
+        }
+        .news-item {
+            background: var(--card-bg);
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border-left: 5px solid var(--accent-news);
+            box-shadow: 0 2px 8px var(--hover-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .news-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--hover-shadow);
+            background: var(--card-bg);
+        }
+        .news-header-row {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .news-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-primary-news);
+            flex: 1;
+            line-height: 1.4;
+            padding-right: 15px;
+        }
+        .read-arrow {
+            color: var(--accent-news);
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .news-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+            background: var(--bg-main-news);
+            padding: 0 18px;
+            font-size: 0.95rem;
+            color: var(--text-secondary-news);
+            line-height: 1.6;
+        }
+        .news-item.active .news-detail {
+            max-height: 500px;
+            padding-bottom: 18px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-news);
+        }
+        .news-item.active .read-arrow {
+            transform: rotate(90deg);
+        }
+        .full-article-btn {
+            display: inline-block;
+            margin-top: 12px;
+            color: var(--accent-news);
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid var(--accent-news);
+            padding: 5px 12px;
+            border-radius: 5px;
+        }
+        .loader {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary-news);
+        }
     </style>
-
-
-<style>
-
-
-
-
-
-/* 3. Bottom Nav Link Styling */
-
-
-
-
-
-/* 5. Modern Pill Toggle Above Nav */
-/* 5. Modern Pill Toggle Above Nav */
-.theme-toggle {
-    position: fixed;
-    bottom: 30px; 
-    right: 2rem;
-    z-index: 10001;
-    width: 34px;
-    height: 34px;
-    border-radius: 12px;
-    background: var(yellow);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--border-color);
-    color: var(--active-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
-
-/* 6. Profile Box Top Right */
-.header-container {
-position: fixed;
-
-    top: 5px;
-
-    right: 5px;
-
-    z-index: 1000;
-
-}
-
-
-
-
-
-
-.profile-box {
-    width: 30px;
-    height: 30px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--active-color);
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
-   
-}
-
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
-}
-
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Grid boxes container needs to stay horizontal */
-
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-
-
-
-/
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
-
-
-
-/* 1. Global Hover Behavior for Navigation Boxes */
-.box-container {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-}
-
-/* 2. Specific Hover Styles for the Main Nav (Top Grid) */
-.group:hover .box-container {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-}
-
-/* Savig Button (Specific brand hover) */
-.group:hover .box-savig {
-    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
-    border-color: #3b82f6;
-}
-
-/* Finance & Travel (Blue focus) */
-.group:hover .group-hover\:border-blue-500\/50 {
-    border-color: rgba(59, 130, 246, 0.5);
-    background-color: rgba(59, 130, 246, 0.05);
-}
-
-/* Grocery (Orange focus) */
-.group:hover .group-hover\:border-orange-500\/50 {
-    border-color: rgba(249, 115, 22, 0.5);
-    background-color: rgba(249, 115, 22, 0.05);
-}
-
-/* 3. Bottom Icon Menu Hover (Cloth, Asset, etc.) */
-.group:hover .group-hover\:bg-blue-500\/20 {
-    background-color: rgba(59, 130, 246, 0.2);
-    border-color: rgba(59, 130, 246, 0.4);
-    transform: scale(1.1);
-}
-
-/* Text color shift for the labels */
-.group:hover span {
-    color: #f8fafc; /* Slate-50 */
-    transition: color 0.2s ease;
-}
-
-/* 4. Active (Click) State for all buttons */
-.group:active .box-container, 
-.group:active div[class*="rounded-xl"] {
-    transform: scale(0.95);
-    transition: transform 0.1s ease;
-}
-/* Profile Button Hover */
-.w-12.h-12.rounded-full {
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-
-.w-12.h-12.rounded-full:hover {
-    border-color: #60a5fa; /* blue-400 */
-    background-color: rgba(59, 130, 246, 0.2);
-
-    transform: scale(1.05);
-}
-
-/* Global Click Shrink Effect */
-a:active, .w-12.h-12:active {
-    transform: scale(0.92) !important;
-    transition: transform 0.1s ease;
-}
-/* पूर्ण स्क्रोलिंग सुरू करण्यासाठी */
-html, body {
-    height: auto !important;
-    overflow-x: hidden;
-    overflow-y: auto !important;
-}
-
-body {
-    padding-bottom: 100px; /* बॉटम नेव्हिगेशन बारसाठी खालच्या बाजूला रिकामी जागा */
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
-
-.no-scrollbar {
-    /* Hide scrollbar for IE, Edge and Firefox */
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;     /* Firefox */
-    
-    /* Smooth Scrolling */
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch; /* Momentum scroll for iOS */
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-</style>
 </head>
-<body class="min-h-screen bg-white-950 flex flex-col items-center">
+<body>
 
-<header class="nav-container relative w-full border-b border-white/10 shadow-2xl overflow-hidden pb-1">
-    <div class="mesh-bg absolute inset-0">
-      <div class="blob-1"></div>
-      <div class="blob-2"></div>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 relative z-10 mt-2">
-   <nav class="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-3">
-  <a href="homemob.html" class="animate-pop group" style="--d: 1">
-    <div class="box-container box-savig shadow-lg group-hover:scale-105 active:scale-95 flex flex-col items-center justify-center bg-white/5 border border-white/10">
-      <div class="relative flex items-center justify-center">
-        <i class="fas fa-shield text-blue-600 text-3xl"></i>
-        <i class="fas fa-database text-white absolute text-[16px]" style="top: 27%;"></i>
-      </div>
-      <span class="font-black italic text-[14px] uppercase text-slate-900">Savig</span>
-    </div>
-  </a>
-
- <a href="incomemob.html" class="animate-pop group" style="--d: 2">
-    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
-      <i class="fas fa-rupee-sign text-blue-400 text-xl"></i>
-      <span class="font-bold text-slate-300 italic  text-[14px]">Finance</span>
-    </div>
-  </a>
-
-  <a href="place.html" class="animate-pop group" style="--d: 3">
-    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
-      <i class="fas fa-plane text-blue-400 text-xl"></i>
-      <span class="font-bold text-slate-300 italic  text-[14px]">Travel</span>
-    </div>
-  </a>
-
-  <a href="grocerymob.html" class="animate-pop group" style="--d: 4">
-    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-orange-500/50">
-      <i class="fas fa-basket-shopping text-orange-400 text-xl"></i>
-      <span class="font-bold text-slate-300 italic text-[14px]">Grocery</span>
-    </div>
-  </a>
-</nav>
-    </div>
-
-
-<div class="w-full py-4 flex justify-between items-center max-w-md mx-auto px-4">
-    <div class="animate-pop flex items-center gap-3" style="--d: 4.5">
-        <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-            <span id="greeting-emoji" class="text-xl">☀️</span>
+    <header class="nav-container relative w-full border-b border-white/10 shadow-2xl overflow-hidden pb-1">
+        <div class="mesh-bg absolute inset-0">
+            <div class="blob-1"></div>
+            <div class="blob-2"></div>
         </div>
 
-        <div>
-            <p id="greeting-time" class="text-white/40 text-[14px]  font-bold leading-none ">
-                Good Morning
-            </p>
-            <h2 class="text-white text-base font-bold">
-                <span id="user-display-name" class="text-[#ffe11b]"></span>
-            </h2>
+        <div class="max-w-7xl mx-auto px-4 relative z-10 mt-2">
+            <nav class="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                <a href="homemob.html" class="animate-pop group" style="--d: 1">
+                    <div class="box-container box-savig shadow-lg group-hover:scale-105 active:scale-95 flex flex-col items-center justify-center bg-white/5 border border-white/10">
+                        <div class="relative flex items-center justify-center">
+                            <i class="fas fa-shield text-blue-600 text-3xl"></i>
+                            <i class="fas fa-database text-white absolute text-[16px]" style="top: 27%;"></i>
+                        </div>
+                        <span class="font-black italic text-[14px] uppercase text-slate-900">Savig</span>
+                    </div>
+                </a>
+
+                <a href="incomemob.html" class="animate-pop group" style="--d: 2">
+                    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
+                        <i class="fas fa-rupee-sign text-blue-400 text-xl"></i>
+                        <span class="font-bold text-slate-300 italic  text-[14px]">Finance</span>
+                    </div>
+                </a>
+
+                <a href="place.html" class="animate-pop group" style="--d: 3">
+                    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-blue-500/50">
+                        <i class="fas fa-plane text-blue-400 text-xl"></i>
+                        <span class="font-bold text-slate-300 italic  text-[14px]">Travel</span>
+                    </div>
+                </a>
+
+                <a href="grocerymob.html" class="animate-pop group" style="--d: 4">
+                    <div class="box-container flex flex-col items-center justify-center bg-white/5 border border-white/10 group-hover:border-orange-500/50">
+                        <i class="fas fa-basket-shopping text-orange-400 text-xl"></i>
+                        <span class="font-bold text-slate-300 italic text-[14px]">Grocery</span>
+                    </div>
+                </a>
+            </nav>
         </div>
-    </div>
 
-<div class="flex items-center gap-2">
-  <button id="open-search" 
-    onclick="const ov = document.getElementById('search-overlay'); ov.classList.remove('hidden'); ov.style.display='flex'; document.getElementById('search-input').focus();"
-    class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group animate-pop focus:outline-none" style="--d: 5.5">
-    <i class="fas fa-search text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
-</button>
+        <div class="w-full py-4 flex justify-between items-center max-w-md mx-auto px-4">
+            <div class="animate-pop flex items-center gap-3" style="--d: 4.5">
+                <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                    <span id="greeting-emoji" class="text-xl">☀️</span>
+                </div>
+                <div>
+                    <p id="greeting-time" class="text-white/40 text-[14px]  font-bold leading-none ">Good Morning</p>
+                    <h2 class="text-white text-base font-bold">
+                        <span id="user-display-name" class="text-[#ffe11b]"></span>
+                    </h2>
+                </div>
+            </div>
 
-    <button class="theme-toggle text-xl text-yellow-400" id="theme-btn">
-        <i class="fa-solid fa-sun"></i>
-    </button>
-    
-    <a href="profilemob.html" class="w-12 h-12  rounded-full border-2 border-blue-500/30 bg-slate-800 flex items-center justify-center animate-pop group" style="--d: 6">
-        <i class="fas fa-user-circle text-blue-400 text-3xl group-hover:text-blue-300"></i>
-    </a>
-</div>
-      </div>
-<div id="search-overlay" class="fixed inset-0 bg-[var(--bg)] z-[9999] hidden flex-col duration-300">
-    <div class="flex items-center px-4 py-3 border-b border-[var(--border)]">
-        <button id="close-search" 
-            class="w-10 h-10 flex items-center justify-center rounded-full text-[var(--text-muted)] 
-                   hover:bg-slate-100 dark:hover:bg-white/10 hover:text-blue-500 
-                   active:scale-90 transition-all duration-200 mr-2">
-            <i class="fas fa-arrow-left text-xl"></i>
-        </button>
-        
-        <div class="flex-1 relative">
-            <input type="text" id="search-input" autofocus 
-                placeholder="Search your vault..." 
-                class="w-full bg-transparent text-lg py-2 outline-none text-[var(--text-main)] placeholder-slate-400 font-medium"
-            >
+            <div class="flex items-center gap-2">
+                <button id="open-search" onclick="const ov = document.getElementById('search-overlay'); ov.classList.remove('hidden'); ov.style.display='flex'; document.getElementById('search-input').focus();" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group animate-pop focus:outline-none" style="--d: 5.5">
+                    <i class="fas fa-search text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+                </button>
+
+                <a href="profilemob.html" class="w-12 h-12  rounded-full border-2 border-blue-500/30 bg-slate-800 flex items-center justify-center animate-pop group" style="--d: 6">
+                    <i class="fas fa-user-circle text-blue-400 text-3xl group-hover:text-blue-300"></i>
+                </a>
+            </div>
         </div>
-        
-        <button class="w-10 h-10 flex items-center justify-center rounded-full text-blue-500 
-                       hover:bg-blue-500/10 active:scale-95 transition-all">
-            <i class="fas fa-microphone text-lg"></i>
-        </button>
-    </div>
-   
 
-
-    <div id="cred-list-mobile-overlay" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
-        <div id="search-placeholder" class="flex flex-col items-center justify-center h-64 text-slate-400 space-y-2">
-            <i class="fas fa-search text-4xl opacity-20"></i>
-            <p class="text-xs font-black uppercase tracking-widest">Type to explore Savig</p>
+        <div id="search-overlay" class="fixed inset-0 bg-[var(--bg)] z-[9999] hidden flex-col duration-300">
+            <div class="flex items-center px-4 py-3 border-b border-[var(--border)]">
+                <button id="close-search" class="w-10 h-10 flex items-center justify-center rounded-full text-[var(--text-muted)] hover:bg-slate-100 dark:hover:bg-white/10 hover:text-blue-500 active:scale-90 transition-all duration-200 mr-2">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <div class="flex-1 relative">
+                    <input type="text" id="search-input" autofocus placeholder="Search your vault..." class="w-full bg-transparent text-lg py-2 outline-none text-[var(--text-main)] placeholder-slate-400 font-medium">
+                </div>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full text-blue-500 hover:bg-blue-500/10 active:scale-95 transition-all">
+                    <i class="fas fa-microphone text-lg"></i>
+                </button>
+            </div>
+            <div id="cred-list-mobile-overlay" class="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+                <div id="search-placeholder" class="flex flex-col items-center justify-center h-64 text-slate-400 space-y-2">
+                    <i class="fas fa-search text-4xl opacity-20"></i>
+                    <p class="text-xs font-black uppercase tracking-widest">Type to explore Savig</p>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-    <div class="flex overflow-x-auto no-scrollbar gap-3 md:grid md:grid-cols-5 md:overflow-visible px-4 py-1">
 
+        <div class="flex overflow-x-auto no-scrollbar gap-3 md:grid md:grid-cols-5 md:overflow-visible px-4 py-1">
+            <a href="https://mjpwms.in/viewpay.aspx" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 9">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-500/10 group-hover:border-cyan-500/40 shadow-lg">
+                    <i class="fas fa-droplet text-cyan-400 text-2xl group-hover:text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Water</span>
+            </a>
+            <a href="shop.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 14">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+                    <i class="fas fa-store text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Stores</span>
+            </a>
+            <a href="vehiclemob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 11">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+                    <i class="fa-solid fa-car text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Vehicle</span>
+            </a>
+            <a href="https://www.jio.com/selfcare/recharge/mobility/" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 13">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
+                    <i class="fas fa-mobile-screen-button text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Recharge</span>
+            </a>
+            <a href="visitmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 10">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+                    <i class="fas fa-users-viewfinder text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Visitor</span>
+            </a>
+            <a href="birthdaymob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 10">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
+                    <i class="fas fa-cake-candles text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Birthday</span>
+            </a>
+            <a href="eternalmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 20">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
+                    <i class="fas fa-infinity text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Eternal</span>
+            </a>
+            <a href="panchangmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 12">
+                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
+                    <i class="fa-regular fa-calendar text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]"></i>
+                </div>
+                <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">festival</span>
+            </a>
+        </div>
+    </header>
 
-  <a href="https://mjpwms.in/viewpay.aspx" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 9">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-500/10 group-hover:border-cyan-500/40 shadow-lg">
-      <i class="fas fa-droplet text-cyan-400 text-2xl group-hover:text-cyan-300 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-      Water
-    </span>
-  </a>
-<a href="shop.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 14">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
-      <i class="fas fa-store text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-      Stores
-    </span>
-  </a>
-
-  <a href="vehiclemob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 11">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
-     <i class="fa-solid fa-car text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-     Vehicle
-    </span>
-  </a>
-
-  <a href="https://www.jio.com/selfcare/recharge/mobility/" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 13">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
-      <i class="fas fa-mobile-screen-button text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-      Recharge 
-    </span>
-  </a>
-  
- <a href="visitmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 10">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
-      <i class="fas fa-users-viewfinder text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-      Visitor 
-    </span>
-  </a>
-
-<a href="birthdaymob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 10">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
-        <i class="fas fa-cake-candles text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(244,114,182,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-        Birthday
-    </span>
-</a>
-
-<a href="eternalmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 20">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-500/10 group-hover:border-indigo-500/40 shadow-lg">
-        <i class="fas fa-infinity text-indigo-400 text-2xl group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-        Eternal
-    </span>
-</a>
-
-  
-              <a href="panchangmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 12">
-    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
-      <i class="fa-regular fa-calendar text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]"></i>
-    </div>
-    <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">
-festival
-    </span>
-  </a>
-</div>
-    </div>
-  </header>
-
-
-
-
-
-
-
-  
-
-    
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    
-<style>
-    :root { 
-        --bg: #ffffff;
-        --card: #f8fafc;
-        --text-main: #0f172a;    /* Deep slate for readability */
-        --text-muted: #64748b;
-        --border: #e2e8f0;
-        --accent: #6366f1;
-    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0">
+    </script>
 
-    [data-theme="dark"] { 
-        --bg: #0f172a;           /* Deep Navy instead of Black */
-        --card: #1e293b;         /* Slate blue for cards */
-        --text-main: #f1f5f9;    /* Crisp off-white */
-        --text-muted: #94a3b8;
-        --border: #334155;
-    }
+    <div class="flex flex-row items-start justify-between w-full max-w-md mx-auto gap-2 px-2 py-2 mt-2 bg-[var(--card)] rounded-2xl shadow-sm">
+        <div id="todays-overview" class="w-1/2">
+            <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-[var(--text-main)] uppercase tracking-tight">
+                <i class="fas fa-calendar-day"></i> Schedule
+            </h2>
+            <div id="event-list" class="space-y-3">
+                <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                    Checking...
+                </p>
+            </div>
+        </div>
 
-
-
-    .stat-card {
-        background: var(--card); 
-        border: 1px solid var(--border);
-        border-radius: 16px; 
-        padding: 2px;
-     
-    }
-.chart-wrapper { 
-    position: relative; 
-    height: 220px; 
-    width: 100%;
-    z-index: 1; /* Keep it low */
-}
-    .hidden { display: none !important; }
-
-    .spinner {
-        width: 35px; height: 35px;
-        border: 3px solid var(--border);
-        border-top: 3px solid var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-
-    /* Custom Active State Styles */
-.active-link i, 
-.active-link div {
-    color: #4f46e5 !important; /* Tailwind's indigo-600 */
-    font-weight: bold;
-}
-
-.active-link {
-    transform: scale(1.1);
-}
-</style>
-
-<div class="flex flex-row items-start justify-between w-full max-w-md mx-auto gap-2 px-2 py-2 mt-2 bg-white rounded-2xl shadow-sm">
-    
-    <div id="todays-overview" class="w-1/2">
-        <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-black uppercase tracking-tight">
-            <i class="fas fa-calendar-day"></i> Schedule
-        </h2>
-        <div id="event-list" class="space-y-3">
-            <p class="text-black font-[600] text-[15px] p-3 border-2 border-solid border-black bg-white rounded-xl text-center leading-tight">
-                Checking...
-            </p>
+        <div id="bday-overview-container" class="w-1/2">
+            <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-[var(--text-main)]">
+                <i class="fas fa-cake-candles"></i> Birthdays
+            </h6>
+            <div id="bday-realtime-list" class="space-y-3">
+                <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                    Checking...
+                </p>
+            </div>
         </div>
     </div>
 
-    <div id="bday-overview-container" class="w-1/2">
-        <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-black">
-            <i class="fas fa-cake-candles"></i> Birthdays
-        </h6>
-        <div id="bday-realtime-list" class="space-y-3">
-            <p class="text-black font-[600] text-[15px] p-3 border-2 border-solid border-black bg-white rounded-xl text-center leading-tight">
-                Checking...
-            </p>
+    <div class="max-w-6xl mx-auto">
+        <header class="flex flex-row justify-between items-center gap-4 mb-1 py-2">
+            <div class="flex items-center gap-2">
+                <div class="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
+                <h1 class="text-base font-bold tracking-tighter uppercase transition-colors duration-300 text-[var(--text-main)]">
+                    Finance <span class="text-indigo-600 italic">LIVE</span>
+                </h1>
+            </div>
+            <input type="month" id="monthSelector" class="w-auto bg-white-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-1.5 px-3 text-slate-700 dark:text-slate-200 font-bold text-xs outline-none">
+        </header>
+
+        <div class="grid grid-cols-4 lg:grid-cols-4 gap-2 mb-2 px-0">
+            <div class="stat-card border-b-2 border-emerald-500 !p-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Income</p>
+                <h2 id="totalIncome" class="text-sm font-black text-emerald-600 leading-none">₹0</h2>
+            </div>
+            <div class="stat-card border-b-2 border-rose-500 !p-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Expense</p>
+                <h2 id="totalExpense" class="text-sm font-black text-rose-500 leading-none">₹0</h2>
+            </div>
+            <div class="stat-card border-b-2 border-sky-500 !p-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Saving</p>
+                <h2 id="monthlySaving" class="text-sm font-black text-sky-600 leading-none">₹0</h2>
+            </div>
+            <div class="stat-card border-b-2 border-amber-500 !p-2">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Overall</p>
+                <h2 id="overallSaving" class="text-sm font-black text-amber-600 leading-none">₹0</h2>
+            </div>
         </div>
-    </div>
-
-</div>
-
-</div>
-</div>
-<style>
-    :root { 
-        --bg: #ffffff;
-        --card: #f8fafc;
-        --text-main: #0f172a;    /* Deep slate for readability */
-        --text-muted: #64748b;
-        --border: #e2e8f0;
-        --accent: #6366f1;
-    }
-
-    [data-theme="dark"] { 
-        --bg: #0f172a;           /* Deep Navy instead of Black */
-        --card: #1e293b;         /* Slate blue for cards */
-        --text-main: #f1f5f9;    /* Crisp off-white */
-        --text-muted: #94a3b8;
-        --border: #334155;
-    }
-
-.group:hover .box-container {
-    transform: translateY(-2px);
-    box-shadow: none !important; /* Forces shadow removal on hover */
-}
-
-    .stat-card {
-        background: var(--card); 
-        border: 1px solid var(--border);
-        border-radius: 16px; 
-        padding: 2px;
-box-shadow: none !important; /* Removes default shadow */
-    }
-
-    .chart-wrapper { position: relative; height: 250px; width: 100%; }
-    .hidden { display: none !important; }
-
-    .spinner {
-        width: 35px; height: 35px;
-        border: 3px solid var(--border);
-        border-top: 3px solid var(--accent);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
-  <div class="max-w-6xl mx-auto">
-<header class="flex flex-row justify-between items-center gap-4 mb-1 py-2">
-    <div class="flex items-center gap-2">
-        <div class="w-1.5 h-4 bg-indigo-600 rounded-full"></div>
-        <h1 class="text-base font-bold tracking-tighter uppercase transition-colors duration-300">
-            Finance <span class="text-indigo-600 italic">LIVE</span>
-        </h1>
-    </div>
-
-    <input type="month" id="monthSelector" 
-        class="w-auto bg-white-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg py-1.5 px-3 text-slate-700 dark:text-slate-200 font-bold text-xs outline-none">
-</header>
-
- <div class="grid grid-cols-4 lg:grid-cols-4 gap-2 mb-2 px-0">
-    <div class="stat-card border-b-2 border-emerald-500 !p-2">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Income</p>
-        <h2 id="totalIncome" class="text-sm font-black text-emerald-600 leading-none">₹0</h2>
-    </div>
-    
-    <div class="stat-card border-b-2 border-rose-500 !p-2">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Expense</p>
-        <h2 id="totalExpense" class="text-sm font-black text-rose-500 leading-none">₹0</h2>
-    </div>
-
-    <div class="stat-card border-b-2 border-sky-500 !p-2">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Saving</p>
-        <h2 id="monthlySaving" class="text-sm font-black text-sky-600 leading-none">₹0</h2>
-    </div>
-
-    <div class="stat-card border-b-2 border-amber-500 !p-2">
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-0.5">Overall</p>
-        <h2 id="overallSaving" class="text-sm font-black text-amber-600 leading-none">₹0</h2>
-    </div>
-</div>
 
         <div id="loader" class="flex flex-col items-center justify-center py-20">
             <div class="spinner"></div>
@@ -764,1144 +903,38 @@ box-shadow: none !important; /* Removes default shadow */
             <p class="text-slate-400 font-bold uppercase text-[15px] tracking-widest">No activity found</p>
         </div>
 
-        <div id="chartsContainer" class="hidden grid grid-cols-1 lg:grid-cols-2 ">
+        <div id="chartsContainer" class="hidden grid grid-cols-1 lg:grid-cols-2">
             <div class="stat-card">
                 <h3 class="font-bold text-[14px] uppercase text-slate-400 tracking-widest">Expense Distribution</h3>
                 <div class="chart-wrapper"><canvas id="expensePieChart"></canvas></div>
             </div>
-     
         </div>
     </div>
 
-  <nav id="universal-bottom-nav">
-   <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-house transition-colors duration-300 group-hover:text-indigo-500"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold ">Home</div>
-    </a>
-
-    <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-location-dot transition-colors duration-300 group-hover:text-indigo-500"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Address</div>
-    </a>
-
-    <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-key transition-colors duration-300 group-hover:text-indigo-500"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Password</div>
-    </a>
-
-    <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fa-solid fa-envelope transition-colors duration-300 group-hover:text-indigo-500"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Contact</div>
-    </a>
-          <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
-        <i class="fas fa-calendar-alt transition-colors duration-300 group-hover:text-indigo-500"></i>
-        <div class="transition-all duration-300 group-hover:text-indigo-600 group-hover:font-bold">Calendar</div>
-    </a>
-      
+    <nav id="universal-bottom-nav">
+        <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+            <i class="fa-solid fa-house transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Home</div>
+        </a>
+        <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+            <i class="fa-solid fa-location-dot transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Address</div>
+        </a>
+        <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+            <i class="fa-solid fa-key transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Password</div>
+        </a>
+        <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+            <i class="fa-solid fa-envelope transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Contact</div>
+        </a>
+        <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90">
+            <i class="fas fa-calendar-alt transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Calendar</div>
+        </a>
     </nav>
 
-<style>
-/* 1. Theme Variables & Reset */
-:root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
-}
-
-[data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
-}
-
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 9px;
-}
-
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 40px;
-}
-
-.nav-link i {
-    font-size: 25px;
-    margin-bottom: 4px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
-}
-
-.nav-link div {
-    font-size: 9px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 5px;
-}
-
-.nav-link.active {
-    color: var(--active-color) !important;
-}
-
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
-}
-
-
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
-}
-
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
-
-
-
-
-
-
-
-
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
-}
-
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-
-
-
-/* 1. Reset Body and Layout Logic */
-
-/* 3. Fix the Grid Columns for Mobile */
-
-
-/* 4. Positioning the Profile Box back to the top right */
-
-
-/* 5. Data Visibility and Contrast */
-
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
-</style>
-
-
-
-   <script>
-    // 1. Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-  authDomain: "sk12-58e9e.firebaseapp.com",
-  databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-  projectId: "sk12-58e9e",
-  storageBucket: "sk12-58e9e.firebasestorage.app",
-  messagingSenderId: "470207874652",
-  appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
-  measurementId: "G-QKCRDR9QML"
-};
-const fixedEvents = [
-    { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
-    { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
-    { d: "19-02", n: "शिवजयंती (शासकीय)", t: "holiday" },
-    { d: "15-02", n: "महाशिवरात्री", t: "vrat" },
-    { d: "04-03", n: "धुलिवंदन", t: "holiday" },
-    { d: "19-03", n: "गुढीपाडवा (मराठी नववर्ष)", t: "holiday" },
-    { d: "14-04", n: "डॉ. आंबेडकर जयंती", t: "holiday" },
-    { d: "01-05", n: "महाराष्ट्र दिन", t: "holiday" },
-    { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
-    { d: "14-09", n: "गणेश चतुर्थी", t: "holiday" },
-    { d: "20-10", n: "दसरा (विजयादशमी)", t: "holiday" },
-    { d: "08-11", n: "दिवाळी (लक्ष्मीपूजन)", t: "holiday" },
-    { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" }
-    // ... add others as needed
-];
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const auth = firebase.auth();
-    Chart.register(ChartDataLabels);
-
-    let pieChart = null;
-
-    // 2. Initial Load
-    window.onload = () => {
-        const now = new Date();
-        document.getElementById("monthSelector").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-        auth.onAuthStateChanged(user => { if (user) loadAnalytics(); });
-    };
-
-    document.getElementById("monthSelector").addEventListener("change", loadAnalytics);
-
-    // 3. Theme-Aware Color Fetcher
-    // This function looks at your CSS variables to find the right color for the current mode
-    function getThemeColor() {
-        return getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#0f172a';
-    }
-
-    function showLoader(show) {
-        document.getElementById("loader").classList.toggle("hidden", !show);
-        if(show) {
-            document.getElementById("chartsContainer").classList.add("hidden");
-            document.getElementById("noDataScreen").classList.add("hidden");
-        }
-    }
-
-    async function loadAnalytics() {
-        const user = auth.currentUser;
-        const month = document.getElementById("monthSelector").value;
-        if (!user) return;
-        showLoader(true);
-
-        // Use .once for a faster, one-time fetch to prevent flickering
-        const snapshot = await db.ref(`users/${user.uid}`).once('value');
-        const data = snapshot.val() || {};
-        
-        const monthIncome = Number((data.income && data.income[month]) || 0);
-        const monthExpenses = (data.expenses && data.expenses[month]) || {};
-        
-        let currentMonthTotal = 0, typeTotals = {};
-        const expenseArray = Object.values(monthExpenses);
-
-        let totalIncomeAllTime = 0, totalExpenseAllTime = 0;
-        if(data.income) Object.values(data.income).forEach(v => totalIncomeAllTime += Number(v));
-        if(data.expenses) {
-            Object.values(data.expenses).forEach(m => {
-                Object.values(m).forEach(e => totalExpenseAllTime += Number(e.amount || 0));
-            });
-        }
-
-        if (expenseArray.length === 0) {
-            showLoader(false);
-            document.getElementById("noDataScreen").classList.remove("hidden");
-        } else {
-            expenseArray.forEach(e => {
-                const amt = Number(e.amount || 0);
-                currentMonthTotal += amt;
-                const type = e.type || "Other";
-                typeTotals[type] = (typeTotals[type] || 0) + amt;
-            });
-            renderCharts(typeTotals);
-            showLoader(false);
-            document.getElementById("chartsContainer").classList.remove("hidden");
-        }
-
-        document.getElementById("totalIncome").innerText = `₹${monthIncome.toLocaleString()}`;
-        document.getElementById("totalExpense").innerText = `₹${currentMonthTotal.toLocaleString()}`;
-        document.getElementById("monthlySaving").innerText = `₹${(monthIncome - currentMonthTotal).toLocaleString()}`;
-        document.getElementById("overallSaving").innerText = `₹${(totalIncomeAllTime - totalExpenseAllTime).toLocaleString()}`;
-    }
-
-   function renderCharts(totals) {
-    const labels = Object.keys(totals);
-    const data = Object.values(totals);
-
-    // DYNAMIC DETECTION: Get the current text color from CSS variables
-    const bodyStyles = window.getComputedStyle(document.body);
-    const dynamicLabelColor = bodyStyles.getPropertyValue('--text-main').trim();
-
-    if (pieChart) pieChart.destroy();
-
-    pieChart = new Chart(document.getElementById('expensePieChart'), {
-        type: 'pie',
-        data: { 
-            labels, 
-            datasets: [{ 
-                data, 
-                backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'], 
-                // Border matches the card color for a clean "cut" look
-                borderColor: bodyStyles.getPropertyValue('--card').trim(), 
-                borderWidth: 2 
-            }] 
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: 65 },
-            plugins: {
-                datalabels: {
-                    anchor: 'end',
-                    align: 'end',
-                    offset: 10,
-                    color: dynamicLabelColor, // Automatically switches based on theme
-                    font: { weight: '700', size: 11 },
-                    formatter: (v, ctx) => {
-                        let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                        return `${ctx.chart.data.labels[ctx.dataIndex]}\n₹${v.toLocaleString()} (${((v*100)/sum).toFixed(0)}%)`;
-                    },
-                    textAlign: 'center'
-                },
-                legend: { display: false }
-            }
-        }
-    });
-}
-
-    // 4. THEME TOGGLE REFRESHER
-    // If you have a theme button, make sure it refreshes the charts
-    document.getElementById('theme-btn').addEventListener('click', () => {
-        // Wait a tiny bit for the data-theme attribute to update in the DOM
-        setTimeout(() => {
-            if (pieChart) loadAnalytics(); 
-        }, 50);
-    });
-
-
-async function loadTodaysDashboard() {
-    const user = firebase.auth().currentUser;
-    const listCont = document.getElementById('event-list');
-    
-    if (!user) {
-        listCont.innerHTML = `<p class="text-red-500 text-center text-xs font-[600]">Please log in.</p>`;
-        return;
-    }
-
-    const now = new Date();
-    // Format: YYYY-MM-DD for Firebase
-    const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    // Format: DD-MM for Festival checking
-    const todayShort = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-
-    try {
-        // --- STEP 1: Fetch Personal Events from Firebase ---
-        const snapshot = await firebase.database().ref(`users/${user.uid}/events/${todayISO}`).once("value");
-        const data = snapshot.val();
-        let personalEvents = [];
-        
-        if (data) {
-            personalEvents = Object.entries(data)
-                .map(([id, ev]) => ({ id, ...ev }))
-                .filter(ev => ev.status === 'pending');
-        }
-
-        // --- STEP 2: Fetch Public Festival for Today ---
-        let festivalEvents = [];
-        // fixedEvents is the array from your Mahadin-Darshika code
-        const todayFest = fixedEvents.find(f => f.d === todayShort);
-        
-        if (todayFest) {
-            festivalEvents.push({
-                id: 'fest-' + todayShort,
-                title: `🚩 ${todayFest.n}`,
-                time: "All Day",
-                location: todayFest.t === 'holiday' ? "Bank Holiday" : "Festival",
-                isFestival: true // Tag to style it differently
-            });
-        }
-
-        // --- STEP 3: Combine and Sort ---
-        const allEvents = [...festivalEvents, ...personalEvents];
-        
-        // Sort: Festivals first, then others by time
-        allEvents.sort((a, b) => {
-            if (a.isFestival) return -1;
-            if (b.isFestival) return 1;
-            return a.time.localeCompare(b.time);
-        });
-
-        if (allEvents.length === 0) {
-            listCont.innerHTML = `
-                <div class="p-3 bg-white rounded-xl text-black font-[600] border-2 border-black text-[14px] text-center leading-tight">
-                    ✨ No schedule for today.
-                </div>`;
-            return;
-        }
-
-        // --- STEP 4: Render Combined HTML ---
-        listCont.innerHTML = allEvents.map(ev => {
-            // Apply a special saffron border if it's a festival
-            const borderClass = ev.isFestival ? "border-orange-500 bg-orange-50" : "border-black bg-white";
-            const iconClass = ev.isFestival ? "fa-flag" : "fa-clock";
-
-            return `
-            <div class="${borderClass} p-2 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1 ">
-                <div class="min-w-0">
-                    <h3 class="font-[700] text-black text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
-                    
-                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-black font-[600] ">
-                        <span class="flex items-center whitespace-nowrap">
-                            <i class="fas ${iconClass} mr-1 text-black text-[14px]"></i>${ev.time}
-                        </span>
-                        
-       
-                    </div>
-                </div>
-                
-                <div class="bg-black rounded-full p-1 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <i class="fas fa-chevron-right text-white text-[14px]"></i>
-                </div>
-            </div>
-        `}).join('');
-
-    } catch (err) {
-        console.error("Dashboard error:", err);
-        listCont.innerHTML = `<p class="text-red-600 text-xs text-center font-[600]">Failed to load schedule.</p>`;
-    }
-}
-async function fetchAndShowTodaysEvents() {
-    const user = firebase.auth().currentUser;
-    const listCont = document.getElementById('bday-realtime-list');
-    if (!user || !listCont) return;
-
-    const now = new Date();
-    const tDay = now.getDate();
-    const tMonth = now.getMonth() + 1;
-
-    try {
-        const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
-            firebase.database().ref(`users/${user.uid}/birthdays`).once("value"),
-            firebase.database().ref(`anniversaries/${user.uid}`).once("value"),
-            firebase.database().ref(`users/${user.uid}/contacts`).once("value")
-        ]);
-
-        const allBdays = bdaySnap.val() || {};
-        const allAnnis = anniSnap.val() || {};
-        const allContacts = Object.values(contactSnap.val() || {});
-
-        let mergedItems = [];
-
-        const parseDate = (str) => {
-            if (!str) return null;
-            const p = str.split(/[-/]/); 
-            if (p[0].length === 4) return { y: parseInt(p[0]), m: parseInt(p[1]), d: parseInt(p[2]) };
-            return { d: parseInt(p[0]), m: parseInt(p[1]), y: parseInt(p[2]) };
-        };
-
-        // 1. Process Birthdays
-        Object.values(allBdays).forEach(person => {
-            const dt = parseDate(person.birthdate);
-            if (dt && dt.d === tDay && dt.m === tMonth) {
-                mergedItems.push({
-                    name: person.name,
-                    type: 'birthday',
-                    icon: "🎂",
-                    msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day! ✨🎈`
-                });
-            }
-        });
-
-        // 2. Process Anniversaries
-        Object.values(allAnnis).forEach(item => {
-            const dt = parseDate(item.d);
-            if (dt && dt.d === tDay && dt.m === tMonth) {
-                let baseYears = now.getFullYear() - dt.y;
-                let displayYears = item.manualYears ? (parseInt(item.manualYears) + baseYears) : baseYears;
-                
-                mergedItems.push({
-                    name: `${item.h} & ${item.w}`,
-                    searchNames: [item.h, item.w], // Store both names to check contacts later
-                    type: 'anniversary',
-                    icon: "💍",
-                    years: displayYears,
-                    msg: `Happy ${displayYears > 0 ? displayYears + 'th ' : ''}Anniversary ${item.h} & ${item.w}! 🥂💖 Wishing you a lifetime of love! ✨`
-                });
-            }
-        });
-
-        if (mergedItems.length === 0) {
-            listCont.innerHTML = `<div style="border:1px solid #000" class="bg-white p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"> 🗓️ No Birthday and aniversary today </div>`;
-            return;
-        }
-
-        // 3. Render
-        listCont.innerHTML = mergedItems.map(event => {
-            // Find phone number in contacts
-            let contactMatch;
-            if (event.type === 'birthday') {
-                contactMatch = allContacts.find(c => c.name?.toLowerCase() === event.name.toLowerCase());
-            } else {
-                // For anniversaries, check if either the husband or wife exists in contacts
-                contactMatch = allContacts.find(c => 
-                    event.searchNames.some(n => n?.toLowerCase() === c.name?.toLowerCase())
-                );
-            }
-
-            const phone = contactMatch ? (contactMatch.whatsapp || contactMatch.mobile) : null;
-            const waLink = phone ? `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` : null;
-
-          return `
-<div style="border: 1px solid #000;" class="bg-white rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between  mb-1">
-    <div class="flex items-center min-w-0 ">
-        <div class="rounded-lg w-12 h-12 flex items-center justify-center text-xm flex-shrink-0">
-            ${event.icon}
-        </div>
-        
-        <div class="min-w-0 flex-1 text-center pr-0.5 pl-[-5]  ">
-            <div class="text-[12px] font-[900] pl-[-5] text-black uppercase break-words leading-[1.1]">
-                ${event.name}
-            </div>
-            ${event.years ? `
-                <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
-                    ${event.years} Years Completed
-                </div>` : ''}
-        </div>
-    </div>
-
-    <div class="flex-shrink-0 w-10 flex justify-end">
-        ${waLink ? `
-            <a href="${waLink}" target="_blank" 
-               style="border: 1px solid #000;" 
-               class="bg-[#25D366] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg mr-1 w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
-                <i class="fab fa-whatsapp text-white text-[29px]"></i>
-            </a>
-        ` : ''}
-    </div>
-</div>`;
-        }).join('');
-
-    } catch (e) {
-        console.error(e);
-        listCont.innerHTML = `<div class="text-[14px] font-bold text-center border border-black p-2 rounded-xl">Error Loading ⚠️</div>`;
-    }
-}
-// FIX: Updated the Auth Listener to call the correct merged function
-firebase.auth().onAuthStateChanged((user) => {
-    if (!user) {
-        window.location.replace("indexmob.html"); 
-    } else {
-        // 1. Fetch User Name
-        firebase.database().ref('users/' + user.uid).once('value').then((snapshot) => {
-            const data = snapshot.val();
-            const finalName = (data && data.name) || user.displayName || "Safar";
-            const nameElement = document.getElementById('user-display-name');
-            if (nameElement) nameElement.innerText = finalName;
-        });
-
-        // 2. Set Time-Based Greeting
-        updateTimeGreeting();
-
-        // 3. INITIALIZE BOTH DASHBOARDS
-        loadTodaysDashboard();       // For "Schedule" (Events)
-        fetchAndShowTodaysEvents();  // For "Birthdays" (Merged Birthday + Anniversary)
-    }
-});
-
-// Trigger load once user is authenticated
-firebase.auth().onAuthStateChanged(user => {
-    if (user) loadTodaysDashboard();
-});
-
-firebase.auth().onAuthStateChanged((user) => {
-    if (!user) {
-        // No user is signed in, redirect to login page immediately
-        console.log("Unauthorized access detected. Redirecting...");
-        window.location.replace("indexmob.html"); 
-    } else {
-        // Access granted: User is signed in
-        console.log("Access granted for:", user.email);
-        
-        // 1. Fetch User Name from Realtime Database
-        const userId = user.uid;
-        firebase.database().ref('users/' + userId).once('value')
-            .then((snapshot) => {
-                const data = snapshot.val();
-                // Priority: DB 'name' -> Auth 'displayName' -> Default 'Safar'
-                const finalName = (data && data.name) || user.displayName || "Safar";
-                
-                const nameElement = document.getElementById('user-display-name');
-                if (nameElement) {
-                    nameElement.innerText = finalName;
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching user name:", error);
-            });
-
-        // 2. Set Time-Based Greeting
-        updateTimeGreeting();
-
-        // 3. Initialize Page Functions
-        if (typeof fetchAndShowTodaysBirthdays === "function") {
-            fetchAndShowTodaysBirthdays();
-        }
-    }
-});
-
-
-/**
- * Professional Time-Based Greeting Logic
- * Sets message based on current hour
- */
-function updateTimeGreeting() {
-    const hours = new Date().getHours();
-    const greetEl = document.getElementById('greeting-time');
-    const emojiEl = document.getElementById('greeting-emoji');
-    
-    if (!greetEl) return;
-
-    let message = "";
-    let emoji = "";
-
-    if (hours >= 5 && hours < 12) {
-        message = "Good Morning";
-        emoji = "☀️"; // Sun for productivity
-    } else if (hours >= 12 && hours < 17) {
-        message = "Good Afternoon";
-        emoji = "🌤️"; // Soft sun
-    } else if (hours >= 17 && hours < 21) {
-        message = "Good Evening";
-        emoji = "🌆"; // City sunset (very professional/fin-tech vibe)
-    } else {
-        message = "Good Night";
-        emoji = "🌙"; // Calm moon
-    }
-
-    greetEl.innerText = message;
-    if (emojiEl) emojiEl.innerText = emoji;
-}
-
-// Call the function
-updateTimeGreeting();
-
-// --- 1. THE SEARCH LOGIC ---
-const initializeSavigSearch = () => {
-    const input = document.getElementById('search-input');
-    const resultsArea = document.getElementById('cred-list-mobile-overlay');
-    const closeBtn = document.getElementById('close-search');
-    const overlay = document.getElementById('search-overlay');
-
-    if (!input || !overlay) return;
-
-    closeBtn.onclick = () => {
-        overlay.classList.add('hidden');
-        overlay.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    };
-
-    let searchTimeout;
-    input.addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        const query = input.value.toLowerCase().trim();
-        
-        if (query.length < 2) {
-            resultsArea.innerHTML = '<p class="p-4 text-gray-500 text-xs font-bold uppercase text-center mt-10 tracking-widest">Type at least 2 letters...</p>';
-            return;
-        }
-
-        searchTimeout = setTimeout(async () => {
-            const user = firebase.auth().currentUser;
-            if (!user) return;
-            
-            resultsArea.innerHTML = '<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>';
-
-            // Define your exact Firebase paths
-         const paths = [
-    { path: `addresses/${user.uid}`, mod: 'address' },
-    { path: `users/${user.uid}/contacts`, mod: 'contact' },
-    { path: `users/${user.uid}/tasks`, mod: 'calendar' },   // Fixed: added 's'
-    { path: `users/${user.uid}/events`, mod: 'calendar' },  // Added: fetch events too
-    { path: `users/${user.uid}/birthdays`, mod: 'birthday' },
-    { path: `users/${user.uid}/expenses`, mod: 'finance' }
-];
-            
-            try {
-                const snapshots = await Promise.all(paths.map(p => firebase.database().ref(p.path).once('value')));
-                let results = [];
-
-                snapshots.forEach((snap, idx) => {
-                    const data = snap.val();
-                    if (!data) return;
-                    
-                    Object.entries(data).forEach(([key, val]) => {
-                        const stringified = JSON.stringify(val).toLowerCase();
-                        if (stringified.includes(query)) {
-                            // Deep search for nested dates in Calendar/Finance
-                            if (paths[idx].mod === 'calendar' || paths[idx].mod === 'finance') {
-                                Object.entries(val).forEach(([subKey, subVal]) => {
-                                    if (JSON.stringify(subVal).toLowerCase().includes(query)) {
-                                        results.push({ id: subKey, mod: paths[idx].mod, data: subVal, parent: key });
-                                    }
-                                });
-                            } else {
-                                results.push({ id: key, mod: paths[idx].mod, data: val });
-                            }
-                        }
-                    });
-                });
-                renderSearchCards(results);
-            } catch (e) { 
-                console.error(e);
-                resultsArea.innerHTML = '<p class="text-red-500 text-center">Search Error.</p>';
-            }
-        }, 300);
-    });
-};
-const renderSearchCards = (results) => {
-    const resultsArea = document.getElementById('cred-list-mobile-overlay');
-    if (!resultsArea) return;
-    
-    const uniqueResults = Array.from(new Map(results.map(item => [item.id, item])).values());
-    resultsArea.innerHTML = uniqueResults.length ? '' : '<p class="p-10 text-center opacity-50 font-bold uppercase text-[10px]">No matches</p>';
-
-    uniqueResults.forEach((res, index) => {
-        const d = res.data;
-        const mod = res.mod;
-        const name = d.name || d.title || d.itemName || d.place || 'Record';
-        
-        let displayDetail = "";
-        let actionBtn = "";
-
-        // --- Logic for Full Detail Visibility ---
-        if (mod === 'calendar' || mod === 'event') {
-            const dateStr = d.date || res.parent || "";
-            const descStr = d.desc || d.description || "";
-            // We use a block layout here to allow the text to wrap
-            displayDetail = `
-                <div class="mt-1">
-                    <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
-                    <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
-                        ${descStr || 'No description available'}
-                    </p>
-                </div>`;
-        } 
-        else if (mod === 'address') {
-            const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
-            // Removed truncate/nowrap to allow the full address to wrap
-            displayDetail = `<p class="text-[12px] text-[var(--text-muted)] leading-relaxed break-words mt-1">${fullAddr}</p>`;
-            
-            actionBtn = `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
-                class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
-                <i class="fas fa-location-arrow"></i> Map
-            </a>`;
-        } 
-        else {
-            const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
-            displayDetail = `<span class="text-[12px] opacity-80">${extra}</span>`;
-            if (d.mobile) {
-                actionBtn = `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" 
-                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
-                    <i class="fas fa-download"></i> Save
-                </button>`;
-            }
-        }
-
-        const card = document.createElement('div');
-        // Removed global 'truncate' from the container
-        card.className = `search-result-card px-3 py-4 border-b border-slate-100 dark:border-white/5 animate-pop`;
-        card.style.animationDelay = `${index * 0.03}s`;
-
-        card.innerHTML = `
-            <div class="flex items-start w-full gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                    <i class="${getIcon(mod)} text-base"></i>
-                </div>
-                
-                <div class="flex-grow min-w-0">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex-grow min-w-0">
-                            <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
-                            ${displayDetail}
-                        </div>
-                        
-                        <div class="flex items-center gap-2 flex-shrink-0">
-                             ${actionBtn}
-                             <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
-                                class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
-                                <i class="fas fa-chevron-right text-[10px]"></i>
-                             </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        resultsArea.appendChild(card);
-    });
-};
-
-// --- 3. VOICE SEARCH LOGIC ---
-const setupVoiceSearch = () => {
-    const micBtn = document.querySelector('.fa-microphone').parentElement;
-    const input = document.getElementById('search-input');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-    if (!SpeechRecognition || !micBtn) return;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN';
-
-    micBtn.onclick = () => recognition.start();
-    recognition.onstart = () => { micBtn.classList.add('animate-pulse', 'text-red-500'); input.placeholder = "Listening..."; };
-    recognition.onend = () => { micBtn.classList.remove('animate-pulse', 'text-red-500'); input.placeholder = "Search vault..."; };
-    recognition.onresult = (e) => {
-        input.value = e.results[0][0].transcript;
-        input.dispatchEvent(new Event('input'));
-    };
-};
-
-// --- Helper Funcs ---
-const getIcon = (m) => {
-    const icons = { address: 'fas fa-location-dot', contact: 'fas fa-user', birthday: 'fas fa-cake-candles', finance: 'fas fa-indian-rupee-sign', calendar: 'fas fa-calendar' };
-    return icons[m] || 'fas fa-database';
-};
-
-window.downloadVCard = (name, mobile) => {
-    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${mobile}\nEND:VCARD`;
-    const blob = new Blob([vcard], { type: 'text/vcard' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${name}.vcf`;
-    link.click();
-};
-
-window.handleRedirect = (mod, id) => {
-    const pages = { address: 'addressmob.html', contact: 'contactmob.html', birthday: 'birthdaymob.html', finance: 'incomemob.html', calendar: 'cr.html' };
-    window.location.href = `${pages[mod] || 'homemob.html'}?searchId=${id}`;
-};
-
-// --- START EVERYTHING ---
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSavigSearch();
-    setupVoiceSearch();
-});
-
-firebase.auth().onAuthStateChanged(user => {
-    if (user) initializeSavigSearch();
-});
-
-
-// --- 2. RENDER SEARCH RESULTS (WITH DATE, DESC, NAV & SAVE) ---
-
-
-
-// --- 4. GLOBAL HELPERS & INITIALIZATION ---
-window.downloadVCard = (name, mobile) => {
-    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${mobile}\nEND:VCARD`;
-    const blob = new Blob([vcard], { type: 'text/vcard' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${name}.vcf`;
-    link.click();
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeSavigSearch();
-    setupVoiceSearch();
-});
-
-firebase.auth().onAuthStateChanged(user => {
-    if (user) initializeSavigSearch();
-});
-    // 2. Setup Background Notifications (FCM)
-    async function initializeFCM() {
-        const messaging = firebase.messaging();
-        try {
-            const permission = await Notification.requestPermission();
-            if (permission === 'granted') {
-                const currentToken = await messaging.getToken({
-                    vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0'
-                });
-
-                if (currentToken) {
-                    const userId = firebase.auth().currentUser.uid;
-                    await firebase.database().ref('users/' + userId + '/fcmToken').set(currentToken);
-                    console.log("FCM Token Updated in DB.");
-                }
-            }
-        } catch (err) {
-            console.log('FCM Setup Error:', err);
-        }
-    }
-
-    // 3. Check for Public Holidays
-    function checkPublicHolidays() {
-        const now = new Date();
-        const todayID = `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`; 
-
-        const lastHoliday = localStorage.getItem('lastHolidayDate');
-        if (lastHoliday === todayID) return;
-
-        firebase.database().ref('holidays/' + todayID).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    new Notification("🚩 Savig Holiday Alert", {
-                        body: `Today is ${data.name}. Enjoy your holiday!`,
-                        icon: "/icon-192.jpg"
-                    });
-                    localStorage.setItem('lastHolidayDate', todayID);
-                }
-            });
-    }
-
-    // 4. Check for Personal Calendar Events
-    function checkPersonalEvents() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const todayISO = `${year}-${month}-${day}`; 
-        
-        const userId = firebase.auth().currentUser.uid;
-        const lastEvent = localStorage.getItem('lastEventDate');
-        if (lastEvent === todayISO) return;
-
-        firebase.database().ref(`users/${userId}/events/${todayISO}`).once('value')
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    const events = snapshot.val();
-                    // Loops through all events scheduled for today
-                    Object.values(events).forEach(event => {
-                        new Notification("📅 Savig Event: " + event.title, {
-                            body: `${event.time || ''} - ${event.desc || ''}`,
-                            icon: "/icon-192.jpg"
-                        });
-                    });
-                    localStorage.setItem('lastEventDate', todayISO);
-                }
-            });
-    }
-
-    // 5. Auth Listener: Starts everything when you log in
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            console.log("User logged in, checking notifications...");
-            initializeFCM();        // Prepares background token
-            checkPublicHolidays();   // Checks 'holidays/' node
-            checkPersonalEvents();   // Checks 'users/uid/events/' node
-        }
-    });
-
-       
-</script>
-<style>
-    :root {
-        --bg-main: #121212;
-        --card-bg: #1e1e1e;
-        --text-primary: #ffffff; /* Improved: Pure white for news titles */
-        --text-secondary: #bbbbbb; /* Improved: Light grey for news description */
-        --accent: #d93025;
-        --border: #333333;
-    }
-
-    /* News Toggle Button */
-    #news-open-btn {
-        position: fixed;
-        bottom: 80px;
-        right: 10px;
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 5px 5px;
-        border-radius: 50px;
-        font-weight: bold;
-        z-index: 999;
-        animation: pulse-red 2s infinite;
-        cursor: pointer;
-        transition: transform 0.2s ease;
-    }
-
-    #news-open-btn:active {
-        transform: scale(0.9);
-    }
-
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.7); }
-        70% { box-shadow: 0 0 0 12px rgba(217, 48, 37, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0); }
-    }
-
-    /* Main Widget Container */
-    .news-widget {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 92vh;
-        background: var(--bg-main);
-        flex-direction: column;
-        z-index: 1000;
-        font-family: 'Segoe UI', Roboto, sans-serif;
-    }
-
-    /* Header */
-    .widget-header {
-        background: var(--accent);
-        color: white;
-        padding: 12px 20px;
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Close Button - Professional & Sharp */
-    .close-btn {
-        cursor: pointer;
-        font-size: 40px; /* Fixed font size */
-        line-height: 1;
-        color: #ffffff; /* Crisp white text */
-        padding: 2px; /* Fixed 2px padding */
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        margin-right:3px;
-    }
-
-    /* Professional Hover State */
-    .close-btn:hover {
-        background-color: rgba(255, 255, 255, 0.2); /* Soft professional overlay */
-        color: #ffffff;
-    }
-
-    .close-btn:active {
-        transform: scale(0.9);
-    }
-  .news-widget {
-            display: none; position: fixed; top: 0; left: 0;
-            width: 100vw; height: 92vh; background: var(--bg-main);
-            flex-direction: column; z-index: 1000;
-            font-family: 'Segoe UI', sans-serif; animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .widget-header {
-            background: var(--accent); color: white;
-            padding: 15px 20px; font-size: 1.3rem; font-weight: bold;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-
-        #news-list { flex: 1; overflow-y: auto; padding: 15px;color:white; }
-
-        /* ३. कार्ड आणि होव्हर इफेक्ट */
-        .news-item {
-            background: var(--card-bg); margin-bottom: 12px;
-            border-radius: 12px; border-left: 5px solid var(--accent);
-            box-shadow: 0 2px 8px var(--hover-shadow);
-            overflow: hidden; transition: all 0.3s ease;
-        }
-
-        /* लाईट/डार्क मोडनुसार होव्हर बदल */
-        .news-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px var(--hover-shadow);
-            background: var(--card-bg); /* लाईट मोडमध्ये हलका बदल */
-        }
-
-        .news-header-row {
-            padding: 18px; display: flex; align-items: center;
-            justify-content: space-between; cursor: pointer;
-        }
-
-        .news-text {
-            font-size: 1.05rem; font-weight: 500; color: var(--text-primary);
-            flex: 1; line-height: 1.4; padding-right: 15px;
-        }
-
-        .read-arrow {
-            color: var(--accent); font-size: 1.5rem;
-            transition: transform 0.3s ease;
-        }
-
-        /* ४. डिटेल विभाग (क्लिक केल्यावर उघडेल) */
-        .news-detail {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.4s ease-out;
-            background: var(--bg-main); padding: 0 18px;
-            font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;
-        }
-
-        .news-item.active .news-detail {
-            max-height: 500px; padding-bottom: 18px; padding-top: 10px;
-            border-top: 1px solid var(--border);
-        }
-
-        .news-item.active .read-arrow { transform: rotate(90deg); }
-
-        .full-article-btn {
-            display: inline-block; margin-top: 12px;
-            color: var(--accent); text-decoration: none; font-weight: bold;
-            border: 1px solid var(--accent); padding: 5px 12px; border-radius: 5px;
-        }
-
-</style>
-</head>
-<body>
-
+    <!-- News Button - Repositioned to bottom-left -->
     <button id="news-open-btn" onclick="toggleWidget()">
         <span>🔔</span> News
     </button>
@@ -1917,25 +950,680 @@ firebase.auth().onAuthStateChanged(user => {
     </div>
 
     <script>
-        function toggleWidget() {
-            const widget = document.getElementById('newsWidget');
-            const isOpen = widget.classList.contains('active');
+        // 1. Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+            authDomain: "sk12-58e9e.firebaseapp.com",
+            databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+            projectId: "sk12-58e9e",
+            storageBucket: "sk12-58e9e.firebasestorage.app",
+            messagingSenderId: "470207874652",
+            appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
+            measurementId: "G-QKCRDR9QML"
+        };
+        const fixedEvents = [
+            { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
+            { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
+            { d: "19-02", n: "शिवजयंती (शासकीय)", t: "holiday" },
+            { d: "15-02", n: "महाशिवरात्री", t: "vrat" },
+            { d: "04-03", n: "धुलिवंदन", t: "holiday" },
+            { d: "19-03", n: "गुढीपाडवा (मराठी नववर्ष)", t: "holiday" },
+            { d: "14-04", n: "डॉ. आंबेडकर जयंती", t: "holiday" },
+            { d: "01-05", n: "महाराष्ट्र दिन", t: "holiday" },
+            { d: "15-08", n: "स्वातंत्र्य दिन", t: "holiday" },
+            { d: "14-09", n: "गणेश चतुर्थी", t: "holiday" },
+            { d: "20-10", n: "दसरा (विजयादशमी)", t: "holiday" },
+            { d: "08-11", n: "दिवाळी (लक्ष्मीपूजन)", t: "holiday" },
+            { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" }
+        ];
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+        Chart.register(ChartDataLabels);
 
-            if (!isOpen) {
-                widget.style.display = 'flex';
-                // Small delay to ensure display:flex is applied before animation starts
-                setTimeout(() => {
-                    widget.classList.add('active');
-                }, 10);
-            } else {
-                widget.classList.remove('active');
-                // Wait for animation to finish before hiding
-                setTimeout(() => {
-                    widget.style.display = 'none';
-                }, 400); 
+        let pieChart = null;
+
+        // 2. Initial Load
+        window.onload = () => {
+            const now = new Date();
+            document.getElementById("monthSelector").value =
+                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+            auth.onAuthStateChanged(user => { if (user) loadAnalytics(); });
+        };
+
+        document.getElementById("monthSelector").addEventListener("change", loadAnalytics);
+
+        // 3. Theme-Aware Color Fetcher
+        function getThemeColor() {
+            return getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#0f172a';
+        }
+
+        function showLoader(show) {
+            document.getElementById("loader").classList.toggle("hidden", !show);
+            if (show) {
+                document.getElementById("chartsContainer").classList.add("hidden");
+                document.getElementById("noDataScreen").classList.add("hidden");
             }
         }
 
+        async function loadAnalytics() {
+            const user = auth.currentUser;
+            const month = document.getElementById("monthSelector").value;
+            if (!user) return;
+            showLoader(true);
+
+            const snapshot = await db.ref(`users/${user.uid}`).once('value');
+            const data = snapshot.val() || {};
+
+            const monthIncome = Number((data.income && data.income[month]) || 0);
+            const monthExpenses = (data.expenses && data.expenses[month]) || {};
+
+            let currentMonthTotal = 0,
+                typeTotals = {};
+            const expenseArray = Object.values(monthExpenses);
+
+            let totalIncomeAllTime = 0,
+                totalExpenseAllTime = 0;
+            if (data.income) Object.values(data.income).forEach(v => totalIncomeAllTime += Number(v));
+            if (data.expenses) {
+                Object.values(data.expenses).forEach(m => {
+                    Object.values(m).forEach(e => totalExpenseAllTime += Number(e.amount || 0));
+                });
+            }
+
+            if (expenseArray.length === 0) {
+                showLoader(false);
+                document.getElementById("noDataScreen").classList.remove("hidden");
+            } else {
+                expenseArray.forEach(e => {
+                    const amt = Number(e.amount || 0);
+                    currentMonthTotal += amt;
+                    const type = e.type || "Other";
+                    typeTotals[type] = (typeTotals[type] || 0) + amt;
+                });
+                renderCharts(typeTotals);
+                showLoader(false);
+                document.getElementById("chartsContainer").classList.remove("hidden");
+            }
+
+            document.getElementById("totalIncome").innerText = `₹${monthIncome.toLocaleString()}`;
+            document.getElementById("totalExpense").innerText = `₹${currentMonthTotal.toLocaleString()}`;
+            document.getElementById("monthlySaving").innerText = `₹${(monthIncome - currentMonthTotal).toLocaleString()}`;
+            document.getElementById("overallSaving").innerText =
+                `₹${(totalIncomeAllTime - totalExpenseAllTime).toLocaleString()}`;
+        }
+
+        function renderCharts(totals) {
+            const labels = Object.keys(totals);
+            const data = Object.values(totals);
+
+            const bodyStyles = window.getComputedStyle(document.body);
+            const dynamicLabelColor = bodyStyles.getPropertyValue('--text-main').trim();
+
+            if (pieChart) pieChart.destroy();
+
+            pieChart = new Chart(document.getElementById('expensePieChart'), {
+                type: 'pie',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'],
+                        borderColor: bodyStyles.getPropertyValue('--card').trim(),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: 65 },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 10,
+                            color: dynamicLabelColor,
+                            font: { weight: '700', size: 11 },
+                            formatter: (v, ctx) => {
+                                let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                return `${ctx.chart.data.labels[ctx.dataIndex]}\n₹${v.toLocaleString()} (${((v*100)/sum).toFixed(0)}%)`;
+                            },
+                            textAlign: 'center'
+                        },
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Theme is now controlled ONLY through profile page
+        // No theme toggle button exists anymore
+
+        async function loadTodaysDashboard() {
+            const user = firebase.auth().currentUser;
+            const listCont = document.getElementById('event-list');
+
+            if (!user) {
+                listCont.innerHTML =
+                    `<p class="text-red-500 text-center text-xs font-[600]">Please log in.</p>`;
+                return;
+            }
+
+            const now = new Date();
+            const todayISO =
+                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const todayShort = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+            try {
+                const snapshot = await firebase.database().ref(`users/${user.uid}/events/${todayISO}`).once("value");
+                const data = snapshot.val();
+                let personalEvents = [];
+
+                if (data) {
+                    personalEvents = Object.entries(data)
+                        .map(([id, ev]) => ({ id, ...ev }))
+                        .filter(ev => ev.status === 'pending');
+                }
+
+                let festivalEvents = [];
+                const todayFest = fixedEvents.find(f => f.d === todayShort);
+
+                if (todayFest) {
+                    festivalEvents.push({
+                        id: 'fest-' + todayShort,
+                        title: `🚩 ${todayFest.n}`,
+                        time: "All Day",
+                        location: todayFest.t === 'holiday' ? "Bank Holiday" : "Festival",
+                        isFestival: true
+                    });
+                }
+
+                const allEvents = [...festivalEvents, ...personalEvents];
+                allEvents.sort((a, b) => {
+                    if (a.isFestival) return -1;
+                    if (b.isFestival) return 1;
+                    return a.time.localeCompare(b.time);
+                });
+
+                if (allEvents.length === 0) {
+                    listCont.innerHTML = `
+                        <div class="p-3 bg-[var(--bg)] rounded-xl text-[var(--text-main)] font-[600] border-2 border-[var(--text-main)] text-[14px] text-center leading-tight">
+                            ✨ No schedule for today.
+                        </div>`;
+                    return;
+                }
+
+                listCont.innerHTML = allEvents.map(ev => {
+                    const borderClass = ev.isFestival ?
+                        "border-orange-500 bg-orange-50 dark:bg-orange-900/20" :
+                        "border-[var(--text-main)] bg-[var(--bg)]";
+                    const iconClass = ev.isFestival ? "fa-flag" : "fa-clock";
+
+                    return `
+                        <div class="${borderClass} p-2 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1">
+                            <div class="min-w-0">
+                                <h3 class="font-[700] text-[var(--text-main)] text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
+                                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-main)] font-[600]">
+                                    <span class="flex items-center whitespace-nowrap">
+                                        <i class="fas ${iconClass} mr-1 text-[var(--text-main)] text-[14px]"></i>${ev.time}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="bg-[var(--text-main)] rounded-full p-1 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fas fa-chevron-right text-[var(--bg)] text-[14px]"></i>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Dashboard error:", err);
+                listCont.innerHTML =
+                    `<p class="text-red-600 text-xs text-center font-[600]">Failed to load schedule.</p>`;
+            }
+        }
+
+        async function fetchAndShowTodaysEvents() {
+            const user = firebase.auth().currentUser;
+            const listCont = document.getElementById('bday-realtime-list');
+            if (!user || !listCont) return;
+
+            const now = new Date();
+            const tDay = now.getDate();
+            const tMonth = now.getMonth() + 1;
+
+            try {
+                const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
+                    firebase.database().ref(`users/${user.uid}/birthdays`).once("value"),
+                    firebase.database().ref(`anniversaries/${user.uid}`).once("value"),
+                    firebase.database().ref(`users/${user.uid}/contacts`).once("value")
+                ]);
+
+                const allBdays = bdaySnap.val() || {};
+                const allAnnis = anniSnap.val() || {};
+                const allContacts = Object.values(contactSnap.val() || {});
+
+                let mergedItems = [];
+
+                const parseDate = (str) => {
+                    if (!str) return null;
+                    const p = str.split(/[-/]/);
+                    if (p[0].length === 4) return { y: parseInt(p[0]), m: parseInt(p[1]), d: parseInt(p[2]) };
+                    return { d: parseInt(p[0]), m: parseInt(p[1]), y: parseInt(p[2]) };
+                };
+
+                Object.values(allBdays).forEach(person => {
+                    const dt = parseDate(person.birthdate);
+                    if (dt && dt.d === tDay && dt.m === tMonth) {
+                        mergedItems.push({
+                            name: person.name,
+                            type: 'birthday',
+                            icon: "🎂",
+                            msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day! ✨🎈`
+                        });
+                    }
+                });
+
+                Object.values(allAnnis).forEach(item => {
+                    const dt = parseDate(item.d);
+                    if (dt && dt.d === tDay && dt.m === tMonth) {
+                        let baseYears = now.getFullYear() - dt.y;
+                        let displayYears = item.manualYears ? (parseInt(item.manualYears) + baseYears) : baseYears;
+
+                        mergedItems.push({
+                            name: `${item.h} & ${item.w}`,
+                            searchNames: [item.h, item.w],
+                            type: 'anniversary',
+                            icon: "💍",
+                            years: displayYears,
+                            msg: `Happy ${displayYears > 0 ? displayYears + 'th ' : ''}Anniversary ${item.h} & ${item.w}! 🥂💖 Wishing you a lifetime of love! ✨`
+                        });
+                    }
+                });
+
+                if (mergedItems.length === 0) {
+                    listCont.innerHTML =
+                        `<div style="border:1px solid var(--text-main)" class="bg-[var(--bg)] p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[var(--text-main)]"> 🗓️ No Birthday and anniversary today </div>`;
+                    return;
+                }
+
+                listCont.innerHTML = mergedItems.map(event => {
+                    let contactMatch;
+                    if (event.type === 'birthday') {
+                        contactMatch = allContacts.find(c => c.name?.toLowerCase() === event.name.toLowerCase());
+                    } else {
+                        contactMatch = allContacts.find(c =>
+                            event.searchNames.some(n => n?.toLowerCase() === c.name?.toLowerCase())
+                        );
+                    }
+
+                    const phone = contactMatch ? (contactMatch.whatsapp || contactMatch.mobile) : null;
+                    const waLink = phone ?
+                        `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(event.msg)}` :
+                        null;
+
+                    return `
+                        <div style="border: 1px solid var(--text-main);" class="bg-[var(--bg)] rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between mb-1">
+                            <div class="flex items-center min-w-0">
+                                <div class="rounded-lg w-12 h-12 flex items-center justify-center text-xm flex-shrink-0">
+                                    ${event.icon}
+                                </div>
+                                <div class="min-w-0 flex-1 text-center pr-0.5 pl-[-5]">
+                                    <div class="text-[12px] font-[900] pl-[-5] text-[var(--text-main)] uppercase break-words leading-[1.1]">
+                                        ${event.name}
+                                    </div>
+                                    ${event.years ? `
+                                        <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
+                                            ${event.years} Years Completed
+                                        </div>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-10 flex justify-end">
+                                ${waLink ? `
+                                    <a href="${waLink}" target="_blank" 
+                                       style="border: 1px solid var(--text-main);" 
+                                       class="bg-[#25D366] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg mr-1 w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
+                                        <i class="fab fa-whatsapp text-white text-[29px]"></i>
+                                    </a>
+                                ` : ''}
+                            </div>
+                        </div>`;
+                }).join('');
+
+            } catch (e) {
+                console.error(e);
+                listCont.innerHTML =
+                    `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading ⚠️</div>`;
+            }
+        }
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.replace("indexmob.html");
+            } else {
+                firebase.database().ref('users/' + user.uid).once('value').then((snapshot) => {
+                    const data = snapshot.val();
+                    const finalName = (data && data.name) || user.displayName || "Safar";
+                    const nameElement = document.getElementById('user-display-name');
+                    if (nameElement) nameElement.innerText = finalName;
+                });
+                updateTimeGreeting();
+                loadTodaysDashboard();
+                fetchAndShowTodaysEvents();
+            }
+        });
+
+        function updateTimeGreeting() {
+            const hours = new Date().getHours();
+            const greetEl = document.getElementById('greeting-time');
+            const emojiEl = document.getElementById('greeting-emoji');
+
+            if (!greetEl) return;
+
+            let message = "";
+            let emoji = "";
+
+            if (hours >= 5 && hours < 12) {
+                message = "Good Morning";
+                emoji = "☀️";
+            } else if (hours >= 12 && hours < 17) {
+                message = "Good Afternoon";
+                emoji = "🌤️";
+            } else if (hours >= 17 && hours < 21) {
+                message = "Good Evening";
+                emoji = "🌆";
+            } else {
+                message = "Good Night";
+                emoji = "🌙";
+            }
+
+            greetEl.innerText = message;
+            if (emojiEl) emojiEl.innerText = emoji;
+        }
+        updateTimeGreeting();
+
+        // --- 1. THE SEARCH LOGIC ---
+        const initializeSavigSearch = () => {
+            const input = document.getElementById('search-input');
+            const resultsArea = document.getElementById('cred-list-mobile-overlay');
+            const closeBtn = document.getElementById('close-search');
+            const overlay = document.getElementById('search-overlay');
+
+            if (!input || !overlay) return;
+
+            closeBtn.onclick = () => {
+                overlay.classList.add('hidden');
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            };
+
+            let searchTimeout;
+            input.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                const query = input.value.toLowerCase().trim();
+
+                if (query.length < 2) {
+                    resultsArea.innerHTML =
+                        '<p class="p-4 text-gray-500 text-xs font-bold uppercase text-center mt-10 tracking-widest">Type at least 2 letters...</p>';
+                    return;
+                }
+
+                searchTimeout = setTimeout(async () => {
+                    const user = firebase.auth().currentUser;
+                    if (!user) return;
+
+                    resultsArea.innerHTML =
+                        '<div class="text-center p-10"><i class="fas fa-spinner fa-spin text-blue-500"></i></div>';
+
+                    const paths = [
+                        { path: `addresses/${user.uid}`, mod: 'address' },
+                        { path: `users/${user.uid}/contacts`, mod: 'contact' },
+                        { path: `users/${user.uid}/tasks`, mod: 'calendar' },
+                        { path: `users/${user.uid}/events`, mod: 'calendar' },
+                        { path: `users/${user.uid}/birthdays`, mod: 'birthday' },
+                        { path: `users/${user.uid}/expenses`, mod: 'finance' }
+                    ];
+
+                    try {
+                        const snapshots = await Promise.all(paths.map(p => firebase.database().ref(p.path).once(
+                        'value')));
+                        let results = [];
+
+                        snapshots.forEach((snap, idx) => {
+                            const data = snap.val();
+                            if (!data) return;
+
+                            Object.entries(data).forEach(([key, val]) => {
+                                const stringified = JSON.stringify(val).toLowerCase();
+                                if (stringified.includes(query)) {
+                                    if (paths[idx].mod === 'calendar' || paths[idx].mod === 'finance') {
+                                        Object.entries(val).forEach(([subKey, subVal]) => {
+                                            if (JSON.stringify(subVal).toLowerCase().includes(query)) {
+                                                results.push({ id: subKey, mod: paths[idx].mod,
+                                                    data: subVal, parent: key });
+                                            }
+                                        });
+                                    } else {
+                                        results.push({ id: key, mod: paths[idx].mod, data: val });
+                                    }
+                                }
+                            });
+                        });
+                        renderSearchCards(results);
+                    } catch (e) {
+                        console.error(e);
+                        resultsArea.innerHTML = '<p class="text-red-500 text-center">Search Error.</p>';
+                    }
+                }, 300);
+            });
+        };
+
+        const renderSearchCards = (results) => {
+            const resultsArea = document.getElementById('cred-list-mobile-overlay');
+            if (!resultsArea) return;
+
+            const uniqueResults = Array.from(new Map(results.map(item => [item.id, item])).values());
+            resultsArea.innerHTML = uniqueResults.length ? '' :
+                '<p class="p-10 text-center opacity-50 font-bold uppercase text-[10px]">No matches</p>';
+
+            uniqueResults.forEach((res, index) => {
+                const d = res.data;
+                const mod = res.mod;
+                const name = d.name || d.title || d.itemName || d.place || 'Record';
+
+                let displayDetail = "";
+                let actionBtn = "";
+
+                if (mod === 'calendar' || mod === 'event') {
+                    const dateStr = d.date || res.parent || "";
+                    const descStr = d.desc || d.description || "";
+                    displayDetail = `
+                        <div class="mt-1">
+                            <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
+                            <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
+                                ${descStr || 'No description available'}
+                            </p>
+                        </div>`;
+                } else if (mod === 'address') {
+                    const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
+                    displayDetail =
+                        `<p class="text-[12px] text-[var(--text-muted)] leading-relaxed break-words mt-1">${fullAddr}</p>`;
+
+                    actionBtn =
+                        `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
+                            class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
+                            <i class="fas fa-location-arrow"></i> Map
+                        </a>`;
+                } else {
+                    const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
+                    displayDetail = `<span class="text-[12px] opacity-80">${extra}</span>`;
+                    if (d.mobile) {
+                        actionBtn =
+                            `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" 
+                                class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
+                                <i class="fas fa-download"></i> Save
+                            </button>`;
+                    }
+                }
+
+                const card = document.createElement('div');
+                card.className = `search-result-card px-3 py-4 border-b border-slate-100 dark:border-white/5 animate-pop`;
+                card.style.animationDelay = `${index * 0.03}s`;
+
+                card.innerHTML = `
+                    <div class="flex items-start w-full gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                            <i class="${getIcon(mod)} text-base"></i>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-grow min-w-0">
+                                    <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
+                                    ${displayDetail}
+                                </div>
+                                <div class="flex items-center gap-2 flex-shrink-0">
+                                    ${actionBtn}
+                                    <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
+                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsArea.appendChild(card);
+            });
+        };
+
+        // --- 3. VOICE SEARCH LOGIC ---
+        const setupVoiceSearch = () => {
+            const micBtn = document.querySelector('.fa-microphone').parentElement;
+            const input = document.getElementById('search-input');
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (!SpeechRecognition || !micBtn) return;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-IN';
+
+            micBtn.onclick = () => recognition.start();
+            recognition.onstart = () => {
+                micBtn.classList.add('animate-pulse', 'text-red-500');
+                input.placeholder = "Listening...";
+            };
+            recognition.onend = () => {
+                micBtn.classList.remove('animate-pulse', 'text-red-500');
+                input.placeholder = "Search vault...";
+            };
+            recognition.onresult = (e) => {
+                input.value = e.results[0][0].transcript;
+                input.dispatchEvent(new Event('input'));
+            };
+        };
+
+        // --- Helper Funcs ---
+        const getIcon = (m) => {
+            const icons = { address: 'fas fa-location-dot', contact: 'fas fa-user', birthday: 'fas fa-cake-candles',
+                finance: 'fas fa-indian-rupee-sign', calendar: 'fas fa-calendar' };
+            return icons[m] || 'fas fa-database';
+        };
+
+        window.downloadVCard = (name, mobile) => {
+            const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${mobile}\nEND:VCARD`;
+            const blob = new Blob([vcard], { type: 'text/vcard' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${name}.vcf`;
+            link.click();
+        };
+
+        window.handleRedirect = (mod, id) => {
+            const pages = { address: 'addressmob.html', contact: 'contactmob.html', birthday: 'birthdaymob.html',
+                finance: 'incomemob.html', calendar: 'cr.html' };
+            window.location.href = `${pages[mod] || 'homemob.html'}?searchId=${id}`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSavigSearch();
+            setupVoiceSearch();
+        });
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) initializeSavigSearch();
+        });
+
+        // --- News Widget Logic ---
+        const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f';
+        let isFetching = false;
+        let hasFetched = false;
+
+        window.toggleWidget = function() {
+            const widget = document.getElementById('newsWidget');
+            if (!widget) return;
+
+            const isHidden = window.getComputedStyle(widget).display === 'none';
+
+            if (isHidden) {
+                widget.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                if (!hasFetched && !isFetching) {
+                    fetchNews();
+                }
+            } else {
+                widget.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        };
+
+        async function fetchNews() {
+            const newsList = document.getElementById('news-list');
+            if (!newsList) return;
+
+            isFetching = true;
+            newsList.innerHTML = '<div class="loader">बातमी शोधत आहे...</div>';
+
+            try {
+                const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
+                const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
+
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+
+                if (data.status === "success" && data.results && data.results.length > 0) {
+                    newsList.innerHTML = '';
+                    data.results.forEach(article => {
+                        const item = document.createElement('div');
+                        item.className = 'news-item';
+                        const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
+
+                        item.innerHTML = `
+                            <div class="news-header-row">
+                                <div class="news-text">${article.title}</div>
+                                <div class="read-arrow">→</div>
+                            </div>
+                            <div class="news-detail">
+                                <p>${summary}</p>
+                                <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
+                            </div>
+                        `;
+                        item.querySelector('.news-header-row').addEventListener('click', () => {
+                            item.classList.toggle('active');
+                        });
+                        newsList.appendChild(item);
+                    });
+                    hasFetched = true;
+                } else {
+                    newsList.innerHTML = "<div class='loader'>सध्या कोणतीही बातमी उपलब्ध नाही.</div>";
+                }
+            } catch (err) {
+                console.error("News Fetch Error:", err);
+                newsList.innerHTML = "<div class='loader'>त्रुटी: इंटरनेट तपासा किंवा API मर्यादा संपली आहे.</div>";
+            } finally {
+                isFetching = false;
+            }
+        }
         // Close on 'Esc' key
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
@@ -1943,1584 +1631,111 @@ firebase.auth().onAuthStateChanged(user => {
                 if (widget.classList.contains('active')) toggleWidget();
             }
         });
-        // Function to generate and download a VCF contact card
-window.downloadVCard = (name, mobile, email) => {
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${name}
-TEL;TYPE=CELL:${mobile}
-EMAIL:${email}
-END:VCARD`;
 
-    const blob = new Blob([vcard], { type: 'text/vcard' });
-    const url = window.URL.createObjectURL(blob);
-    const newLink = document.createElement('a');
-    newLink.download = `${name}.vcf`;
-    newLink.href = url;
-    newLink.click();
-    window.URL.revokeObjectURL(url);
-};
-
-// Ensure your shareData function is updated too
-window.shareData = (name, mob) => {
-    const text = `Contact: ${name}\nMobile: ${mob}`;
-    if (navigator.share) {
-        navigator.share({ title: name, text: text }).catch(console.error);
-    } else {
-        navigator.clipboard.writeText(text);
-        alert("Details copied to clipboard!");
-    }
-};
-    </script>
-</body>
-</html>
- 
-
- <script>
-    // Global references
-    const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f'; 
-    let isFetching = false; // Prevents multiple simultaneous clicks
-    let hasFetched = false; // Tracks if we already have data
-
-    window.toggleWidget = function() {
-        const widget = document.getElementById('newsWidget');
-        if (!widget) return;
-
-        // Simplified display check
-        const isHidden = window.getComputedStyle(widget).display === 'none';
-        
-        if (isHidden) {
-            widget.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            // Only fetch if we haven't already and aren't currently fetching
-            if (!hasFetched && !isFetching) {
-                fetchNews();
+        // Unified Savig Core Logic
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (!user) {
+                console.log("Unauthorized. Redirecting...");
+                window.location.replace("indexmob.html");
+                return;
             }
-        } else {
-            widget.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-    };
 
-    async function fetchNews() {
-        const newsList = document.getElementById('news-list');
-        if (!newsList) return;
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(function(OneSignal) {
+                OneSignal.login(user.uid);
+            });
 
-        isFetching = true;
-        newsList.innerHTML = '<div class="loader">बातमी शोधत आहे...</div>'; // Marathi Loading text
+            const nameElement = document.getElementById('user-display-name');
+            const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
+            const userData = snapshot.val();
 
-        try {
-            // Your query looks good for Marathi news
-            const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
-            const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
-
-            const response = await fetch(url);
-            
-            if (!response.ok) throw new Error('Network response was not ok');
-            
-            const data = await response.json();
-
-            if (data.status === "success" && data.results && data.results.length > 0) {
-                newsList.innerHTML = ''; // Clear loader
-                
-                data.results.forEach(article => {
-                    const item = document.createElement('div');
-                    item.className = 'news-item';
-                    
-                    // Fallback for missing description
-                    const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
-
-                    item.innerHTML = `
-                        <div class="news-header-row">
-                            <div class="news-text">${article.title}</div>
-                            <div class="read-arrow">→</div>
-                        </div>
-                        <div class="news-detail">
-                            <p>${summary}</p>
-                            <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
-                        </div>
-                    `;
-
-                    // Better Event Listener approach than inline onclick
-                    item.querySelector('.news-header-row').addEventListener('click', () => {
-                        item.classList.toggle('active');
-                    });
-
-                    newsList.appendChild(item);
-                });
-                hasFetched = true;
-            } else {
-                newsList.innerHTML = "<div class='loader'>सध्या कोणतीही बातमी उपलब्ध नाही.</div>";
+            if (nameElement) {
+                nameElement.innerText = (userData && userData.name) || user.displayName || "Safar";
             }
-        } catch (err) {
-            console.error("News Fetch Error:", err);
-            newsList.innerHTML = "<div class='loader'>त्रुटी: इंटरनेट तपासा किंवा API मर्यादा संपली आहे.</div>";
-        } finally {
-            isFetching = false;
-        }
-    }
-</script>
+            updateTimeGreeting();
 
-
-<script type="module">
-    // Unified Savig Core Logic
-    firebase.auth().onAuthStateChanged(async (user) => {
-        if (!user) {
-            console.log("Unauthorized. Redirecting...");
-            window.location.replace("indexmob.html");
-            return;
-        }
-
-        // 1. OneSignal Integration
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(function(OneSignal) {
-            OneSignal.login(user.uid); // Link OneSignal to your Firebase User
+            if (typeof loadAnalytics === "function") loadAnalytics();
+            if (typeof loadTodaysDashboard === "function") loadTodaysDashboard();
+            if (typeof fetchAndShowTodaysEvents === "function") fetchAndShowTodaysEvents();
         });
 
-        // 2. UI Updates (Name & Greeting)
-        const nameElement = document.getElementById('user-display-name');
-        const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
-        const userData = snapshot.val();
-        
-        if (nameElement) {
-            nameElement.innerText = (userData && userData.name) || user.displayName || "Safar";
+        // Setup Background Notifications (FCM)
+        async function initializeFCM() {
+            const messaging = firebase.messaging();
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const currentToken = await messaging.getToken({
+                        vapidKey: 'BJw3IztnutASFDs071AtBLEm9GQ_Iirq36tY4Q2NG2a6sbXI90T7SGYk9xNUgZ07-f64dWmZAPC60C1CQGXMLG0'
+                    });
+
+                    if (currentToken) {
+                        const userId = firebase.auth().currentUser.uid;
+                        await firebase.database().ref('users/' + userId + '/fcmToken').set(currentToken);
+                        console.log("FCM Token Updated in DB.");
+                    }
+                }
+            } catch (err) {
+                console.log('FCM Setup Error:', err);
+            }
         }
-        updateTimeGreeting();
 
-        // 3. Initialize Dashboards
-        if (typeof loadAnalytics === "function") loadAnalytics();
-        if (typeof loadTodaysDashboard === "function") loadTodaysDashboard();
-        if (typeof fetchAndShowTodaysEvents === "function") fetchAndShowTodaysEvents();
-    });
-</script>
+        function checkPublicHolidays() {
+            const now = new Date();
+            const todayID =
+                `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+            const lastHoliday = localStorage.getItem('lastHolidayDate');
+            if (lastHoliday === todayID) return;
 
+            firebase.database().ref('holidays/' + todayID).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        new Notification("🚩 Savig Holiday Alert", {
+                            body: `Today is ${data.name}. Enjoy your holiday!`,
+                            icon: "/icon-192.jpg"
+                        });
+                        localStorage.setItem('lastHolidayDate', todayID);
+                    }
+                });
+        }
 
+        function checkPersonalEvents() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayISO = `${year}-${month}-${day}`;
 
-<style>
-/* 1. Theme Variables & Reset */
-:root {
-    --bg-color: #ffffff;
-    --nav-bg: rgba(255, 255, 255, 0.95); 
-    --nav-text: #000000; /* Pure black for light mode */
-    --hover-bg: #f8fafc;
-    --active-color: #2563eb;
-    --border-color: rgba(0, 0, 0, 0.1);
-    --nav-height: 70px;
-}
+            const userId = firebase.auth().currentUser.uid;
+            const lastEvent = localStorage.getItem('lastEventDate');
+            if (lastEvent === todayISO) return;
 
-[data-theme='dark'] {
-    --bg-color: #0f172a;
-    --nav-bg: rgba(15, 23, 42, 0.98);
-    --nav-text: #ffffff; /* FIXED: Changed from black to white for readability */
-    --hover-bg: #1e293b;
-    --active-color: #60a5fa;
-    --border-color: rgba(255, 255, 255, 0.1);
-}
+            firebase.database().ref(`users/${userId}/events/${todayISO}`).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const events = snapshot.val();
+                        Object.values(events).forEach(event => {
+                            new Notification("📅 Savig Event: " + event.title, {
+                                body: `${event.time || ''} - ${event.desc || ''}`,
+                                icon: "/icon-192.jpg"
+                            });
+                        });
+                        localStorage.setItem('lastEventDate', todayISO);
+                    }
+                });
+        }
 
-/* 2. Universal Bottom Nav Entrance Animation */
-#universal-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    background-color: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 1px solid var(--border-color);
-    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom);
-    animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    font-size: 14px;
-}
-
-@keyframes navSlideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-/* 3. Bottom Nav Link Styling */
-.nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--nav-text) !important; 
-    text-decoration: none !important;
-    transition: color 0.3s ease;
-    position: relative;
-    height: 40px;
-}
-
-.nav-link i {
-    font-size: 25px;
-    margin-bottom: 4px;
-    color: inherit;
-    /* Cleaned up stroke for better legibility */
-    -webkit-text-stroke: 0.5px var(--nav-text); 
-    font-weight: 700;
-}
-
-.nav-link div {
-    font-size: 9px;
-    font-weight: 800; /* 900 can be too chunky on some screens */
-    text-transform: uppercase;
-    color: inherit;
-    letter-spacing: 0.02em;
-    gap: 5px;
-}
-
-.nav-link.active {
-    color: var(--active-color) !important;
-}
-
-.nav-link.active i {
-    transform: translateY(-3px);
-    -webkit-text-stroke: 0.5px var(--active-color);
-}
-
-
-[data-theme='dark'] .box-container:not(.bg-\[\#ffe11b\]) {
-    background: #1e293b;
-    color: #ffffff; /* Ensures text is visible in dark mode */
-}
-
-.animate-pop {
-    animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    opacity: 0;
-}
-
-@keyframes popIn {
-    0% { transform: scale(0.6); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
-
-.theme-toggle:hover {
-    transform: translateY(-2px);
-    background: var(--hover-bg);
-}
-
-
-
-
-
-
-
-
-[data-theme='dark'] .profile-box { 
-    background: #1e293b; 
-}
-
-/* --- Adjustments for the Top Header Area --- */
-
-
-/* Ensure icons in the toggle switch between moon/sun */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block; }
-
-/* Logic to show moon/sun icons depending on theme (Compatibility Fallback) */
-[data-theme='dark'] .theme-toggle i.fa-sun {
-    display: inline-block;
-}
-[data-theme='light'] .theme-toggle i.fa-moon {
-    display: inline-block;
-}
-
-
-
-/* 1. Reset Body and Layout Logic */
-
-/* 3. Fix the Grid Columns for Mobile */
-
-
-/* 4. Positioning the Profile Box back to the top right */
-
-
-/* 5. Data Visibility and Contrast */
-
-/* Keeps the text readable on the yellow background specifically */
-
-/* If you want ONLY the Savig text to stay dark because the box is yellow */
-[data-theme='dark'] .box-container.bg-\[\#ffe11b\] span {
-    color: #000000 !important;
-}
-/* 6. Theme Toggle Logic (Icon Display) */
-[data-theme='dark'] .theme-toggle .fa-sun { display: block !important; }
-[data-theme='dark'] .theme-toggle .fa-moon { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-sun { display: none !important; }
-[data-theme='light'] .theme-toggle .fa-moon { display: block !important; }
-.universal-bottom-nav:hover{
-    color: #2563eb;
-}
-/* Search Input Professional Styling */
-#search-input {
-    /* Fixed: Use px instead of % for a proper pill shape */
-    border-radius: 9999px; 
-    border: 2px solid #ffe11b; /* Savig Gold */
-    background: var(--bg);
-    padding: 12px 24px; /* Added padding for better text breathing space */
-    width: 100%;
-    outline: none;
-    color: var(--text-main);
-    box-shadow: 0 4px 15px -3px rgba(255, 225, 27, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* When the user clicks/focuses on the search bar */
-#search-input:focus {
-    border-color: #2563eb !important; /* Professional Blue */
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2); /* Deep blue glow */
-    transform: translateY(-2px);
-    background: var(--bg);
-}
-
-/* Placeholder visibility */
-#search-input::placeholder {
-    color: var(--text-muted);
-    opacity: 0.6;
-    font-size: 20px;
-    letter-spacing: 0.3px;
-}
-
-/* Staggered animation for the search cards when results appear */
-.search-result-card {
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
-}
-
-.search-result-card:hover {
-    border-color: #ffe11b;
-    transform: scale(1.02);
-    background: var(--card);
-}
-/* Light Mode Search Card Fix */
-[data-theme='light'] .search-result-card {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important; /* Soft Slate border */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-}
-
-[data-theme='light'] .search-result-card h4 {
-    color: #0f172a !important; /* Deep Slate - Very Readable */
-}
-
-[data-theme='light'] .search-result-card p {
-    color: #64748b !important; /* Muted Slate for labels */
-}
-
-/* Dark Mode Search Card Fix */
-[data-theme='dark'] .search-result-card {
-    background: rgba(30, 41, 59, 0.7) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(10px);
-}
-.mesh-bg {
-    pointer-events: none !important; /* This allows clicks to pass through the background blobs */
-}
-
-#search-overlay {
-    z-index: 999999 !important; /* Ensure overlay is above everything */
-}
-    /* Remove container padding to let text breathe */
-#cred-list-mobile-overlay {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-}
-
-/* Force the name and data to use every available pixel */
-.search-result-card h4, 
-.search-result-card div {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Make icons slightly smaller to save horizontal space */
-.search-result-card .w-7 {
-    width: 28px !important;
-    height: 28px !important;
-}
-
-/* Tighten the vertical spacing between rows */
-.search-result-card {
-    border-radius: 0 !important;
-    background: transparent !important;
-}
-/* Fix: Allow text to wrap in search results */
-.search-result-card h4, 
-.search-result-card p,
-.search-result-card div {
-    white-space: normal !important; /* Forces text to wrap to the next line */
-    word-wrap: break-word !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-}
-
-/* Optional: Limit the calendar description so it doesn't take the whole screen */
-.search-result-card p {
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* Show up to 3 lines before adding "..." */
-    -webkit-box-orient: vertical;  
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style>
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                console.log("User logged in, checking notifications...");
+                initializeFCM();
+                checkPublicHolidays();
+                checkPersonalEvents();
+            }
+        });
+    </script>
 
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
