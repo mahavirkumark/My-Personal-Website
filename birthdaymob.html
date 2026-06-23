@@ -2060,97 +2060,236 @@
     </style>
 </head>
 <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bottom Nav Only</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ---------- RESET & BASE ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- DEMO CONTENT -->
-    <div class="demo-content">
-        <h1>⬇️ Bottom Nav</h1>
-        <p>EXACT copy from your code.<br>Hover icons → they lift & turn blue.<br>Click icons → redirect to actual pages.</p>
-        <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Dark/Light</button>
-        <div class="status-badge">
-            🔵 Active: <span id="active-label">Home</span>
-        </div>
-        <p style="margin-top:12px; font-size:11px; opacity:0.5;">Hover any icon to see blue effect</p>
-    </div>
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    <!-- ===== BOTTOM NAVIGATION - FIXED (EXACT COPY) ===== -->
+        /* demo card – just to show content above nav */
+        .demo-content {
+            max-width: 400px;
+            background: white;
+            border-radius: 24px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .demo-content h2 {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: #0f172a;
+        }
+        .demo-content p {
+            color: #475569;
+            margin-top: 8px;
+        }
+
+        /* ============================================================
+                    BOTTOM NAVIGATION – FIXED (PURE CSS, ONE FILE)
+                   ============================================================ */
+
+        /* 1. The fixed bottom bar – same as your original */
+        #universal-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--nav-bg, rgba(255, 255, 255, 0.95));
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.06);
+            z-index: 999999;
+            padding-bottom: env(safe-area-inset-bottom);
+            /* animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; */
+            animation: navSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            font-size: 14px;
+        }
+
+        @keyframes navSlideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        /* 2. Each nav link – column layout */
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--nav-text, #1e293b) !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 40px;
+            cursor: pointer;
+            /* remove default button styles if any */
+            background: transparent;
+            border: none;
+        }
+
+        /* icon styling */
+        .nav-link i {
+            font-size: 25px;
+            margin-bottom: 4px;
+            color: inherit;
+            -webkit-text-stroke: 0.5px var(--nav-text, #1e293b);
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* label text */
+        .nav-link div {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: inherit;
+            letter-spacing: 0.02em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ----- HOVER: blue color + slight lift (EXACT same as your code) ----- */
+        .nav-link:hover {
+            transform: translateY(-4px);
+            color: #2563eb !important;
+        }
+        .nav-link:hover i {
+            color: #2563eb !important;
+            -webkit-text-stroke: 0.5px #2563eb;
+        }
+        .nav-link:hover div {
+            color: #2563eb !important;
+        }
+
+        /* ----- PRESS (active) scale feedback (EXACT same) ----- */
+        .nav-link:active {
+            transform: scale(0.92) !important;
+            transition: transform 0.1s ease;
+        }
+
+        /* ----- DARK THEME SUPPORT (via data-theme on html) ----- */
+        [data-theme="dark"] {
+            --nav-bg: rgba(15, 23, 42, 0.98);
+            --nav-text: #f1f5f9;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+        /* default light theme vars (fallback) */
+        :root {
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-text: #0f172a;
+            --border-color: rgba(0, 0, 0, 0.08);
+        }
+
+        /* ----- tiny demo dark toggle (not part of nav) ----- */
+        .theme-toggle {
+            margin-top: 20px;
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .theme-toggle:hover {
+            background: #334155;
+        }
+        [data-theme="dark"] .theme-toggle {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        [data-theme="dark"] .theme-toggle:hover {
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- demo content -->
+
+
+    <!-- ============================================================
+    BOTTOM NAVIGATION – EXACTLY AS YOUR ORIGINAL (with your redirects)
+    ============================================================ -->
     <nav id="universal-bottom-nav">
-        <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Home">
-            <i class="fa-solid fa-house transition-colors duration-300"></i>
-            <div class="transition-colors duration-300">Home</div>
+        <!-- Home -->
+        <a href="homemob.html" class="nav-link">
+            <i class="fa-solid fa-house"></i>
+            <div>Home</div>
         </a>
-        <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Address">
-            <i class="fa-solid fa-location-dot transition-colors duration-300"></i>
-            <div class="transition-colors duration-300">Address</div>
+        <!-- Address -->
+        <a href="addressmob.html" class="nav-link">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>Address</div>
         </a>
-        <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Password">
-            <i class="fa-solid fa-key transition-colors duration-300"></i>
-            <div class="transition-colors duration-300">Password</div>
+        <!-- Password -->
+        <a href="passwordmob.html" class="nav-link">
+            <i class="fa-solid fa-key"></i>
+            <div>Password</div>
         </a>
-        <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Contact">
-            <i class="fa-solid fa-envelope transition-colors duration-300"></i>
-            <div class="transition-colors duration-300">Contact</div>
+        <!-- Contact -->
+        <a href="contact.html" class="nav-link">
+            <i class="fa-solid fa-envelope"></i>
+            <div>Contact</div>
         </a>
-        <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Calendar">
-            <i class="fas fa-calendar-alt transition-colors duration-300"></i>
-            <div class="transition-colors duration-300">Calendar</div>
+        <!-- Calendar -->
+        <a href="calendermob.html" class="nav-link">
+            <i class="fas fa-calendar-alt"></i>
+            <div>Calendar</div>
         </a>
     </nav>
 
     <script>
-        // EXACT theme handling from your code
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-
-        window.addEventListener('storage', (event) => {
-            if (event.key === 'theme') {
-                document.documentElement.setAttribute('data-theme', event.newValue);
-            }
-        });
-
+        // ---------- small demo: toggle dark/light theme ----------
         function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
+            const html = document.documentElement;
+            const current = html.getAttribute('data-theme');
             const next = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', next);
+            html.setAttribute('data-theme', next);
+            // also store in localStorage (optional)
             localStorage.setItem('theme', next);
         }
 
-        // ===== ACTIVE STATE TRACKING =====
-        // Get current page from URL to set active state
-        const currentPage = window.location.pathname.split('/').pop() || 'homemob.html';
-        
-        document.querySelectorAll('.nav-link').forEach((link) => {
-            const href = link.getAttribute('href');
-            
-            // Check if this link matches current page
-            if (href === currentPage) {
-                link.classList.add('active');
-                const pageName = link.getAttribute('data-page');
-                document.getElementById('active-label').textContent = pageName;
+        // (optional) read stored theme on load
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) {
+                document.documentElement.setAttribute('data-theme', saved);
             }
-            
-            // Update active label on click (before redirect)
-            link.addEventListener('click', function(e) {
-                const pageName = this.getAttribute('data-page');
-                document.getElementById('active-label').textContent = pageName + ' ⏳';
-                // The actual redirect happens via href
-            });
-        });
-
-        // If no active link found, set Home as default
-        if (!document.querySelector('.nav-link.active')) {
-            const homeLink = document.querySelector('.nav-link[data-page="Home"]');
-            if (homeLink) {
-                homeLink.classList.add('active');
-                document.getElementById('active-label').textContent = 'Home';
-            }
-        }
-
-        console.log('✅ Bottom nav with hover effects and redirects ready!');
-        console.log('📍 Current page:', currentPage);
+        })();
     </script>
 
+</body>
+</html>
   
 
 </body>
