@@ -1247,14 +1247,6 @@
     </div>
 </div>
 
-<!-- BOTTOM NAV -->
-<nav id="universal-bottom-nav">
-    <a href="homemob.html" class="nav-link"><i class="fa-solid fa-house"></i><div>Home</div></a>
-    <a href="addressmob.html" class="nav-link"><i class="fa-solid fa-location-dot"></i><div>Address</div></a>
-    <a href="passwordmob.html" class="nav-link"><i class="fa-solid fa-key"></i><div>Password</div></a>
-    <a href="contactmob.html" class="nav-link"><i class="fa-solid fa-envelope"></i><div>Contact</div></a>
-    <a href="calendermob.html" class="nav-link"><i class="fas fa-calendar-alt"></i><div>Calender</div></a>
-</nav>
 
 <!-- THEME TOGGLE (hidden) -->
 <button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
@@ -1857,7 +1849,307 @@
 
     setTimeout(populateContactSelects, 500);
 </script>
+  <style>
+        /* 1. Theme Variables - EXACT same as your code */
+        :root {
+            --bg-main: #0f172a;
+            --text-primary: #ffffff;
+            --text-dim: #94a3b8;
+            --accent: #2563eb;
+            --savig-yellow: #ffe11b;
+            --glass: rgba(30, 41, 59, 0.45);
+            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --nav-text: #000000;
+            --hover-bg: #f8fafc;
+            --active-color: #2563eb;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --card: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
 
+        [data-theme='dark'] {
+            --bg-color: #0f172a;
+            --nav-bg: rgba(15, 23, 42, 0.98);
+            --nav-text: #ffffff;
+            --hover-bg: #1e293b;
+            --active-color: #60a5fa;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        /* ===== BOTTOM NAVIGATION - FIXED ===== */
+        #universal-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 999999;
+            padding-bottom: env(safe-area-inset-bottom);
+            animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            font-size: 14px;
+        }
+
+        @keyframes navSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--nav-text) !important;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .nav-link i {
+            font-size: 25px;
+            margin-bottom: 4px;
+            color: inherit;
+            -webkit-text-stroke: 0.5px var(--nav-text);
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link div {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: inherit;
+            letter-spacing: 0.02em;
+            gap: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* HOVER: Blue color + Slight upward motion */
+        .nav-link:hover {
+            transform: translateY(-4px);
+            color: #2563eb !important;
+        }
+        .nav-link:hover i {
+            color: #2563eb !important;
+            -webkit-text-stroke: 0.5px #2563eb;
+        }
+        .nav-link:hover div {
+            color: #2563eb !important;
+        }
+
+        /* ACTIVE state */
+        .nav-link.active {
+            color: var(--active-color) !important;
+        }
+        .nav-link.active i {
+            transform: translateY(-3px);
+            -webkit-text-stroke: 0.5px var(--active-color);
+        }
+
+        /* Dark mode hover overrides */
+        [data-theme='dark'] .nav-link:hover {
+            color: #60a5fa !important;
+        }
+        [data-theme='dark'] .nav-link:hover i {
+            color: #60a5fa !important;
+            -webkit-text-stroke: 0.5px #60a5fa;
+        }
+        [data-theme='dark'] .nav-link:hover div {
+            color: #60a5fa !important;
+        }
+        [data-theme='dark'] .nav-link.active {
+            color: #60a5fa !important;
+        }
+        [data-theme='dark'] .nav-link.active i {
+            -webkit-text-stroke: 0.5px #60a5fa;
+        }
+
+        /* Just for demo - body spacing */
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 80px;
+            transition: background 0.3s ease;
+        }
+
+        .demo-content {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            max-width: 500px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-content h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .demo-content p {
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .theme-toggle {
+            margin-top: 16px;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 50px;
+            background: var(--active-color);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .status-badge {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-color);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge span {
+            color: var(--active-color);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- DEMO CONTENT -->
+    <div class="demo-content">
+        <h1>⬇️ Bottom Nav</h1>
+        <p>EXACT copy from your code.<br>Hover icons → they lift & turn blue.<br>Click icons → redirect to actual pages.</p>
+        <button class="theme-toggle" onclick="toggleTheme()">🌓 Toggle Dark/Light</button>
+        <div class="status-badge">
+            🔵 Active: <span id="active-label">Home</span>
+        </div>
+        <p style="margin-top:12px; font-size:11px; opacity:0.5;">Hover any icon to see blue effect</p>
+    </div>
+
+    <!-- ===== BOTTOM NAVIGATION - FIXED (EXACT COPY) ===== -->
+    <nav id="universal-bottom-nav">
+        <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Home">
+            <i class="fa-solid fa-house transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Home</div>
+        </a>
+        <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Address">
+            <i class="fa-solid fa-location-dot transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Address</div>
+        </a>
+        <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Password">
+            <i class="fa-solid fa-key transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Password</div>
+        </a>
+        <a href="contact.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Contact">
+            <i class="fa-solid fa-envelope transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Contact</div>
+        </a>
+        <a href="calendermob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" data-page="Calendar">
+            <i class="fas fa-calendar-alt transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Calendar</div>
+        </a>
+    </nav>
+
+    <script>
+        // EXACT theme handling from your code
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                document.documentElement.setAttribute('data-theme', event.newValue);
+            }
+        });
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+
+        // ===== ACTIVE STATE TRACKING =====
+        // Get current page from URL to set active state
+        const currentPage = window.location.pathname.split('/').pop() || 'homemob.html';
+        
+        document.querySelectorAll('.nav-link').forEach((link) => {
+            const href = link.getAttribute('href');
+            
+            // Check if this link matches current page
+            if (href === currentPage) {
+                link.classList.add('active');
+                const pageName = link.getAttribute('data-page');
+                document.getElementById('active-label').textContent = pageName;
+            }
+            
+            // Update active label on click (before redirect)
+            link.addEventListener('click', function(e) {
+                const pageName = this.getAttribute('data-page');
+                document.getElementById('active-label').textContent = pageName + ' ⏳';
+                // The actual redirect happens via href
+            });
+        });
+
+        // If no active link found, set Home as default
+        if (!document.querySelector('.nav-link.active')) {
+            const homeLink = document.querySelector('.nav-link[data-page="Home"]');
+            if (homeLink) {
+                homeLink.classList.add('active');
+                document.getElementById('active-label').textContent = 'Home';
+            }
+        }
+
+        console.log('✅ Bottom nav with hover effects and redirects ready!');
+        console.log('📍 Current page:', currentPage);
+    </script>
 
   
 
