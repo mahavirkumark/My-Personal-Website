@@ -7,20 +7,58 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Firebase SDKs - LOADED ONLY ONCE -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-messaging-compat.min.js">
+    </script>
+    
     <script>
+        // Firebase Configuration
+        if (typeof window.firebaseConfig === 'undefined') {
+            window.firebaseConfig = {
+                apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+                authDomain: "sk12-58e9e.firebaseapp.com",
+                databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+                projectId: "sk12-58e9e",
+                storageBucket: "sk12-58e9e.firebasestorage.app",
+                messagingSenderId: "470207874652",
+                appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
+                measurementId: "G-QKCRDR9QML"
+            };
+        }
+        
+        // Initialize Firebase only once
+        let firebaseInitialized = false;
+        try {
+            firebase.app();
+            firebaseInitialized = true;
+            console.log("✅ Firebase already initialized");
+        } catch (e) {
+            firebase.initializeApp(window.firebaseConfig);
+            firebaseInitialized = true;
+            console.log("✅ Firebase initialized");
+        }
+        
+        // Set auth persistence
+        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(() => console.log("✅ Auth persistence set to LOCAL"))
+            .catch((error) => console.error("❌ Failed to set persistence:", error));
+        
+        // OneSignal initialization
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(function(OneSignal) {
             OneSignal.init({
                 appId: "900dc167-e7a9-4a9f-82de-df51aac4eb6d",
             });
-            firebase.auth().onAuthStateChanged((user) => {
-                if (user) {
-                    OneSignal.login(user.uid);
-                    firebase.database().ref(`users/${user.uid}/notificationStatus`).set("active_onesignal");
-                }
-            });
         });
     </script>
+    
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -34,7 +72,7 @@
     </script>
 
     <style>
-        /* 1. Theme Variables & Professional Reset */
+        /* All your original styles - unchanged */
         :root {
             --bg-main: #0f172a;
             --text-primary: #ffffff;
@@ -687,9 +725,86 @@
             padding: 20px;
             color: var(--text-secondary-news);
         }
+
+        /* Error and offline indicators */
+        #user-error {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card);
+            border: 2px solid #ef4444;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            z-index: 10000;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 90%;
+        }
+        #user-error button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        #user-error button:hover {
+            transform: scale(1.05);
+            background: #1d4ed8;
+        }
+        #user-error button:active {
+            transform: scale(0.95);
+        }
+        #user-error .error-icon {
+            font-size: 48px;
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        
+        #offline-indicator {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10001;
+        }
+        #offline-indicator i {
+            margin-right: 8px;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Offline indicator -->
+    <div id="offline-indicator">
+        <i class="fas fa-wifi-slash"></i> You are offline. Please check your connection.
+    </div>
+
+    <!-- User error modal -->
+    <div id="user-error">
+        <div class="error-icon">⚠️</div>
+        <h2 style="color: var(--text-main); margin-bottom: 10px;">Session Expired</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Unable to load user data. Please try again.</p>
+        <button onclick="retryLoadUser()">
+            <i class="fas fa-sync-alt"></i> Retry
+        </button>
+        <br>
+        <button onclick="forceLogout()" style="background: #ef4444; margin-top: 10px;">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+        </button>
+    </div>
 
     <header class="nav-container relative w-full border-b border-white/10 shadow-2xl overflow-hidden pb-1">
         <div class="mesh-bg absolute inset-0">
@@ -740,7 +855,7 @@
                 <div>
                     <p id="greeting-time" class="text-white/40 text-[14px]  font-bold leading-none ">Good Morning</p>
                     <h2 class="text-white text-base font-bold">
-                        <span id="user-display-name" class="text-[#ffe11b]"></span>
+                        <span id="user-display-name" class="text-[#ffe11b]">Loading...</span>
                     </h2>
                 </div>
             </div>
@@ -823,13 +938,7 @@
         </div>
     </header>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js">
-    </script>
+    <!-- Chart JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0">
@@ -929,7 +1038,7 @@
         </a>
     </nav>
 
-    <!-- News Button - Repositioned to bottom-left -->
+    <!-- News Button -->
     <button id="news-open-btn" onclick="toggleWidget()">
         <span>🔔</span> News
     </button>
@@ -945,17 +1054,21 @@
     </div>
 
     <script>
-        // 1. Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
-            authDomain: "sk12-58e9e.firebaseapp.com",
-            databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
-            projectId: "sk12-58e9e",
-            storageBucket: "sk12-58e9e.firebasestorage.app",
-            messagingSenderId: "470207874652",
-            appId: "1:470207874652:web:67ba1cf3629b7e5b144899",
-            measurementId: "G-QKCRDR9QML"
-        };
+        // All your original JavaScript with fixes
+        
+        // Firebase instances
+        let db, auth;
+        try {
+            db = firebase.database();
+            auth = firebase.auth();
+            console.log("✅ Firebase services ready");
+        } catch (e) {
+            console.error("❌ Firebase initialization error:", e);
+            document.getElementById('user-error').style.display = 'block';
+            document.getElementById('user-display-name').innerText = "⚠️ Error";
+        }
+        
+        // Fixed events data
         const fixedEvents = [
             { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
             { d: "26-01", n: "प्रजासत्ताक दिन", t: "holiday" },
@@ -971,81 +1084,245 @@
             { d: "08-11", n: "दिवाळी (लक्ष्मीपूजन)", t: "holiday" },
             { d: "25-12", n: "नाताळ (Christmas)", t: "holiday" }
         ];
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const auth = firebase.auth();
-        Chart.register(ChartDataLabels);
 
+        // Register ChartJS plugins
+        if (typeof Chart !== 'undefined' && Chart.register) {
+            Chart.register(ChartDataLabels);
+        }
+        
         let pieChart = null;
 
-        // 2. Initial Load
-        window.onload = () => {
+        // Network status monitoring
+        window.addEventListener('online', () => {
+            document.getElementById('offline-indicator').style.display = 'none';
+            if (auth) {
+                const user = auth.currentUser;
+                if (user) {
+                    user.getIdToken(true).then(() => {
+                        location.reload();
+                    }).catch(() => {
+                        location.reload();
+                    });
+                }
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('offline-indicator').style.display = 'block';
+        });
+
+        // Retry function
+        window.retryLoadUser = function() {
+            if (auth) {
+                const user = auth.currentUser;
+                if (user) {
+                    document.getElementById('user-error').style.display = 'none';
+                    user.getIdToken(true)
+                        .then(() => {
+                            location.reload();
+                        })
+                        .catch((error) => {
+                            console.error("Retry failed:", error);
+                            document.getElementById('user-error').style.display = 'block';
+                        });
+                } else {
+                    window.location.replace("indexmob.html");
+                }
+            } else {
+                window.location.replace("indexmob.html");
+            }
+        };
+
+        window.forceLogout = function() {
+            if (auth) {
+                auth.signOut()
+                    .then(() => {
+                        window.location.replace("indexmob.html");
+                    })
+                    .catch((error) => {
+                        console.error("Logout error:", error);
+                        window.location.replace("indexmob.html");
+                    });
+            } else {
+                window.location.replace("indexmob.html");
+            }
+        };
+
+        // Token refresh every 45 minutes
+        setInterval(async () => {
+            if (auth) {
+                const user = auth.currentUser;
+                if (user) {
+                    try {
+                        await user.getIdToken(true);
+                        console.log("✅ Token refreshed");
+                    } catch (error) {
+                        console.error("❌ Token refresh failed:", error);
+                        document.getElementById('user-error').style.display = 'block';
+                    }
+                }
+            }
+        }, 45 * 60 * 1000);
+
+        // Auth state handler
+        if (auth) {
+            auth.onIdTokenChanged(async (user) => {
+                if (!user) {
+                    console.log("No user found, redirecting...");
+                    window.location.replace("indexmob.html");
+                    return;
+                }
+
+                try {
+                    await user.getIdToken(true);
+                    
+                    let retries = 0;
+                    let userData = null;
+                    
+                    while (retries < 3 && !userData) {
+                        try {
+                            if (db) {
+                                const snapshot = await db.ref('users/' + user.uid).once('value');
+                                userData = snapshot.val();
+                            } else {
+                                throw new Error("Database not available");
+                            }
+                        } catch (error) {
+                            retries++;
+                            if (retries === 3) throw error;
+                            await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+                        }
+                    }
+
+                    const nameElement = document.getElementById('user-display-name');
+                    if (nameElement) {
+                        const finalName = (userData && userData.name) || 
+                                        user.displayName || 
+                                        user.email || 
+                                        "Safar";
+                        nameElement.innerText = finalName;
+                        nameElement.style.color = '#ffe11b';
+                    }
+
+                    if (window.OneSignalDeferred && db) {
+                        OneSignalDeferred.push(function(OneSignal) {
+                            OneSignal.login(user.uid);
+                            if (userData) {
+                                db.ref(`users/${user.uid}/notificationStatus`).set("active_onesignal");
+                            }
+                        });
+                    }
+
+                    document.getElementById('user-error').style.display = 'none';
+                    
+                    updateTimeGreeting();
+                    loadTodaysDashboard();
+                    fetchAndShowTodaysEvents();
+                    if (typeof loadAnalytics === "function") loadAnalytics();
+                    if (typeof initializeSavigSearch === "function") initializeSavigSearch();
+
+                } catch (error) {
+                    console.error("❌ Error loading user data:", error);
+                    document.getElementById('user-error').style.display = 'block';
+                    document.getElementById('user-display-name').innerText = "⚠️ Error";
+                }
+            });
+        }
+
+        // Initial load
+        window.onload = function() {
             const now = new Date();
-            document.getElementById("monthSelector").value =
-                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-            auth.onAuthStateChanged(user => { if (user) loadAnalytics(); });
+            const monthInput = document.getElementById("monthSelector");
+            if (monthInput) {
+                monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+            }
+            
+            if (auth) {
+                const user = auth.currentUser;
+                if (user) {
+                    user.getIdToken(true).catch(() => {});
+                }
+            }
         };
 
         document.getElementById("monthSelector").addEventListener("change", loadAnalytics);
 
-        // 3. Theme-Aware Color Fetcher
         function getThemeColor() {
             return getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#0f172a';
         }
 
         function showLoader(show) {
-            document.getElementById("loader").classList.toggle("hidden", !show);
+            const loader = document.getElementById("loader");
+            const charts = document.getElementById("chartsContainer");
+            const noData = document.getElementById("noDataScreen");
+            
+            if (loader) loader.classList.toggle("hidden", !show);
             if (show) {
-                document.getElementById("chartsContainer").classList.add("hidden");
-                document.getElementById("noDataScreen").classList.add("hidden");
+                if (charts) charts.classList.add("hidden");
+                if (noData) noData.classList.add("hidden");
             }
         }
 
         async function loadAnalytics() {
+            if (!auth || !db) return;
+            
             const user = auth.currentUser;
             const month = document.getElementById("monthSelector").value;
-            if (!user) return;
+            
+            if (!user) {
+                console.warn("No user for analytics");
+                return;
+            }
+            
             showLoader(true);
 
-            const snapshot = await db.ref(`users/${user.uid}`).once('value');
-            const data = snapshot.val() || {};
+            try {
+                const snapshot = await db.ref(`users/${user.uid}`).once('value');
+                const data = snapshot.val() || {};
 
-            const monthIncome = Number((data.income && data.income[month]) || 0);
-            const monthExpenses = (data.expenses && data.expenses[month]) || {};
+                const monthIncome = Number((data.income && data.income[month]) || 0);
+                const monthExpenses = (data.expenses && data.expenses[month]) || {};
 
-            let currentMonthTotal = 0,
-                typeTotals = {};
-            const expenseArray = Object.values(monthExpenses);
+                let currentMonthTotal = 0,
+                    typeTotals = {};
+                const expenseArray = Object.values(monthExpenses);
 
-            let totalIncomeAllTime = 0,
-                totalExpenseAllTime = 0;
-            if (data.income) Object.values(data.income).forEach(v => totalIncomeAllTime += Number(v));
-            if (data.expenses) {
-                Object.values(data.expenses).forEach(m => {
-                    Object.values(m).forEach(e => totalExpenseAllTime += Number(e.amount || 0));
-                });
-            }
+                let totalIncomeAllTime = 0,
+                    totalExpenseAllTime = 0;
+                if (data.income) Object.values(data.income).forEach(v => totalIncomeAllTime += Number(v));
+                if (data.expenses) {
+                    Object.values(data.expenses).forEach(m => {
+                        Object.values(m).forEach(e => totalExpenseAllTime += Number(e.amount || 0));
+                    });
+                }
 
-            if (expenseArray.length === 0) {
+                if (expenseArray.length === 0) {
+                    showLoader(false);
+                    const noData = document.getElementById("noDataScreen");
+                    if (noData) noData.classList.remove("hidden");
+                } else {
+                    expenseArray.forEach(e => {
+                        const amt = Number(e.amount || 0);
+                        currentMonthTotal += amt;
+                        const type = e.type || "Other";
+                        typeTotals[type] = (typeTotals[type] || 0) + amt;
+                    });
+                    renderCharts(typeTotals);
+                    showLoader(false);
+                    const charts = document.getElementById("chartsContainer");
+                    if (charts) charts.classList.remove("hidden");
+                }
+
+                document.getElementById("totalIncome").innerText = `₹${monthIncome.toLocaleString()}`;
+                document.getElementById("totalExpense").innerText = `₹${currentMonthTotal.toLocaleString()}`;
+                document.getElementById("monthlySaving").innerText = `₹${(monthIncome - currentMonthTotal).toLocaleString()}`;
+                document.getElementById("overallSaving").innerText =
+                    `₹${(totalIncomeAllTime - totalExpenseAllTime).toLocaleString()}`;
+                    
+            } catch (error) {
+                console.error("Analytics error:", error);
                 showLoader(false);
-                document.getElementById("noDataScreen").classList.remove("hidden");
-            } else {
-                expenseArray.forEach(e => {
-                    const amt = Number(e.amount || 0);
-                    currentMonthTotal += amt;
-                    const type = e.type || "Other";
-                    typeTotals[type] = (typeTotals[type] || 0) + amt;
-                });
-                renderCharts(typeTotals);
-                showLoader(false);
-                document.getElementById("chartsContainer").classList.remove("hidden");
             }
-
-            document.getElementById("totalIncome").innerText = `₹${monthIncome.toLocaleString()}`;
-            document.getElementById("totalExpense").innerText = `₹${currentMonthTotal.toLocaleString()}`;
-            document.getElementById("monthlySaving").innerText = `₹${(monthIncome - currentMonthTotal).toLocaleString()}`;
-            document.getElementById("overallSaving").innerText =
-                `₹${(totalIncomeAllTime - totalExpenseAllTime).toLocaleString()}`;
         }
 
         function renderCharts(totals) {
@@ -1057,14 +1334,17 @@
 
             if (pieChart) pieChart.destroy();
 
-            pieChart = new Chart(document.getElementById('expensePieChart'), {
+            const canvas = document.getElementById('expensePieChart');
+            if (!canvas) return;
+
+            pieChart = new Chart(canvas, {
                 type: 'pie',
                 data: {
                     labels,
                     datasets: [{
                         data,
                         backgroundColor: ['#6366f1', '#f43f5e', '#10b981', '#f59e0b', '#06b6d4'],
-                        borderColor: bodyStyles.getPropertyValue('--card').trim(),
+                        borderColor: bodyStyles.getPropertyValue('--card').trim() || '#1e293b',
                         borderWidth: 2
                     }]
                 },
@@ -1077,7 +1357,7 @@
                             anchor: 'end',
                             align: 'end',
                             offset: 10,
-                            color: dynamicLabelColor,
+                            color: dynamicLabelColor || '#ffffff',
                             font: { weight: '700', size: 11 },
                             formatter: (v, ctx) => {
                                 let sum = ctx.dataset.data.reduce((a, b) => a + b, 0);
@@ -1091,16 +1371,18 @@
             });
         }
 
-        // Theme is now controlled ONLY through profile page
-        // No theme toggle button exists anymore
-
+        // --- BIRTHDAY AND SCHEDULE FUNCTIONS ---
         async function loadTodaysDashboard() {
-            const user = firebase.auth().currentUser;
+            if (!auth || !db) return;
+            
+            const user = auth.currentUser;
             const listCont = document.getElementById('event-list');
 
             if (!user) {
-                listCont.innerHTML =
-                    `<p class="text-red-500 text-center text-xs font-[600]">Please log in.</p>`;
+                if (listCont) {
+                    listCont.innerHTML =
+                        `<p class="text-red-500 text-center text-xs font-[600]">Please log in.</p>`;
+                }
                 return;
             }
 
@@ -1110,7 +1392,7 @@
             const todayShort = `${String(now.getDate()).padStart(2, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
             try {
-                const snapshot = await firebase.database().ref(`users/${user.uid}/events/${todayISO}`).once("value");
+                const snapshot = await db.ref(`users/${user.uid}/events/${todayISO}`).once("value");
                 const data = snapshot.val();
                 let personalEvents = [];
 
@@ -1139,6 +1421,8 @@
                     if (b.isFestival) return 1;
                     return a.time.localeCompare(b.time);
                 });
+
+                if (!listCont) return;
 
                 if (allEvents.length === 0) {
                     listCont.innerHTML = `
@@ -1173,13 +1457,18 @@
 
             } catch (err) {
                 console.error("Dashboard error:", err);
-                listCont.innerHTML =
-                    `<p class="text-red-600 text-xs text-center font-[600]">Failed to load schedule.</p>`;
+                if (listCont) {
+                    listCont.innerHTML =
+                        `<p class="text-red-600 text-xs text-center font-[600]">Failed to load schedule.</p>`;
+                }
             }
         }
 
+        // --- BIRTHDAY AND ANNIVERSARY FUNCTION ---
         async function fetchAndShowTodaysEvents() {
-            const user = firebase.auth().currentUser;
+            if (!auth || !db) return;
+            
+            const user = auth.currentUser;
             const listCont = document.getElementById('bday-realtime-list');
             if (!user || !listCont) return;
 
@@ -1189,9 +1478,9 @@
 
             try {
                 const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
-                    firebase.database().ref(`users/${user.uid}/birthdays`).once("value"),
-                    firebase.database().ref(`anniversaries/${user.uid}`).once("value"),
-                    firebase.database().ref(`users/${user.uid}/contacts`).once("value")
+                    db.ref(`users/${user.uid}/birthdays`).once("value"),
+                    db.ref(`anniversaries/${user.uid}`).once("value"),
+                    db.ref(`users/${user.uid}/contacts`).once("value")
                 ]);
 
                 const allBdays = bdaySnap.val() || {};
@@ -1207,6 +1496,7 @@
                     return { d: parseInt(p[0]), m: parseInt(p[1]), y: parseInt(p[2]) };
                 };
 
+                // Check birthdays
                 Object.values(allBdays).forEach(person => {
                     const dt = parseDate(person.birthdate);
                     if (dt && dt.d === tDay && dt.m === tMonth) {
@@ -1219,6 +1509,7 @@
                     }
                 });
 
+                // Check anniversaries
                 Object.values(allAnnis).forEach(item => {
                     const dt = parseDate(item.d);
                     if (dt && dt.d === tDay && dt.m === tMonth) {
@@ -1286,27 +1577,11 @@
                 }).join('');
 
             } catch (e) {
-                console.error(e);
+                console.error("Birthday fetch error:", e);
                 listCont.innerHTML =
                     `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading ⚠️</div>`;
             }
         }
-
-        firebase.auth().onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.replace("indexmob.html");
-            } else {
-                firebase.database().ref('users/' + user.uid).once('value').then((snapshot) => {
-                    const data = snapshot.val();
-                    const finalName = (data && data.name) || user.displayName || "Safar";
-                    const nameElement = document.getElementById('user-display-name');
-                    if (nameElement) nameElement.innerText = finalName;
-                });
-                updateTimeGreeting();
-                loadTodaysDashboard();
-                fetchAndShowTodaysEvents();
-            }
-        });
 
         function updateTimeGreeting() {
             const hours = new Date().getHours();
@@ -1335,9 +1610,8 @@
             greetEl.innerText = message;
             if (emojiEl) emojiEl.innerText = emoji;
         }
-        updateTimeGreeting();
 
-        // --- 1. THE SEARCH LOGIC ---
+        // --- Search Logic ---
         const initializeSavigSearch = () => {
             const input = document.getElementById('search-input');
             const resultsArea = document.getElementById('cred-list-mobile-overlay');
@@ -1364,7 +1638,9 @@
                 }
 
                 searchTimeout = setTimeout(async () => {
-                    const user = firebase.auth().currentUser;
+                    if (!auth || !db) return;
+                    
+                    const user = auth.currentUser;
                     if (!user) return;
 
                     resultsArea.innerHTML =
@@ -1380,8 +1656,7 @@
                     ];
 
                     try {
-                        const snapshots = await Promise.all(paths.map(p => firebase.database().ref(p.path).once(
-                        'value')));
+                        const snapshots = await Promise.all(paths.map(p => db.ref(p.path).once('value')));
                         let results = [];
 
                         snapshots.forEach((snap, idx) => {
@@ -1491,13 +1766,14 @@
             });
         };
 
-        // --- 3. VOICE SEARCH LOGIC ---
+        // --- Voice Search ---
         const setupVoiceSearch = () => {
-            const micBtn = document.querySelector('.fa-microphone').parentElement;
+            const micBtn = document.querySelector('.fa-microphone')?.parentElement;
             const input = document.getElementById('search-input');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-            if (!SpeechRecognition || !micBtn) return;
+            if (!SpeechRecognition || !micBtn || !input) return;
+            
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-IN';
 
@@ -1516,7 +1792,7 @@
             };
         };
 
-        // --- Helper Funcs ---
+        // --- Helper Functions ---
         const getIcon = (m) => {
             const icons = { address: 'fas fa-location-dot', contact: 'fas fa-user', birthday: 'fas fa-cake-candles',
                 finance: 'fas fa-indian-rupee-sign', calendar: 'fas fa-calendar' };
@@ -1539,16 +1815,7 @@
             window.location.href = `${pages[mod] || 'homemob.html'}?searchId=${id}`;
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeSavigSearch();
-            setupVoiceSearch();
-        });
-
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) initializeSavigSearch();
-        });
-
-        // --- News Widget Logic ---
+        // --- News Widget ---
         const API_KEY = 'pub_677646a653536356a509177bed9f1352fff4f';
         let isFetching = false;
         let hasFetched = false;
@@ -1619,45 +1886,26 @@
                 isFetching = false;
             }
         }
-        // Close on 'Esc' key
+
+        // Close news on 'Esc' key
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
                 const widget = document.getElementById('newsWidget');
-                if (widget.classList.contains('active')) toggleWidget();
+                if (widget && window.getComputedStyle(widget).display !== 'none') {
+                    toggleWidget();
+                }
             }
         });
 
-        // Unified Savig Core Logic
-        firebase.auth().onAuthStateChanged(async (user) => {
-            if (!user) {
-                console.log("Unauthorized. Redirecting...");
-                window.location.replace("indexmob.html");
-                return;
-            }
-
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.login(user.uid);
-            });
-
-            const nameElement = document.getElementById('user-display-name');
-            const snapshot = await firebase.database().ref('users/' + user.uid).once('value');
-            const userData = snapshot.val();
-
-            if (nameElement) {
-                nameElement.innerText = (userData && userData.name) || user.displayName || "Safar";
-            }
-            updateTimeGreeting();
-
-            if (typeof loadAnalytics === "function") loadAnalytics();
-            if (typeof loadTodaysDashboard === "function") loadTodaysDashboard();
-            if (typeof fetchAndShowTodaysEvents === "function") fetchAndShowTodaysEvents();
-        });
-
-        // Setup Background Notifications (FCM)
+        // --- FCM Setup ---
         async function initializeFCM() {
-            const messaging = firebase.messaging();
             try {
+                if (typeof firebase === 'undefined' || typeof firebase.messaging !== 'function') {
+                    console.warn("Firebase Messaging not available");
+                    return;
+                }
+                
+                const messaging = firebase.messaging();
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const currentToken = await messaging.getToken({
@@ -1665,9 +1913,11 @@
                     });
 
                     if (currentToken) {
-                        const userId = firebase.auth().currentUser.uid;
-                        await firebase.database().ref('users/' + userId + '/fcmToken').set(currentToken);
-                        console.log("FCM Token Updated in DB.");
+                        const userId = auth?.currentUser?.uid;
+                        if (userId && db) {
+                            await db.ref('users/' + userId + '/fcmToken').set(currentToken);
+                            console.log("✅ FCM Token Updated");
+                        }
                     }
                 }
             } catch (err) {
@@ -1676,6 +1926,8 @@
         }
 
         function checkPublicHolidays() {
+            if (!auth || !db) return;
+            
             const now = new Date();
             const todayID =
                 `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -1683,53 +1935,69 @@
             const lastHoliday = localStorage.getItem('lastHolidayDate');
             if (lastHoliday === todayID) return;
 
-            firebase.database().ref('holidays/' + todayID).once('value')
+            db.ref('holidays/' + todayID).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.val();
-                        new Notification("🚩 Savig Holiday Alert", {
-                            body: `Today is ${data.name}. Enjoy your holiday!`,
-                            icon: "/icon-192.jpg"
-                        });
+                        if (Notification.permission === 'granted') {
+                            new Notification("🚩 Savig Holiday Alert", {
+                                body: `Today is ${data.name}. Enjoy your holiday!`,
+                                icon: "/icon-192.jpg"
+                            });
+                        }
                         localStorage.setItem('lastHolidayDate', todayID);
                     }
-                });
+                })
+                .catch((err) => console.error("Holiday check error:", err));
         }
 
         function checkPersonalEvents() {
+            if (!auth || !db) return;
+            
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const todayISO = `${year}-${month}-${day}`;
 
-            const userId = firebase.auth().currentUser.uid;
+            const userId = auth.currentUser?.uid;
+            if (!userId) return;
+
             const lastEvent = localStorage.getItem('lastEventDate');
             if (lastEvent === todayISO) return;
 
-            firebase.database().ref(`users/${userId}/events/${todayISO}`).once('value')
+            db.ref(`users/${userId}/events/${todayISO}`).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const events = snapshot.val();
                         Object.values(events).forEach(event => {
-                            new Notification("📅 Savig Event: " + event.title, {
-                                body: `${event.time || ''} - ${event.desc || ''}`,
-                                icon: "/icon-192.jpg"
-                            });
+                            if (Notification.permission === 'granted') {
+                                new Notification("📅 Savig Event: " + event.title, {
+                                    body: `${event.time || ''} - ${event.desc || ''}`,
+                                    icon: "/icon-192.jpg"
+                                });
+                            }
                         });
                         localStorage.setItem('lastEventDate', todayISO);
                     }
-                });
+                })
+                .catch((err) => console.error("Event check error:", err));
         }
 
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                console.log("User logged in, checking notifications...");
-                initializeFCM();
-                checkPublicHolidays();
-                checkPersonalEvents();
+        // --- Initialize everything on DOM ready ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSavigSearch();
+            setupVoiceSearch();
+            
+            if (auth) {
+                const user = auth.currentUser;
+                if (user) {
+                    user.getIdToken(true).catch(() => {});
+                }
             }
         });
+
+        console.log("✅ Savig app initialized successfully with all features");
     </script>
 
 </body>
