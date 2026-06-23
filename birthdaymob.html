@@ -2231,62 +2231,9 @@
             background: #f1f5f9;
         }
     </style>
-</head>
-<body>
-
-    <!-- demo content -->
 
 
-    <!-- ============================================================
-    BOTTOM NAVIGATION – EXACTLY AS YOUR ORIGINAL (with your redirects)
-    ============================================================ -->
-    <nav id="universal-bottom-nav">
-        <!-- Home -->
-        <a href="homemob.html" class="nav-link">
-            <i class="fa-solid fa-house"></i>
-            <div>Home</div>
-        </a>
-        <!-- Address -->
-        <a href="addressmob.html" class="nav-link">
-            <i class="fa-solid fa-location-dot"></i>
-            <div>Address</div>
-        </a>
-        <!-- Password -->
-        <a href="passwordmob.html" class="nav-link">
-            <i class="fa-solid fa-key"></i>
-            <div>Password</div>
-        </a>
-        <!-- Contact -->
-        <a href="contact.html" class="nav-link">
-            <i class="fa-solid fa-envelope"></i>
-            <div>Contact</div>
-        </a>
-        <!-- Calendar -->
-        <a href="calendermob.html" class="nav-link">
-            <i class="fas fa-calendar-alt"></i>
-            <div>Calendar</div>
-        </a>
-    </nav>
 
-    <script>
-        // ---------- small demo: toggle dark/light theme ----------
-        function toggleTheme() {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
-            // also store in localStorage (optional)
-            localStorage.setItem('theme', next);
-        }
-
-        // (optional) read stored theme on load
-        (function() {
-            const saved = localStorage.getItem('theme');
-            if (saved) {
-                document.documentElement.setAttribute('data-theme', saved);
-            }
-        })();
-    </script>
 
 </body>
 </html>
