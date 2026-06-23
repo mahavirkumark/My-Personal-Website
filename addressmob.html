@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover" />
-    <title>Savig</title>
+    <title>Savig - Address</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -13,13 +13,7 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc&libraries=geometry,places&callback=initGeocoder" defer></script>
 
     <style>
-        /* RESET & BASE - ALL ORIGINAL COLORS PRESERVED */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* ===== THEME VARIABLES ===== */
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -28,10 +22,11 @@
             --text-search: #000000;
             --placeholder-color: #9ca3af;
             --border: #e5e7eb;
-            --nav-bg: #ffffff;
+            --nav-bg: rgba(255, 255, 255, 0.95);
             --nav-text: #000000;
             --input-bg: #ffffff;
             --input-border: #e2e8f0;
+            --active-color: #2563eb;
         }
         
         [data-theme="dark"] {
@@ -42,10 +37,18 @@
             --text-search: #f8fafc;
             --placeholder-color: #94a3b8;
             --border: #334155;
-            --nav-bg: #0f172a;
-            --nav-text: #ffffff;
+            --nav-bg: rgba(15, 23, 42, 0.98);
+            --nav-text: #f1f5f9;
             --input-bg: #334155;
             --input-border: #475569;
+            --active-color: #60a5fa;
+        }
+        
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body { 
@@ -66,7 +69,7 @@
             border-color: var(--border) !important;
         }
         
-        /* SEARCH INPUT STYLES - REDUCED WIDTH BY 30PX */
+        /* ===== SEARCH INPUT ===== */
         .search-container {
             max-width: calc(100% - 30px);
             margin-left: auto;
@@ -97,14 +100,14 @@
             border-color: var(--input-border) !important;
         }
         
-        /* MAIN CONTAINER WIDTH REDUCED BY 30PX FOR ADDRESS LIST */
+        /* ===== ADDRESS LIST CONTAINER ===== */
         .address-list-container {
             width: calc(100% - 30px);
             margin-left: auto;
             margin-right: auto;
         }
         
-        /* 4 BUTTONS IN ONE ROW - FIXED */
+        /* ===== 4 BUTTONS IN ONE ROW ===== */
         .button-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -125,13 +128,13 @@
             font-weight: 500;
             transition: all 0.2s;
             white-space: nowrap;
+            cursor: pointer;
         }
         
         .button-row button i {
             font-size: 14px;
         }
         
-        /* Responsive button row for very small screens */
         @media (max-width: 480px) {
             .button-row button {
                 font-size: 14px;
@@ -145,9 +148,8 @@
             }
         }
         
-        /* FIXED MOBILE VIEW - NO OVERLAPPING */
+        /* ===== RESPONSIVE MOBILE VIEW ===== */
         @media (max-width: 767px) {
-            /* Fix grid overlap on mobile */
             .grid {
                 display: flex;
                 flex-direction: column;
@@ -170,47 +172,33 @@
                 padding-right: 1rem;
             }
             
-            /* Fix form overlap issues */
             #addressFormContent {
                 width: 100%;
                 overflow-x: hidden;
             }
             
-            /* Fix header spacing */
             .main-header-section {
                 padding-top: 1rem;
                 padding-left: 1rem;
                 padding-right: 1rem;
             }
             
-            /* Fix bottom nav spacing */
             #universal-bottom-nav {
                 height: 60px;
             }
             
-            /* Theme button position fix */
-            #theme-toggle-btn {
-                bottom: 75px;
-                right: 15px;
-                width: 48px;
-                height: 48px;
-                font-size: 1.3rem;
-            }
-            
-            /* Fix form toggle icon visibility */
             .left-container .flex {
                 cursor: pointer;
             }
         }
         
-        /* RESPONSIVE MOBILE SEARCH OVERLAY - FULLY RESPONSIVE */
+        /* ===== MOBILE SEARCH OVERLAY ===== */
         @media (max-width: 767px) {
             body.search-active { overflow: hidden; }
             body.search-active .left-container, 
             body.search-active .main-header-section,
             body.search-active footer,
             body.search-active #universal-bottom-nav,
-            body.search-active #theme-toggle-btn,
             body.search-active h1,
             body.search-active .right-container h2 { 
                 display: none !important; 
@@ -241,7 +229,7 @@
             }
         }
         
-        /* DESKTOP STICKY SIDEBAR - RESPONSIVE */
+        /* ===== DESKTOP STICKY SIDEBAR ===== */
         @media (min-width: 768px) {
             .left-container { 
                 position: sticky; 
@@ -262,7 +250,7 @@
             }
         }
         
-        /* RESPONSIVE GRID ADJUSTMENTS */
+        /* ===== RESPONSIVE GRID ADJUSTMENTS ===== */
         @media (max-width: 768px) {
             .max-w-7xl {
                 padding-left: 1rem;
@@ -300,15 +288,16 @@
             transition: all 0.2s ease; 
         }
         
-        /* BOTTOM NAVIGATION - RESPONSIVE */
+        /* ===== BOTTOM NAVIGATION - FIXED (EXACT SAME AS ORIGINAL) ===== */
         #universal-bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 65px;
+            height: 60px;
             background-color: var(--nav-bg);
             backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             display: flex;
             justify-content: space-around;
             align-items: center;
@@ -316,7 +305,21 @@
             box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
             z-index: 999999;
             padding-bottom: env(safe-area-inset-bottom);
+            animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            font-size: 14px;
         }
+
+        @keyframes navSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
         .nav-link {
             flex: 1;
             display: flex;
@@ -325,71 +328,72 @@
             justify-content: center;
             color: var(--nav-text) !important;
             text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 40px;
             cursor: pointer;
-        }
-        .nav-link i { 
-            font-size: 22px; 
-            margin-bottom: 3px;
-            color: var(--nav-text) !important;
-        }
-        .nav-link div { 
-            font-size: 10px; 
-            font-weight: 800;
-            color: var(--nav-text) !important;
-        }
-     
-        
-        /* THEME TOGGLE - ORIGINAL */
-        #theme-toggle-btn {
-            position: fixed;
-            bottom: 85px;
-            right: 20px;
-            z-index: 10000;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
+            background: transparent;
             border: none;
-            background: #4f46e5;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
         }
-        #theme-toggle-btn:active { transform: scale(0.95); }
-        
-        /* COLLAPSIBLE FORM ON MOBILE - RESPONSIVE */
-        @media (max-width: 767px) {
-            #addressFormContent.hidden {
-                display: none;
-            }
-            #addressFormContent:not(.hidden) {
-                display: block;
-            }
-            .left-container .flex {
-                cursor: pointer;
-            }
+
+        .nav-link i {
+            font-size: 25px;
+            margin-bottom: 4px;
+            color: inherit;
+            -webkit-text-stroke: 0.5px var(--nav-text);
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link div {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: inherit;
+            letter-spacing: 0.02em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* HOVER: Blue color + Slight upward motion (EXACT SAME) */
+        .nav-link:hover {
+            transform: translateY(-4px);
+            color: #2563eb !important;
+        }
+        .nav-link:hover i {
+            color: #2563eb !important;
+            -webkit-text-stroke: 0.5px #2563eb;
+        }
+        .nav-link:hover div {
+            color: #2563eb !important;
+        }
+
+       
+
+        /* PRESS (active) scale feedback */
+        .nav-link:active {
+            transform: scale(0.92) !important;
+            transition: transform 0.1s ease;
+        }
+
+        /* Dark mode hover overrides */
+        [data-theme='dark'] .nav-link:hover {
+            color: #60a5fa !important;
+        }
+        [data-theme='dark'] .nav-link:hover i {
+            color: #60a5fa !important;
+            -webkit-text-stroke: 0.5px #60a5fa;
+        }
+        [data-theme='dark'] .nav-link:hover div {
+            color: #60a5fa !important;
+        }
+      
+        [data-theme='dark'] .nav-link.active i {
+            -webkit-text-stroke: 0.5px #60a5fa;
         }
         
-        /* TOUCH-FRIENDLY BUTTONS */
-        button, .nav-link, .address-item button {
-            cursor: pointer;
-            touch-action: manipulation;
-        }
+        .nav-spacer { height: 0px !important; display: none; }
         
-        /* RESPONSIVE TEXT SIZES */
-        @media (max-width: 640px) {
-            h1 {
-                font-size: 1.5rem;
-            }
-            .text-xl {
-                font-size: 1.125rem;
-            }
-        }
-        
-        /* SCROLLBAR STYLING */
+        /* ===== SCROLLBAR STYLING ===== */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -402,20 +406,30 @@
             border-radius: 10px;
         }
         
-        .nav-spacer { height: 0px !important; display: none; }
-        
-        /* Fix for overlapping elements */
         .max-w-7xl {
             overflow-x: hidden;
         }
-        
         .right-container {
             overflow-x: hidden;
         }
+
+        /* ===== COLLAPSIBLE FORM ON MOBILE ===== */
+        @media (max-width: 767px) {
+            #addressFormContent.hidden {
+                display: none;
+            }
+            #addressFormContent:not(.hidden) {
+                display: block;
+            }
+            .left-container .flex {
+                cursor: pointer;
+            }
+        }
     </style>
 </head>
-<body class="font-sans antialiased">
+<body>
 
+    <!-- ===== HEADER ===== -->
     <div class="main-header-section pt-4 px-4">
         <div class="max-w-4xl mx-auto">
             <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight">
@@ -424,9 +438,8 @@
         </div>
     </div>
 
-    <!-- SEARCH BAR WITH REDUCED WIDTH BY 30PX -->
-    <div class="search-container px-4 pt-2
-         mt-4" style="max-width: calc(100% - 30px); margin: 0 auto;">
+    <!-- ===== SEARCH BAR ===== -->
+    <div class="search-container px-4 pt-2 mt-4" style="max-width: calc(100% - 30px); margin: 0 auto;">
         <div id="searchWrapper" class="relative flex items-center">
             <button id="backBtn" onclick="exitSearchFocus()" class="hidden mr-2 text-2xl p-2 rounded-full" style="color: var(--text-search); background: var(--bg-card);">
                 <i class="fas fa-arrow-left"></i>
@@ -448,8 +461,9 @@
         </div>
     </div>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8 grid md:grid-cols-2 gap-8">
-        <!-- LEFT PANEL - SAVE ADDRESS FORM (ALL ORIGINAL BUTTON COLORS) -->
+        <!-- LEFT PANEL - SAVE ADDRESS FORM -->
         <div class="p-5 rounded-xl shadow-lg h-fit md:sticky md:top-20 left-container" style="background-color: var(--bg-card);">
             <div class="flex justify-between items-center cursor-pointer border-b pb-2 md:pointer-events-none" style="border-color: var(--border);" onclick="toggleFormMobile()">
                 <h2 class="text-xl font-bold text-indigo-700">➕ Save New Address</h2>
@@ -481,19 +495,17 @@
                         Find Location on Google Maps
                     </a>
                 </div>
-                <!-- ORIGINAL GPS BUTTON COLOR (green-600) -->
                 <button type="button" onclick="fetchGPS()" id="gpsBtn" class="w-full flex items-center justify-center gap-2 bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 transition font-medium text-sm shadow-md">
                     <i class="fas fa-location-crosshairs"></i>
                     Get Accurate GPS Location
                 </button>
-                <!-- ORIGINAL SAVE BUTTON COLOR (indigo-600) -->
                 <button id="saveAddressBtn" onclick="saveAddress()" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition flex items-center justify-center shadow-md">
                     <i class="fas fa-save mr-2"></i> Save Address
                 </button>
             </div>
         </div>
 
-        <!-- RIGHT PANEL - ADDRESSES LIST WITH REDUCED WIDTH BY 30PX -->
+        <!-- RIGHT PANEL - ADDRESSES LIST -->
         <div class="right-container address-list-container" style="width: calc(100% - 30px); margin-left: auto; margin-right: auto;">
             <h2 class="text-xl font-bold mb-2 text-indigo-700">🏠 Your Saved Addresses</h2>
             <div id="addressList" class="space-y-4">
@@ -508,66 +520,47 @@
         </div>
     </div>
 
-  
-    <button id="theme-toggle-btn" onclick="toggleTheme()">
-        <i class="fas fa-moon"></i>
-    </button>
+    <!-- ===== BOTTOM NAVIGATION (EXACT SAME AS ORIGINAL) ===== -->
+    <nav id="universal-bottom-nav">
+        <a href="homemob.html" class="nav-link">
+            <i class="fa-solid fa-house"></i>
+            <div>Home</div>
+        </a>
+        <a href="addressmob.html" class="nav-link active">
+            <i class="fa-solid fa-location-dot"></i>
+            <div>Address</div>
+        </a>
+        <a href="passwordmob.html" class="nav-link">
+            <i class="fa-solid fa-key"></i>
+            <div>Password</div>
+        </a>
+        <a href="contact.html" class="nav-link">
+            <i class="fa-solid fa-envelope"></i>
+            <div>Contact</div>
+        </a>
+        <a href="calendermob.html" class="nav-link">
+            <i class="fas fa-calendar-alt"></i>
+            <div>Calendar</div>
+        </a>
+    </nav>
 
-    <div class="nav-spacer"></div>
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
 
     <script>
-        // ==================== SECURITY & SANITIZATION ====================
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-        
-        function escapeAttribute(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-        }
-        
-        function escapeJsString(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'")
-                .replace(/"/g, '\\"')
-                .replace(/\n/g, '\\n')
-                .replace(/\r/g, '\\r');
-        }
-
-        // ==================== THEME MANAGEMENT ====================
+        // ==================== THEME MANAGEMENT (LOCAL STORAGE) ====================
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
         })();
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        }
-
-        function updateThemeIcon(theme) {
-            const btn = document.getElementById('theme-toggle-btn');
-            if (btn) {
-                btn.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        // Listen for theme changes from other pages (profile page)
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'theme') {
+                document.documentElement.setAttribute('data-theme', event.newValue);
             }
-        }
+        });
 
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
@@ -603,6 +596,36 @@
         }, 1000);
 
         // ==================== HELPER FUNCTIONS ====================
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        
+        function escapeAttribute(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+        
+        function escapeJsString(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, '\\n')
+                .replace(/\r/g, '\\r');
+        }
+
         function capitalizeWords(str) {
             if (!str) return '';
             return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -751,7 +774,7 @@
             });
         }
 
-        // ==================== DISPLAY ADDRESSES (4 BUTTONS IN ONE ROW - NO WHATSAPP) ====================
+        // ==================== DISPLAY ADDRESSES ====================
         function displayFilteredAddresses(dataList) {
             const addressListEl = document.getElementById("addressList");
             if (!addressListEl) return;
@@ -1016,223 +1039,9 @@
         window.exitSearchFocus = exitSearchFocus;
         window.filterAddresses = filterAddresses;
         window.navigateToLocation = navigateToLocation;
-        window.toggleTheme = toggleTheme;
         window.logout = logout;
         window.toggleFormMobile = toggleFormMobile;
     </script>
-      <style>
-        /* 1. Theme Variables - EXACT same as your code */
-        :root {
-            --bg-main: #0f172a;
-            --text-primary: #ffffff;
-            --text-dim: #94a3b8;
-            --accent: #2563eb;
-            --savig-yellow: #ffe11b;
-            --glass: rgba(30, 41, 59, 0.45);
-            --border: rgba(255, 255, 255, 0.1);
-            --bg-color: #ffffff;
-            --nav-bg: rgba(255, 255, 255, 0.95);
-            --nav-text: #000000;
-            --hover-bg: #f8fafc;
-            --active-color: #2563eb;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --card: #f8fafc;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-        }
 
-        [data-theme='dark'] {
-            --bg-color: #0f172a;
-            --nav-bg: rgba(15, 23, 42, 0.98);
-            --nav-text: #ffffff;
-            --hover-bg: #1e293b;
-            --active-color: #60a5fa;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --card: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-        }
-
-        /* ===== BOTTOM NAVIGATION - FIXED ===== */
-        #universal-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--nav-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-            z-index: 999999;
-            padding-bottom: env(safe-area-inset-bottom);
-            animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            font-size: 14px;
-        }
-
-        @keyframes navSlideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .nav-link {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--nav-text) !important;
-            text-decoration: none !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            height: 40px;
-            cursor: pointer;
-        }
-
-        .nav-link i {
-            font-size: 25px;
-            margin-bottom: 4px;
-            color: inherit;
-            -webkit-text-stroke: 0.5px var(--nav-text);
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-link div {
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: inherit;
-            letter-spacing: 0.02em;
-            gap: 5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* HOVER: Blue color + Slight upward motion */
-        .nav-link:hover {
-            transform: translateY(-4px);
-            color: #2563eb !important;
-        }
-        .nav-link:hover i {
-            color: #2563eb !important;
-            -webkit-text-stroke: 0.5px #2563eb;
-        }
-        .nav-link:hover div {
-            color: #2563eb !important;
-        }
-
-        /* ACTIVE state */
-        .nav-link.active {
-            color: var(--active-color) !important;
-        }
-        .nav-link.active i {
-            transform: translateY(-3px);
-            -webkit-text-stroke: 0.5px var(--active-color);
-        }
-
-        /* Dark mode hover overrides */
-        [data-theme='dark'] .nav-link:hover {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link:hover i {
-            color: #60a5fa !important;
-            -webkit-text-stroke: 0.5px #60a5fa;
-        }
-        [data-theme='dark'] .nav-link:hover div {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link.active {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link.active i {
-            -webkit-text-stroke: 0.5px #60a5fa;
-        }
-
-        /* Just for demo - body spacing */
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 80px;
-            transition: background 0.3s ease;
-        }
-
-        .demo-content {
-            background: var(--card);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            max-width: 500px;
-            transition: all 0.3s ease;
-        }
-
-        .demo-content h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .demo-content p {
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        .theme-toggle {
-            margin-top: 16px;
-            padding: 10px 24px;
-            border: none;
-            border-radius: 50px;
-            background: var(--active-color);
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.05);
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .status-badge {
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg-color);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .status-badge span {
-            color: var(--active-color);
-        }
-    </style>
-
-
-
-</body>
-</html>
 </body>
 </html>
