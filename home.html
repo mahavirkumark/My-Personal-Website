@@ -512,6 +512,7 @@
   let shownReminderIds = new Set();
   let shownEventIds = new Set();
   let shownGroceryIds = new Set();
+  let authChecked = false;
 
   const pageMapping = {
     'home':'home.html','income':'income.html','calendar':'calender.html','birthday':'birthday.html',
@@ -519,32 +520,120 @@
     'grocery':'grocery.html','asset':'asset.html','place':'place.html','contact':'contact.html',
     'adress':'adress.html','vehicle':'vehicle.html','Panchang':'Panchang.html'
   };
-  function navigateTo(page) { if(!page) return; const target=pageMapping[page]; window.location.href=target||`${page}.html`; }
+  
+  function navigateTo(page) { 
+    if(!page) return; 
+    const target=pageMapping[page]; 
+    window.location.href=target||`${page}.html`; 
+  }
+  
   function attachNavEvents() {
     document.querySelectorAll('.desktop-nav, .sidebar-nav-internal a, .bottom-nav-link, .mobile-nav-item, [data-page]').forEach(el => {
       el.removeEventListener('click', navHandler);
       el.addEventListener('click', navHandler);
     });
   }
-  function navHandler(e) { e.preventDefault(); const page=this.getAttribute('data-page'); if(page) navigateTo(page); }
-
-  function updateUI(user) {
-    if(!user) return;
-    const name=user.displayName||(user.email?user.email.split('@')[0]:'User');
-    const email=user.email||'user@example.com';
-    const initial=email[0].toUpperCase();
-    document.getElementById('desktopUserName').innerText=name;
-    document.getElementById('desktopUserEmail').innerText=email;
-    document.getElementById('desktopUserPhoto').src=`https://ui-avatars.com/api/?name=${encodeURIComponent(initial)}&background=3b82f6&color=fff&size=100&bold=true`;
-    currentUserId=user.uid;
+  
+  function navHandler(e) { 
+    e.preventDefault(); 
+    const page=this.getAttribute('data-page'); 
+    if(page) navigateTo(page); 
   }
 
-  window.sendWhatsAppMsg = function(phone,msg) {
-    if(!phone||phone==='undefined'){alert('No phone number saved.');return;}
-    const clean=phone.replace(/\D/g,'');
-    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
-    else alert('Invalid phone');
-  };
+  // Store user data in localStorage
+  function storeUserData(user) {
+    if (!user) return;
+    const userData = {
+      uid: user.uid,
+      name: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+      email: user.email || 'user@example.com',
+      photo: user.photoURL || `https://ui-avatars.com/api/?name=${(user.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`
+    };
+    localStorage.setItem('savig_user_data', JSON.stringify(userData));
+    return userData;
+  }
+
+  // Load user data from localStorage
+  function loadUserFromStorage() {
+    try {
+      const stored = localStorage.getItem('savig_user_data');
+      if (stored) {
+        const userData = JSON.parse(stored);
+        // Update UI with stored data
+        const nameEl = document.getElementById('desktopUserName');
+        const emailEl = document.getElementById('desktopUserEmail');
+        const photoEl = document.getElementById('desktopUserPhoto');
+        
+        if (nameEl) nameEl.innerText = userData.name;
+        if (emailEl) emailEl.innerText = userData.email;
+        if (photoEl) photoEl.src = userData.photo;
+        
+        currentUserId = userData.uid;
+        return userData;
+      }
+    } catch (e) {
+      console.warn('Could not load user data from storage', e);
+    }
+    return null;
+  }
+
+  // Enhanced updateUI function
+  function updateUI(user) {
+    if (!user) {
+      // Try to get from auth
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        user = currentUser;
+      } else {
+        // Try to load from storage as fallback
+        const stored = loadUserFromStorage();
+        if (stored) {
+          console.log('Loaded user data from storage');
+          return;
+        }
+        console.warn('No user found in updateUI');
+        return;
+      }
+    }
+    
+    // Store user data
+    const userData = storeUserData(user);
+    
+    // Update desktop elements
+    const nameEl = document.getElementById('desktopUserName');
+    const emailEl = document.getElementById('desktopUserEmail');
+    const photoEl = document.getElementById('desktopUserPhoto');
+    
+    if (nameEl) nameEl.innerText = userData.name;
+    if (emailEl) emailEl.innerText = userData.email;
+    if (photoEl) photoEl.src = userData.photo;
+    
+    currentUserId = user.uid;
+    
+    // Also update any other elements that might need user info
+    console.log('UI updated with user:', userData.name);
+  }
+
+  // Force update function for page load
+  function forceUpdateUser() {
+    const user = auth.currentUser;
+    if (user) {
+      updateUI(user);
+      // Reload dashboard data if needed
+      if (currentUserId) {
+        loadDashboardData(currentUserId);
+        initLinksManager(currentUserId);
+        setupLinkUI(currentUserId);
+      }
+    } else {
+      // Try to load from storage
+      const stored = loadUserFromStorage();
+      if (!stored) {
+        // Redirect to login if no user
+        window.location.replace('index.html');
+      }
+    }
+  }
 
   function escapeHtml(s){ if(!s)return ''; return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]||m)); }
   function formatDate(d){ if(!d)return '—'; const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
@@ -663,7 +752,6 @@
         toDelete.forEach(id=>{ updates[id]=null; });
         db.ref(`users/${userId}/quickLinks`).update(updates);
         autoDeleteCount += toDelete.length;
-        // Show notification once per minute if items were deleted
         showToast('autoDeleteToast', `🗑️ Auto-deleted ${toDelete.length} link${toDelete.length>1?'s':''} (Total: ${autoDeleteCount})`);
       }
     });
@@ -807,16 +895,20 @@
     };
   }
 
-  let authChecked=false;
-  auth.onAuthStateChanged(user=>{
-    if(user){
+  // ── AUTH STATE MANAGER ──
+  // First, try to load from storage immediately
+  loadUserFromStorage();
+
+  // Set up auth listener
+  auth.onAuthStateChanged(user => {
+    if (user) {
       updateUI(user);
       loadDashboardData(user.uid);
       initLinksManager(user.uid);
       setupLinkUI(user.uid);
       loadReminders();
       attachNavEvents();
-      authChecked=true;
+      authChecked = true;
       
       // Run all notification checks
       setTimeout(() => {
@@ -824,9 +916,9 @@
         checkGroceryNotifications(user.uid);
       }, 2000);
       
-      // Auto-delete every 30 seconds (faster for demo)
-      setInterval(()=> runAutoDelete(user.uid), 30000);
-      setTimeout(()=> runAutoDelete(user.uid), 3000);
+      // Auto-delete every 30 seconds
+      setInterval(() => runAutoDelete(user.uid), 30000);
+      setTimeout(() => runAutoDelete(user.uid), 3000);
       
       // Check reminders every 5 minutes
       setInterval(() => {
@@ -840,13 +932,53 @@
       }, 600000);
       
     } else {
-      if(!authChecked) window.location.replace('index.html');
+      if (!authChecked) {
+        // Try to load from storage as fallback
+        const stored = loadUserFromStorage();
+        if (!stored) {
+          window.location.replace('index.html');
+        }
+      }
     }
   });
-  setTimeout(()=>{ if(!auth.currentUser&&!authChecked) window.location.replace('index.html'); },2000);
 
-  document.getElementById('menu-btn').addEventListener('click', ()=>document.getElementById('mobile-menu').classList.toggle('hidden'));
+  // Force update when page loads (in case auth state doesn't change)
+  document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(forceUpdateUser, 300);
+  });
 
+  // Also force update after the auth state is checked
+  setTimeout(() => {
+    if (auth.currentUser && !authChecked) {
+      forceUpdateUser();
+      authChecked = true;
+    }
+  }, 1000);
+
+  // Additional fallback: check every 2 seconds for first 10 seconds
+  let fallbackAttempts = 0;
+  const fallbackInterval = setInterval(() => {
+    if (auth.currentUser) {
+      forceUpdateUser();
+      clearInterval(fallbackInterval);
+    }
+    fallbackAttempts++;
+    if (fallbackAttempts > 5) {
+      clearInterval(fallbackInterval);
+      // If still no user, try to load from storage
+      loadUserFromStorage();
+    }
+  }, 2000);
+
+  // WhatsApp function
+  window.sendWhatsAppMsg = function(phone,msg) {
+    if(!phone||phone==='undefined'){alert('No phone number saved.');return;}
+    const clean=phone.replace(/\D/g,'');
+    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
+    else alert('Invalid phone');
+  };
+
+  // Theme toggle
   const saved=localStorage.getItem('theme')||'light';
   document.documentElement.setAttribute('data-theme',saved);
   document.getElementById('theme-toggle-btn').onclick=()=>{
@@ -855,7 +987,17 @@
     localStorage.setItem('theme',next);
   };
 
-  document.getElementById('desktopLogout').addEventListener('click', e=>{ e.preventDefault(); auth.signOut().then(()=>window.location.href='index.html'); });
+  // Logout
+  document.getElementById('desktopLogout').addEventListener('click', e=>{ 
+    e.preventDefault(); 
+    localStorage.removeItem('savig_user_data');
+    auth.signOut().then(()=>window.location.href='index.html'); 
+  });
+
+  // Mobile menu
+  document.getElementById('menu-btn').addEventListener('click', ()=>document.getElementById('mobile-menu').classList.toggle('hidden'));
+
+  // Navigation events
   window.addEventListener('load', attachNavEvents);
 </script>
 </body>
