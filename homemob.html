@@ -1054,10 +1054,10 @@
     </div>
 
     <script>
-        // All your original JavaScript with fixes
-        
         // Firebase instances
         let db, auth;
+        let userDataLoaded = false;
+        
         try {
             db = firebase.database();
             auth = firebase.auth();
@@ -1164,6 +1164,35 @@
             }
         }, 45 * 60 * 1000);
 
+        // Function to update greeting based on time
+        function updateTimeGreeting() {
+            const hours = new Date().getHours();
+            const greetEl = document.getElementById('greeting-time');
+            const emojiEl = document.getElementById('greeting-emoji');
+
+            if (!greetEl) return;
+
+            let message = "";
+            let emoji = "";
+
+            if (hours >= 5 && hours < 12) {
+                message = "Good Morning";
+                emoji = "☀️";
+            } else if (hours >= 12 && hours < 17) {
+                message = "Good Afternoon";
+                emoji = "🌤️";
+            } else if (hours >= 17 && hours < 21) {
+                message = "Good Evening";
+                emoji = "🌆";
+            } else {
+                message = "Good Night";
+                emoji = "🌙";
+            }
+
+            greetEl.innerText = message;
+            if (emojiEl) emojiEl.innerText = emoji;
+        }
+
         // Auth state handler
         if (auth) {
             auth.onIdTokenChanged(async (user) => {
@@ -1202,6 +1231,8 @@
                                         "Safar";
                         nameElement.innerText = finalName;
                         nameElement.style.color = '#ffe11b';
+                        // Set flag that user data is loaded
+                        userDataLoaded = true;
                     }
 
                     if (window.OneSignalDeferred && db) {
@@ -1215,7 +1246,10 @@
 
                     document.getElementById('user-error').style.display = 'none';
                     
+                    // Update greeting AFTER user data is loaded
                     updateTimeGreeting();
+                    
+                    // Now load dashboard content
                     loadTodaysDashboard();
                     fetchAndShowTodaysEvents();
                     if (typeof loadAnalytics === "function") loadAnalytics();
@@ -1229,7 +1263,7 @@
             });
         }
 
-        // Initial load
+        // Initial load with proper sequencing
         window.onload = function() {
             const now = new Date();
             const monthInput = document.getElementById("monthSelector");
@@ -1237,12 +1271,40 @@
                 monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
             }
             
+            // Set initial greeting based on time (temporary until user data loads)
+            updateTimeGreeting();
+            
             if (auth) {
                 const user = auth.currentUser;
                 if (user) {
                     user.getIdToken(true).catch(() => {});
                 }
             }
+            
+            // If user data hasn't loaded after 3 seconds, force a refresh
+            setTimeout(() => {
+                if (!userDataLoaded && auth && auth.currentUser) {
+                    console.log("User data not loaded, forcing refresh...");
+                    const nameElement = document.getElementById('user-display-name');
+                    if (nameElement && nameElement.innerText === "Loading...") {
+                        // Try to reload the user data
+                        const user = auth.currentUser;
+                        if (user && db) {
+                            db.ref('users/' + user.uid).once('value')
+                                .then((snapshot) => {
+                                    const userData = snapshot.val();
+                                    if (userData && userData.name) {
+                                        nameElement.innerText = userData.name;
+                                        nameElement.style.color = '#ffe11b';
+                                        userDataLoaded = true;
+                                        updateTimeGreeting();
+                                    }
+                                })
+                                .catch(() => {});
+                        }
+                    }
+                }
+            }, 3000);
         };
 
         document.getElementById("monthSelector").addEventListener("change", loadAnalytics);
@@ -1581,34 +1643,6 @@
                 listCont.innerHTML =
                     `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading ⚠️</div>`;
             }
-        }
-
-        function updateTimeGreeting() {
-            const hours = new Date().getHours();
-            const greetEl = document.getElementById('greeting-time');
-            const emojiEl = document.getElementById('greeting-emoji');
-
-            if (!greetEl) return;
-
-            let message = "";
-            let emoji = "";
-
-            if (hours >= 5 && hours < 12) {
-                message = "Good Morning";
-                emoji = "☀️";
-            } else if (hours >= 12 && hours < 17) {
-                message = "Good Afternoon";
-                emoji = "🌤️";
-            } else if (hours >= 17 && hours < 21) {
-                message = "Good Evening";
-                emoji = "🌆";
-            } else {
-                message = "Good Night";
-                emoji = "🌙";
-            }
-
-            greetEl.innerText = message;
-            if (emojiEl) emojiEl.innerText = emoji;
         }
 
         // --- Search Logic ---
