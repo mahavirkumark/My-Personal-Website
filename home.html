@@ -492,6 +492,25 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
+  // ============================================
+  // FIX: Load user data from URL parameters first
+  // ============================================
+  (function loadUserFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userDataParam = urlParams.get('user');
+    
+    if (userDataParam) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userDataParam));
+        localStorage.setItem('savig_user_data', JSON.stringify(userData));
+        sessionStorage.setItem('savig_user_data', JSON.stringify(userData));
+        console.log('Loaded user data from URL:', userData.name);
+      } catch (e) {
+        console.warn('Failed to parse user data from URL', e);
+      }
+    }
+  })();
+
   const firebaseConfig = {
     apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
     authDomain: "sk12-58e9e.firebaseapp.com",
@@ -524,8 +543,15 @@
   
   function navigateTo(page) { 
     if(!page) return; 
-    const target=pageMapping[page]; 
-    window.location.href=target||`${page}.html`; 
+    const target=pageMapping[page];
+    // Pass user data via URL parameter
+    const userData = localStorage.getItem('savig_user_data');
+    if (userData) {
+      const encoded = encodeURIComponent(userData);
+      window.location.href = target ? `${target}?user=${encoded}` : `${page}.html?user=${encoded}`;
+    } else {
+      window.location.href = target || `${page}.html`;
+    }
   }
   
   function attachNavEvents() {
@@ -541,26 +567,35 @@
     if(page) navigateTo(page); 
   }
 
-  // Store user data in localStorage
+  // Store user data in localStorage AND sessionStorage
   function storeUserData(user) {
     if (!user) return;
     const userData = {
       uid: user.uid,
       name: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
       email: user.email || 'user@example.com',
-      photo: user.photoURL || `https://ui-avatars.com/api/?name=${(user.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`
+      photo: user.photoURL || `https://ui-avatars.com/api/?name=${(user.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`,
+      timestamp: Date.now()
     };
     localStorage.setItem('savig_user_data', JSON.stringify(userData));
+    sessionStorage.setItem('savig_user_data', JSON.stringify(userData));
     return userData;
   }
 
-  // Load user data from localStorage
+  // Load user data from storage (try both localStorage and sessionStorage)
   function loadUserFromStorage() {
     try {
-      const stored = localStorage.getItem('savig_user_data');
+      // Try sessionStorage first (more reliable for same session)
+      let stored = sessionStorage.getItem('savig_user_data');
+      if (!stored) {
+        stored = localStorage.getItem('savig_user_data');
+      }
       if (stored) {
         const userData = JSON.parse(stored);
-        return userData;
+        // Check if data is not too old (24 hours)
+        if (userData.timestamp && (Date.now() - userData.timestamp) < 86400000) {
+          return userData;
+        }
       }
     } catch (e) {
       console.warn('Could not load user data from storage', e);
@@ -568,63 +603,56 @@
     return null;
   }
 
-  // Enhanced updateUI function
+  // Update UI function with fallback
   function updateUI(user) {
-    if (!user) {
-      // Try to get from auth
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        user = currentUser;
-      } else {
-        // Try to load from storage as fallback
-        const stored = loadUserFromStorage();
-        if (stored) {
-          console.log('Loaded user data from storage');
-          updateUIFromStored(stored);
-          return;
-        }
-        console.warn('No user found in updateUI');
-        return;
-      }
+    // If user is provided, use it
+    if (user) {
+      const userData = storeUserData(user);
+      updateUIFromData(userData);
+      currentUserId = user.uid;
+      console.log('UI updated from Firebase user:', userData.name);
+      return;
     }
     
-    // Store user data
-    const userData = storeUserData(user);
-    
-    // Update desktop elements
-    const nameEl = document.getElementById('desktopUserName');
-    const emailEl = document.getElementById('desktopUserEmail');
-    const photoEl = document.getElementById('desktopUserPhoto');
-    
-    if (nameEl) nameEl.innerText = userData.name;
-    if (emailEl) emailEl.innerText = userData.email;
-    if (photoEl) photoEl.src = userData.photo;
-    
-    currentUserId = user.uid;
-    
-    console.log('UI updated with user:', userData.name);
-    
-    // If this is the first time data is loaded, load dashboard data
-    if (!dataLoaded && currentUserId) {
-      loadAllData(currentUserId);
-      dataLoaded = true;
+    // Try to get from auth
+    const currentUser = auth.currentUser;
+    if (currentUser) {
+      const userData = storeUserData(currentUser);
+      updateUIFromData(userData);
+      currentUserId = currentUser.uid;
+      console.log('UI updated from auth.currentUser:', userData.name);
+      return;
     }
+    
+    // Try to load from storage
+    const stored = loadUserFromStorage();
+    if (stored) {
+      updateUIFromData(stored);
+      currentUserId = stored.uid;
+      console.log('UI updated from storage:', stored.name);
+      return;
+    }
+    
+    console.warn('No user found in updateUI');
   }
 
-  // Update UI from stored data
-  function updateUIFromStored(userData) {
+  // Update UI from data object
+  function updateUIFromData(userData) {
+    if (!userData) return;
+    
     const nameEl = document.getElementById('desktopUserName');
     const emailEl = document.getElementById('desktopUserEmail');
     const photoEl = document.getElementById('desktopUserPhoto');
     
-    if (nameEl) nameEl.innerText = userData.name;
-    if (emailEl) emailEl.innerText = userData.email;
-    if (photoEl) photoEl.src = userData.photo;
+    if (nameEl) nameEl.innerText = userData.name || 'User';
+    if (emailEl) emailEl.innerText = userData.email || 'user@example.com';
+    if (photoEl) {
+      photoEl.src = userData.photo || `https://ui-avatars.com/api/?name=${(userData.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`;
+    }
     
     currentUserId = userData.uid;
-    console.log('UI updated from storage:', userData.name);
     
-    // Load data if not loaded yet
+    // Load dashboard data if not loaded yet
     if (!dataLoaded && currentUserId) {
       loadAllData(currentUserId);
       dataLoaded = true;
@@ -664,6 +692,7 @@
 
   // Force update function for page load
   function forceUpdateUser() {
+    console.log('Force updating user...');
     const user = auth.currentUser;
     if (user) {
       updateUI(user);
@@ -671,9 +700,10 @@
       // Try to load from storage
       const stored = loadUserFromStorage();
       if (stored) {
-        updateUIFromStored(stored);
+        updateUIFromData(stored);
       } else {
         // Redirect to login if no user
+        console.log('No user found, redirecting to login');
         window.location.replace('index.html');
       }
     }
@@ -939,15 +969,23 @@
     };
   }
 
-  // ── MAIN INITIALIZATION ──
-  // First, try to load from storage immediately
+  // ============================================
+  // MAIN INITIALIZATION - MULTIPLE FALLBACKS
+  // ============================================
+  
+  // 1. IMMEDIATE: Try to load from storage right away
+  console.log('Attempting immediate load from storage...');
   const storedUser = loadUserFromStorage();
   if (storedUser) {
-    updateUIFromStored(storedUser);
+    console.log('✅ Loaded from storage immediately');
+    updateUIFromData(storedUser);
+  } else {
+    console.log('⚠️ No user data in storage');
   }
 
-  // Set up auth listener
+  // 2. Set up auth listener
   auth.onAuthStateChanged(user => {
+    console.log('Auth state changed:', user ? 'User logged in' : 'No user');
     if (user) {
       updateUI(user);
       authChecked = true;
@@ -956,42 +994,67 @@
         // Try to load from storage as fallback
         const stored = loadUserFromStorage();
         if (!stored) {
+          console.log('No user found, redirecting to login');
           window.location.replace('index.html');
         }
       }
     }
   });
 
-  // Force update when page loads (in case auth state doesn't change)
+  // 3. DOMContentLoaded - force update
   document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(forceUpdateUser, 100);
+    console.log('DOMContentLoaded - forcing update');
+    setTimeout(forceUpdateUser, 50);
   });
 
-  // Also force update after the auth state is checked
-  setTimeout(() => {
-    if (auth.currentUser && !authChecked) {
-      forceUpdateUser();
-      authChecked = true;
+  // 4. Multiple timeout fallbacks
+  const timeouts = [100, 300, 500, 800, 1200];
+  timeouts.forEach(delay => {
+    setTimeout(() => {
+      if (!dataLoaded) {
+        console.log(`Fallback timeout ${delay}ms - forcing update`);
+        forceUpdateUser();
+      }
+    }, delay);
+  });
+
+  // 5. Continuous interval check (every 500ms for 5 seconds)
+  let fallbackAttempts = 0;
+  const maxAttempts = 10;
+  const fallbackInterval = setInterval(() => {
+    if (dataLoaded && auth.currentUser) {
+      clearInterval(fallbackInterval);
+      return;
+    }
+    
+    fallbackAttempts++;
+    console.log(`Fallback attempt ${fallbackAttempts}/${maxAttempts}`);
+    
+    if (auth.currentUser) {
+      updateUI(auth.currentUser);
+      clearInterval(fallbackInterval);
+    } else {
+      const stored = loadUserFromStorage();
+      if (stored) {
+        updateUIFromData(stored);
+        clearInterval(fallbackInterval);
+      }
+    }
+    
+    if (fallbackAttempts >= maxAttempts) {
+      clearInterval(fallbackInterval);
+      // Final check
+      const stored = loadUserFromStorage();
+      if (!stored && !auth.currentUser) {
+        console.log('No user found after all attempts, redirecting');
+        window.location.replace('index.html');
+      }
     }
   }, 500);
 
-  // Additional fallback: check every 1 second for first 5 seconds
-  let fallbackAttempts = 0;
-  const fallbackInterval = setInterval(() => {
-    if (auth.currentUser) {
-      forceUpdateUser();
-      clearInterval(fallbackInterval);
-    }
-    fallbackAttempts++;
-    if (fallbackAttempts > 5) {
-      clearInterval(fallbackInterval);
-      // If still no user, try to load from storage
-      const stored = loadUserFromStorage();
-      if (stored) {
-        updateUIFromStored(stored);
-      }
-    }
-  }, 1000);
+  // ============================================
+  // EVENT HANDLERS
+  // ============================================
 
   // WhatsApp function
   window.sendWhatsAppMsg = function(phone,msg) {
@@ -1014,6 +1077,7 @@
   document.getElementById('desktopLogout').addEventListener('click', e=>{ 
     e.preventDefault(); 
     localStorage.removeItem('savig_user_data');
+    sessionStorage.removeItem('savig_user_data');
     auth.signOut().then(()=>window.location.href='index.html'); 
   });
 
