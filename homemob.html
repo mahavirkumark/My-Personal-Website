@@ -17,6 +17,8 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-messaging-compat.min.js">
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-storage-compat.min.js">
+    </script>
     
     <script>
         // Firebase Configuration
@@ -783,6 +785,36 @@
         #offline-indicator i {
             margin-right: 8px;
         }
+
+        /* Avatar styles */
+        .avatar-container {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .avatar-container .avatar-placeholder {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffe11b;
+            text-transform: uppercase;
+        }
+        .avatar-container .avatar-icon {
+            font-size: 24px;
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -848,12 +880,14 @@
         </div>
 
         <div class="w-full py-4 flex justify-between items-center max-w-md mx-auto px-4">
+            <!-- Updated user info with avatar -->
             <div class="animate-pop flex items-center gap-3" style="--d: 4.5">
-                <div class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                    <span id="greeting-emoji" class="text-xl">☀️</span>
+                <div class="avatar-container">
+                    <img id="user-avatar" src="" alt="Avatar" class="hidden">
+                    <span id="avatar-placeholder" class="avatar-placeholder">👤</span>
                 </div>
                 <div>
-                    <p id="greeting-time" class="text-white/40 text-[14px]  font-bold leading-none ">Good Morning</p>
+                    <p id="greeting-time" class="text-white/40 text-[14px] font-bold leading-none">Good Morning</p>
                     <h2 class="text-white text-base font-bold">
                         <span id="user-display-name" class="text-[#ffe11b]">Loading...</span>
                     </h2>
@@ -865,7 +899,7 @@
                     <i class="fas fa-search text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]"></i>
                 </button>
 
-                <a href="profilemob.html" class="w-12 h-12  rounded-full border-2 border-blue-500/30 bg-slate-800 flex items-center justify-center animate-pop group" style="--d: 6">
+                <a href="profilemob.html" class="w-12 h-12 rounded-full border-2 border-blue-500/30 bg-slate-800 flex items-center justify-center animate-pop group" style="--d: 6">
                     <i class="fas fa-user-circle text-blue-400 text-3xl group-hover:text-blue-300"></i>
                 </a>
             </div>
@@ -1055,12 +1089,13 @@
 
     <script>
         // Firebase instances
-        let db, auth;
+        let db, auth, storage;
         let userDataLoaded = false;
         
         try {
             db = firebase.database();
             auth = firebase.auth();
+            storage = firebase.storage();
             console.log("✅ Firebase services ready");
         } catch (e) {
             console.error("❌ Firebase initialization error:", e);
@@ -1193,6 +1228,82 @@
             if (emojiEl) emojiEl.innerText = emoji;
         }
 
+        // Function to load user avatar
+        function loadUserAvatar(userId, avatarUrl, photoURL) {
+            const avatarImg = document.getElementById('user-avatar');
+            const avatarPlaceholder = document.getElementById('avatar-placeholder');
+            const nameElement = document.getElementById('user-display-name');
+            
+            if (!avatarImg || !avatarPlaceholder) return;
+
+            // Try to load avatar from Firebase Storage or database URL
+            if (avatarUrl && avatarUrl.startsWith('http')) {
+                // Direct URL (from database or Google)
+                avatarImg.src = avatarUrl;
+                avatarImg.onload = function() {
+                    avatarImg.classList.remove('hidden');
+                    avatarPlaceholder.classList.add('hidden');
+                };
+                avatarImg.onerror = function() {
+                    // If image fails to load, show placeholder with first letter
+                    showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+                };
+            } else if (photoURL) {
+                // From Google/Facebook auth
+                avatarImg.src = photoURL;
+                avatarImg.onload = function() {
+                    avatarImg.classList.remove('hidden');
+                    avatarPlaceholder.classList.add('hidden');
+                };
+                avatarImg.onerror = function() {
+                    showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+                };
+            } else if (avatarUrl && userId) {
+                // Try to load from Firebase Storage
+                try {
+                    const storageRef = storage.ref(`avatars/${userId}`);
+                    storageRef.getDownloadURL().then((url) => {
+                        avatarImg.src = url;
+                        avatarImg.onload = function() {
+                            avatarImg.classList.remove('hidden');
+                            avatarPlaceholder.classList.add('hidden');
+                        };
+                        avatarImg.onerror = function() {
+                            showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+                        };
+                    }).catch(() => {
+                        showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+                    });
+                } catch (e) {
+                    showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+                }
+            } else {
+                // No avatar, show placeholder
+                showAvatarPlaceholder(nameElement ? nameElement.innerText : 'U');
+            }
+        }
+
+        function showAvatarPlaceholder(name) {
+            const avatarPlaceholder = document.getElementById('avatar-placeholder');
+            const avatarImg = document.getElementById('user-avatar');
+            
+            if (!avatarPlaceholder) return;
+            
+            avatarImg.classList.add('hidden');
+            avatarPlaceholder.classList.remove('hidden');
+            
+            // Show first letter of name if available
+            if (name && name.length > 0) {
+                avatarPlaceholder.textContent = name.charAt(0).toUpperCase();
+                avatarPlaceholder.style.fontSize = '20px';
+                avatarPlaceholder.style.fontWeight = 'bold';
+                avatarPlaceholder.style.color = '#ffe11b';
+            } else {
+                avatarPlaceholder.textContent = '👤';
+                avatarPlaceholder.style.fontSize = '24px';
+            }
+        }
+
         // Auth state handler
         if (auth) {
             auth.onIdTokenChanged(async (user) => {
@@ -1224,15 +1335,23 @@
                     }
 
                     const nameElement = document.getElementById('user-display-name');
+                    let finalName = "Safar";
+                    
                     if (nameElement) {
-                        const finalName = (userData && userData.name) || 
-                                        user.displayName || 
-                                        user.email || 
-                                        "Safar";
+                        finalName = (userData && userData.name) || 
+                                    user.displayName || 
+                                    user.email || 
+                                    "Safar";
                         nameElement.innerText = finalName;
                         nameElement.style.color = '#ffe11b';
-                        // Set flag that user data is loaded
                         userDataLoaded = true;
+                    }
+
+                    // Load avatar image
+                    if (userData) {
+                        loadUserAvatar(user.uid, userData.avatar, user.photoURL);
+                    } else {
+                        loadUserAvatar(user.uid, null, user.photoURL);
                     }
 
                     if (window.OneSignalDeferred && db) {
@@ -1298,6 +1417,10 @@
                                         nameElement.style.color = '#ffe11b';
                                         userDataLoaded = true;
                                         updateTimeGreeting();
+                                        // Load avatar too
+                                        if (userData) {
+                                            loadUserAvatar(user.uid, userData.avatar, user.photoURL);
+                                        }
                                     }
                                 })
                                 .catch(() => {});
