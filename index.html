@@ -120,50 +120,6 @@
     </div>
 </div>
 
-        <div id="savig-splash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 30% 20%, #0a0f2a, #030614); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);">
-    
-    <!-- Canvas Particles Background -->
-    <canvas id="splashCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
-    
-    <!-- Animated Glow Orbs -->
-    <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(0,255,255,0.07) 0%, transparent 70%); border-radius: 50%; animation: pulseOrb 4s ease-in-out infinite;"></div>
-    <div style="position: absolute; width: 250px; height: 250px; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%); border-radius: 50%; bottom: 10%; right: 5%; animation: pulseOrb 5s ease-in-out infinite reverse;"></div>
-    
-    <!-- Logo Container with Rings -->
-    <div style="position: relative; margin-bottom: 2rem; animation: floatLogo 3s ease-in-out infinite; z-index: 10;">
-        <!-- Outer spinning ring -->
-        <div style="position: absolute; top: -22px; left: -22px; width: 138px; height: 138px; border-radius: 50%; border: 2px solid rgba(0, 210, 255, 0.5); border-top-color: transparent; border-right-color: rgba(0, 210, 255, 0.15); animation: spinCw 2.2s linear infinite;"></div>
-        <!-- Middle reverse ring -->
-        <div style="position: absolute; top: -12px; left: -12px; width: 118px; height: 118px; border-radius: 50%; border: 1.5px solid rgba(59, 130, 246, 0.4); border-bottom-color: transparent; border-left-color: rgba(59, 130, 246, 0.1); animation: spinCcw 3.8s linear infinite;"></div>
-        <!-- Inner pulse ring -->
-        <div style="position: absolute; top: -2px; left: -2px; width: 98px; height: 98px; border-radius: 50%; background: radial-gradient(circle, rgba(0,255,255,0.05), transparent); animation: pulseRing 2.2s ease-in-out infinite;"></div>
-        
-        <!-- EXACT SHIELD + WHITE DATABASE LOGO -->
-        <div style="position: relative; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 20px rgba(59,130,246,0.5));">
-            <i class="fas fa-shield" style="font-size: 82px; color: #3b82f6; filter: drop-shadow(0 6px 14px rgba(59,130,246,0.6));"></i>
-            <i class="fas fa-database" style="font-size: 42px; color: #ffffff !important; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -46%); text-shadow: 0 0 6px rgba(0,255,255,0.5);"></i>
-        </div>
-    </div>
-    
-    <!-- Brand Title -->
-    <h1 style="font-family: 'Inter', system-ui, sans-serif; font-size: 54px; font-weight: 800; background: linear-gradient(135deg, #ffffff, #3b82f6, #0ff); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1.5px; margin: 0; text-shadow: 0 0 20px rgba(59,130,246,0.3); z-index: 10;">Savig</h1>
-    <p style="color: rgba(59,130,246,0.7); font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; font-weight: 500; margin-top: 8px; z-index: 10;">SECURE PERSONAL HUB</p>
-    
-    <!-- Progress Bar -->
-    <div style="width: 280px; margin-top: 42px; margin-bottom: 28px; z-index: 10;">
-        <div style="height: 3px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
-            <div id="splashProgress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #0ff, #3b82f6, #0ff); background-size: 200% auto; border-radius: 6px; transition: width 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1); animation: shimmerMove 1.4s linear infinite;"></div>
-        </div>
-    </div>
-    
-    <!-- Status Text -->
-    <div id="splashStatus" style="color: #aaffff; font-family: 'SF Mono', 'Courier New', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; background: rgba(0,255,255,0.08); padding: 8px 20px; border-radius: 60px; backdrop-filter: blur(12px); border: 1px solid rgba(0,255,255,0.2); z-index: 10;">🔐 establishing encrypted channel</div>
-    <div id="splashDots" style="color: rgba(0,255,255,0.5); font-size: 11px; letter-spacing: 5px; margin-top: 12px; z-index: 10;">✦ ✦ ✦</div>
-    
-    <!-- Version Badge -->
-    <div style="position: absolute; bottom: 24px; font-size: 9px; color: rgba(0,255,255,0.3); font-family: monospace; z-index: 10;">encrypted vault • zero-knowledge</div>
-</div>
-
         <div class="hidden lg:block space-y-6 order-3" style="animation: slideInRight 1s ease-out forwards; opacity: 1;">
             <div class="p-5 bg-white rounded-xl shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
                 <div class="flex items-center gap-3 mb-2">
@@ -268,8 +224,6 @@
         
         const messages = [
             "🔐 establishing encrypted channel",
-         
-           
             "✨ finalizing environment"
         ];
         
@@ -462,15 +416,49 @@ let isSendingOTP = false;
 let otpSentForCurrentUser = false; // NEW: Track if OTP sent for current user session
 let lastProcessedUserUID = null; // NEW: Track last processed user to prevent duplicate processing
 
+// ============================================
+// USER DATA PERSISTENCE FUNCTIONS
+// ============================================
+
+function storeUserData(user) {
+    if (!user) return;
+    const userData = {
+        uid: user.uid,
+        name: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+        email: user.email || 'user@example.com',
+        photo: user.photoURL || `https://ui-avatars.com/api/?name=${(user.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`,
+        timestamp: Date.now()
+    };
+    localStorage.setItem('savig_user_data', JSON.stringify(userData));
+    sessionStorage.setItem('savig_user_data', JSON.stringify(userData));
+    return userData;
+}
+
+// ============================================
+// NAVIGATION WITH USER DATA
+// ============================================
+
+function navigateToDashboard() {
+    const user = auth.currentUser;
+    if (user) {
+        // Store user data first
+        const userData = storeUserData(user);
+        // Encode and pass via URL
+        const encoded = encodeURIComponent(JSON.stringify(userData));
+        window.location.href = `home.html?user=${encoded}`;
+    } else {
+        window.location.href = 'home.html';
+    }
+}
+
 // --- 1. AUTH STATE LISTENER (CORE LOGIC) ---
 auth.onAuthStateChanged((user) => {
     const isVerified = localStorage.getItem('savig_otp_verified');
     
     if (user && isVerified === 'true') {
-        // Already logged in and verified
-        otpSentForCurrentUser = false; // Reset flag
-        lastProcessedUserUID = null;
-        window.location.replace("home.html");
+        // Already logged in and verified - go to dashboard with user data
+        storeUserData(user);
+        navigateToDashboard();
     } 
     else if (user) {
         // USER LOGGED IN BUT NEEDS OTP
@@ -508,6 +496,8 @@ auth.onAuthStateChanged((user) => {
     else {
         // USER LOGGED OUT
         localStorage.removeItem('savig_otp_verified');
+        localStorage.removeItem('savig_user_data');
+        sessionStorage.removeItem('savig_user_data');
         document.getElementById('loginCard').classList.remove('hidden');
         document.getElementById('pinCard').classList.add('hidden');
         resetOTPState();
@@ -596,7 +586,14 @@ function verifyOTP(code) {
         otpSentForCurrentUser = false;
         lastProcessedUserUID = null;
         
-        setTimeout(() => window.location.replace("home.html"), 100);
+        // Store user data and navigate
+        const user = auth.currentUser;
+        if (user) {
+            storeUserData(user);
+            setTimeout(navigateToDashboard, 100);
+        } else {
+            setTimeout(() => window.location.replace("home.html"), 100);
+        }
     } 
     else {
         // FAILURE
