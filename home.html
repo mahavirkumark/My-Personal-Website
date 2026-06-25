@@ -513,6 +513,7 @@
   let shownEventIds = new Set();
   let shownGroceryIds = new Set();
   let authChecked = false;
+  let dataLoaded = false;
 
   const pageMapping = {
     'home':'home.html','income':'income.html','calendar':'calender.html','birthday':'birthday.html',
@@ -559,16 +560,6 @@
       const stored = localStorage.getItem('savig_user_data');
       if (stored) {
         const userData = JSON.parse(stored);
-        // Update UI with stored data
-        const nameEl = document.getElementById('desktopUserName');
-        const emailEl = document.getElementById('desktopUserEmail');
-        const photoEl = document.getElementById('desktopUserPhoto');
-        
-        if (nameEl) nameEl.innerText = userData.name;
-        if (emailEl) emailEl.innerText = userData.email;
-        if (photoEl) photoEl.src = userData.photo;
-        
-        currentUserId = userData.uid;
         return userData;
       }
     } catch (e) {
@@ -589,6 +580,7 @@
         const stored = loadUserFromStorage();
         if (stored) {
           console.log('Loaded user data from storage');
+          updateUIFromStored(stored);
           return;
         }
         console.warn('No user found in updateUI');
@@ -610,8 +602,64 @@
     
     currentUserId = user.uid;
     
-    // Also update any other elements that might need user info
     console.log('UI updated with user:', userData.name);
+    
+    // If this is the first time data is loaded, load dashboard data
+    if (!dataLoaded && currentUserId) {
+      loadAllData(currentUserId);
+      dataLoaded = true;
+    }
+  }
+
+  // Update UI from stored data
+  function updateUIFromStored(userData) {
+    const nameEl = document.getElementById('desktopUserName');
+    const emailEl = document.getElementById('desktopUserEmail');
+    const photoEl = document.getElementById('desktopUserPhoto');
+    
+    if (nameEl) nameEl.innerText = userData.name;
+    if (emailEl) emailEl.innerText = userData.email;
+    if (photoEl) photoEl.src = userData.photo;
+    
+    currentUserId = userData.uid;
+    console.log('UI updated from storage:', userData.name);
+    
+    // Load data if not loaded yet
+    if (!dataLoaded && currentUserId) {
+      loadAllData(currentUserId);
+      dataLoaded = true;
+    }
+  }
+
+  // Load all dashboard data
+  function loadAllData(userId) {
+    if (!userId) return;
+    loadDashboardData(userId);
+    initLinksManager(userId);
+    setupLinkUI(userId);
+    loadReminders();
+    attachNavEvents();
+    
+    // Run notification checks
+    setTimeout(() => {
+      checkEventNotifications(userId);
+      checkGroceryNotifications(userId);
+    }, 2000);
+    
+    // Auto-delete every 30 seconds
+    setInterval(() => runAutoDelete(userId), 30000);
+    setTimeout(() => runAutoDelete(userId), 3000);
+    
+    // Check reminders every 5 minutes
+    setInterval(() => {
+      if (allReminders.length) checkReminderNotifications(allReminders);
+    }, 300000);
+    
+    // Check events and groceries every 10 minutes
+    setInterval(() => {
+      checkEventNotifications(userId);
+      checkGroceryNotifications(userId);
+    }, 600000);
   }
 
   // Force update function for page load
@@ -619,16 +667,12 @@
     const user = auth.currentUser;
     if (user) {
       updateUI(user);
-      // Reload dashboard data if needed
-      if (currentUserId) {
-        loadDashboardData(currentUserId);
-        initLinksManager(currentUserId);
-        setupLinkUI(currentUserId);
-      }
     } else {
       // Try to load from storage
       const stored = loadUserFromStorage();
-      if (!stored) {
+      if (stored) {
+        updateUIFromStored(stored);
+      } else {
         // Redirect to login if no user
         window.location.replace('index.html');
       }
@@ -895,42 +939,18 @@
     };
   }
 
-  // ── AUTH STATE MANAGER ──
+  // ── MAIN INITIALIZATION ──
   // First, try to load from storage immediately
-  loadUserFromStorage();
+  const storedUser = loadUserFromStorage();
+  if (storedUser) {
+    updateUIFromStored(storedUser);
+  }
 
   // Set up auth listener
   auth.onAuthStateChanged(user => {
     if (user) {
       updateUI(user);
-      loadDashboardData(user.uid);
-      initLinksManager(user.uid);
-      setupLinkUI(user.uid);
-      loadReminders();
-      attachNavEvents();
       authChecked = true;
-      
-      // Run all notification checks
-      setTimeout(() => {
-        checkEventNotifications(user.uid);
-        checkGroceryNotifications(user.uid);
-      }, 2000);
-      
-      // Auto-delete every 30 seconds
-      setInterval(() => runAutoDelete(user.uid), 30000);
-      setTimeout(() => runAutoDelete(user.uid), 3000);
-      
-      // Check reminders every 5 minutes
-      setInterval(() => {
-        if (allReminders.length) checkReminderNotifications(allReminders);
-      }, 300000);
-      
-      // Check events and groceries every 10 minutes
-      setInterval(() => {
-        checkEventNotifications(user.uid);
-        checkGroceryNotifications(user.uid);
-      }, 600000);
-      
     } else {
       if (!authChecked) {
         // Try to load from storage as fallback
@@ -944,7 +964,7 @@
 
   // Force update when page loads (in case auth state doesn't change)
   document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(forceUpdateUser, 300);
+    setTimeout(forceUpdateUser, 100);
   });
 
   // Also force update after the auth state is checked
@@ -953,9 +973,9 @@
       forceUpdateUser();
       authChecked = true;
     }
-  }, 1000);
+  }, 500);
 
-  // Additional fallback: check every 2 seconds for first 10 seconds
+  // Additional fallback: check every 1 second for first 5 seconds
   let fallbackAttempts = 0;
   const fallbackInterval = setInterval(() => {
     if (auth.currentUser) {
@@ -966,9 +986,12 @@
     if (fallbackAttempts > 5) {
       clearInterval(fallbackInterval);
       // If still no user, try to load from storage
-      loadUserFromStorage();
+      const stored = loadUserFromStorage();
+      if (stored) {
+        updateUIFromStored(stored);
+      }
     }
-  }, 2000);
+  }, 1000);
 
   // WhatsApp function
   window.sendWhatsAppMsg = function(phone,msg) {
