@@ -1716,7 +1716,7 @@
                 
                 cont.innerHTML = '';
                 if (!items.length) {
-                    cont.innerHTML = '<div class="text-center text-gray-400 italic text-sm py-6">✨ All clear</div>';
+                    cont.innerHTML = '<div class="text-center text-gray-600 italic text-sm py-6">✨ All clear</div>';
                     isLoading = false;
                     return;
                 }
@@ -1731,8 +1731,8 @@
                             ${item.desc ? `<div class="task-desc">${item.desc}</div>` : ''}
                         </div>
                         <div class="flex flex-col gap-1 shrink-0">
-                            <button onclick="editItem('${item.type}','${item.id}','${item.date}')" class="action-btn edit-btn" style="font-size:0.75rem !important; padding:4px 14px;">Edit</button>
-                            <button onclick="deleteItem('${item.type}','${item.id}','${item.date}')" class="action-btn delete-btn" style="font-size:0.75rem !important; padding:4px 14px;">Delete</button>
+                            <button onclick="editItem('${item.type}','${item.id}','${item.date}')" class="action-btn edit-btn" style="font-size:0.85rem !important; padding:4px 14px;">Edit</button>
+                            <button onclick="deleteItem('${item.type}','${item.id}','${item.date}')" class="action-btn delete-btn" style="font-size:0.85rem !important; padding:4px 14px;">Delete</button>
                             ${isEvent ? `<button onclick="openRescheduleFromEvent('${item.id}','${item.date}')" class="action-btn reschedule-btn" style="font-size:0.75rem !important; padding:4px 14px;">🔄 Reschedule</button>` : ''}
                         </div>
                     `;
