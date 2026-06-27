@@ -27,6 +27,14 @@
             --nav-bg: rgba(255, 255, 255, 0.95);
             --nav-text: #000000;
             --border-color: rgba(0, 0, 0, 0.08);
+            --modal-text: #0f172a;
+            --modal-text-muted: #334155;
+            --modal-bg: #ffffff;
+            --modal-border: #e2e8f0;
+            --item-bg: #f8fafc;
+            --detail-text: #1e293b;
+            --close-btn-hover: #be123c;
+            --tracking-bg: #fafafa;
         }
         [data-theme="dark"] {
             --bg-page: #0f1a2e;
@@ -41,6 +49,14 @@
             --nav-bg: rgba(15, 23, 42, 0.98);
             --nav-text: #ffffff;
             --border-color: rgba(255, 255, 255, 0.08);
+            --modal-text: #eef2f6;
+            --modal-text-muted: #c8d6e0;
+            --modal-bg: #1a2a40;
+            --modal-border: #2d4055;
+            --item-bg: #1e2e44;
+            --detail-text: #c8d6e0;
+            --close-btn-hover: #fda4af;
+            --tracking-bg: #142235;
         }
         * { box-sizing: border-box; margin: 0; }
         body {
@@ -51,6 +67,30 @@
             padding: 0 0 80px 0;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== CLOSE BUTTON HOVER ===== */
+        .close-btn {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            color: var(--rose);
+            background: transparent;
+            border: none;
+            font-size: 2rem;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        .close-btn:hover {
+            color: var(--close-btn-hover) !important;
+            transform: scale(1.2);
+            background: rgba(225, 29, 72, 0.1);
+        }
+        .close-btn:active {
+            transform: scale(0.9);
+        }
+        [data-theme="dark"] .close-btn:hover {
+            background: rgba(251, 113, 133, 0.15);
         }
 
         /* ===== CALENDAR GRID - 2 COLUMNS ON MOBILE ===== */
@@ -365,6 +405,19 @@
             justify-content: flex-end;
         }
 
+        .action-row .btn-group {
+            display: flex;
+            gap: 4px;
+            flex: 1;
+            min-width: 160px;
+            justify-content: center;
+        }
+        .action-row .btn-group .btn-control {
+            flex: 1;
+            min-width: 70px;
+            justify-content: center;
+        }
+
         @media (max-width: 640px) {
             .search-container {
                 flex-direction: column;
@@ -377,6 +430,19 @@
             .action-row {
                 justify-content: center;
                 width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-row .btn-group {
+                flex: 1;
+                width: 100%;
+            }
+            .action-row .btn-group .btn-control {
+                flex: 1;
+                min-width: 60px;
+                justify-content: center;
+                font-size: 0.7rem !important;
+                padding: 6px 8px;
             }
         }
 
@@ -397,8 +463,8 @@
             background: rgba(0,0,0,0.6);
         }
         .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
+            background: var(--modal-bg);
+            border: 1px solid var(--modal-border);
             border-radius: 24px;
             max-width: 96%;
             width: 480px;
@@ -406,10 +472,7 @@
             overflow-y: auto;
             padding: 24px 20px;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
-        }
-        [data-theme="dark"] .modal-card {
-            background: #122233;
-            border-color: #2d3f54;
+            color: var(--modal-text);
         }
         .modal-card input, .modal-card textarea, .modal-card select {
             background: var(--bg-page);
@@ -577,11 +640,15 @@
             background: var(--bg-page) !important;
             border-radius: 0 !important;
             margin: 0 !important;
-            padding: 16px !important;
+            padding: 0 !important;
             overflow-y: auto !important;
+            align-items: flex-start !important;
+            padding-top: 10px !important;
         }
         body.focus-mode .modal-overlay {
             background: var(--bg-page) !important;
+            align-items: flex-start !important;
+            padding-top: 10px !important;
         }
         body.focus-mode .modal-card {
             max-width: 100% !important;
@@ -590,6 +657,10 @@
             box-shadow: none !important;
             background: var(--bg-page) !important;
             border: none !important;
+            padding: 16px 12px !important;
+            margin-top: 0 !important;
+            max-height: none !important;
+            color: var(--text-primary) !important;
         }
 
         /* ===== SEARCH MODE ===== */
@@ -663,6 +734,538 @@
                 height: 34px;
             }
         }
+
+        /* --- MOBILE MODAL IMPROVEMENTS --- */
+        @media (max-width: 640px) {
+            #taskModal .modal-card {
+                padding: 12px 10px !important;
+            }
+            #taskModal .grid-cols-1.md\:grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+            #taskModal #existingTasks {
+                max-height: 400px !important;
+                min-height: 250px;
+                font-size: 0.95rem !important;
+                background: var(--item-bg) !important;
+                color: var(--modal-text) !important;
+            }
+            #taskModal #existingTasks .p-3 {
+                font-size: 0.95rem !important;
+                color: var(--modal-text) !important;
+                background: var(--item-bg) !important;
+            }
+            #taskModal #existingTasks .font-bold {
+                font-size: 0.95rem !important;
+                color: var(--modal-text) !important;
+            }
+            #taskModal #existingTasks .text-xs {
+                font-size: 0.85rem !important;
+                color: var(--detail-text) !important;
+            }
+            #taskModal #existingTasks .text-gray-500 {
+                color: var(--detail-text) !important;
+            }
+            #taskModal #existingTasks .text-emerald-600 {
+                color: var(--emerald) !important;
+            }
+            #taskModal #existingTasks .text-indigo-600 {
+                color: var(--indigo) !important;
+            }
+            #taskModal #existingTasks .border-emerald-500 {
+                border-color: var(--emerald) !important;
+            }
+            #taskModal #existingTasks .border-indigo-500 {
+                border-color: var(--indigo) !important;
+            }
+            #taskModal #existingTasks .bg-emerald-50 {
+                background: rgba(5, 150, 105, 0.1) !important;
+            }
+            #taskModal #existingTasks .bg-indigo-50 {
+                background: rgba(79, 70, 229, 0.1) !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .bg-emerald-50 {
+                background: rgba(52, 211, 153, 0.15) !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .bg-indigo-50 {
+                background: rgba(129, 140, 248, 0.15) !important;
+            }
+            #taskModal #existingTasks button {
+                font-size: 0.85rem !important;
+                padding: 4px 12px;
+            }
+            [data-theme="dark"] #taskModal #existingTasks {
+                background: #1a2a40 !important;
+                color: #eef2f6 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .p-3 {
+                background: #1e2e44 !important;
+                color: #eef2f6 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .font-bold {
+                color: #eef2f6 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .text-xs {
+                color: #c8d6e0 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .text-gray-500 {
+                color: #c8d6e0 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .text-emerald-600 {
+                color: #34d399 !important;
+            }
+            [data-theme="dark"] #taskModal #existingTasks .text-indigo-600 {
+                color: #818cf8 !important;
+            }
+            
+            .action-row {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+                width: 100%;
+            }
+            .action-row .top-row {
+                display: flex;
+                gap: 4px;
+                width: 100%;
+            }
+            .action-row .top-row .btn-control {
+                flex: 1;
+                min-width: 60px;
+                justify-content: center;
+                font-size: 0.7rem !important;
+                padding: 6px 8px;
+            }
+            .action-row .btn-group {
+                display: flex;
+                gap: 4px;
+                width: 100%;
+            }
+            .action-row .btn-group .btn-control {
+                flex: 1;
+                min-width: 60px;
+                justify-content: center;
+                font-size: 0.7rem !important;
+                padding: 6px 8px;
+            }
+        }
+
+        /* ===== TRACKING MODAL MODERN STYLES ===== */
+        #eventTrackingSection .modal-card {
+            border-radius: 28px;
+            padding: 20px 16px;
+        }
+        #eventTrackingSection .modal-card h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #trackingEventsList .tracking-item {
+            background: var(--tracking-bg);
+            border-radius: 16px;
+            padding: 14px 16px;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+        }
+        #trackingEventsList .tracking-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            border-radius: 0 4px 4px 0;
+        }
+        #trackingEventsList .tracking-item.completed::before {
+            background: var(--emerald);
+        }
+        #trackingEventsList .tracking-item.incomplete::before {
+            background: var(--rose);
+        }
+        #trackingEventsList .tracking-item .event-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--modal-text);
+        }
+        #trackingEventsList .tracking-item .event-meta {
+            font-size: 0.8rem;
+            color: var(--detail-text);
+            margin-top: 2px;
+            opacity: 0.85;
+        }
+        #trackingEventsList .tracking-item .event-desc {
+            font-size: 0.8rem;
+            color: var(--detail-text);
+            margin-top: 4px;
+            opacity: 0.75;
+        }
+        #trackingEventsList .tracking-item .mark-done-btn {
+            margin-top: 8px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--emerald);
+            color: white;
+        }
+        #trackingEventsList .tracking-item .mark-done-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        #trackingEventsList .tracking-item .mark-done-btn:active {
+            transform: scale(0.95);
+        }
+        [data-theme="dark"] #trackingEventsList .tracking-item {
+            background: #142235;
+            border-color: #2d4055;
+        }
+        [data-theme="dark"] #trackingEventsList .tracking-item .event-title {
+            color: #eef2f6;
+        }
+        [data-theme="dark"] #trackingEventsList .tracking-item .event-meta {
+            color: #c8d6e0;
+        }
+        [data-theme="dark"] #trackingEventsList .tracking-item .event-desc {
+            color: #c8d6e0;
+        }
+        [data-theme="dark"] #trackingEventsList .tracking-item .mark-done-btn:hover {
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.4);
+        }
+
+        /* ===== STATUS PROMPT MODERN ===== */
+        #statusPromptModal .modal-card {
+            border-radius: 28px;
+            padding: 24px 20px;
+        }
+        #statusPromptModal .modal-card .status-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #statusPromptModal .modal-card .event-name {
+            color: var(--indigo);
+            font-weight: 600;
+        }
+        #statusPromptModal .modal-card .event-detail {
+            font-size: 0.85rem;
+            color: var(--detail-text);
+            opacity: 0.8;
+        }
+        #statusPromptModal .modal-card .action-btn {
+            border-radius: 14px;
+            padding: 10px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+        }
+        #statusPromptModal .modal-card .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        #statusPromptModal .modal-card .action-btn:active {
+            transform: scale(0.95);
+        }
+        #statusPromptModal .modal-card .btn-done {
+            background: var(--emerald);
+            color: white;
+        }
+        #statusPromptModal .modal-card .btn-not-done {
+            background: var(--rose);
+            color: white;
+        }
+        #statusPromptModal .modal-card .btn-reschedule {
+            background: var(--indigo);
+            color: white;
+        }
+        #statusPromptModal .modal-card .btn-cancel-event {
+            background: #94a3b8;
+            color: white;
+        }
+        [data-theme="dark"] #statusPromptModal .modal-card .btn-cancel-event {
+            background: #475569;
+        }
+
+        /* ===== RESCHEDULE MODAL MODERN ===== */
+        #rescheduleModal .modal-card {
+            border-radius: 28px;
+            padding: 24px 20px;
+        }
+        #rescheduleModal .modal-card .reschedule-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #rescheduleModal .modal-card .event-label {
+            color: var(--detail-text);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        #rescheduleModal .modal-card .event-name {
+            color: var(--indigo);
+            font-weight: 600;
+        }
+        #rescheduleModal .modal-card input[type="date"],
+        #rescheduleModal .modal-card input[type="time"] {
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border-light);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        #rescheduleModal .modal-card input[type="date"]:focus,
+        #rescheduleModal .modal-card input[type="time"]:focus {
+            border-color: var(--indigo);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        #rescheduleModal .modal-card .confirm-btn {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--indigo);
+            color: white;
+            width: 100%;
+            margin-top: 12px;
+        }
+        #rescheduleModal .modal-card .confirm-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+        }
+        #rescheduleModal .modal-card .confirm-btn:active {
+            transform: scale(0.97);
+        }
+        [data-theme="dark"] #rescheduleModal .modal-card input[type="date"],
+        [data-theme="dark"] #rescheduleModal .modal-card input[type="time"] {
+            background: #1a2a3a;
+            border-color: #3a4f64;
+            color: #eef2f6;
+        }
+        [data-theme="dark"] #rescheduleModal .modal-card .event-label {
+            color: #c8d6e0;
+        }
+
+        /* ===== EVENT MODAL MODERN ===== */
+        #eventModal .modal-card {
+            border-radius: 28px;
+            padding: 24px 20px;
+        }
+        #eventModal .modal-card .event-modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #eventModal .modal-card input,
+        #eventModal .modal-card textarea {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-light);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        #eventModal .modal-card input:focus,
+        #eventModal .modal-card textarea:focus {
+            border-color: var(--emerald);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.12);
+        }
+        #eventModal .modal-card .save-event-btn {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--emerald);
+            color: white;
+            flex: 1;
+        }
+        #eventModal .modal-card .save-event-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(5, 150, 105, 0.3);
+        }
+        #eventModal .modal-card .save-event-btn:active {
+            transform: scale(0.97);
+        }
+        #eventModal .modal-card .cancel-event-btn {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--border-light);
+            color: var(--text-muted);
+            flex: 1;
+        }
+        #eventModal .modal-card .cancel-event-btn:hover {
+            background: var(--text-muted);
+            color: white;
+        }
+        #eventModal .modal-card .cancel-event-btn:active {
+            transform: scale(0.97);
+        }
+        [data-theme="dark"] #eventModal .modal-card input,
+        [data-theme="dark"] #eventModal .modal-card textarea {
+            background: #1a2a3a;
+            border-color: #3a4f64;
+            color: #eef2f6;
+        }
+        [data-theme="dark"] #eventModal .modal-card .cancel-event-btn {
+            background: #2d4055;
+            color: #9aa9b9;
+        }
+        [data-theme="dark"] #eventModal .modal-card .cancel-event-btn:hover {
+            background: #475569;
+            color: white;
+        }
+
+        /* ===== TASK MODAL MODERN ===== */
+        #taskModal .modal-card {
+            border-radius: 28px;
+        }
+        #taskModal .modal-card .task-modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        #taskModal .modal-card input,
+        #taskModal .modal-card textarea {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border-light);
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        #taskModal .modal-card input:focus,
+        #taskModal .modal-card textarea:focus {
+            border-color: var(--indigo);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+        #taskModal .modal-card .save-task-btn {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--indigo);
+            color: white;
+            flex: 1;
+        }
+        #taskModal .modal-card .save-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+        }
+        #taskModal .modal-card .save-task-btn:active {
+            transform: scale(0.97);
+        }
+        #taskModal .modal-card .cancel-task-btn {
+            border-radius: 14px;
+            padding: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--border-light);
+            color: var(--text-muted);
+            flex: 1;
+        }
+        #taskModal .modal-card .cancel-task-btn:hover {
+            background: var(--text-muted);
+            color: white;
+        }
+        #taskModal .modal-card .cancel-task-btn:active {
+            transform: scale(0.97);
+        }
+        [data-theme="dark"] #taskModal .modal-card input,
+        [data-theme="dark"] #taskModal .modal-card textarea {
+            background: #1a2a3a;
+            border-color: #3a4f64;
+            color: #eef2f6;
+        }
+        [data-theme="dark"] #taskModal .modal-card .cancel-task-btn {
+            background: #2d4055;
+            color: #9aa9b9;
+        }
+        [data-theme="dark"] #taskModal .modal-card .cancel-task-btn:hover {
+            background: #475569;
+            color: white;
+        }
+        #taskModal #existingTasks .task-item {
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+        #taskModal #existingTasks .task-item:hover {
+            border-color: var(--border-light);
+        }
+        #taskModal #existingTasks .task-item .task-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--modal-text);
+        }
+        #taskModal #existingTasks .task-item .task-desc {
+            font-size: 0.8rem;
+            color: var(--detail-text);
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+        #taskModal #existingTasks .task-item .action-btn {
+            border-radius: 10px;
+            padding: 4px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        #taskModal #existingTasks .task-item .action-btn:hover {
+            transform: scale(1.05);
+        }
+        #taskModal #existingTasks .task-item .action-btn:active {
+            transform: scale(0.95);
+        }
+        #taskModal #existingTasks .task-item .edit-btn {
+            background: var(--indigo);
+            color: white;
+        }
+        #taskModal #existingTasks .task-item .delete-btn {
+            background: var(--rose);
+            color: white;
+        }
+        #taskModal #existingTasks .task-item .reschedule-btn {
+            background: #6366f1;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -691,10 +1294,14 @@
             </div>
             
             <div class="action-row">
-                <button id="downloadMonthTasks" class="btn-control btn-emerald"><i class="fas fa-download"></i> PDF</button>
-                <button id="openEventModalBtn" class="btn-control btn-primary"><i class="fas fa-plus"></i> Event</button>
-                <button onclick="openTrackingModal('completed')" class="btn-control btn-emerald"><i class="fas fa-check-circle"></i> Done</button>
-                <button onclick="openTrackingModal('incomplete')" class="btn-control btn-rose"><i class="fas fa-times-circle"></i> Pending</button>
+                <div class="top-row">
+                    <button id="downloadMonthTasks" class="btn-control btn-emerald"><i class="fas fa-download"></i> PDF</button>
+                    <button id="openEventModalBtn" class="btn-control btn-primary"><i class="fas fa-plus"></i> Event</button>
+                </div>
+                <div class="btn-group">
+                    <button onclick="openTrackingModal('completed')" class="btn-control btn-emerald"><i class="fas fa-check-circle"></i> Complete</button>
+                    <button onclick="openTrackingModal('incomplete')" class="btn-control btn-rose"><i class="fas fa-times-circle"></i> Incomplete</button>
+                </div>
             </div>
         </div>
 
@@ -717,16 +1324,16 @@
     <div id="taskModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-overlay">
         <div class="modal-card relative w-full max-w-md">
             <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-3">
-                <h2 id="modalDate" class="text-xl font-extrabold text-indigo-600 dark:text-indigo-400">Tasks</h2>
-                <button id="closeModal" class="text-3xl font-light text-rose-500 hover:text-rose-700">&times;</button>
+                <h2 id="modalDate" class="task-modal-title text-indigo-600 dark:text-indigo-400">Tasks</h2>
+                <button id="closeModal" class="close-btn">&times;</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                     <input id="taskTitle" type="text" placeholder="Task title" class="mb-2">
                     <textarea id="taskDesc" placeholder="Details (optional)" rows="2" class="mb-2"></textarea>
                     <div class="flex gap-2">
-                        <button id="saveTaskBtn" class="flex-1 bg-indigo-600 text-white font-bold py-2 rounded-full hover:bg-indigo-700">Save</button>
-                        <button id="cancelTaskBtn" class="flex-1 bg-gray-300 text-gray-700 font-bold py-2 rounded-full hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200">Cancel</button>
+                        <button id="saveTaskBtn" class="save-task-btn">Save</button>
+                        <button id="cancelTaskBtn" class="cancel-task-btn">Cancel</button>
                     </div>
                 </div>
                 <div id="existingTasks" class="bg-gray-50 dark:bg-slate-800 rounded-2xl p-3 max-h-60 overflow-y-auto">
@@ -740,8 +1347,8 @@
     <div id="eventModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-overlay">
         <div class="modal-card relative w-full max-w-md">
             <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2 mb-3">
-                <h2 id="eventModalTitle" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">Add Event</h2>
-                <button id="closeEventModal" class="text-3xl font-light text-rose-500 hover:text-rose-700">&times;</button>
+                <h2 id="eventModalTitle" class="event-modal-title text-emerald-600 dark:text-emerald-400"><i class="fas fa-calendar-plus mr-2"></i>Add Event</h2>
+                <button id="closeEventModal" class="close-btn">&times;</button>
             </div>
             <div class="space-y-2">
                 <input id="eventTitle" type="text" placeholder="Event name *">
@@ -749,11 +1356,11 @@
                     <input type="date" id="eventDate" class="w-1/2">
                     <input type="time" id="eventTime" class="w-1/2" value="09:00">
                 </div>
-                <input id="eventLocation" type="text" placeholder="Location (optional)">
+                <input id="eventLocation" type="text" placeholder="📍 Location (optional)">
                 <textarea id="eventDesc" placeholder="Details (optional)" rows="2"></textarea>
                 <div class="flex gap-2 pt-1">
-                    <button id="saveEventBtn" class="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-full hover:bg-emerald-700"><i class="fas fa-bell mr-1"></i> Save</button>
-                    <button id="cancelEventBtn" class="flex-1 bg-gray-300 text-gray-700 font-bold py-2 rounded-full hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200">Cancel</button>
+                    <button id="saveEventBtn" class="save-event-btn"><i class="fas fa-bell mr-1"></i> Save</button>
+                    <button id="cancelEventBtn" class="cancel-event-btn">Cancel</button>
                 </div>
             </div>
         </div>
@@ -763,16 +1370,16 @@
     <div id="statusPromptModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-overlay">
         <div class="modal-card relative w-full max-w-sm">
             <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2">
-                <h2 class="text-lg font-bold text-amber-600 dark:text-amber-400">Update status</h2>
-                <button id="closeStatusPromptModal" class="text-3xl font-light text-rose-500">&times;</button>
+                <h2 class="status-title text-amber-600 dark:text-amber-400"><i class="fas fa-clock mr-2"></i>Update Status</h2>
+                <button id="closeStatusPromptModal" class="close-btn">&times;</button>
             </div>
-            <p class="my-2 text-sm">Did you complete <strong id="eventToPromptTitle" class="text-indigo-600 dark:text-indigo-400">event</strong>?</p>
-            <p class="text-xs text-gray-500">Date: <span id="eventToPromptDate"></span> · Time: <span id="eventToPromptTime"></span></p>
+            <p class="my-2 text-sm">Did you complete <strong id="eventToPromptTitle" class="event-name">event</strong>?</p>
+            <p class="event-detail">📅 <span id="eventToPromptDate"></span> · 🕒 <span id="eventToPromptTime"></span></p>
             <div class="flex flex-wrap gap-2 mt-3">
-                <button id="completeEventBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-full font-bold text-sm">✅ Done</button>
-                <button id="incompleteEventBtn" class="flex-1 bg-rose-600 text-white py-2 rounded-full font-bold text-sm">❌ Not done</button>
-                <button id="reschedulePromptBtn" class="flex-1 bg-indigo-500 text-white py-2 rounded-full font-bold text-sm"><i class="fas fa-calendar-alt"></i> Reschedule</button>
-                <button id="cancelPromptBtn" class="flex-1 bg-gray-500 text-white py-2 rounded-full font-bold text-sm"><i class="fas fa-trash"></i> Cancel</button>
+                <button id="completeEventBtn" class="action-btn btn-done"><i class="fas fa-check mr-1"></i> Done</button>
+                <button id="incompleteEventBtn" class="action-btn btn-not-done"><i class="fas fa-times mr-1"></i> Not done</button>
+                <button id="reschedulePromptBtn" class="action-btn btn-reschedule"><i class="fas fa-calendar-alt mr-1"></i> Reschedule</button>
+                <button id="cancelPromptBtn" class="action-btn btn-cancel-event"><i class="fas fa-trash mr-1"></i> Cancel</button>
             </div>
         </div>
     </div>
@@ -781,8 +1388,8 @@
     <div id="eventTrackingSection" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-overlay">
         <div class="modal-card relative w-full max-w-lg">
             <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2">
-                <h2 id="trackingModalTitle" class="text-xl font-bold">Event history</h2>
-                <button id="closeTrackingModal" class="text-3xl font-light text-rose-500">&times;</button>
+                <h2 id="trackingModalTitle" class="text-xl font-bold"><i class="fas fa-history mr-2"></i>Event History</h2>
+                <button id="closeTrackingModal" class="close-btn">&times;</button>
             </div>
             <div id="trackingEventsList" class="max-h-72 overflow-y-auto mt-3 space-y-2"></div>
         </div>
@@ -792,15 +1399,15 @@
     <div id="rescheduleModal" class="fixed inset-0 flex items-center justify-center z-50 hidden modal-overlay">
         <div class="modal-card relative w-full max-w-sm">
             <div class="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-2">
-                <h2 class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Reschedule</h2>
-                <button id="closeRescheduleModal" class="text-3xl font-light text-rose-500">&times;</button>
+                <h2 class="reschedule-title text-indigo-600 dark:text-indigo-400"><i class="fas fa-calendar-alt mr-2"></i>Reschedule</h2>
+                <button id="closeRescheduleModal" class="close-btn">&times;</button>
             </div>
-            <p class="my-1 text-sm">Event: <strong id="rescheduleEventTitle" class="text-indigo-600 dark:text-indigo-400">loading...</strong></p>
+            <p class="my-1 event-label">Event: <strong id="rescheduleEventTitle" class="event-name">loading...</strong></p>
             <div class="flex gap-2 mt-2">
                 <input type="date" id="rescheduleDate" class="w-1/2">
                 <input type="time" id="rescheduleTime" class="w-1/2" value="09:00">
             </div>
-            <button id="confirmRescheduleBtn" class="w-full mt-3 bg-indigo-600 text-white py-2 rounded-full font-bold">Confirm new date/time</button>
+            <button id="confirmRescheduleBtn" class="confirm-btn"><i class="fas fa-check mr-1"></i> Confirm New Date/Time</button>
         </div>
     </div>
 
@@ -844,7 +1451,7 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
-        // ---------- THEME - Auto detect from localStorage ----------
+        // ---------- THEME ----------
         (function initTheme() {
             const saved = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', saved);
@@ -860,6 +1467,8 @@
         let currentEventForAction = null;
         const EVENT_STATUS = { PENDING: 'pending', COMPLETED: 'completed', INCOMPLETE: 'incomplete' };
         const NOTIFICATION_TOLERANCE_MS = 12 * 3600000;
+        let isLoading = false;
+        let currentDateRef = null;
 
         // DOM refs
         const calEl = document.getElementById('calendar');
@@ -969,7 +1578,6 @@
                 const items = [];
                 const seen = new Set();
                 
-                // Process tasks - use unique key with task ID
                 Object.entries(tasks).forEach(([id, t]) => {
                     const key = `task-${id}`;
                     if (!seen.has(key)) {
@@ -978,7 +1586,6 @@
                     }
                 });
                 
-                // Process events - use unique key with event ID
                 Object.entries(events).forEach(([id, e]) => {
                     if (e.status === EVENT_STATUS.PENDING) {
                         const key = `event-${id}`;
@@ -989,7 +1596,6 @@
                     }
                 });
                 
-                // Sort events first, then tasks
                 items.sort((a,b) => {
                     if (a.type === 'event' && b.type === 'task') return -1;
                     if (a.type === 'task' && b.type === 'event') return 1;
@@ -1001,7 +1607,6 @@
                     const pill = document.createElement('div');
                     pill.className = `task-pill ${item.type === 'event' ? 'event-pill' : ''}`;
                     pill.textContent = `${item.type === 'event' ? '🔔 ' : '• '}${item.title}`;
-                    // Store the item ID as data attribute for debugging
                     pill.dataset.id = item.id;
                     pill.dataset.type = item.type;
                     container.appendChild(pill);
@@ -1016,8 +1621,9 @@
 
         // ---------- MODAL OPEN/CLOSE ----------
         function openModal(dateISO) {
+            if (isLoading) return;
             selectedDate = dateISO;
-            document.getElementById('modalDate').textContent = `Tasks: ${formatDate(dateISO)}`;
+            document.getElementById('modalDate').textContent = `📋 Tasks: ${formatDate(dateISO)}`;
             taskModal.classList.remove('hidden');
             document.body.classList.add('focus-mode');
             loadModalTasks(dateISO);
@@ -1026,6 +1632,7 @@
             taskModal.classList.add('hidden');
             document.body.classList.remove('focus-mode');
             editTaskId = null;
+            isLoading = false;
         }
         document.getElementById('closeModal').addEventListener('click', closeModal);
         document.getElementById('cancelTaskBtn').addEventListener('click', closeModal);
@@ -1060,11 +1667,23 @@
 
         // ---------- LOAD MODAL TASKS ----------
         function loadModalTasks(date) {
+            if (isLoading) return;
+            isLoading = true;
             const cont = document.getElementById('existingTasks');
             cont.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">Loading...</div>';
-            if (!currentUser) return;
+            if (!currentUser) {
+                isLoading = false;
+                return;
+            }
+            
+            if (currentDateRef) {
+                currentDateRef.off();
+                currentDateRef = null;
+            }
+            
             const taskRef = db.ref(`users/${currentUser.uid}/tasks/${date}`);
             const eventRef = db.ref(`users/${currentUser.uid}/events/${date}`);
+            
             Promise.all([taskRef.once('value'), eventRef.once('value')]).then(([ts, es]) => {
                 const tasks = ts.val() || {};
                 const events = es.val() || {};
@@ -1098,26 +1717,32 @@
                 cont.innerHTML = '';
                 if (!items.length) {
                     cont.innerHTML = '<div class="text-center text-gray-400 italic text-sm py-6">✨ All clear</div>';
+                    isLoading = false;
                     return;
                 }
                 items.forEach(item => {
                     const isEvent = item.type === 'event';
                     const div = document.createElement('div');
-                    div.className = `p-3 mb-2 rounded-xl border-l-4 ${isEvent ? 'border-emerald-500 bg-emerald-50 dark:bg-slate-800' : 'border-indigo-500 bg-indigo-50 dark:bg-slate-800'} flex justify-between items-start gap-2`;
+                    div.className = `task-item p-3 mb-2 rounded-xl border-l-4 ${isEvent ? 'border-emerald-500 bg-emerald-50 dark:bg-slate-800' : 'border-indigo-500 bg-indigo-50 dark:bg-slate-800'} flex justify-between items-start gap-2`;
                     div.innerHTML = `
                         <div class="flex-1">
-                            <div class="font-bold text-sm">${isEvent ? '📅 ' : '📌 '}${item.title}</div>
-                            ${isEvent ? `<div class="text-xs text-emerald-600 dark:text-emerald-300">🕒 ${item.time}</div>` : ''}
-                            ${item.desc ? `<div class="text-xs text-gray-500 mt-1">${item.desc}</div>` : ''}
+                            <div class="task-title">${isEvent ? '📅 ' : '📌 '}${item.title}</div>
+                            ${isEvent ? `<div class="text-xs" style="color: var(--emerald) !important;">🕒 ${item.time}</div>` : ''}
+                            ${item.desc ? `<div class="task-desc">${item.desc}</div>` : ''}
                         </div>
                         <div class="flex flex-col gap-1 shrink-0">
-                            <button onclick="editItem('${item.type}','${item.id}','${item.date}')" class="bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">Edit</button>
-                            <button onclick="deleteItem('${item.type}','${item.id}','${item.date}')" class="bg-rose-500 text-white px-3 py-1 rounded-full text-xs font-bold">Delete</button>
-                            ${isEvent ? `<button onclick="updateEventStatus({date:'${item.date}',id:'${item.id}'},'${EVENT_STATUS.COMPLETED}',true)" class="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-bold mt-1">✅ Done</button>` : ''}
+                            <button onclick="editItem('${item.type}','${item.id}','${item.date}')" class="action-btn edit-btn" style="font-size:0.75rem !important; padding:4px 14px;">Edit</button>
+                            <button onclick="deleteItem('${item.type}','${item.id}','${item.date}')" class="action-btn delete-btn" style="font-size:0.75rem !important; padding:4px 14px;">Delete</button>
+                            ${isEvent ? `<button onclick="openRescheduleFromEvent('${item.id}','${item.date}')" class="action-btn reschedule-btn" style="font-size:0.75rem !important; padding:4px 14px;">🔄 Reschedule</button>` : ''}
                         </div>
                     `;
                     cont.appendChild(div);
                 });
+                isLoading = false;
+            }).catch(err => {
+                console.error('Error loading tasks:', err);
+                cont.innerHTML = '<div class="text-center text-red-500 text-sm py-4">Error loading data</div>';
+                isLoading = false;
             });
         }
 
@@ -1154,6 +1779,18 @@
             db.ref(`users/${currentUser.uid}/${path}/${date}/${id}`).remove().then(() => {
                 renderCalendar();
                 if (selectedDate === date) loadModalTasks(date);
+            });
+        };
+
+        window.openRescheduleFromEvent = function(id, date) {
+            db.ref(`users/${currentUser.uid}/events/${date}/${id}`).once('value').then(snap => {
+                const ev = snap.val();
+                if (!ev) return;
+                currentEventForAction = { date, id, ...ev };
+                document.getElementById('rescheduleEventTitle').textContent = ev.title;
+                document.getElementById('rescheduleDate').value = date;
+                document.getElementById('rescheduleTime').value = ev.time || '09:00';
+                rescheduleModal.classList.remove('hidden');
             });
         };
 
@@ -1322,15 +1959,18 @@
                 });
                 list.sort((a,b) => b.timestamp - a.timestamp);
                 cont.innerHTML = '';
-                if (!list.length) { cont.innerHTML = '<div class="text-center text-gray-400 italic py-4">No events found</div>'; return; }
+                if (!list.length) { 
+                    cont.innerHTML = '<div class="text-center text-gray-400 italic py-4">No events found</div>'; 
+                    return; 
+                }
                 list.forEach(ev => {
                     const div = document.createElement('div');
-                    div.className = `p-3 rounded-xl border-l-4 ${status === 'completed' ? 'border-emerald-500 bg-emerald-50 dark:bg-slate-800' : 'border-rose-500 bg-rose-50 dark:bg-slate-800'}`;
+                    div.className = `tracking-item ${status === 'completed' ? 'completed' : 'incomplete'}`;
                     div.innerHTML = `
-                        <div class="font-bold text-sm">${ev.title}</div>
-                        <div class="text-xs text-gray-500">${formatDate(ev.date)} at ${ev.time} ${ev.location ? '📍 '+ev.location : ''}</div>
-                        ${ev.desc ? `<div class="text-xs mt-1 text-gray-600">${ev.desc}</div>` : ''}
-                        ${status === 'incomplete' ? `<button onclick="updateEventStatus({date:'${ev.date}',id:'${ev.id}'},'${EVENT_STATUS.COMPLETED}',false)" class="mt-2 bg-emerald-600 text-white px-4 py-1 rounded-full text-xs font-bold">Mark Done</button>` : ''}
+                        <div class="event-title">${ev.title}</div>
+                        <div class="event-meta">📅 ${formatDate(ev.date)} · 🕒 ${ev.time} ${ev.location ? '📍 '+ev.location : ''}</div>
+                        ${ev.desc ? `<div class="event-desc">${ev.desc}</div>` : ''}
+                        ${status === 'incomplete' ? `<button onclick="updateEventStatus({date:'${ev.date}',id:'${ev.id}'},'${EVENT_STATUS.COMPLETED}',false)" class="mark-done-btn">✅ Mark Done</button>` : ''}
                     `;
                     cont.appendChild(div);
                 });
