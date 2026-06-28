@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savig</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="mobile-web-app-capable" content="yes">
-    
+
     <!-- Firebase SDKs - LOADED ONLY ONCE -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
     </script>
@@ -19,7 +20,7 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-storage-compat.min.js">
     </script>
-    
+
     <script>
         // Firebase Configuration
         if (typeof window.firebaseConfig === 'undefined') {
@@ -34,7 +35,7 @@
                 measurementId: "G-QKCRDR9QML"
             };
         }
-        
+
         // Initialize Firebase only once
         let firebaseInitialized = false;
         try {
@@ -46,12 +47,12 @@
             firebaseInitialized = true;
             console.log("✅ Firebase initialized");
         }
-        
+
         // Set auth persistence
         firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(() => console.log("✅ Auth persistence set to LOCAL"))
             .catch((error) => console.error("❌ Failed to set persistence:", error));
-        
+
         // OneSignal initialization
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(function(OneSignal) {
@@ -60,7 +61,7 @@
             });
         });
     </script>
-    
+
     <script>
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'light';
@@ -104,6 +105,8 @@
             --card: #1e293b;
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
+            /* Fix: brighter text for dark mode */
+            --text-dim: #cbd5e1;
         }
 
         #monthSelector {
@@ -741,7 +744,7 @@
             padding: 30px;
             text-align: center;
             z-index: 10000;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 90%;
         }
         #user-error button {
@@ -767,7 +770,7 @@
             color: #ef4444;
             margin-bottom: 10px;
         }
-        
+
         #offline-indicator {
             display: none;
             position: fixed;
@@ -814,6 +817,165 @@
         .avatar-container .avatar-icon {
             font-size: 24px;
             color: #94a3b8;
+        }
+
+        /* New Grocery & Reminder containers */
+        .grocery-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--item-bg, #f8fafc);
+            border-radius: 0.75rem;
+            margin-bottom: 0.4rem;
+            border-left: 3px solid #22c55e;
+        }
+        .grocery-item .grocery-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .grocery-item .grocery-qty {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .reminder-entry {
+            background: var(--item-bg, #f8fafc);
+            border-radius: 0.75rem;
+            padding: 0.6rem 0.8rem;
+            margin-bottom: 0.4rem;
+            border-left: 4px solid #f59e0b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .reminder-vehicle {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+        .reminder-type {
+            font-size: 0.6rem;
+            background: #f59e0b20;
+            padding: 0.1rem 0.6rem;
+            border-radius: 40px;
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        .reminder-days {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .reminder-days.urgent {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        .reminder-badge {
+            background: #f59e0b;
+            color: white;
+            border-radius: 40px;
+            padding: 0.1rem 0.7rem;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
+        .reminder-due {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .loading-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 30px 20px;
+            color: var(--text-muted);
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        /* Fix for dark theme item bg */
+        [data-theme="dark"] .grocery-item,
+        [data-theme="dark"] .reminder-entry {
+            --item-bg: #1e293b;
+        }
+        [data-theme="light"] .grocery-item,
+        [data-theme="light"] .reminder-entry {
+            --item-bg: #f8fafc;
+        }
+        .grocery-item,
+        .reminder-entry {
+            background: var(--item-bg);
+        }
+
+        /* Scrollable containers for Grocery and Reminders */
+        .scrollable-container {
+            max-height: 100px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+            padding-right: 2px;
+        }
+        .scrollable-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .scrollable-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
+        .scrollable-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Dark mode font fix - ensure all text is bright */
+        [data-theme="dark"] .text-slate-400 {
+            color: #94a3b8 !important;
+        }
+        [data-theme="dark"] .text-slate-300 {
+            color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .text-white\/40 {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+        [data-theme="dark"] .text-slate-900 {
+            color: #f1f5f9 !important;
+        }
+        [data-theme="dark"] .text-slate-700 {
+            color: #e2e8f0 !important;
+        }
+        [data-theme="dark"] .text-gray-500 {
+            color: #94a3b8 !important;
+        }
+        [data-theme="dark"] .text-slate-500 {
+            color: #94a3b8 !important;
+        }
+        /* Fix for the greeting text */
+        [data-theme="dark"] #greeting-time {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        /* Fix for finance labels */
+        [data-theme="dark"] .stat-card p {
+            color: #94a3b8 !important;
+        }
+        /* Fix for month selector text */
+        [data-theme="dark"] #monthSelector {
+            color: #000000 !important;
         }
     </style>
 </head>
@@ -962,7 +1124,7 @@
                 </div>
                 <span class="text-slate-400 text-[9px] font-semibold mt-1 uppercase tracking-[1.5px] group-hover:text-white transition-colors text-center max-w-[60px]">Birthday</span>
             </a>
-   
+
             <a href="panchangmob.html" class="flex-shrink-0 flex flex-col items-center group animate-pop" style="--d: 12">
                 <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500/10 group-hover:border-blue-500/40 shadow-lg">
                     <i class="fa-regular fa-calendar text-blue-400 text-2xl group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]"></i>
@@ -978,30 +1140,63 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0">
     </script>
 
-    <div class="flex flex-row items-start justify-between w-full max-w-md mx-auto gap-2 px-2 py-2 mt-2 bg-[var(--card)] rounded-2xl shadow-sm">
-        <div id="todays-overview" class="w-1/2">
-            <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-[var(--text-main)] uppercase tracking-tight">
-                <i class="fas fa-calendar-day"></i> Schedule
-            </h2>
-            <div id="event-list" class="space-y-3">
-                <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
-                    Checking...
-                </p>
+    <!-- Two row layout: Schedule + Birthdays (top), Grocery + Reminders (bottom) -->
+    <div class="flex flex-col w-full max-w-md mx-auto gap-2 px-2 py-2 mt-2">
+
+        <!-- Top Row: Schedule + Birthdays -->
+        <div class="flex flex-row items-start justify-between w-full gap-2">
+            <div id="todays-overview" class="w-1/2">
+                <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-[var(--text-main)] uppercase tracking-tight">
+                    <i class="fas fa-calendar-day"></i> Schedule
+                </h2>
+                <div id="event-list" class="space-y-3">
+                    <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                        Checking...
+                    </p>
+                </div>
+            </div>
+
+            <div id="bday-overview-container" class="w-1/2">
+                <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-[var(--text-main)]">
+                    <i class="fas fa-cake-candles"></i> Birthdays
+                </h6>
+                <div id="bday-realtime-list" class="space-y-3">
+                    <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                        Checking...
+                    </p>
+                </div>
             </div>
         </div>
 
-        <div id="bday-overview-container" class="w-1/2">
-            <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-[var(--text-main)]">
-                <i class="fas fa-cake-candles"></i> Birthdays
-            </h6>
-            <div id="bday-realtime-list" class="space-y-3">
-                <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
-                    Checking...
-                </p>
+        <!-- Bottom Row: Grocery Items + Reminders (scrollable, max-height 100px) -->
+        <div class="flex flex-row items-start justify-between w-full gap-2 mt-1">
+            <!-- Grocery Container -->
+            <div id="grocery-overview-container" class="w-1/2">
+                <h2 class="text-[14px] font-[700] mb-1 flex items-center gap-2 text-[var(--text-main)] uppercase tracking-tight">
+                    <i class="fas fa-shopping-basket"></i> Grocery
+                </h2>
+                <div id="grocery-list-container" class="scrollable-container space-y-3">
+                    <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                        Loading...
+                    </p>
+                </div>
+            </div>
+
+            <!-- Reminders Container - now fetches from serviceReminders (vehicle data) -->
+            <div id="reminders-overview-container" class="w-1/2">
+                <h6 class="text-[14px] font-[700] mb-1 flex items-center gap-2 uppercase tracking-tight text-[var(--text-main)]">
+                    <i class="fas fa-bell"></i> Reminders
+                </h6>
+                <div id="reminders-list-container" class="scrollable-container space-y-3">
+                    <p class="text-[var(--text-main)] font-[600] text-[15px] p-3 border-2 border-solid border-[var(--text-main)] bg-[var(--bg)] rounded-xl text-center leading-tight">
+                        Loading...
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Finance Section (unchanged) -->
     <div class="max-w-6xl mx-auto">
         <header class="flex flex-row justify-between items-center gap-4 mb-1 py-2">
             <div class="flex items-center gap-2">
@@ -1091,7 +1286,7 @@
         // Firebase instances
         let db, auth, storage;
         let userDataLoaded = false;
-        
+
         try {
             db = firebase.database();
             auth = firebase.auth();
@@ -1102,7 +1297,7 @@
             document.getElementById('user-error').style.display = 'block';
             document.getElementById('user-display-name').innerText = "⚠️ Error";
         }
-        
+
         // Fixed events data
         const fixedEvents = [
             { d: "01-01", n: "नवीन वर्ष / शौर्य दिन", t: "fest" },
@@ -1124,7 +1319,7 @@
         if (typeof Chart !== 'undefined' && Chart.register) {
             Chart.register(ChartDataLabels);
         }
-        
+
         let pieChart = null;
 
         // Network status monitoring
@@ -1233,7 +1428,7 @@
             const avatarImg = document.getElementById('user-avatar');
             const avatarPlaceholder = document.getElementById('avatar-placeholder');
             const nameElement = document.getElementById('user-display-name');
-            
+
             if (!avatarImg || !avatarPlaceholder) return;
 
             // Try to load avatar from Firebase Storage or database URL
@@ -1286,12 +1481,12 @@
         function showAvatarPlaceholder(name) {
             const avatarPlaceholder = document.getElementById('avatar-placeholder');
             const avatarImg = document.getElementById('user-avatar');
-            
+
             if (!avatarPlaceholder) return;
-            
+
             avatarImg.classList.add('hidden');
             avatarPlaceholder.classList.remove('hidden');
-            
+
             // Show first letter of name if available
             if (name && name.length > 0) {
                 avatarPlaceholder.textContent = name.charAt(0).toUpperCase();
@@ -1315,10 +1510,10 @@
 
                 try {
                     await user.getIdToken(true);
-                    
+
                     let retries = 0;
                     let userData = null;
-                    
+
                     while (retries < 3 && !userData) {
                         try {
                             if (db) {
@@ -1336,12 +1531,12 @@
 
                     const nameElement = document.getElementById('user-display-name');
                     let finalName = "Safar";
-                    
+
                     if (nameElement) {
-                        finalName = (userData && userData.name) || 
-                                    user.displayName || 
-                                    user.email || 
-                                    "Safar";
+                        finalName = (userData && userData.name) ||
+                            user.displayName ||
+                            user.email ||
+                            "Safar";
                         nameElement.innerText = finalName;
                         nameElement.style.color = '#ffe11b';
                         userDataLoaded = true;
@@ -1364,13 +1559,15 @@
                     }
 
                     document.getElementById('user-error').style.display = 'none';
-                    
+
                     // Update greeting AFTER user data is loaded
                     updateTimeGreeting();
-                    
+
                     // Now load dashboard content
                     loadTodaysDashboard();
                     fetchAndShowTodaysEvents();
+                    loadGroceryItems();
+                    loadRemindersFromVehicleData(); // Updated to fetch from serviceReminders
                     if (typeof loadAnalytics === "function") loadAnalytics();
                     if (typeof initializeSavigSearch === "function") initializeSavigSearch();
 
@@ -1389,17 +1586,17 @@
             if (monthInput) {
                 monthInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
             }
-            
+
             // Set initial greeting based on time (temporary until user data loads)
             updateTimeGreeting();
-            
+
             if (auth) {
                 const user = auth.currentUser;
                 if (user) {
                     user.getIdToken(true).catch(() => {});
                 }
             }
-            
+
             // If user data hasn't loaded after 3 seconds, force a refresh
             setTimeout(() => {
                 if (!userDataLoaded && auth && auth.currentUser) {
@@ -1440,7 +1637,7 @@
             const loader = document.getElementById("loader");
             const charts = document.getElementById("chartsContainer");
             const noData = document.getElementById("noDataScreen");
-            
+
             if (loader) loader.classList.toggle("hidden", !show);
             if (show) {
                 if (charts) charts.classList.add("hidden");
@@ -1450,15 +1647,15 @@
 
         async function loadAnalytics() {
             if (!auth || !db) return;
-            
+
             const user = auth.currentUser;
             const month = document.getElementById("monthSelector").value;
-            
+
             if (!user) {
                 console.warn("No user for analytics");
                 return;
             }
-            
+
             showLoader(true);
 
             try {
@@ -1503,7 +1700,7 @@
                 document.getElementById("monthlySaving").innerText = `₹${(monthIncome - currentMonthTotal).toLocaleString()}`;
                 document.getElementById("overallSaving").innerText =
                     `₹${(totalIncomeAllTime - totalExpenseAllTime).toLocaleString()}`;
-                    
+
             } catch (error) {
                 console.error("Analytics error:", error);
                 showLoader(false);
@@ -1559,7 +1756,7 @@
         // --- BIRTHDAY AND SCHEDULE FUNCTIONS ---
         async function loadTodaysDashboard() {
             if (!auth || !db) return;
-            
+
             const user = auth.currentUser;
             const listCont = document.getElementById('event-list');
 
@@ -1611,9 +1808,9 @@
 
                 if (allEvents.length === 0) {
                     listCont.innerHTML = `
-                        <div class="p-3 bg-[var(--bg)] rounded-xl text-[var(--text-main)] font-[600] border-2 border-[var(--text-main)] text-[14px] text-center leading-tight">
-                            ✨ No schedule for today.
-                        </div>`;
+                            <div class="p-3 bg-[var(--bg)] rounded-xl text-[var(--text-main)] font-[600] border-2 border-[var(--text-main)] text-[14px] text-center leading-tight">
+                                ✨ No schedule for today.
+                            </div>`;
                     return;
                 }
 
@@ -1624,20 +1821,20 @@
                     const iconClass = ev.isFestival ? "fa-flag" : "fa-clock";
 
                     return `
-                        <div class="${borderClass} p-2 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1">
-                            <div class="min-w-0">
-                                <h3 class="font-[700] text-[var(--text-main)] text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
-                                <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-main)] font-[600]">
-                                    <span class="flex items-center whitespace-nowrap">
-                                        <i class="fas ${iconClass} mr-1 text-[var(--text-main)] text-[14px]"></i>${ev.time}
-                                    </span>
+                            <div class="${borderClass} p-2 rounded-xl border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.1)] flex justify-between items-start gap-1">
+                                <div class="min-w-0">
+                                    <h3 class="font-[700] text-[var(--text-main)] text-[14px] tracking-tight leading-tight break-words">${ev.title}</h3>
+                                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-main)] font-[600]">
+                                        <span class="flex items-center whitespace-nowrap">
+                                            <i class="fas ${iconClass} mr-1 text-[var(--text-main)] text-[14px]"></i>${ev.time}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="bg-[var(--text-main)] rounded-full p-1 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="fas fa-chevron-right text-[var(--bg)] text-[14px]"></i>
                                 </div>
                             </div>
-                            <div class="bg-[var(--text-main)] rounded-full p-1 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i class="fas fa-chevron-right text-[var(--bg)] text-[14px]"></i>
-                            </div>
-                        </div>
-                    `;
+                        `;
                 }).join('');
 
             } catch (err) {
@@ -1652,7 +1849,7 @@
         // --- BIRTHDAY AND ANNIVERSARY FUNCTION ---
         async function fetchAndShowTodaysEvents() {
             if (!auth || !db) return;
-            
+
             const user = auth.currentUser;
             const listCont = document.getElementById('bday-realtime-list');
             if (!user || !listCont) return;
@@ -1734,31 +1931,31 @@
                         null;
 
                     return `
-                        <div style="border: 1px solid var(--text-main);" class="bg-[var(--bg)] rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between mb-1">
-                            <div class="flex items-center min-w-0">
-                                <div class="rounded-lg w-12 h-12 flex items-center justify-center text-xm flex-shrink-0">
-                                    ${event.icon}
-                                </div>
-                                <div class="min-w-0 flex-1 text-center pr-0.5 pl-[-5]">
-                                    <div class="text-[12px] font-[900] pl-[-5] text-[var(--text-main)] uppercase break-words leading-[1.1]">
-                                        ${event.name}
+                            <div style="border: 1px solid var(--text-main);" class="bg-[var(--bg)] rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between mb-1">
+                                <div class="flex items-center min-w-0">
+                                    <div class="rounded-lg w-12 h-12 flex items-center justify-center text-xm flex-shrink-0">
+                                        ${event.icon}
                                     </div>
-                                    ${event.years ? `
-                                        <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
-                                            ${event.years} Years Completed
-                                        </div>` : ''}
+                                    <div class="min-w-0 flex-1 text-center pr-0.5 pl-[-5]">
+                                        <div class="text-[12px] font-[900] pl-[-5] text-[var(--text-main)] uppercase break-words leading-[1.1]">
+                                            ${event.name}
+                                        </div>
+                                        ${event.years ? `
+                                            <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
+                                                ${event.years} Years Completed
+                                            </div>` : ''}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="flex-shrink-0 w-10 flex justify-end">
-                                ${waLink ? `
-                                    <a href="${waLink}" target="_blank" 
-                                       style="border: 1px solid var(--text-main);" 
-                                       class="bg-[#25D366] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg mr-1 w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
-                                        <i class="fab fa-whatsapp text-white text-[29px]"></i>
-                                    </a>
-                                ` : ''}
-                            </div>
-                        </div>`;
+                                <div class="flex-shrink-0 w-10 flex justify-end">
+                                    ${waLink ? `
+                                        <a href="${waLink}" target="_blank" 
+                                           style="border: 1px solid var(--text-main);" 
+                                           class="bg-[#25D366] hover:bg-[#128C7E] transition-colors duration-200 rounded-lg mr-1 w-9 h-9 flex items-center justify-center shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-y-[1px] active:translate-x-[1px] active:shadow-none cursor-pointer">
+                                            <i class="fab fa-whatsapp text-white text-[29px]"></i>
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            </div>`;
                 }).join('');
 
             } catch (e) {
@@ -1766,6 +1963,143 @@
                 listCont.innerHTML =
                     `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading ⚠️</div>`;
             }
+        }
+
+        // --- GROCERY ITEMS FUNCTION ---
+        async function loadGroceryItems() {
+            if (!auth || !db) return;
+            const user = auth.currentUser;
+            const container = document.getElementById('grocery-list-container');
+            if (!user || !container) return;
+
+            const now = new Date();
+            const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            try {
+                const snapshot = await db.ref(`users/${user.uid}/groceryList/${todayKey}`).once('value');
+                const data = snapshot.val();
+
+                if (!data) {
+                    container.innerHTML =
+                        `<div style="border:1px solid var(--text-main)" class="bg-[var(--bg)] p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[var(--text-main)]"> 🛒 No grocery items today </div>`;
+                    return;
+                }
+
+                let html = '';
+                Object.values(data).forEach(item => {
+                    html += `
+                            <div class="grocery-item" style="border:1px solid var(--text-main); background:var(--bg); border-radius:0.75rem; padding:0.4rem 0.7rem; margin-bottom:0.3rem; display:flex; justify-content:space-between; align-items:center;">
+                                <span class="grocery-name font-bold text-[var(--text-main)] text-sm">${item.name || 'Item'}</span>
+                                <span class="grocery-qty text-xs text-[var(--text-muted)]">${item.quantity || ''}</span>
+                            </div>
+                        `;
+                });
+                container.innerHTML = html;
+
+            } catch (e) {
+                console.error("Grocery load error:", e);
+                container.innerHTML =
+                    `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading Grocery ⚠️</div>`;
+            }
+        }
+
+        // --- REMINDERS FUNCTION - FETCH FROM serviceReminders (vehicle data) ---
+        async function loadRemindersFromVehicleData() {
+            if (!auth || !db) return;
+            const user = auth.currentUser;
+            const container = document.getElementById('reminders-list-container');
+            if (!user || !container) return;
+
+            try {
+                const snapshot = await db.ref('serviceReminders').once('value');
+                const data = snapshot.val();
+
+                if (!data) {
+                    container.innerHTML =
+                        `<div style="border:1px solid var(--text-main)" class="bg-[var(--bg)] p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[var(--text-main)]"> 🔔 No vehicle reminders </div>`;
+                    return;
+                }
+
+                // Get all reminders, filter by userId (if available) or just show all for now
+                const reminders = Object.entries(data)
+                    .map(([id, val]) => ({ id, ...val }));
+
+                if (reminders.length === 0) {
+                    container.innerHTML =
+                        `<div style="border:1px solid var(--text-main)" class="bg-[var(--bg)] p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[var(--text-main)]"> 🔔 No upcoming reminders </div>`;
+                    return;
+                }
+
+                // Sort by nearest due date (nextServiceDate, pucDueDate, insuranceExpiry)
+                const sorted = reminders.sort((a, b) => {
+                    const da = a.nextServiceDate || a.pucDueDate || a.insuranceExpiry || '9999-99-99';
+                    const db = b.nextServiceDate || b.pucDueDate || b.insuranceExpiry || '9999-99-99';
+                    return da.localeCompare(db);
+                });
+
+                let html = '';
+                // Show only upcoming reminders (due in next 30 days)
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                let shown = 0;
+
+                for (const r of sorted) {
+                    if (shown >= 5) break;
+                    let due = r.nextServiceDate || r.pucDueDate || r.insuranceExpiry || null;
+                    if (!due) continue;
+
+                    const dueDate = new Date(due);
+                    dueDate.setHours(0, 0, 0, 0);
+                    const diffDays = Math.ceil((dueDate - now) / (1000 * 3600 * 24));
+
+                    // Only show if due in next 30 days or overdue (within last 7 days)
+                    if (diffDays > 30 || diffDays < -7) continue;
+
+                    const label = r.nextServiceDate ? 'Service' : (r.pucDueDate ? 'PUC' : 'Insurance');
+                    let daysText = diffDays === 0 ? 'TODAY' : (diffDays < 0 ? `⚠️ ${Math.abs(diffDays)} days overdue` :
+                        `${diffDays} day${diffDays > 1 ? 's' : ''}`);
+                    const urgentClass = (diffDays !== null && diffDays <= 3 && diffDays >= 0) ? 'urgent' : '';
+
+                    html += `
+                            <div class="reminder-entry" style="border:1px solid var(--text-main); background:var(--bg); border-left:4px solid #f59e0b; border-radius:0.75rem; padding:0.4rem 0.7rem; margin-bottom:0.3rem; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <span class="reminder-vehicle font-bold text-[var(--text-main)] text-sm">${r.vehicle || 'Vehicle'}</span>
+                                    <span class="reminder-type text-xs bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-full text-amber-700 dark:text-amber-300 ml-1">${label}</span>
+                                    <div class="reminder-days text-xs ${urgentClass}">${daysText}</div>
+                                </div>
+                                <div class="reminder-due text-xs text-[var(--text-muted)]">${formatDate(due)}</div>
+                            </div>
+                        `;
+                    shown++;
+                }
+
+                if (shown === 0) {
+                    container.innerHTML =
+                        `<div style="border:1px solid var(--text-main)" class="bg-[var(--bg)] p-3 rounded-xl text-center font-bold text-[11px] uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-[var(--text-main)]"> ✅ All reminders up to date </div>`;
+                } else {
+                    container.innerHTML = html;
+                }
+
+            } catch (e) {
+                console.error("Reminders load error:", e);
+                container.innerHTML =
+                    `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading Reminders ⚠️</div>`;
+            }
+        }
+
+        function daysUntil(dateStr) {
+            if (!dateStr) return null;
+            const d = new Date(dateStr);
+            d.setHours(0, 0, 0, 0);
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            return Math.ceil((d - now) / (1000 * 3600 * 24));
+        }
+
+        function formatDate(d) {
+            if (!d) return '—';
+            const dt = new Date(d);
+            return isNaN(dt) ? d : dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         }
 
         // --- Search Logic ---
@@ -1796,7 +2130,7 @@
 
                 searchTimeout = setTimeout(async () => {
                     if (!auth || !db) return;
-                    
+
                     const user = auth.currentUser;
                     if (!user) return;
 
@@ -1865,12 +2199,12 @@
                     const dateStr = d.date || res.parent || "";
                     const descStr = d.desc || d.description || "";
                     displayDetail = `
-                        <div class="mt-1">
-                            <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
-                            <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
-                                ${descStr || 'No description available'}
-                            </p>
-                        </div>`;
+                            <div class="mt-1">
+                                <span class="text-blue-500 font-bold text-[10px] bg-blue-500/10 px-1.5 py-0.5 rounded mr-1">${dateStr}</span>
+                                <p class="text-[12px] text-[var(--text-muted)] mt-1 leading-normal break-words">
+                                    ${descStr || 'No description available'}
+                                </p>
+                            </div>`;
                 } else if (mod === 'address') {
                     const fullAddr = `${d.area || d.address || ""} ${d.landmark ? '• '+d.landmark : ""} ${d.pincode || ""}`;
                     displayDetail =
@@ -1878,18 +2212,18 @@
 
                     actionBtn =
                         `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}" target="_blank" 
-                            class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
-                            <i class="fas fa-location-arrow"></i> Map
-                        </a>`;
+                                class="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-emerald-500/20 active:scale-95 transition-all">
+                                <i class="fas fa-location-arrow"></i> Map
+                            </a>`;
                 } else {
                     const extra = d.mobile || d.url || (mod === 'finance' ? `₹${d.amount || d}` : "");
                     displayDetail = `<span class="text-[12px] opacity-80">${extra}</span>`;
                     if (d.mobile) {
                         actionBtn =
                             `<button onclick="window.downloadVCard('${name}', '${d.mobile}')" 
-                                class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
-                                <i class="fas fa-download"></i> Save
-                            </button>`;
+                                    class="flex items-center gap-1 bg-blue-500/10 text-blue-600 font-bold text-[11px] uppercase px-3 py-1.5 rounded-full border border-blue-500/20 active:scale-95 transition-all">
+                                    <i class="fas fa-download"></i> Save
+                                </button>`;
                     }
                 }
 
@@ -1898,27 +2232,27 @@
                 card.style.animationDelay = `${index * 0.03}s`;
 
                 card.innerHTML = `
-                    <div class="flex items-start w-full gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
-                            <i class="${getIcon(mod)} text-base"></i>
-                        </div>
-                        <div class="flex-grow min-w-0">
-                            <div class="flex items-start justify-between gap-2">
-                                <div class="flex-grow min-w-0">
-                                    <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
-                                    ${displayDetail}
-                                </div>
-                                <div class="flex items-center gap-2 flex-shrink-0">
-                                    ${actionBtn}
-                                    <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
-                                        class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
-                                        <i class="fas fa-chevron-right text-[10px]"></i>
-                                    </button>
+                        <div class="flex items-start w-full gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 flex-shrink-0">
+                                <i class="${getIcon(mod)} text-base"></i>
+                            </div>
+                            <div class="flex-grow min-w-0">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-grow min-w-0">
+                                        <h4 class="font-bold text-[var(--text-main)] text-[15px] break-words tracking-tight leading-tight">${name}</h4>
+                                        ${displayDetail}
+                                    </div>
+                                    <div class="flex items-center gap-2 flex-shrink-0">
+                                        ${actionBtn}
+                                        <button onclick="window.handleRedirect('${mod}', '${res.id}')" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 text-slate-400 active:scale-90">
+                                            <i class="fas fa-chevron-right text-[10px]"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
                 resultsArea.appendChild(card);
             });
         };
@@ -1930,7 +2264,7 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
             if (!SpeechRecognition || !micBtn || !input) return;
-            
+
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-IN';
 
@@ -2004,7 +2338,8 @@
 
             try {
                 const query = encodeURIComponent('महाराष्ट्र OR मोदी OR अमेरिका OR रशिया OR पाकिस्तान');
-                const url = `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
+                const url =
+                `https://newsdata.io/api/1/news?apikey=${API_KEY}&q=${query}&language=mr&size=10&category=top`;
 
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Network response was not ok');
@@ -2018,15 +2353,15 @@
                         const summary = article.description || "या बातमीचा सविस्तर तपशील उपलब्ध नाही.";
 
                         item.innerHTML = `
-                            <div class="news-header-row">
-                                <div class="news-text">${article.title}</div>
-                                <div class="read-arrow">→</div>
-                            </div>
-                            <div class="news-detail">
-                                <p>${summary}</p>
-                                <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
-                            </div>
-                        `;
+                                <div class="news-header-row">
+                                    <div class="news-text">${article.title}</div>
+                                    <div class="read-arrow">→</div>
+                                </div>
+                                <div class="news-detail">
+                                    <p>${summary}</p>
+                                    <a href="${article.link}" target="_blank" class="full-article-btn">मूळ वेबसाईटवर वाचा</a>
+                                </div>
+                            `;
                         item.querySelector('.news-header-row').addEventListener('click', () => {
                             item.classList.toggle('active');
                         });
@@ -2061,7 +2396,7 @@
                     console.warn("Firebase Messaging not available");
                     return;
                 }
-                
+
                 const messaging = firebase.messaging();
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
@@ -2084,7 +2419,7 @@
 
         function checkPublicHolidays() {
             if (!auth || !db) return;
-            
+
             const now = new Date();
             const todayID =
                 `${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -2110,7 +2445,7 @@
 
         function checkPersonalEvents() {
             if (!auth || !db) return;
-            
+
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -2145,7 +2480,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeSavigSearch();
             setupVoiceSearch();
-            
+
             if (auth) {
                 const user = auth.currentUser;
                 if (user) {
