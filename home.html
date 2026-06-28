@@ -17,7 +17,6 @@
     @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
     .content-wrapper { flex-grow:1; }
 
-    /* cards */
     .dashboard-card {
       background: var(--bg-card);
       border-radius: 1rem;
@@ -48,57 +47,48 @@
     .dashboard-main-content { flex:1; min-width:0; padding:1.25rem 1.75rem !important; }
     .sidebar-desktop { width:220px; flex-shrink:0; background:var(--bg-card); padding:1.5rem 1rem; border-radius:1rem; border:1px solid var(--border); }
 
-    /* quick links - SCROLLABLE CONTAINER - WIDER */
     .quick-links-wrapper {
       display: flex;
       flex-direction: column;
       height: 100%;
       min-height: 200px;
       width: 100%;
-    
     }
-    /* ── QUICK LINKS LOADER ── */
-.quick-links-loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px 20px;
-  gap: 12px;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  min-height: 150px;
-}
-
-.quick-links-loader .loader-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--border);
-  border-top-color: var(--primary);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-.quick-links-loader .loader-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.quick-links-loader .loader-text i {
-  font-size: 1rem;
-  color: var(--primary);
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Hide loader when data is loaded */
-.quick-links-loader.hidden {
-  display: none;
-}
+    .quick-links-loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      min-height: 150px;
+    }
+    .quick-links-loader .loader-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .quick-links-loader .loader-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-links-loader .loader-text i {
+      font-size: 1rem;
+      color: var(--primary);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .quick-links-loader.hidden {
+      display: none;
+    }
     .quick-links-scroll {
       flex: 1;
       overflow-y: auto !important;
@@ -124,7 +114,6 @@
       background: var(--text-muted); 
     }
 
-    /* RIGHT CONTAINER WIDTH INCREASED BY 20px */
     .dashboard-main-content {
       padding-right: 2rem !important;
       padding-left: 2rem !important;
@@ -145,7 +134,7 @@
     }
     .link-item:last-child { margin-bottom: 0; }
     .link-info { flex:1; min-width:0; overflow:hidden; }
-    .link-title { font-weight:800; font-size:0.85rem; color:var(--text-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+    .link-title { font-weight:800; font-size:1rem; color:var(--text-bold); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
     .link-url { font-size:0.65rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
     .link-actions { display:flex; gap:0.3rem; flex-shrink:0; align-items:center; }
     .icon-btn {
@@ -180,7 +169,6 @@
       --form-bg: #0f172a; --input-bg: #1e2a3a; --sidebar-hover: #1e3a8a;
     }
 
-    /* bottom nav */
     #universal-bottom-nav {
       position:fixed; bottom:0; left:0; width:100%; height:56px; background:var(--bg-card);
       backdrop-filter:blur(15px); display:flex; justify-content:space-around; align-items:center;
@@ -204,7 +192,6 @@
     .btn-wish-sm:hover { background:#128C7E; transform:scale(1.02); }
     .btn-wish-sm i { font-size:0.9rem !important; }
 
-    /* ── TOAST NOTIFICATIONS ── */
     .toast-notification {
       position:fixed; top:20px; right:20px; z-index:999999; background:#1e293b; color:white;
       padding:14px 24px; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.3);
@@ -220,7 +207,6 @@
     .toast-warning { border-left-color: #f59e0b; }
     .toast-danger { border-left-color: #ef4444; }
 
-    /* desktop nav - EXACT hovers as originally given */
     .desktop-nav {
       font-size:18px !important; font-weight:700 !important; padding:0.4rem 0.6rem !important;
       border-radius:9999px; transition:all 0.25s cubic-bezier(0.2,0.9,0.4,1.1);
@@ -255,20 +241,112 @@
     .mobile-nav-item:hover { background:var(--sidebar-hover); color:#2563eb !important; transform:translateX(4px) translateY(-2px); }
     .mobile-nav-item:active { transform:translateX(2px) translateY(-1px); color:#1d4ed8; }
 
-    .reminder-entry {
-      background:var(--item-bg); border-radius:0.75rem; padding:0.6rem 0.8rem; margin-bottom:0.4rem;
-      border-left:4px solid #f59e0b; display:flex; justify-content:space-between; align-items:center;
+    /* ── NEW PROFESSIONAL REMINDER CARD ── */
+    .reminder-card {
+      background: var(--item-bg);
+      border-radius: 0.75rem;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.5rem;
+      border-left: 4px solid #f59e0b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
-    .reminder-vehicle { font-weight:700; font-size:0.85rem; }
-    .reminder-type { font-size:0.6rem; background:#f59e0b20; padding:0.1rem 0.6rem; border-radius:40px; color:#f59e0b; font-weight:600; }
-    .reminder-days { font-size:0.65rem; color:var(--text-muted); }
-    .reminder-days.urgent { color:#ef4444; font-weight:700; }
-    .reminder-badge { background:#f59e0b; color:white; border-radius:40px; padding:0.1rem 0.7rem; font-size:0.6rem; font-weight:700; }
+    .reminder-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .reminder-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .reminder-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .reminder-icon.service { background: #3b82f620; color: #3b82f6; }
+    .reminder-icon.puc { background: #8b5cf620; color: #8b5cf6; }
+    .reminder-icon.insurance { background: #06b6d420; color: #06b6d4; }
+    .reminder-icon.overdue { background: #ef444420; color: #ef4444; }
+
+    .reminder-info { flex: 1; min-width: 0; }
+    .reminder-vehicle-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-bold);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .reminder-type-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.1rem 0.6rem;
+      border-radius: 40px;
+      letter-spacing: 0.02em;
+    }
+    .reminder-type-badge.service { background: #3b82f620; color: #3b82f6; }
+    .reminder-type-badge.puc { background: #8b5cf620; color: #8b5cf6; }
+    .reminder-type-badge.insurance { background: #06b6d420; color: #06b6d4; }
+    .reminder-type-badge.overdue { background: #ef444420; color: #ef4444; }
+
+    .reminder-due-date {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .reminder-right {
+      text-align: right;
+      flex-shrink: 0;
+      margin-left: 0.75rem;
+    }
+    .reminder-status {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 40px;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .reminder-status.urgent { background: #ef444420; color: #ef4444; }
+    .reminder-status.today { background: #f59e0b20; color: #f59e0b; }
+    .reminder-status.soon { background: #3b82f620; color: #3b82f6; }
+    .reminder-status.overdue { background: #dc262620; color: #dc2626; animation: pulse-overdue 1.5s infinite; }
+    @keyframes pulse-overdue {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .reminder-empty {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-muted);
+    }
+    .reminder-empty i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+      opacity: 0.5;
+    }
+
     .grocery-item { display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.75rem; background:var(--item-bg); border-radius:0.75rem; margin-bottom:0.4rem; border-left:3px solid #22c55e; }
     .grocery-item .grocery-name { font-weight:600; font-size:0.9rem; }
     .grocery-item .grocery-qty { font-size:0.7rem; color:var(--text-muted); margin-left:auto; }
 
-    /* auto-delete toggle */
     .auto-delete-toggle {
       display:flex; align-items:center; gap:2px; font-size:0.8rem; color:var(--text-muted);
       background:var(--item-bg); padding:2px 10px 2px 6px; border-radius:30px; border:1px solid var(--border-light);
@@ -284,55 +362,29 @@
       color:var(--text-main);
       font-weight:700;
     }
-    .link-title { 
-    font-weight:800; 
-    font-size:1rem;  /* ← This controls the font size */
-    color:var(--text-bold); 
-    white-space:nowrap; 
-    overflow:hidden; 
-    text-overflow:ellipsis; 
-    display:block; 
-}
+    .reminder-badge {
+      background:#f59e0b;
+      color:white;
+      border-radius:40px;
+      padding:0.1rem 0.7rem;
+      font-size:0.6rem;
+      font-weight:700;
+    }
   </style>
 </head>
 <body>
 
-<!-- ── TOAST NOTIFICATIONS ── -->
-<div id="birthdayToast" class="toast-notification">
-  <i class="fas fa-birthday-cake"></i>
-  <span id="toastMessage">🎉 Today is someone's birthday!</span>
-  <button class="toast-close" onclick="document.getElementById('birthdayToast').classList.remove('show')">✕</button>
-</div>
-
-<div id="reminderToast" class="toast-notification toast-warning">
-  <i class="fas fa-car"></i>
-  <span id="reminderToastMessage">⚠️ Vehicle reminder due!</span>
-  <button class="toast-close" onclick="document.getElementById('reminderToast').classList.remove('show')">✕</button>
-</div>
-
-<div id="eventToast" class="toast-notification toast-info">
-  <i class="fas fa-calendar-day"></i>
-  <span id="eventToastMessage">📅 Event reminder!</span>
-  <button class="toast-close" onclick="document.getElementById('eventToast').classList.remove('show')">✕</button>
-</div>
-
-<div id="groceryToast" class="toast-notification toast-success">
-  <i class="fas fa-apple-alt"></i>
-  <span id="groceryToastMessage">🛒 Grocery reminder!</span>
-  <button class="toast-close" onclick="document.getElementById('groceryToast').classList.remove('show')">✕</button>
-</div>
-
-<div id="autoDeleteToast" class="toast-notification toast-danger">
-  <i class="fas fa-trash-can"></i>
-  <span id="autoDeleteToastMessage">🗑️ Auto-deleted links removed!</span>
-  <button class="toast-close" onclick="document.getElementById('autoDeleteToast').classList.remove('show')">✕</button>
-</div>
+<!-- TOASTS -->
+<div id="birthdayToast" class="toast-notification"><i class="fas fa-birthday-cake"></i><span id="toastMessage"></span><button class="toast-close" onclick="document.getElementById('birthdayToast').classList.remove('show')">✕</button></div>
+<div id="reminderToast" class="toast-notification toast-warning"><i class="fas fa-car"></i><span id="reminderToastMessage"></span><button class="toast-close" onclick="document.getElementById('reminderToast').classList.remove('show')">✕</button></div>
+<div id="eventToast" class="toast-notification toast-info"><i class="fas fa-calendar-day"></i><span id="eventToastMessage"></span><button class="toast-close" onclick="document.getElementById('eventToast').classList.remove('show')">✕</button></div>
+<div id="groceryToast" class="toast-notification toast-success"><i class="fas fa-apple-alt"></i><span id="groceryToastMessage"></span><button class="toast-close" onclick="document.getElementById('groceryToast').classList.remove('show')">✕</button></div>
+<div id="autoDeleteToast" class="toast-notification toast-danger"><i class="fas fa-trash-can"></i><span id="autoDeleteToastMessage"></span><button class="toast-close" onclick="document.getElementById('autoDeleteToast').classList.remove('show')">✕</button></div>
 
 <div class="content-wrapper">
   <!-- desktop header -->
   <div class="hidden md:block fade-in">
     <header class="shadow-md p-3 flex justify-between items-center sticky top-0 z-30 border-b" style="background:var(--bg-card); border-color:var(--border);">
-      <!-- EXACT LOGO YOU REQUESTED -->
       <div class="flex items-center gap-2">
         <div class="relative flex items-center justify-center">
           <i class="fas fa-shield text-blue-600 text-3xl"></i>
@@ -358,7 +410,6 @@
   <!-- mobile header -->
   <div class="block md:hidden fade-in">
     <header class="shadow-md sticky top-0 z-30 p-3 flex justify-between items-center" style="background:var(--bg-card); border-bottom:1px solid var(--border);">
-      <!-- EXACT LOGO FOR MOBILE -->
       <div class="flex items-center gap-2">
         <div class="relative flex items-center justify-center">
           <i class="fas fa-shield text-blue-600 text-2xl"></i>
@@ -375,9 +426,7 @@
       <a href="#" data-page="birthday" class="mobile-nav-item"><i class="fas fa-cake-candles w-6"></i> Birthday</a>
       <a href="#" data-page="password" class="mobile-nav-item"><i class="fas fa-lock w-6"></i> Passwords</a>
       <a href="#" data-page="profile" class="mobile-nav-item"><i class="fas fa-user-gear w-6"></i> Profile</a>
-    
       <a href="#" data-page="grocery" class="mobile-nav-item"><i class="fas fa-shopping-cart w-6"></i> Grocery</a>
-
       <a href="#" data-page="place" class="mobile-nav-item"><i class="fas fa-map-marker-alt w-6"></i> Tourist Places</a>
       <a href="#" data-page="contact" class="mobile-nav-item"><i class="fas fa-address-book w-6"></i> Contacts</a>
       <a href="#" data-page="adress" class="mobile-nav-item"><i class="fas fa-map-location-dot w-6"></i> Address</a>
@@ -392,8 +441,6 @@
       <h3 class="text-md font-bold mb-3 border-b pb-2 uppercase tracking-wide" style="color:var(--text-bold); border-color:var(--border);"><i class="fas fa-database mr-2"></i> Core Data</h3>
       <nav class="sidebar-nav-internal flex flex-col gap-0.5">
         <a href="#" data-page="profile"><i class="fas fa-user-gear"></i> Profile</a>
-   
-
         <a href="#" data-page="place"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
         <a href="#" data-page="contact"><i class="fas fa-address-book"></i> Contacts</a>
         <a href="#" data-page="grocery"><i class="fas fa-shopping-cart"></i> Grocery</a>
@@ -441,15 +488,10 @@
                   <button id="cancelLinkBtn" class="flex-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-600 transition">Cancel</button>
                 </div>
               </div>
-              <!-- QUICK LINKS LOADER -->
               <div id="quickLinksLoader" class="quick-links-loader">
                 <div class="loader-spinner"></div>
-                <div class="loader-text">
-                  <i class="fas fa-link"></i>
-                  <span>Loading your links...</span>
-                </div>
+                <div class="loader-text"><i class="fas fa-link"></i><span>Loading your links...</span></div>
               </div>
-              <!-- SCROLLABLE LINKS LIST -->
               <div id="savedLinksList" class="quick-links-scroll" style="display:none;flex-direction:column;gap:0.3rem;width:100%;"></div>
             </div>
           </div>
@@ -492,13 +534,9 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-  // ============================================
-  // FIX: Load user data from URL parameters first
-  // ============================================
   (function loadUserFromURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const userDataParam = urlParams.get('user');
-    
     if (userDataParam) {
       try {
         const userData = JSON.parse(decodeURIComponent(userDataParam));
@@ -544,7 +582,6 @@
   function navigateTo(page) { 
     if(!page) return; 
     const target=pageMapping[page];
-    // Pass user data via URL parameter
     const userData = localStorage.getItem('savig_user_data');
     if (userData) {
       const encoded = encodeURIComponent(userData);
@@ -567,9 +604,8 @@
     if(page) navigateTo(page); 
   }
 
-  // Store user data in localStorage AND sessionStorage
   function storeUserData(user) {
-    if (!user) return;
+    if (!user) return null;
     const userData = {
       uid: user.uid,
       name: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
@@ -582,30 +618,21 @@
     return userData;
   }
 
-  // Load user data from storage (try both localStorage and sessionStorage)
   function loadUserFromStorage() {
     try {
-      // Try sessionStorage first (more reliable for same session)
       let stored = sessionStorage.getItem('savig_user_data');
-      if (!stored) {
-        stored = localStorage.getItem('savig_user_data');
-      }
+      if (!stored) stored = localStorage.getItem('savig_user_data');
       if (stored) {
         const userData = JSON.parse(stored);
-        // Check if data is not too old (24 hours)
         if (userData.timestamp && (Date.now() - userData.timestamp) < 86400000) {
           return userData;
         }
       }
-    } catch (e) {
-      console.warn('Could not load user data from storage', e);
-    }
+    } catch (e) {}
     return null;
   }
 
-  // Update UI function with fallback
   function updateUI(user) {
-    // If user is provided, use it
     if (user) {
       const userData = storeUserData(user);
       updateUIFromData(userData);
@@ -613,8 +640,6 @@
       console.log('UI updated from Firebase user:', userData.name);
       return;
     }
-    
-    // Try to get from auth
     const currentUser = auth.currentUser;
     if (currentUser) {
       const userData = storeUserData(currentUser);
@@ -623,8 +648,6 @@
       console.log('UI updated from auth.currentUser:', userData.name);
       return;
     }
-    
-    // Try to load from storage
     const stored = loadUserFromStorage();
     if (stored) {
       updateUIFromData(stored);
@@ -632,34 +655,30 @@
       console.log('UI updated from storage:', stored.name);
       return;
     }
-    
     console.warn('No user found in updateUI');
   }
 
-  // Update UI from data object
   function updateUIFromData(userData) {
     if (!userData) return;
-    
     const nameEl = document.getElementById('desktopUserName');
     const emailEl = document.getElementById('desktopUserEmail');
     const photoEl = document.getElementById('desktopUserPhoto');
-    
     if (nameEl) nameEl.innerText = userData.name || 'User';
     if (emailEl) emailEl.innerText = userData.email || 'user@example.com';
     if (photoEl) {
-      photoEl.src = userData.photo || `https://ui-avatars.com/api/?name=${(userData.email || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`;
+      const photoUrl = userData.photo || `https://ui-avatars.com/api/?name=${(userData.name || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`;
+      photoEl.src = photoUrl;
+      photoEl.onerror = function() {
+        this.src = `https://ui-avatars.com/api/?name=${(userData.name || 'U')[0].toUpperCase()}&background=3b82f6&color=fff&size=100&bold=true`;
+      };
     }
-    
     currentUserId = userData.uid;
-    
-    // Load dashboard data if not loaded yet
     if (!dataLoaded && currentUserId) {
       loadAllData(currentUserId);
       dataLoaded = true;
     }
   }
 
-  // Load all dashboard data
   function loadAllData(userId) {
     if (!userId) return;
     loadDashboardData(userId);
@@ -667,53 +686,52 @@
     setupLinkUI(userId);
     loadReminders();
     attachNavEvents();
-    
-    // Run notification checks
     setTimeout(() => {
       checkEventNotifications(userId);
       checkGroceryNotifications(userId);
     }, 2000);
-    
-    // Auto-delete every 30 seconds
     setInterval(() => runAutoDelete(userId), 30000);
     setTimeout(() => runAutoDelete(userId), 3000);
-    
-    // Check reminders every 5 minutes
     setInterval(() => {
       if (allReminders.length) checkReminderNotifications(allReminders);
     }, 300000);
-    
-    // Check events and groceries every 10 minutes
     setInterval(() => {
       checkEventNotifications(userId);
       checkGroceryNotifications(userId);
     }, 600000);
   }
 
-  // Force update function for page load
   function forceUpdateUser() {
     console.log('Force updating user...');
     const user = auth.currentUser;
     if (user) {
       updateUI(user);
     } else {
-      // Try to load from storage
       const stored = loadUserFromStorage();
       if (stored) {
         updateUIFromData(stored);
       } else {
-        // Redirect to login if no user
         console.log('No user found, redirecting to login');
         window.location.replace('index.html');
       }
     }
   }
 
+  let redirectTimer = setTimeout(() => {
+    const stored = loadUserFromStorage();
+    if (!stored && !auth.currentUser) {
+      console.warn('7s timeout: no user data, redirecting to index.html');
+      window.location.replace('index.html');
+    } else if (!dataLoaded) {
+      if (auth.currentUser) updateUI(auth.currentUser);
+      else if (stored) updateUIFromData(stored);
+    }
+  }, 7000);
+
   function escapeHtml(s){ if(!s)return ''; return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]||m)); }
   function formatDate(d){ if(!d)return '—'; const dt=new Date(d); return isNaN(dt)?d:dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
   function daysUntil(dateStr){ if(!dateStr)return null; const d=new Date(dateStr); d.setHours(0,0,0,0); const now=new Date(); now.setHours(0,0,0,0); return Math.ceil((d-now)/(1000*3600*24)); }
 
-  // ── TOAST HELPER ──
   function showToast(toastId, message, autoClose = 8000) {
     const toast = document.getElementById(toastId);
     const msgSpan = toast.querySelector('span') || toast.querySelector('#toastMessage');
@@ -723,7 +741,6 @@
     toast._timeout = setTimeout(() => toast.classList.remove('show'), autoClose);
   }
 
-  // ── REMINDER NOTIFICATIONS ──
   function checkReminderNotifications(reminders) {
     if (!reminders || !reminders.length) return;
     const today = new Date();
@@ -739,14 +756,14 @@
       const diff = daysUntil(due);
       if (diff !== null && diff >= 0 && diff <= 3 && !shownIds.includes(r.id)) {
         const label = r.nextServiceDate ? 'Service' : (r.pucDueDate ? 'PUC' : 'Insurance');
-        showToast('reminderToast', `⚠️ ${r.vehicle} ${label} due in ${diff} day${diff>1?'s':''}! (${formatDate(due)})`);
+        let dayText = diff === 0 ? 'TODAY' : `${diff} day${diff>1?'s':''}`;
+        showToast('reminderToast', `⚠️ ${r.vehicle} ${label} due ${dayText}! (${formatDate(due)})`);
         shownIds.push(r.id);
       }
     });
     if (shownIds.length) localStorage.setItem(shownKey, shownIds.join(','));
   }
 
-  // ── EVENT REMINDER NOTIFICATIONS ──
   function checkEventNotifications(userId) {
     if (!userId) return;
     const today = new Date();
@@ -762,7 +779,8 @@
         if (!ev.date) return;
         const diff = daysUntil(ev.date);
         if (diff !== null && diff >= 0 && diff <= 2 && !shownIds.includes(id)) {
-          showToast('eventToast', `📅 "${ev.title}" is in ${diff} day${diff>1?'s':''}! (${formatDate(ev.date)})`);
+          let dayText = diff === 0 ? 'TODAY' : `${diff} day${diff>1?'s':''}`;
+          showToast('eventToast', `📅 "${ev.title}" is ${dayText}! (${formatDate(ev.date)})`);
           shownIds.push(id);
         }
       });
@@ -770,7 +788,6 @@
     }).catch(console.error);
   }
 
-  // ── GROCERY REMINDER NOTIFICATIONS ──
   function checkGroceryNotifications(userId) {
     if (!userId) return;
     const today = new Date();
@@ -786,11 +803,10 @@
       if (groceries[todayKey]) {
         const items = Object.values(groceries[todayKey]);
         if (items.length && !shownIds.includes('grocery_today')) {
-          showToast('groceryToast', `🛒 You have ${items.length} grocery item${items.length>1?'s':''} for today! Check your list.`);
+          showToast('groceryToast', `🛒 You have ${items.length} grocery item${items.length>1?'s':''} for TODAY! Check your list.`);
           shownIds.push('grocery_today');
         }
       }
-      // Also check for upcoming grocery items in next 2 days
       for (let i = 1; i <= 2; i++) {
         const future = new Date(today);
         future.setDate(future.getDate() + i);
@@ -798,7 +814,8 @@
         if (groceries[futureKey]) {
           const items = Object.values(groceries[futureKey]);
           if (items.length && !shownIds.includes(`grocery_future_${i}`)) {
-            showToast('groceryToast', `🛒 ${items.length} grocery item${items.length>1?'s':''} scheduled for ${future.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'})}!`);
+            let dayLabel = i === 1 ? 'tomorrow' : `in ${i} days`;
+            showToast('groceryToast', `🛒 ${items.length} grocery item${items.length>1?'s':''} for ${dayLabel} (${future.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'})})!`);
             shownIds.push(`grocery_future_${i}`);
           }
         }
@@ -807,7 +824,6 @@
     }).catch(console.error);
   }
 
-  // ── AUTO-DELETE NOTIFICATION ──
   let autoDeleteCount = 0;
   function runAutoDelete(userId) {
     if(!userId) return;
@@ -831,29 +847,119 @@
     });
   }
 
+  // ── PROFESSIONAL REMINDER RENDER ──
   function renderReminders(reminders) {
-    const container=document.getElementById('reminderListContainer');
-    const badge=document.getElementById('reminderCountBadge');
-    if(!reminders||!reminders.length){ container.innerHTML=`<div class="empty-state"><i class="fas fa-check-circle text-amber-400 text-xl mb-1 block"></i>No upcoming dues</div>`; badge.innerText='0'; return; }
-    const upcoming=reminders.filter(r=>{ let due=r.nextServiceDate||r.pucDueDate||r.insuranceExpiry; if(!due)return false; const diff=daysUntil(due); return diff!==null&&diff>=-1&&diff<=30; }).sort((a,b)=>{ const da=a.nextServiceDate||a.pucDueDate||a.insuranceExpiry; const db=b.nextServiceDate||b.pucDueDate||b.insuranceExpiry; return (daysUntil(da)||999)-(daysUntil(db)||999); });
-    if(!upcoming.length){ container.innerHTML=`<div class="empty-state"><i class="fas fa-check-circle text-amber-400 text-xl mb-1 block"></i>All clear ✅</div>`; badge.innerText='0'; return; }
-    badge.innerText=upcoming.length;
-    container.innerHTML=upcoming.map(r=>{
-      let due=r.nextServiceDate||r.pucDueDate||r.insuranceExpiry;
-      let label=r.nextServiceDate?'Service':(r.pucDueDate?'PUC':'Insurance');
-      let diff=daysUntil(due);
-      let daysText=diff===0?'TODAY':(diff<0?'⚠️ Overdue':`${diff} day${diff>1?'s':''}`);
-      let urgentClass=(diff!==null&&diff<=2)?'urgent':'';
-      return `<div class="reminder-entry"><div><span class="reminder-vehicle">${escapeHtml(r.vehicle)}</span><span class="reminder-type">${label}</span><div class="reminder-days ${urgentClass}">${daysText}</div></div><div class="text-right"><div class="reminder-due">${formatDate(due)}</div></div></div>`;
+    const container = document.getElementById('reminderListContainer');
+    const badge = document.getElementById('reminderCountBadge');
+    if (!container) return;
+
+    if (!reminders || !reminders.length) {
+      container.innerHTML = `
+        <div class="reminder-empty">
+          <i class="fas fa-check-circle text-amber-400"></i>
+          <p style="font-weight: 600; color: var(--text-muted);">No upcoming dues</p>
+          <p style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.7;">All your vehicles are up to date</p>
+        </div>
+      `;
+      if (badge) badge.innerText = '0';
+      return;
+    }
+
+    const upcoming = reminders.filter(r => {
+      let due = r.nextServiceDate || r.pucDueDate || r.insuranceExpiry;
+      if (!due) return false;
+      const diff = daysUntil(due);
+      return diff !== null && diff >= -1 && diff <= 30;
+    }).sort((a, b) => {
+      const da = a.nextServiceDate || a.pucDueDate || a.insuranceExpiry;
+      const db = b.nextServiceDate || b.pucDueDate || b.insuranceExpiry;
+      return (daysUntil(da) || 999) - (daysUntil(db) || 999);
+    });
+
+    if (!upcoming.length) {
+      container.innerHTML = `
+        <div class="reminder-empty">
+          <i class="fas fa-check-circle text-green-400"></i>
+          <p style="font-weight: 600; color: var(--text-muted);">All clear ✅</p>
+          <p style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.7;">No upcoming reminders</p>
+        </div>
+      `;
+      if (badge) badge.innerText = '0';
+      return;
+    }
+
+    if (badge) badge.innerText = upcoming.length;
+
+    container.innerHTML = upcoming.map(r => {
+      let due = r.nextServiceDate || r.pucDueDate || r.insuranceExpiry;
+      let label = r.nextServiceDate ? 'Service' : (r.pucDueDate ? 'PUC' : 'Insurance');
+      let diff = daysUntil(due);
+      
+      let statusText, statusClass, iconClass, iconBg;
+      if (diff === null) { statusText = '—'; statusClass = 'soon'; iconClass = 'fa-calendar'; iconBg = 'service'; }
+      else if (diff < 0) { 
+        statusText = '⚠️ Overdue'; 
+        statusClass = 'overdue'; 
+        iconClass = 'fa-exclamation-triangle'; 
+        iconBg = 'overdue';
+      } else if (diff === 0) { 
+        statusText = '🔴 TODAY'; 
+        statusClass = 'today'; 
+        iconClass = 'fa-clock'; 
+        iconBg = 'service';
+      } else if (diff <= 3) { 
+        statusText = `🔔 ${diff} day${diff>1?'s':''}`; 
+        statusClass = 'urgent'; 
+        iconClass = 'fa-hourglass-half'; 
+        iconBg = 'puc';
+      } else if (diff <= 7) { 
+        statusText = `📅 ${diff} day${diff>1?'s':''}`; 
+        statusClass = 'soon'; 
+        iconClass = 'fa-calendar-week'; 
+        iconBg = 'insurance';
+      } else { 
+        statusText = `${diff} day${diff>1?'s':''}`; 
+        statusClass = 'soon'; 
+        iconClass = 'fa-calendar-alt'; 
+        iconBg = 'service';
+      }
+
+      // Determine icon based on type
+      let typeIcon = label === 'Service' ? 'fa-wrench' : (label === 'PUC' ? 'fa-file-certificate' : 'fa-shield-alt');
+      let typeClass = label.toLowerCase();
+
+      return `
+        <div class="reminder-card" style="border-left-color: ${diff < 0 ? '#ef4444' : diff === 0 ? '#f59e0b' : '#3b82f6'};">
+          <div class="reminder-left">
+            <div class="reminder-icon ${iconBg}">
+              <i class="fas ${typeIcon}"></i>
+            </div>
+            <div class="reminder-info">
+              <div class="reminder-vehicle-name">
+                <span>${escapeHtml(r.vehicle)}</span>
+                <span class="reminder-type-badge ${typeClass}">${label}</span>
+              </div>
+              <div class="reminder-due-date">
+                <i class="far fa-calendar-alt"></i>
+                <span>${formatDate(due)}</span>
+              </div>
+            </div>
+          </div>
+          <div class="reminder-right">
+            <span class="reminder-status ${statusClass}">${statusText}</span>
+          </div>
+        </div>
+      `;
     }).join('');
   }
 
   function loadReminders() {
-    db.ref('serviceReminders').on('value', snap=>{
-      const data=snap.val();
-      if(!data){ allReminders=[]; renderReminders([]); return; }
-      const list=Object.entries(data).map(([id,val])=>({id,...val}));
-      allReminders=list; renderReminders(list);
+    db.ref('serviceReminders').on('value', snap => {
+      const data = snap.val();
+      if (!data) { allReminders = []; renderReminders([]); return; }
+      const list = Object.entries(data).map(([id, val]) => ({ id, ...val }));
+      allReminders = list;
+      renderReminders(list);
       checkReminderNotifications(list);
     });
   }
@@ -884,33 +990,24 @@
     }).catch(console.error);
   }
 
-  // ── QUICK LINKS with auto-delete and loader ──
   function initLinksManager(userId) {
     if(!userId) return;
     const linksRef = db.ref(`users/${userId}/quickLinks`);
     const container = document.getElementById('savedLinksList');
     const loader = document.getElementById('quickLinksLoader');
-    
     if(!container) return;
     if(linksRefListener) linksRefListener.off();
-    
-    // Show loader
     if (loader) loader.classList.remove('hidden');
     if (container) container.style.display = 'none';
-    
     linksRef.on('value', snap => {
-      // Hide loader
       if (loader) loader.classList.add('hidden');
       if (container) container.style.display = 'flex';
-      
       const links = snap.val() || {};
       container.innerHTML = '';
-      
       if(!Object.keys(links).length) { 
         container.innerHTML = '<div class="empty-state"><i class="fas fa-link text-2xl mb-1 block"></i>No saved links. Click "Add Link".</div>'; 
         return; 
       }
-      
       Object.entries(links).forEach(([id, link])=>{
         const title = link.title || (link.url ? link.url.replace(/^https?:\/\//,'').split('/')[0] : 'Untitled');
         const url = link.url || '#';
@@ -924,18 +1021,8 @@
         div.innerHTML = `<div class="link-info"><span class="link-title">🔗 ${escapeHtml(title)} ${autoInfo}</span><span class="link-url">${escapeHtml(url.length>50 ? url.substring(0,50)+'...' : url)}</span></div><div class="link-actions"><button class="icon-btn open-btn" data-url="${escapeHtml(url)}"><i class="fas fa-external-link-alt"></i> Open</button><button class="icon-btn delete-btn" data-id="${id}"><i class="fas fa-trash-can"></i></button></div>`;
         container.appendChild(div);
       });
-      
-      document.querySelectorAll('.open-btn').forEach(b => b.addEventListener('click', e => { 
-        e.stopPropagation(); 
-        const u = b.getAttribute('data-url'); 
-        if(u && u !== '#') window.open(u, '_blank'); 
-      }));
-      
-      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', async e => { 
-        e.stopPropagation(); 
-        const id = b.getAttribute('data-id'); 
-        if(confirm('Delete link?')) await linksRef.child(id).remove(); 
-      }));
+      document.querySelectorAll('.open-btn').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); const u = b.getAttribute('data-url'); if(u && u !== '#') window.open(u, '_blank'); }));
+      document.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', async e => { e.stopPropagation(); const id = b.getAttribute('data-id'); if(confirm('Delete link?')) await linksRef.child(id).remove(); }));
     });
     linksRefListener = linksRef;
   }
@@ -969,29 +1056,43 @@
     };
   }
 
-  // ============================================
-  // MAIN INITIALIZATION - MULTIPLE FALLBACKS
-  // ============================================
-  
-  // 1. IMMEDIATE: Try to load from storage right away
-  console.log('Attempting immediate load from storage...');
+  window.sendWhatsAppMsg = function(phone,msg) {
+    if(!phone||phone==='undefined'){alert('No phone number saved.');return;}
+    const clean=phone.replace(/\D/g,'');
+    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
+    else alert('Invalid phone');
+  };
+
+  const saved=localStorage.getItem('theme')||'light';
+  document.documentElement.setAttribute('data-theme',saved);
+  document.getElementById('theme-toggle-btn').onclick=()=>{
+    const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+    document.documentElement.setAttribute('data-theme',next);
+    localStorage.setItem('theme',next);
+  };
+
+  document.getElementById('desktopLogout').addEventListener('click', e=>{ 
+    e.preventDefault(); 
+    localStorage.removeItem('savig_user_data');
+    sessionStorage.removeItem('savig_user_data');
+    auth.signOut().then(()=>window.location.href='index.html'); 
+  });
+
+  document.getElementById('menu-btn').addEventListener('click', ()=>document.getElementById('mobile-menu').classList.toggle('hidden'));
+
   const storedUser = loadUserFromStorage();
   if (storedUser) {
     console.log('✅ Loaded from storage immediately');
     updateUIFromData(storedUser);
-  } else {
-    console.log('⚠️ No user data in storage');
   }
 
-  // 2. Set up auth listener
   auth.onAuthStateChanged(user => {
-    console.log('Auth state changed:', user ? 'User logged in' : 'No user');
     if (user) {
       updateUI(user);
       authChecked = true;
+      clearTimeout(redirectTimer);
     } else {
       if (!authChecked) {
-        // Try to load from storage as fallback
         const stored = loadUserFromStorage();
         if (!stored) {
           console.log('No user found, redirecting to login');
@@ -1001,90 +1102,19 @@
     }
   });
 
-  // 3. DOMContentLoaded - force update
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded - forcing update');
     setTimeout(forceUpdateUser, 50);
   });
 
-  // 4. Multiple timeout fallbacks
-  const timeouts = [100, 300, 500, 800, 1200];
-  timeouts.forEach(delay => {
-    setTimeout(() => {
-      if (!dataLoaded) {
-        console.log(`Fallback timeout ${delay}ms - forcing update`);
-        forceUpdateUser();
-      }
-    }, delay);
-  });
-
-  // 5. Continuous interval check (every 500ms for 5 seconds)
   let fallbackAttempts = 0;
-  const maxAttempts = 10;
   const fallbackInterval = setInterval(() => {
-    if (dataLoaded && auth.currentUser) {
-      clearInterval(fallbackInterval);
-      return;
-    }
-    
+    if (dataLoaded && auth.currentUser) { clearInterval(fallbackInterval); return; }
     fallbackAttempts++;
-    console.log(`Fallback attempt ${fallbackAttempts}/${maxAttempts}`);
-    
-    if (auth.currentUser) {
-      updateUI(auth.currentUser);
-      clearInterval(fallbackInterval);
-    } else {
-      const stored = loadUserFromStorage();
-      if (stored) {
-        updateUIFromData(stored);
-        clearInterval(fallbackInterval);
-      }
-    }
-    
-    if (fallbackAttempts >= maxAttempts) {
-      clearInterval(fallbackInterval);
-      // Final check
-      const stored = loadUserFromStorage();
-      if (!stored && !auth.currentUser) {
-        console.log('No user found after all attempts, redirecting');
-        window.location.replace('index.html');
-      }
-    }
+    if (auth.currentUser) { updateUI(auth.currentUser); clearInterval(fallbackInterval); }
+    else { const stored = loadUserFromStorage(); if (stored) { updateUIFromData(stored); clearInterval(fallbackInterval); } }
+    if (fallbackAttempts >= 10) { clearInterval(fallbackInterval); }
   }, 500);
 
-  // ============================================
-  // EVENT HANDLERS
-  // ============================================
-
-  // WhatsApp function
-  window.sendWhatsAppMsg = function(phone,msg) {
-    if(!phone||phone==='undefined'){alert('No phone number saved.');return;}
-    const clean=phone.replace(/\D/g,'');
-    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
-    else alert('Invalid phone');
-  };
-
-  // Theme toggle
-  const saved=localStorage.getItem('theme')||'light';
-  document.documentElement.setAttribute('data-theme',saved);
-  document.getElementById('theme-toggle-btn').onclick=()=>{
-    const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
-    document.documentElement.setAttribute('data-theme',next);
-    localStorage.setItem('theme',next);
-  };
-
-  // Logout
-  document.getElementById('desktopLogout').addEventListener('click', e=>{ 
-    e.preventDefault(); 
-    localStorage.removeItem('savig_user_data');
-    sessionStorage.removeItem('savig_user_data');
-    auth.signOut().then(()=>window.location.href='index.html'); 
-  });
-
-  // Mobile menu
-  document.getElementById('menu-btn').addEventListener('click', ()=>document.getElementById('mobile-menu').classList.toggle('hidden'));
-
-  // Navigation events
   window.addEventListener('load', attachNavEvents);
 </script>
 </body>
