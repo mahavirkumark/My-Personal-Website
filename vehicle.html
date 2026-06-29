@@ -3,14 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>SAVIG | PRO VEHICLE EXPENSE TRACKER</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
+    <title>VEHICLE EXPENSE TRACKER</title>
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js">
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <!-- Firebase SDKs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-auth-compat.min.js">
+    </script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -22,109 +30,673 @@
             }
         }
     </script>
-    <style>
-        * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-        body { background: #F8F9FA; color: #1A1A1A; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
-        .dark body { background: #0A0A0C; color: #E5E5E5; }
-        .container-custom { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 1rem; }
-        @media (min-width: 640px) { .container-custom { padding: 0 1.5rem; } }
-        @media (min-width: 1024px) { .container-custom { padding: 0 2rem; } }
-        .glass-panel { background: #FFFFFF; border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); border-radius: 24px; transition: all 0.3s ease; }
-        .dark .glass-panel { background: #121216; border: 1px solid rgba(255, 255, 255, 0.08); }
-        .modern-input { background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; transition: all 0.2s ease; color: #1A1A1A; font-weight: 500; width: 100%; padding: 10px 12px; font-size: 14px; }
-        .dark .modern-input { background: #1A1A1E; border: 1px solid #2A2A30; color: #E5E5E5; }
-        .modern-input:focus { border-color: #DAA520; outline: none; box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1); }
-        .input-label { letter-spacing: 0.05em; font-weight: 700; text-transform: uppercase; color: #DAA520; display: block; margin-bottom: 5px; font-size: 11px; }
-        @media (min-width: 1024px) { .input-label { font-size: 12px; } .modern-input { padding: 12px 12px; font-size: 15px; } }
-        .entry-card { background: #FFFFFF; border: 1px solid #F0F0F0; border-radius: 20px; padding: 16px; margin-bottom: 12px; transition: none; }
-        .dark .entry-card { background: #121216; border: 1px solid #202024; }
-        .filter-chip { transition: all 0.25s ease; cursor: pointer; border-radius: 32px; font-weight: 700; white-space: nowrap; background: #F3F4F6; color: #4B5563; padding: 6px 14px; font-size: 13px; letter-spacing: 0.01em; }
-        .dark .filter-chip { background: #1F1F24; color: #9CA3AF; }
-        .filter-chip.active { background: #DAA520 !important; color: white !important; box-shadow: 0 2px 6px rgba(218,165,32,0.3); }
-        .expense-option { transition: all 0.2s ease; cursor: pointer; border: 2px solid #E5E7EB; border-radius: 14px; text-align: center; padding: 10px 4px; background: #FFFFFF; }
-        .dark .expense-option { border-color: #2A2A30; background: #121216; }
-        .expense-option.selected { border-color: #DAA520; background: rgba(218, 165, 32, 0.12); transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-        .expense-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
-        @media (min-width: 641px) { .expense-grid { grid-template-columns: repeat(6, 1fr); } }
-        .fields-three-columns { display: grid; grid-template-columns: 1fr; gap: 0.6rem; margin-top: 0.5rem; }
-        @media (min-width: 641px) { .fields-three-columns { grid-template-columns: repeat(3, 1fr); } }
-        .edit-cancel-btn { background: #6B7280; transition: all 0.2s; }
-        .edit-cancel-btn:hover { background: #4B5563; transform: scale(1.02); }
-        .reminder-section { border-top: 1px solid #E5E7EB; margin-top: 1rem; padding-top: 1rem; }
-        .dark .reminder-section { border-color: #2A2A30; }
-        .logs-scroll-container { max-height: 400px; min-height: 380px; overflow-y: auto; padding-right: 4px; scrollbar-width: thin; }
-        .logs-scroll-container::-webkit-scrollbar { width: 5px; }
-        .logs-scroll-container::-webkit-scrollbar-track { background: #E5E7EB; border-radius: 10px; }
-        .logs-scroll-container::-webkit-scrollbar-thumb { background: #DAA520; border-radius: 10px; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; background: #FFFFFF; border-radius: 28px; padding: 24px; }
-        .dark .modal-content { background: #121216; }
-        .toast { position: fixed; bottom: 24px; right: 24px; background: #10B981; color: white; border-radius: 12px; font-weight: 600; z-index: 1100; animation: slideIn 0.3s ease; padding: 12px 20px; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .service-tab-active { border-bottom: 2px solid #DAA520; color: #DAA520; font-weight: 700; }
-        .service-tab-inactive { color: #6B7280; }
-        .dark .service-tab-inactive { color: #9CA3AF; }
-        .history-stat-card.active { border: 2px solid #DAA520; background: rgba(218,165,32,0.08); }
-        .action-btn { font-size: 17px !important; }
-        .action-btn i { font-size: 17px; }
-        @media (max-width: 640px) { .filter-chip { font-size: 12px; padding: 4px 10px; } .expense-option span { font-size: 10px; } .action-btn { font-size: 15px !important; } }
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
-        @media (min-width: 640px) { .info-grid { grid-template-columns: repeat(2, 1fr); } }
-        .owner-detail-row { background: rgba(218,165,32,0.05); border-radius: 12px; padding: 0.5rem; margin-top: 0.5rem; }
-        .notification-bell { position: relative; cursor: pointer; }
-        .notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .collapse-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 8px 0; user-select: none; }
-        .collapse-header:hover { opacity: 0.8; }
-        .collapse-content { transition: max-height 0.3s ease-out; overflow: hidden; }
-        .collapse-content.collapsed { max-height: 0 !important; }
-        .modal-content, .reminder-section, #remindersList, .glass-panel { font-size: 16px; }
-        #remindersList .glass-panel { font-size: 16px !important; }
-        .modal-content .text-sm { font-size: 15px; }
-        .date-display { font-weight: 600; }
-        .right-scroll-container { max-height: calc(100vh - 200px); min-height: 500px; overflow-y: auto; scrollbar-width: thin; }
-        .right-scroll-container::-webkit-scrollbar { width: 5px; }
-        .right-scroll-container::-webkit-scrollbar-track { background: #E5E7EB; border-radius: 10px; }
-        .right-scroll-container::-webkit-scrollbar-thumb { background: #DAA520; border-radius: 10px; }
-        .dark .right-scroll-container::-webkit-scrollbar-track { background: #2A2A30; }
-        .reminder-detail-card { background: rgba(218,165,32,0.05); border-radius: 12px; padding: 10px; margin-top: 8px; font-size: 13px; }
-        .dark .reminder-detail-card { background: rgba(218,165,32,0.1); }
+  <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            background: #F0F2F5;
+            color: #1A1A1A;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+            padding-bottom: 80px;
+        }
+        .dark body {
+            background: #0A0A0C;
+            color: #E5E5E5;
+        }
+        .container-custom {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .container-custom {
+                padding: 0 1.5rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container-custom {
+                padding: 0 2rem;
+            }
+        }
+        .glass-panel {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        .dark .glass-panel {
+            background: #121216;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .modern-input {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            transition: all 0.2s ease;
+            color: #1A1A1A;
+            font-weight: 500;
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+        .dark .modern-input {
+            background: #1A1A1E;
+            border: 1px solid #2A2A30;
+            color: #E5E5E5;
+        }
+        .modern-input:focus {
+            border-color: #DAA520;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.1);
+        }
+        .input-label {
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #DAA520;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        @media (min-width: 1024px) {
+            .input-label {
+                font-size: 12px;
+            }
+            .modern-input {
+                padding: 12px 12px;
+                font-size: 15px;
+            }
+        }
+        .entry-card {
+            background: #FFFFFF;
+            border: 1px solid #F0F0F0;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: none;
+        }
+        .dark .entry-card {
+            background: #121216;
+            border: 1px solid #202024;
+        }
+        .filter-chip {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border-radius: 32px;
+            font-weight: 700;
+            white-space: nowrap;
+            background: #F3F4F6;
+            color: #4B5563;
+            padding: 6px 14px;
+            font-size: 13px;
+            letter-spacing: 0.01em;
+        }
+        .dark .filter-chip {
+            background: #1F1F24;
+            color: #9CA3AF;
+        }
+        .filter-chip.active {
+            background: #DAA520 !important;
+            color: white !important;
+            box-shadow: 0 2px 6px rgba(218, 165, 32, 0.3);
+        }
+        .expense-option {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid #E5E7EB;
+            border-radius: 14px;
+            text-align: center;
+            padding: 10px 4px;
+            background: #FFFFFF;
+        }
+        .dark .expense-option {
+            border-color: #2A2A30;
+            background: #121216;
+        }
+        .expense-option.selected {
+            border-color: #DAA520;
+            background: rgba(218, 165, 32, 0.12);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        .expense-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.6rem;
+        }
+        @media (min-width: 641px) {
+            .expense-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+        .fields-three-columns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.6rem;
+            margin-top: 0.5rem;
+        }
+        @media (min-width: 641px) {
+            .fields-three-columns {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .edit-cancel-btn {
+            background: #6B7280;
+            transition: all 0.2s;
+        }
+        .edit-cancel-btn:hover {
+            background: #4B5563;
+            transform: scale(1.02);
+        }
+        .reminder-section {
+            border-top: 1px solid #E5E7EB;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+        .dark .reminder-section {
+            border-color: #2A2A30;
+        }
+        .logs-scroll-container {
+            max-height: 400px;
+            min-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+            scrollbar-width: thin;
+        }
+        .logs-scroll-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .logs-scroll-container::-webkit-scrollbar-track {
+            background: #E5E7EB;
+            border-radius: 10px;
+        }
+        .logs-scroll-container::-webkit-scrollbar-thumb {
+            background: #DAA520;
+            border-radius: 10px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #FFFFFF;
+            border-radius: 28px;
+            padding: 24px;
+        }
+        .dark .modal-content {
+            background: #121216;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #10B981;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .service-tab-active {
+            border-bottom: 2px solid #DAA520;
+            color: #DAA520;
+            font-weight: 700;
+        }
+        .service-tab-inactive {
+            color: #6B7280;
+        }
+        .dark .service-tab-inactive {
+            color: #9CA3AF;
+        }
+        .history-stat-card.active {
+            border: 2px solid #DAA520;
+            background: rgba(218, 165, 32, 0.08);
+        }
+        .action-btn {
+            font-size: 17px !important;
+        }
+        .action-btn i {
+            font-size: 17px;
+        }
+        @media (max-width: 640px) {
+            .filter-chip {
+                font-size: 12px;
+                padding: 4px 10px;
+            }
+            .expense-option span {
+                font-size: 10px;
+            }
+            .action-btn {
+                font-size: 15px !important;
+            }
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .owner-detail-row {
+            background: rgba(218, 165, 32, 0.05);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .collapse-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            user-select: none;
+        }
+        .collapse-header:hover {
+            opacity: 0.8;
+        }
+        .collapse-content {
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+        .collapse-content.collapsed {
+            max-height: 0 !important;
+        }
+        .right-scroll-container {
+            max-height: calc(100vh - 200px);
+            min-height: 500px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .right-scroll-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .right-scroll-container::-webkit-scrollbar-track {
+            background: #E5E7EB;
+            border-radius: 10px;
+        }
+        .right-scroll-container::-webkit-scrollbar-thumb {
+            background: #DAA520;
+            border-radius: 10px;
+        }
+        .dark .right-scroll-container::-webkit-scrollbar-track {
+            background: #2A2A30;
+        }
+        .reminder-detail-card {
+            background: rgba(218, 165, 32, 0.05);
+            border-radius: 12px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .dark .reminder-detail-card {
+            background: rgba(218, 165, 32, 0.1);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+        }
+        .header-actions button,
+        .header-actions .notification-bell {
+            flex-shrink: 0;
+        }
+        #expenseFormContainer.collapsed #expenseForm {
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+            transition: max-height 0.3s ease;
+        }
+        #expenseFormContainer #expenseForm {
+            max-height: 2000px;
+            transition: max-height 0.4s ease;
+        }
+        @media (max-width: 640px) {
+            .theme-toggle-desktop,
+            .notification-bell-desktop {
+                display: none !important;
+            }
+        }
+        @media (min-width: 1024px) {
+            #expenseFormContainer.collapsed #expenseForm {
+                max-height: 2000px !important;
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+                margin-top: 0.5rem !important;
+            }
+            #expenseToggleIcon {
+                display: none !important;
+            }
+            #expenseFormContainer .cursor-pointer {
+                cursor: default !important;
+            }
+        }
+        #loginOverlay {
+            display: none;
+        }
+        .user-avatar-container {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #DAA520;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #DAA520 0%, #B8860B 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-avatar-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .user-avatar-container .avatar-placeholder {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .dark .user-avatar-container {
+            background: linear-gradient(135deg, #DAA520 0%, #8B6914 100%);
+        }
+        .user-email-display {
+            font-size: 11px;
+            color: #94A3B8;
+            font-weight: 500;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .dark .user-email-display {
+            color: #94A3B8;
+        }
+        .user-name-display {
+            font-size: 13px;
+            font-weight: 700;
+            color: #DAA520;
+        }
+        
+        /* ===== BOTTOM NAVIGATION - LIGHT & DARK MODE ===== */
+        #universal-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            background-color: #FFFFFF;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            z-index: 999999;
+            padding-bottom: env(safe-area-inset-bottom);
+            animation: navSlideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            font-size: 14px;
+        }
+        .dark #universal-bottom-nav {
+            background-color: #121216;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+        @keyframes navSlideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            height: 59px;
+            padding: 4px 0;
+            cursor: pointer;
+        }
+
+        /* LIGHT MODE - Black icons & text */
+        .nav-link {
+            color: #000000 !important;
+        }
+        .nav-link i {
+            font-size: 25px;
+            margin-bottom: 2px;
+            color: #000000 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-link div {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #000000 !important;
+            letter-spacing: 0.04em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* DARK MODE - White icons & text */
+        .dark .nav-link {
+            color: #FFFFFF !important;
+        }
+        .dark .nav-link i {
+            color: #FFFFFF !important;
+        }
+        .dark .nav-link div {
+            color: #FFFFFF !important;
+        }
+
+        /* HOVER - Blue for both modes */
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #2563EB !important;
+        }
+        .nav-link:hover i {
+            color: #2563EB !important;
+        }
+        .nav-link:hover div {
+            color: #2563EB !important;
+        }
+
+        .nav-link:active {
+            transform: scale(0.92);
+        }
+
+        /* full-screen history modal fix */
+        .history-full-modal .modal-content {
+            max-width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+            padding: 20px;
+            margin: 0;
+        }
+        @media (max-width: 640px) {
+            .history-full-modal .modal-content {
+                padding: 16px;
+            }
+        }
+        /* extra responsive tweaks */
+        @media (max-width: 480px) {
+            .header-actions .user-email-display {
+                display: none;
+            }
+            .header-actions .user-name-display {
+                font-size: 12px;
+            }
+            .header-actions .user-avatar-container {
+                width: 30px;
+                height: 30px;
+            }
+            .header-actions .user-avatar-container .avatar-placeholder {
+                font-size: 12px;
+            }
+            .header-actions button {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+            .header-actions .fa-bell {
+                font-size: 16px;
+            }
+            .container-custom {
+                padding: 0 0.5rem;
+            }
+            .modal-content {
+                padding: 16px;
+                border-radius: 20px;
+            }
+            .expense-grid {
+                gap: 0.4rem;
+            }
+            .expense-option {
+                padding: 8px 2px;
+            }
+            .expense-option i {
+                font-size: 16px !important;
+            }
+            .expense-option span {
+                font-size: 9px !important;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- LOGIN OVERLAY -->
+    <div id="loginOverlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 32px; padding: 2rem; max-width: 380px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div class="flex justify-center mb-3"><div class="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center"><i class="fa fa-car text-gold text-2xl"></i></div></div>
+            <h2 class="text-center text-xl font-black mb-1">VEHICLE TRACKER</h2>
+            <p class="text-center text-xs text-gray-400 mb-5">Sign in with your email</p>
+            <div class="space-y-4">
+                <input type="email" id="loginEmailInput" placeholder="Email" class="modern-input w-full" autofocus>
+                <input type="password" id="loginPasswordInput" placeholder="Password" class="modern-input w-full">
+                <button onclick="window.handleFirebaseLogin()" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-3 rounded-xl transition flex items-center justify-center gap-2"><i class="fa fa-sign-in-alt"></i> Sign In</button>
+                <button onclick="window.handleFirebaseSignup()" class="w-full bg-gold/20 hover:bg-gold/30 text-gold font-bold py-2 rounded-xl transition text-sm">Create Account</button>
+                <p id="loginError" class="text-red-400 text-xs text-center mt-2 hidden"></p>
+            </div>
+        </div>
+    </div>
+
     <div class="container-custom pt-2 pb-15">
+        <!-- Header -->
         <div class="flex flex-wrap justify-between items-center gap-2 mb-5">
             <div class="flex items-center gap-2 flex-shrink-0">
                 <div class="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-gold/10 flex items-center justify-center"><i class="fa fa-car text-gold text-sm md:text-xl"></i></div>
-                <div><h1 class="text-lg md:text-2xl font-black tracking-tight">SAVIG<span class="text-gold">.</span></h1><p class="text-[8px] md:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">VEHICLE EXPENSE LOG</p></div>
+                <div>
+                    <h1 class="text-base md:text-base font-black tracking-tight flex items-center"><span class="text-gold mr-1">⏱</span> VEHICLE </h1>
+                    <p class="text-[8px] md:text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400">TRACKER</p>
+                </div>
             </div>
-            <div class="flex gap-3 items-center">
-                <div id="notificationBell" class="notification-bell" onclick="window.showNotificationPanel()">
+            <div class="header-actions">
+                <button onclick="window.openServiceReminderModal()" class="bg-gold hover:bg-amber-500 text-white font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm shadow-md transition-all whitespace-nowrap"><i class="fa fa-calendar-plus"></i><span class="hidden sm:inline">Service & Docs</span><span class="sm:hidden">Docs</span></button>
+                <div id="notificationBell" class="notification-bell notification-bell-desktop" onclick="window.showNotificationPanel()">
                     <i class="fa fa-bell text-gold text-xl"></i>
                     <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
                 </div>
-                <button onclick="window.openServiceReminderModal()" class="bg-gold hover:bg-amber-500 text-white font-bold px-3 py-2 md:px-5 md:py-2.5 rounded-xl flex items-center gap-2 text-xs md:text-sm shadow-md transition-all whitespace-nowrap"><i class="fa fa-calendar-plus"></i><span>Service & Docs</span></button>
-                <button onclick="window.toggleTheme()" class="glass-panel w-8 h-8 md:w-11 md:h-11 rounded-full flex items-center justify-center"><i id="themeIcon" class="fa fa-moon text-gold"></i></button>
-            </div>
-        </div>
-        
-        <div class="glass-panel p-3 mb-3">
-            <label class="input-label"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
-            <div class="flex flex-wrap gap-2 items-center">
-                <select id="historyVehicleSelect" class="modern-input flex-1 min-w-[160px]"><option value="">—— SELECT VEHICLE ——</option></select>
-                <button onclick="window.shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-4 py-2 rounded-xl flex items-center gap-2 text-sm"><i class="fa fa-file-pdf"></i> PDF</button>
-                <button onclick="window.openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-4 py-2 rounded-xl flex items-center gap-2 text-sm"><i class="fa fa-chart-simple"></i> HIST</button>
+                <button onclick="window.toggleTheme()" class="theme-toggle-desktop glass-panel w-8 h-8 md:w-11 md:h-11 rounded-full flex items-center justify-center"><i id="themeIcon" class="fa fa-moon text-gold"></i></button>
+                <div class="flex items-center gap-2 ml-1">
+                    <div class="user-avatar-container" id="userAvatarContainer">
+                        <img id="userAvatarImg" src="" alt="Avatar" style="display:none;">
+                        <span id="userAvatarPlaceholder" class="avatar-placeholder">👤</span>
+                    </div>
+                    <div class="flex flex-col items-start leading-tight">
+                        <span id="userDisplayName" class="user-name-display">Loading...</span>
+                        <span id="userEmailDisplay" class="user-email-display">user@email.com</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-4">
+        <!-- VIEW DATA FOR -->
+        <div class="glass-panel p-2 mb-1">
+            <label class="input-label"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
+            <div class="flex flex-wrap gap-2 items-center">
+                <select id="historyVehicleSelect" class="modern-input flex-1 min-w-[120px]"><option value="">SELECT</option></select>
+                <button onclick="window.shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-file-pdf"></i> PDF</button>
+                <button onclick="window.openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-chart-simple"></i> HIST</button>
+            </div>
+        </div>
+
+        <!-- Main layout -->
+        <div class="flex flex-col lg:flex-row gap-3">
             <div class="w-full lg:w-[680px] flex-shrink-0">
-                <div class="glass-panel p-4">
-                    <div class="flex justify-between items-center mb-3"><div class="w-1 h-5 bg-gold rounded-full"></div><h2 class="text-xs font-black tracking-wide uppercase text-gray-500">Record Expense</h2></div>
-                    <form id="expenseForm" class="space-y-3">
+                <div id="expenseFormContainer" class="glass-panel p-4 collapsed">
+                    <div class="flex justify-between items-center mb-1 cursor-pointer lg:cursor-default" onclick="toggleExpenseForm()">
+                        <div class="flex items-center gap-2"><div class="w-1 h-5 bg-gold rounded-full"></div><h2 class="text-xs font-black tracking-wide uppercase text-gray-500">Record Expense</h2></div>
+                        <i id="expenseToggleIcon" class="fa fa-chevron-down text-gold transition-transform"></i>
+                    </div>
+                    <form id="expenseForm" class="space-y-3 mt-2">
                         <input type="hidden" id="editId" value="">
                         <div>
                             <label class="input-label">VEHICLE *</label>
-                            <select id="vehicleList" class="modern-input"><option value="">—— SELECT VEHICLE ——</option></select>
+                            <select id="vehicleList" class="modern-input"><option value="">SELECT VEHICLE</option></select>
                             <div id="newVehicleWrapper" class="hidden mt-2"><input type="text" id="newVehicleName" placeholder="New vehicle name" class="modern-input"></div>
                         </div>
                         <div class="grid grid-cols-2 gap-3"><div><label class="input-label">AMOUNT (₹) *</label><input type="number" id="cost" placeholder="0.00" class="modern-input font-black text-gold" required></div><div><label class="input-label">DATE *</label><input type="date" id="expenseDate" class="modern-input"></div></div>
@@ -158,22 +730,16 @@
     <div id="serviceReminderModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black flex gap-2"><i class="fa fa-calendar-alt text-gold"></i> Vehicle Docs & Reminders</h2><button onclick="window.closeServiceReminderModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i class="fa fa-times text-gray-500 dark:text-gray-400"></i></button></div>
-            
             <div class="flex border-b border-gray-200 dark:border-gray-700 mb-5 gap-2 overflow-x-auto">
                 <button onclick="switchServiceTab('service')" id="tabServiceBtn" class="service-tab-active px-4 py-2 text-sm font-bold transition whitespace-nowrap">🔧 SERVICE</button>
                 <button onclick="switchServiceTab('puc')" id="tabPucBtn" class="service-tab-inactive px-4 py-2 text-sm font-bold transition whitespace-nowrap">🌿 PUC</button>
                 <button onclick="switchServiceTab('insurance')" id="tabInsuranceBtn" class="service-tab-inactive px-4 py-2 text-sm font-bold transition whitespace-nowrap">🛡️ INSURANCE</button>
                 <button onclick="switchServiceTab('vehicleInfo')" id="tabInfoBtn" class="service-tab-inactive px-4 py-2 text-sm font-bold transition whitespace-nowrap">📄 VEHICLE INFO</button>
             </div>
-            
             <div id="reminderFormContainer" class="space-y-4">
                 <div><label class="input-label">Select Vehicle</label><select id="reminderVehicleSelect" class="modern-input"><option value="">—— SELECT VEHICLE ——</option></select></div>
-                
                 <div id="serviceTabPanel" class="reminder-section mt-2">
-                    <div class="collapse-header" onclick="toggleCollapse('serviceCollapse')">
-                        <h3 class="font-bold text-gold mb-0"><i class="fa fa-wrench"></i> Service Reminder</h3>
-                        <i id="serviceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i>
-                    </div>
+                    <div class="collapse-header" onclick="toggleCollapse('serviceCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-wrench"></i> Service Reminder</h3><i id="serviceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="serviceCollapse" class="collapse-content mt-3">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div><label class="input-label">Service Start Date</label><input type="date" id="serviceStartDate" class="modern-input"></div>
@@ -184,12 +750,8 @@
                         <div class="mt-2"><label class="input-label">Service Notes</label><textarea id="serviceNotes" rows="2" class="modern-input" placeholder="Any service remarks..."></textarea></div>
                     </div>
                 </div>
-                
                 <div id="pucTabPanel" class="reminder-section mt-2" style="display: none;">
-                    <div class="collapse-header" onclick="toggleCollapse('pucCollapse')">
-                        <h3 class="font-bold text-gold mb-0"><i class="fa fa-leaf"></i> PUC Certificate</h3>
-                        <i id="pucCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i>
-                    </div>
+                    <div class="collapse-header" onclick="toggleCollapse('pucCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-leaf"></i> PUC Certificate</h3><i id="pucCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="pucCollapse" class="collapse-content mt-3">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div><label class="input-label">PUC Issue Date</label><input type="date" id="pucStartDate" class="modern-input"></div>
@@ -200,12 +762,8 @@
                         </div>
                     </div>
                 </div>
-                
                 <div id="insuranceTabPanel" class="reminder-section mt-2" style="display: none;">
-                    <div class="collapse-header" onclick="toggleCollapse('insuranceCollapse')">
-                        <h3 class="font-bold text-gold mb-0"><i class="fa fa-shield-alt"></i> Insurance</h3>
-                        <i id="insuranceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i>
-                    </div>
+                    <div class="collapse-header" onclick="toggleCollapse('insuranceCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-shield-alt"></i> Insurance</h3><i id="insuranceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="insuranceCollapse" class="collapse-content mt-3">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div><label class="input-label">Insurance Start Date</label><input type="date" id="insuranceStartDate" class="modern-input"></div>
@@ -216,12 +774,8 @@
                         </div>
                     </div>
                 </div>
-                
                 <div id="infoTabPanel" class="reminder-section mt-2" style="display: none;">
-                    <div class="collapse-header" onclick="toggleCollapse('infoCollapse')">
-                        <h3 class="font-bold text-gold mb-0"><i class="fa fa-info-circle"></i> Vehicle Info & Ownership</h3>
-                        <i id="infoCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i>
-                    </div>
+                    <div class="collapse-header" onclick="toggleCollapse('infoCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-info-circle"></i> Vehicle Info & Ownership</h3><i id="infoCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="infoCollapse" class="collapse-content mt-3">
                         <div class="info-grid">
                             <div><label class="input-label">Registration Number</label><input type="text" id="regNumber" class="modern-input"></div>
@@ -240,54 +794,228 @@
                         <div id="firstHandFields" style="display: none;"><div class="info-grid mt-2"><div><label class="input-label">Showroom Name</label><input type="text" id="firstHandShowroom" class="modern-input"></div><div><label class="input-label">Purchase Price (₹)</label><input type="number" id="firstHandPrice" class="modern-input"></div><div><label class="input-label">Invoice Number</label><input type="text" id="invoiceNo" class="modern-input"></div></div></div>
                     </div>
                 </div>
-                
                 <button onclick="window.saveComprehensiveReminder()" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-3 rounded-xl transition flex items-center justify-center gap-2 mt-4"><i class="fa fa-save"></i> Save All Documents</button>
             </div>
-            
             <div class="reminder-section mt-5">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-gold text-lg">📋 Saved Records</h3>
-                    <span id="recordFilterBadge" class="text-xs bg-gold/20 px-2 py-1 rounded-full">SERVICE</span>
-                </div>
+                <div class="flex justify-between items-center mb-3"><h3 class="font-bold text-gold text-lg">📋 Saved Records</h3><span id="recordFilterBadge" class="text-xs bg-gold/20 px-2 py-1 rounded-full">SERVICE</span></div>
                 <div id="remindersList" class="space-y-3 max-h-64 overflow-y-auto"></div>
             </div>
         </div>
     </div>
 
-    <!-- HISTORY MODAL -->
-    <div id="historyModal" class="modal-overlay" style="display: none;"><div class="modal-content"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black flex gap-2"><i class="fa fa-chart-pie text-gold"></i><span id="modalVehicleName">History</span></h2><button onclick="window.closeHistoryModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i class="fa fa-times text-gray-500 dark:text-gray-400"></i></button></div><div class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5"><div onclick="window.filterHistoryByCategory('all')" id="historyAllCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer active"><i class="fa fa-database text-gold"></i><p class="font-bold text-xs">Total</p><p id="historyTotalAmount" class="font-black text-gold text-sm">₹0</p><p id="historyTotalCount" class="text-xs">0</p></div><div onclick="window.filterHistoryByCategory('Petrol')" id="historyPetrolCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-gas-pump text-gold"></i><p class="font-bold text-xs">Petrol</p><p id="historyPetrolAmount" class="font-black text-gold text-sm">₹0</p><p id="historyPetrolCount" class="text-xs">0</p></div><div onclick="window.filterHistoryByCategory('Part Replacement')" id="historyPartCard" class="history-stat-card text-center p-2 cursor-pointer"><i class="fa fa-microchip text-gold"></i><p class="font-bold text-xs">Part</p><p id="historyPartAmount" class="font-black text-gold text-sm">₹0</p><p id="historyPartCount" class="text-xs">0</p></div><div onclick="window.filterHistoryByCategory('Servicing')" id="historyServicingCard" class="history-stat-card text-center p-2 cursor-pointer"><i class="fa fa-wrench text-gold"></i><p class="font-bold text-xs">Service</p><p id="historyServicingAmount" class="font-black text-gold text-sm">₹0</p><p id="historyServicingCount" class="text-xs">0</p></div><div onclick="window.filterHistoryByCategory('Modification')" id="historyModCard" class="history-stat-card text-center p-2 cursor-pointer"><i class="fa fa-microphone text-gold"></i><p class="font-bold text-xs">Mod</p><p id="historyModAmount" class="font-black text-gold text-sm">₹0</p><p id="historyModCount" class="text-xs">0</p></div><div onclick="window.filterHistoryByCategory('Tyre/Air')" id="historyTyreCard" class="history-stat-card text-center p-2 cursor-pointer"><i class="fa fa-circle text-gold"></i><p class="font-bold text-xs">Tyre/Air</p><p id="historyTyreAmount" class="font-black text-gold text-sm">₹0</p><p id="historyTyreCount" class="text-xs">0</p></div></div><div><h3 class="text-xs font-bold uppercase text-gray-500 mb-3">Transactions</h3><div id="historyEntriesList" class="space-y-3 max-h-96 overflow-y-auto"></div></div></div></div>
+    <!-- HISTORY MODAL - full screen -->
+    <div id="historyModal" class="modal-overlay history-full-modal" style="display: none;">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black flex gap-2"><i class="fa fa-chart-pie text-gold"></i><span id="modalVehicleName">History</span></h2>
+                <button onclick="window.closeHistoryModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i class="fa fa-times text-gray-500 dark:text-gray-400"></i></button>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-5">
+                <div onclick="window.filterHistoryByCategory('all')" id="historyAllCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer active"><i class="fa fa-database text-gold"></i><p class="font-bold text-xs">Total</p><p id="historyTotalAmount" class="font-black text-gold text-sm">₹0</p><p id="historyTotalCount" class="text-xs">0</p></div>
+                <div onclick="window.filterHistoryByCategory('Petrol')" id="historyPetrolCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-gas-pump text-gold"></i><p class="font-bold text-xs">Petrol</p><p id="historyPetrolAmount" class="font-black text-gold text-sm">₹0</p><p id="historyPetrolCount" class="text-xs">0</p></div>
+                <div onclick="window.filterHistoryByCategory('Part Replacement')" id="historyPartCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-microchip text-gold"></i><p class="font-bold text-xs">Part</p><p id="historyPartAmount" class="font-black text-gold text-sm">₹0</p><p id="historyPartCount" class="text-xs">0</p></div>
+                <div onclick="window.filterHistoryByCategory('Servicing')" id="historyServicingCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-wrench text-gold"></i><p class="font-bold text-xs">Service</p><p id="historyServicingAmount" class="font-black text-gold text-sm">₹0</p><p id="historyServicingCount" class="text-xs">0</p></div>
+                <div onclick="window.filterHistoryByCategory('Modification')" id="historyModCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-microphone text-gold"></i><p class="font-bold text-xs">Mod</p><p id="historyModAmount" class="font-black text-gold text-sm">₹0</p><p id="historyModCount" class="text-xs">0</p></div>
+                <div onclick="window.filterHistoryByCategory('Tyre/Air')" id="historyTyreCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-circle text-gold"></i><p class="font-bold text-xs">Tyre/Air</p><p id="historyTyreAmount" class="font-black text-gold text-sm">₹0</p><p id="historyTyreCount" class="text-xs">0</p></div>
+            </div>
+            <div><h3 class="text-xs font-bold uppercase text-gray-500 mb-3">Transactions</h3><div id="historyEntriesList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav id="universal-bottom-nav">
+        <a href="homemob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+            <i class="fa-solid fa-house transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Home</div>
+        </a>
+        <a href="addressmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" onclick="alert('Address section coming soon')">
+            <i class="fa-solid fa-location-dot transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Address</div>
+        </a>
+        <a href="passwordmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" onclick="alert('Password section coming soon')">
+            <i class="fa-solid fa-key transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Password</div>
+        </a>
+        <a href="contactmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" onclick="alert('Contact section coming soon')">
+            <i class="fa-solid fa-envelope transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Contact</div>
+        </a>
+        <a href="calendarmob.html" class="nav-link group flex flex-col items-center transition-all duration-300 hover:scale-110 active:scale-90" onclick="alert('Calendar section coming soon')">
+            <i class="fas fa-calendar-alt transition-colors duration-300"></i>
+            <div class="transition-colors duration-300">Calendar</div>
+        </a>
+    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, query, orderByChild, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+
         const firebaseConfig = { apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", authDomain: "sk12-58e9e.firebaseapp.com", databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com", projectId: "sk12-58e9e", storageBucket: "sk12-58e9e.firebasestorage.app", messagingSenderId: "470207874652", appId: "1:470207874652:web:67ba1cf3629b7e5b144899" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
         const expensesRef = ref(db, 'vehicleExpenses');
         const remindersRef = ref(db, 'serviceReminders');
-        
-        let allEntries = [], currentVehicleFilter = '', currentCategoryFilter = 'all', currentSearchTerm = '', historyCurrentVehicle = '', editingId = null, reminders = [];
-        let notificationInterval = null;
+
+        let allEntries = [],
+            currentVehicleFilter = '',
+            currentCategoryFilter = 'all',
+            currentSearchTerm = '',
+            historyCurrentVehicle = '',
+            editingId = null,
+            reminders = [];
         let lastNotificationTime = 0;
-        
-        signInAnonymously(auth).catch(e=>console.warn(e));
-        
-        function formatDateToDisplay(dateStr) { if (!dateStr) return getTodayFormatted(); let d = new Date(dateStr); if (isNaN(d.getTime())) return dateStr; const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
-        function getTodayFormatted() { let d = new Date(); const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+        let currentUser = null;
+
+        window.handleFirebaseLogin = async () => {
+            const email = document.getElementById('loginEmailInput').value.trim();
+            const pass = document.getElementById('loginPasswordInput').value.trim();
+            const errEl = document.getElementById('loginError');
+            if (!email || !pass) { errEl.innerText = 'Enter email and password';
+                errEl.classList.remove('hidden'); return; }
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                errEl.classList.add('hidden');
+            } catch (e) {
+                errEl.innerText = e.message;
+                errEl.classList.remove('hidden');
+            }
+        };
+        window.handleFirebaseSignup = async () => {
+            const email = document.getElementById('loginEmailInput').value.trim();
+            const pass = document.getElementById('loginPasswordInput').value.trim();
+            const errEl = document.getElementById('loginError');
+            if (!email || !pass) { errEl.innerText = 'Enter email and password';
+                errEl.classList.remove('hidden'); return; }
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                errEl.classList.add('hidden');
+            } catch (e) {
+                errEl.innerText = e.message;
+                errEl.classList.remove('hidden');
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginOverlay').style.display = 'none';
+                updateUserInfo(user);
+                loadData();
+            } else {
+                currentUser = null;
+                document.getElementById('loginOverlay').style.display = 'flex';
+                document.getElementById('userDisplayName').textContent = 'Sign In';
+                document.getElementById('userEmailDisplay').textContent = 'user@email.com';
+                document.getElementById('userAvatarPlaceholder').textContent = '👤';
+                document.getElementById('userAvatarImg').style.display = 'none';
+                document.getElementById('userAvatarPlaceholder').style.display = 'flex';
+                allEntries = [];
+                reminders = [];
+                renderFilteredEntries();
+                loadRemindersList();
+            }
+        });
+
+        function updateUserInfo(user) {
+            const nameEl = document.getElementById('userDisplayName');
+            const emailEl = document.getElementById('userEmailDisplay');
+            const avatarImg = document.getElementById('userAvatarImg');
+            const avatarPlaceholder = document.getElementById('userAvatarPlaceholder');
+
+            const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+            nameEl.textContent = displayName;
+            emailEl.textContent = user.email || 'user@email.com';
+
+            if (user.photoURL) {
+                avatarImg.src = user.photoURL;
+                avatarImg.style.display = 'block';
+                avatarPlaceholder.style.display = 'none';
+                avatarImg.onerror = function() {
+                    avatarImg.style.display = 'none';
+                    avatarPlaceholder.style.display = 'flex';
+                    avatarPlaceholder.textContent = displayName.charAt(0).toUpperCase();
+                };
+            } else {
+                avatarImg.style.display = 'none';
+                avatarPlaceholder.style.display = 'flex';
+                avatarPlaceholder.textContent = displayName.charAt(0).toUpperCase();
+            }
+        }
+
+        function loadData() {
+            onValue(query(ref(db, 'vehicleExpenses'), orderByChild('timestamp')), (snap) => { let data = snap.val();
+                allEntries = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a, b) => (b.timestamp ||
+                        0) - (a.timestamp || 0)) : [];
+                renderFilteredEntries();
+                updateTotalCard();
+                populateVehicleSelects(); });
+            onValue(ref(db, 'serviceReminders'), (snap) => { let data = snap.val();
+                reminders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+                loadRemindersList();
+                checkDueDatesAndSendNotifications(); });
+        }
+
+        function populateVehicleSelects() {
+            let vehicles = [...new Set(allEntries.map(e => e.name))];
+            ['vehicleList', 'historyVehicleSelect', 'reminderVehicleSelect'].forEach(id => { let sel = document
+                    .getElementById(id); if (sel) { let html = '<option value="">—— SELECT VEHICLE ——</option>';
+                    vehicles.sort().forEach(v => html +=
+                        `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`);
+                    html += '<option value="NEW" class="text-gold font-bold">+ ADD NEW</option>';
+                    sel.innerHTML = html; } });
+        }
+
+        function formatDateToDisplay(dateStr) { if (!dateStr) return getTodayFormatted(); let d = new Date(dateStr); if (isNaN(
+                d.getTime())) return dateStr; const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ]; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+
+        function getTodayFormatted() { let d = new Date(); const months = ['January', 'February', 'March', 'April', 'May',
+                'June', 'July', 'August', 'September', 'October', 'November', 'December'
+            ]; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+
         function getISOStringForStorage() { let d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-        
-        window.toggleCollapse = (id) => { const content = document.getElementById(id); const icon = document.getElementById(id + 'Icon'); if (content.classList.contains('collapsed')) { content.style.maxHeight = content.scrollHeight + 'px'; content.classList.remove('collapsed'); if (icon) icon.style.transform = 'rotate(0deg)'; } else { content.style.maxHeight = '0px'; content.classList.add('collapsed'); if (icon) icon.style.transform = 'rotate(-90deg)'; } };
-        function initCollapsibles() { ['serviceCollapse', 'pucCollapse', 'insuranceCollapse', 'infoCollapse'].forEach(id => { const el = document.getElementById(id); if (el) { el.classList.add('collapsed'); el.style.maxHeight = '0px'; const icon = document.getElementById(id + 'Icon'); if (icon) icon.style.transform = 'rotate(-90deg)'; } }); }
-        function showToast(msg, isError=false){ let t=document.createElement('div'); t.className=`toast ${isError?'bg-red-500':'bg-emerald-500'}`; t.innerHTML=`<i class="fa ${isError?'fa-exclamation-triangle':'fa-check-circle'}"></i>${msg}`; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+
+        window.toggleExpenseForm = function() {
+            if (window.innerWidth >= 1024) return;
+            const container = document.getElementById('expenseFormContainer');
+            const icon = document.getElementById('expenseToggleIcon');
+            container.classList.toggle('collapsed');
+            icon.style.transform = container.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+        };
+        document.getElementById('expenseFormContainer').classList.add('collapsed');
+        document.getElementById('expenseToggleIcon').style.transform = 'rotate(-90deg)';
+
+        window.toggleCollapse = (id) => { const content = document.getElementById(id); const icon = document.getElementById(
+                id + 'Icon'); if (content.classList.contains('collapsed')) { content.style.maxHeight = content
+                    .scrollHeight + 'px';
+                content.classList.remove('collapsed'); if (icon) icon.style.transform = 'rotate(0deg)'; } else { content
+                    .style.maxHeight = '0px';
+                content.classList.add('collapsed'); if (icon) icon.style.transform = 'rotate(-90deg)'; } };
+
+        function initCollapsibles() {
+            ['serviceCollapse', 'pucCollapse', 'insuranceCollapse', 'infoCollapse'].forEach(id => { const el = document
+                    .getElementById(id); if (el) { el.classList.add('collapsed');
+                    el.style.maxHeight = '0px'; const icon = document.getElementById(id + 'Icon'); if (icon) icon
+                        .style.transform = 'rotate(-90deg)'; } });
+        }
+
+        function showToast(msg, isError = false) { let t = document.createElement('div');
+            t.className = `toast ${isError?'bg-red-500':'bg-emerald-500'}`;
+            t.innerHTML = `<i class="fa ${isError?'fa-exclamation-triangle':'fa-check-circle'}"></i>${msg}`;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500); }
         document.getElementById('expenseDate').value = getISOStringForStorage();
-        
-        // Twice daily notifications (every 12 hours with 5hr gap logic - actually twice per day)
-        window.requestNotificationPermission = async () => { if ("Notification" in window) { const permission = await Notification.requestPermission(); if (permission === "granted") showToast("Notifications enabled! You'll receive reminders twice daily."); else showToast("Permission denied", true); } };
-        
+
+        window.requestNotificationPermission = async () => { if ("Notification" in window) { const permission =
+                await Notification.requestPermission(); if (permission === "granted") showToast(
+                "Notifications enabled!");
+            else showToast("Permission denied", true); } };
+
         let sentNotificationsToday = new Set();
+
         function sendBrowserNotification(title, body, uniqueKey) {
             if (sentNotificationsToday.has(uniqueKey)) return;
             if ("Notification" in window && Notification.permission === "granted") {
@@ -296,81 +1024,255 @@
                 setTimeout(() => sentNotificationsToday.delete(uniqueKey), 12 * 3600000);
             }
         }
-        
+
         function checkDueDatesAndSendNotifications() {
-            const today = new Date(); today.setHours(0,0,0,0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const now = new Date();
             const hours = now.getHours();
-            // Send notifications at ~9 AM and ~6 PM (twice daily, 9hr gap approx)
             const shouldNotify = (hours === 9 || hours === 18) && (now.getMinutes() < 5);
-            if (!shouldNotify && lastNotificationTime > Date.now() - 5*3600000) return;
-            
+            if (!shouldNotify && lastNotificationTime > Date.now() - 5 * 3600000) return;
+
             const upcomingReminders = [];
             reminders.forEach(reminder => {
                 const vehicle = reminder.vehicle;
-                if (reminder.nextServiceDate) { const dueDate = new Date(reminder.nextServiceDate); dueDate.setHours(0,0,0,0); const diffDays = Math.ceil((dueDate - today) / (1000*3600*24)); if (diffDays >=0 && diffDays <=7) { upcomingReminders.push({ type:"Service", daysLeft:diffDays, vehicle }); if (diffDays <=3 || diffDays===0) sendBrowserNotification(`🔧 Service Reminder`, `${vehicle} - Service due in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`, `service_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
-                if (reminder.pucDueDate) { const dueDate = new Date(reminder.pucDueDate); dueDate.setHours(0,0,0,0); const diffDays = Math.ceil((dueDate - today) / (1000*3600*24)); if (diffDays >=0 && diffDays <=7) { upcomingReminders.push({ type:"PUC", daysLeft:diffDays, vehicle }); if (diffDays <=3 || diffDays===0) sendBrowserNotification(`🌿 PUC Reminder`, `${vehicle} - PUC expires in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`, `puc_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
-                if (reminder.insuranceExpiry) { const dueDate = new Date(reminder.insuranceExpiry); dueDate.setHours(0,0,0,0); const diffDays = Math.ceil((dueDate - today) / (1000*3600*24)); if (diffDays >=0 && diffDays <=7) { upcomingReminders.push({ type:"Insurance", daysLeft:diffDays, vehicle }); if (diffDays <=3 || diffDays===0) sendBrowserNotification(`🛡️ Insurance Reminder`, `${vehicle} - Insurance expires in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`, `insurance_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
+                if (reminder.nextServiceDate) { const dueDate = new Date(reminder.nextServiceDate);
+                    dueDate.setHours(0, 0, 0, 0); const diffDays = Math.ceil((dueDate - today) / (1000 * 3600 *
+                        24)); if (diffDays >= 0 && diffDays <= 7) { upcomingReminders.push({ type: "Service",
+                            daysLeft: diffDays, vehicle }); if (diffDays <= 3 || diffDays === 0)
+                        sendBrowserNotification(`🔧 Service Reminder`,
+                            `${vehicle} - Service due in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`,
+                            `service_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
+                if (reminder.pucDueDate) { const dueDate = new Date(reminder.pucDueDate);
+                    dueDate.setHours(0, 0, 0, 0); const diffDays = Math.ceil((dueDate - today) / (1000 * 3600 *
+                        24)); if (diffDays >= 0 && diffDays <= 7) { upcomingReminders.push({ type: "PUC",
+                            daysLeft: diffDays, vehicle }); if (diffDays <= 3 || diffDays === 0)
+                        sendBrowserNotification(`🌿 PUC Reminder`,
+                            `${vehicle} - PUC expires in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`,
+                            `puc_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
+                if (reminder.insuranceExpiry) { const dueDate = new Date(reminder.insuranceExpiry);
+                    dueDate.setHours(0, 0, 0, 0); const diffDays = Math.ceil((dueDate - today) / (1000 * 3600 *
+                        24)); if (diffDays >= 0 && diffDays <= 7) { upcomingReminders.push({ type: "Insurance",
+                            daysLeft: diffDays, vehicle }); if (diffDays <= 3 || diffDays === 0)
+                        sendBrowserNotification(`🛡️ Insurance Reminder`,
+                            `${vehicle} - Insurance expires in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`,
+                            `insurance_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
             });
             const badge = document.getElementById('notificationBadge');
-            if (upcomingReminders.length > 0) { badge.style.display = 'flex'; badge.innerText = upcomingReminders.length; } else { badge.style.display = 'none'; }
+            if (upcomingReminders.length > 0) { badge.style.display = 'flex';
+                badge.innerText = upcomingReminders.length; } else { badge.style.display = 'none'; }
             if (shouldNotify && upcomingReminders.length > 0) lastNotificationTime = Date.now();
             return upcomingReminders;
         }
-        
-        window.showNotificationPanel = () => { const upcoming = checkDueDatesAndSendNotifications(); const container = document.getElementById('notificationList'); if (upcoming.length === 0) container.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fa fa-check-circle text-3xl"></i><p class="mt-2">No upcoming due dates</p></div>'; else container.innerHTML = upcoming.map(r => `<div class="glass-panel p-3 border-l-4 border-gold"><div class="font-bold text-gold">${r.type} Reminder</div><div class="text-sm">Vehicle: ${r.vehicle}</div><div class="text-xs ${r.daysLeft === 0 ? 'text-red-500 font-bold' : 'text-gray-500'}">Due in ${r.daysLeft === 0 ? 'TODAY' : r.daysLeft + ' day(s)'}</div></div>`).join(''); document.getElementById('notificationPanel').style.display = 'flex'; };
+
+        window.showNotificationPanel = () => { const upcoming = checkDueDatesAndSendNotifications(); const container =
+                document.getElementById('notificationList'); if (upcoming.length === 0) container.innerHTML =
+                '<div class="text-center text-gray-400 py-8"><i class="fa fa-check-circle text-3xl"></i><p class="mt-2">No upcoming due dates</p></div>';
+            else container.innerHTML = upcoming.map(r =>
+                `<div class="glass-panel p-3 border-l-4 border-gold"><div class="font-bold text-gold">${r.type} Reminder</div><div class="text-sm">Vehicle: ${r.vehicle}</div><div class="text-xs ${r.daysLeft === 0 ? 'text-red-500 font-bold' : 'text-gray-500'}">Due in ${r.daysLeft === 0 ? 'TODAY' : r.daysLeft + ' day(s)'}</div></div>`
+                ).join('');
+            document.getElementById('notificationPanel').style.display = 'flex'; };
         window.closeNotificationPanel = () => { document.getElementById('notificationPanel').style.display = 'none'; };
-        
-        // Check every hour for notification timing
+
         setInterval(() => checkDueDatesAndSendNotifications(), 3600000);
         setTimeout(() => checkDueDatesAndSendNotifications(), 5000);
-        
-        document.querySelectorAll('input[name="ownershipType"]').forEach(radio => { radio.addEventListener('change', (e) => { if(e.target.value === 'Second Hand') { document.getElementById('secondHandFields').style.display = 'block'; document.getElementById('firstHandFields').style.display = 'none'; } else if(e.target.value === 'First Hand') { document.getElementById('secondHandFields').style.display = 'none'; document.getElementById('firstHandFields').style.display = 'block'; } }); });
-        window.toggleTheme = ()=>{ let dark=document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',dark?'dark':'light'); document.getElementById('themeIcon').className=dark?"fa fa-sun text-gold":"fa fa-moon text-gold"; };
-        if(localStorage.getItem('theme')==='dark'){ document.documentElement.classList.add('dark'); document.getElementById('themeIcon').className="fa fa-sun text-gold"; }
-        
-        function updateConditionalFields(cat){ let cont=document.getElementById('conditionalFields'); if(cat==='Petrol') cont.innerHTML=`<div><input type="number" step="any" id="fuelVolume" placeholder="Litres" class="modern-input"></div><div><input type="number" step="any" id="fuelRate" placeholder="Rate ₹/L" class="modern-input"></div><div><input type="text" id="station" placeholder="Station" class="modern-input"></div>`; else if(cat==='Part Replacement') cont.innerHTML=`<div><input placeholder="Part name" id="partName" class="modern-input"></div><div><input placeholder="Brand" id="brandName" class="modern-input"></div><div><input placeholder="Shop" id="shopName" class="modern-input"></div>`; else if(cat==='Servicing') cont.innerHTML=`<div><input placeholder="Service type" id="serviceType" class="modern-input"></div><div><input placeholder="Service center" id="serviceCenter" class="modern-input"></div><div><input type="number" placeholder="Odometer" id="odometer" class="modern-input"></div>`; else if(cat==='Modification') cont.innerHTML=`<div><input placeholder="Mod part" id="modPart" class="modern-input"></div><div><input placeholder="Brand" id="modBrand" class="modern-input"></div><div><input placeholder="Installer" id="installerShop" class="modern-input"></div>`; else if(cat==='Tyre/Air') cont.innerHTML=`<div><input placeholder="Position" id="tyrePosition" class="modern-input"></div><div><input placeholder="Size" id="tyreSize" class="modern-input"></div><div><input placeholder="Brand" id="tyreBrand" class="modern-input"></div>`; else if(cat==='Cleaning') cont.innerHTML=`<div><input placeholder="Cleaning type" id="cleaningType" class="modern-input"></div><div><input placeholder="Center" id="serviceCenterName" class="modern-input"></div><div></div>`; else cont.innerHTML=`<div class="col-span-full text-center text-xs text-gray-400 p-3">Select expense type</div>`; }
-        
-        document.querySelectorAll('.expense-option').forEach(opt=>opt.addEventListener('click',function(){ document.querySelectorAll('.expense-option').forEach(o=>o.classList.remove('selected')); this.classList.add('selected'); document.getElementById('category').value=this.dataset.cat; updateConditionalFields(this.dataset.cat); }));
-        document.querySelectorAll('.filter-chip').forEach(chip=>chip.addEventListener('click',function(){ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); this.classList.add('active'); currentCategoryFilter=this.dataset.filter; renderFilteredEntries(); }));
-        document.getElementById('historyVehicleSelect').addEventListener('change',(e)=>{ currentVehicleFilter=e.target.value; renderFilteredEntries(); updateTotalCard(); });
-        document.getElementById('vehicleList').addEventListener('change',(e)=>document.getElementById('newVehicleWrapper').classList.toggle('hidden',e.target.value!=='NEW'));
-        function updateTotalCard(){ let card=document.getElementById('totalExpenditureCard'); if(!currentVehicleFilter){ card.classList.add('hidden'); return; } let total=allEntries.filter(e=>e.name===currentVehicleFilter).reduce((s,e)=>s+e.cost,0); document.getElementById('totalExpenditureAmount').innerHTML=`₹${total.toLocaleString('en-IN')}`; card.classList.remove('hidden'); }
-        document.getElementById('cancelEditBtn').addEventListener('click',()=>{ editingId=null; document.getElementById('editId').value=''; document.getElementById('expenseForm').reset(); document.getElementById('category').value=''; document.querySelectorAll('.expense-option').forEach(o=>o.classList.remove('selected')); updateConditionalFields(''); document.getElementById('expenseDate').value=getISOStringForStorage(); document.getElementById('cancelEditBtn').classList.add('hidden'); showToast("Edit cancelled"); });
-        document.getElementById('expenseForm').addEventListener('submit',async(e)=>{ e.preventDefault(); let vehicle=document.getElementById('vehicleList').value; if(vehicle==='NEW'){ let nn=document.getElementById('newVehicleName').value.trim(); if(!nn) return alert("Enter vehicle"); vehicle=nn.toUpperCase(); } if(!vehicle) return alert("Vehicle required"); let cost=parseFloat(document.getElementById('cost').value); if(isNaN(cost)||cost<=0) return alert("Valid amount"); let category=document.getElementById('category').value; if(!category) return alert("Select type"); let rawDate=document.getElementById('expenseDate').value||getISOStringForStorage(); let displayDate=formatDateToDisplay(rawDate); let timestamp=Date.now(); let entry={ name:vehicle, cost, category, date:displayDate, rawDate, timestamp, details:document.getElementById('details').value||null }; 
-            if(category==='Petrol'){ if(document.getElementById('fuelVolume')?.value) entry.fuelVolume=parseFloat(document.getElementById('fuelVolume').value); if(document.getElementById('fuelRate')?.value) entry.fuelRate=parseFloat(document.getElementById('fuelRate').value); if(document.getElementById('station')?.value) entry.station=document.getElementById('station').value; }
-            if(category==='Part Replacement'){ if(document.getElementById('partName')?.value) entry.partName=document.getElementById('partName').value; if(document.getElementById('brandName')?.value) entry.brandName=document.getElementById('brandName').value; if(document.getElementById('shopName')?.value) entry.shopName=document.getElementById('shopName').value; }
-            if(category==='Servicing'){ if(document.getElementById('serviceType')?.value) entry.serviceType=document.getElementById('serviceType').value; if(document.getElementById('serviceCenter')?.value) entry.serviceCenter=document.getElementById('serviceCenter').value; if(document.getElementById('odometer')?.value) entry.odometer=parseFloat(document.getElementById('odometer').value); }
-            if(category==='Modification'){ if(document.getElementById('modPart')?.value) entry.modPart=document.getElementById('modPart').value; if(document.getElementById('modBrand')?.value) entry.modBrand=document.getElementById('modBrand').value; if(document.getElementById('installerShop')?.value) entry.installerShop=document.getElementById('installerShop').value; }
-            if(category==='Tyre/Air'){ if(document.getElementById('tyrePosition')?.value) entry.tyrePosition=document.getElementById('tyrePosition').value; if(document.getElementById('tyreSize')?.value) entry.tyreSize=document.getElementById('tyreSize').value; if(document.getElementById('tyreBrand')?.value) entry.tyreBrand=document.getElementById('tyreBrand').value; }
-            if(category==='Cleaning'){ if(document.getElementById('cleaningType')?.value) entry.cleaningType=document.getElementById('cleaningType').value; if(document.getElementById('serviceCenterName')?.value) entry.serviceCenterName=document.getElementById('serviceCenterName').value; }
-            let editId=document.getElementById('editId').value;
-            try{ if(editId){ await update(ref(db,`vehicleExpenses/${editId}`),entry); showToast("Updated ✓"); } else{ await push(expensesRef,entry); showToast("Saved ✓"); } document.getElementById('expenseForm').reset(); document.getElementById('editId').value=''; document.getElementById('category').value=''; document.querySelectorAll('.expense-option').forEach(o=>o.classList.remove('selected')); updateConditionalFields(''); document.getElementById('expenseDate').value=getISOStringForStorage(); document.getElementById('cancelEditBtn').classList.add('hidden'); editingId=null; }catch(err){ alert("Error"); } });
-        
-        window.editEntry = (id)=>{ let entry=allEntries.find(e=>e.id===id); if(!entry) return; editingId=id; document.getElementById('editId').value=id; document.getElementById('vehicleList').value=entry.name; document.getElementById('cost').value=entry.cost; document.getElementById('category').value=entry.category; updateConditionalFields(entry.category); document.querySelectorAll('.expense-option').forEach(opt=>opt.classList.toggle('selected',opt.dataset.cat===entry.category)); document.getElementById('details').value=entry.details||''; if(entry.rawDate) document.getElementById('expenseDate').value=entry.rawDate; document.getElementById('cancelEditBtn').classList.remove('hidden'); window.scrollTo({top:0}); };
-        window.deleteEntry=async(id)=>{ if(confirm("Delete entry?")){ await remove(ref(db,`vehicleExpenses/${id}`)); showToast("Deleted"); } };
-        window.filterEntries=()=>{ currentSearchTerm=document.getElementById('searchBar').value.toLowerCase(); renderFilteredEntries(); };
-        window.startVoiceSearch=()=>{ let SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SpeechRecognition) return alert("Not supported"); let rec=new SpeechRecognition(); rec.lang='en-IN'; rec.start(); rec.onresult=(e)=>{ document.getElementById('searchBar').value=e.results[0][0].transcript; currentSearchTerm=e.results[0][0].transcript.toLowerCase(); renderFilteredEntries(); }; };
-        
-        function renderFilteredEntries(){ let filtered=allEntries.filter(e=>!currentVehicleFilter||e.name===currentVehicleFilter); if(currentCategoryFilter!=='all') filtered=filtered.filter(e=>e.category===currentCategoryFilter); if(currentSearchTerm) filtered=filtered.filter(e=>JSON.stringify(e).toLowerCase().includes(currentSearchTerm)); document.getElementById('logCounter').innerText=filtered.length; let cont=document.getElementById('logsContainer'); if(!filtered.length){ cont.innerHTML=`<div class="glass-panel p-6 text-center"><i class="fa fa-receipt text-gray-300 text-2xl"></i><p class="text-sm mt-2">No entries</p></div>`; return; } cont.innerHTML=filtered.map(d=>`<div class="entry-card"><div class="flex justify-between items-start gap-3"><div><div class="flex gap-2 flex-wrap"><span class="font-bold text-gold date-display">${d.date}</span><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs">${d.category}</span></div><h3 class="font-black mt-1">${escapeHtml(d.name)}</h3>${d.details?`<p class="text-gray-500 text-xs mt-1">${escapeHtml(d.details)}</p>`:''}${d.fuelVolume?`<p class="text-xs text-gray-400 mt-1">⛽ ${d.fuelVolume} L ${d.fuelRate?`@ ₹${d.fuelRate}/L`:''}</p>`:''}</div><div class="text-right"><span class="font-black text-gold text-lg">₹${d.cost.toLocaleString('en-IN')}</span><div class="flex gap-2 mt-2"><button onclick='window.editEntry("${d.id}")' class="text-blue-500 action-btn"><i class="fa-regular fa-pen-to-square"></i></button><button onclick='window.deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 action-btn"><i class="fa-regular fa-trash-can"></i></button></div></div></div></div>`).join(''); }
-        function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-        
-        function getServiceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.serviceStartDate) html += `<div>📅 Start: ${formatDateToDisplay(r.serviceStartDate)}</div>`; if (r.nextServiceDate) html += `<div>⏰ Next Service: ${formatDateToDisplay(r.nextServiceDate)}</div>`; if (r.nextServiceKM) html += `<div>📊 Next KM: ${r.nextServiceKM.toLocaleString()} km</div>`; if (r.currentOdometer) html += `<div>📍 Current Odometer: ${r.currentOdometer.toLocaleString()} km</div>`; if (r.serviceNotes) html += `<div>📝 Notes: ${escapeHtml(r.serviceNotes)}</div>`; html += '</div>'; return html; }
-        function getPUCDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.pucStartDate) html += `<div>📅 Issue Date: ${formatDateToDisplay(r.pucStartDate)}</div>`; if (r.pucDueDate) html += `<div>⚠️ Due Date: ${formatDateToDisplay(r.pucDueDate)}</div>`; if (r.pucAmount) html += `<div>💰 Amount: ₹${r.pucAmount}</div>`; if (r.pucShop) html += `<div>🏪 Shop: ${escapeHtml(r.pucShop)}</div>`; if (r.pucCertNo) html += `<div>📜 Cert No: ${escapeHtml(r.pucCertNo)}</div>`; html += '</div>'; return html; }
-        function getInsuranceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.insuranceStartDate) html += `<div>📅 Start: ${formatDateToDisplay(r.insuranceStartDate)}</div>`; if (r.insuranceExpiry) html += `<div>⚠️ Expiry: ${formatDateToDisplay(r.insuranceExpiry)}</div>`; if (r.insuranceAmount) html += `<div>💰 Premium: ₹${r.insuranceAmount}</div>`; if (r.insuranceProvider) html += `<div>🏢 Provider: ${escapeHtml(r.insuranceProvider)}</div>`; if (r.insurancePolicyNo) html += `<div>📄 Policy: ${escapeHtml(r.insurancePolicyNo)}</div>`; html += '</div>'; return html; }
-        function getVehicleInfoDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.regNumber) html += `<div>🚗 Reg No: ${escapeHtml(r.regNumber)}</div>`; if (r.chassisNo) html += `<div>🔢 Chassis: ${escapeHtml(r.chassisNo)}</div>`; if (r.engineNo) html += `<div>⚙️ Engine: ${escapeHtml(r.engineNo)}</div>`; if (r.modelYear) html += `<div>📅 Model Year: ${escapeHtml(r.modelYear)}</div>`; if (r.ownershipType) html += `<div>👑 Ownership: ${escapeHtml(r.ownershipType)}</div>`; if (r.prevOwnerName) html += `<div>👤 Previous Owner: ${escapeHtml(r.prevOwnerName)}</div>`; if (r.showroomName) html += `<div>🏬 Showroom: ${escapeHtml(r.showroomName)}</div>`; if (r.purchasePrice) html += `<div>💰 Purchase Price: ₹${r.purchasePrice.toLocaleString()}</div>`; html += '</div>'; return html; }
-        
+
+        document.querySelectorAll('input[name="ownershipType"]').forEach(radio => { radio.addEventListener('change', (e) => { if (
+                    e.target.value === 'Second Hand') { document.getElementById('secondHandFields').style.display =
+                    'block';
+                    document.getElementById('firstHandFields').style.display = 'none'; } else if (e.target.value ===
+                    'First Hand') { document.getElementById('secondHandFields').style.display = 'none';
+                    document.getElementById('firstHandFields').style.display = 'block'; } }); });
+        window.toggleTheme = () => { let dark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', dark ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = dark ? "fa fa-sun text-gold" : "fa fa-moon text-gold"; };
+        if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = "fa fa-sun text-gold"; }
+
+        function updateConditionalFields(cat) { let cont = document.getElementById('conditionalFields'); if (cat ===
+            'Petrol') cont.innerHTML =
+            `<div><input type="number" step="any" id="fuelVolume" placeholder="Litres" class="modern-input"></div><div><input type="number" step="any" id="fuelRate" placeholder="Rate ₹/L" class="modern-input"></div><div><input type="text" id="station" placeholder="Station" class="modern-input"></div>`;
+            else if (cat === 'Part Replacement') cont.innerHTML =
+                `<div><input placeholder="Part name" id="partName" class="modern-input"></div><div><input placeholder="Brand" id="brandName" class="modern-input"></div><div><input placeholder="Shop" id="shopName" class="modern-input"></div>`;
+            else if (cat === 'Servicing') cont.innerHTML =
+                `<div><input placeholder="Service type" id="serviceType" class="modern-input"></div><div><input placeholder="Service center" id="serviceCenter" class="modern-input"></div><div><input type="number" placeholder="Odometer" id="odometer" class="modern-input"></div>`;
+            else if (cat === 'Modification') cont.innerHTML =
+                `<div><input placeholder="Mod part" id="modPart" class="modern-input"></div><div><input placeholder="Brand" id="modBrand" class="modern-input"></div><div><input placeholder="Installer" id="installerShop" class="modern-input"></div>`;
+            else if (cat === 'Tyre/Air') cont.innerHTML =
+                `<div><input placeholder="Tyre position (e.g. Front Left)" id="tyrePosition" class="modern-input"></div><div><input placeholder="Size (e.g. 195/60R15)" id="tyreSize" class="modern-input"></div><div><input placeholder="Brand / Puncture repair" id="tyreBrand" class="modern-input"></div><div class="col-span-full mt-1"><input placeholder="Puncture or New Tyre? (specify)" id="punctureNote" class="modern-input"></div>`;
+            else if (cat === 'Cleaning') cont.innerHTML =
+                `<div><input placeholder="Cleaning type" id="cleaningType" class="modern-input"></div><div><input placeholder="Center" id="serviceCenterName" class="modern-input"></div><div></div>`;
+            else cont.innerHTML =
+                `<div class="col-span-full text-center text-xs text-gray-400 p-3">Select expense type</div>`; }
+
+        document.querySelectorAll('.expense-option').forEach(opt => opt.addEventListener('click', function() {
+            document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('category').value = this.dataset.cat;
+            updateConditionalFields(this.dataset.cat);
+        }));
+        document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', function() {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            currentCategoryFilter = this.dataset.filter;
+            renderFilteredEntries();
+        }));
+        document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { currentVehicleFilter = e.target
+                .value;
+            renderFilteredEntries();
+            updateTotalCard(); });
+        document.getElementById('vehicleList').addEventListener('change', (e) => document.getElementById(
+            'newVehicleWrapper').classList.toggle('hidden', e.target.value !== 'NEW'));
+
+        function updateTotalCard() { let card = document.getElementById('totalExpenditureCard'); if (!currentVehicleFilter) {
+                card.classList.add('hidden'); return; } let total = allEntries.filter(e => e.name === currentVehicleFilter)
+                .reduce((s, e) => s + e.cost, 0);
+            document.getElementById('totalExpenditureAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
+            card.classList.remove('hidden'); }
+        document.getElementById('cancelEditBtn').addEventListener('click', () => { editingId = null;
+            document.getElementById('editId').value = '';
+            document.getElementById('expenseForm').reset();
+            document.getElementById('category').value = '';
+            document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+            updateConditionalFields('');
+            document.getElementById('expenseDate').value = getISOStringForStorage();
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            showToast("Edit cancelled"); });
+        document.getElementById('expenseForm').addEventListener('submit', async (e) => { e.preventDefault(); let vehicle =
+                document.getElementById('vehicleList').value; if (vehicle === 'NEW') { let nn = document.getElementById(
+                    'newVehicleName').value.trim(); if (!nn) return alert("Enter vehicle");
+                vehicle = nn.toUpperCase(); } if (!vehicle) return alert("Vehicle required"); let cost = parseFloat(
+                document.getElementById('cost').value); if (isNaN(cost) || cost <= 0) return alert("Valid amount");
+            let category = document.getElementById('category').value; if (!category) return alert("Select type"); let
+                rawDate = document.getElementById('expenseDate').value || getISOStringForStorage(); let displayDate =
+                formatDateToDisplay(rawDate); let timestamp = Date.now(); let entry = { name: vehicle, cost, category,
+                date: displayDate, rawDate, timestamp, details: document.getElementById('details').value || null };
+            if (category === 'Petrol') { if (document.getElementById('fuelVolume')?.value) entry.fuelVolume = parseFloat(
+                    document.getElementById('fuelVolume').value); if (document.getElementById('fuelRate')?.value)
+                    entry.fuelRate = parseFloat(document.getElementById('fuelRate').value); if (document.getElementById(
+                        'station')?.value) entry.station = document.getElementById('station').value; }
+            if (category === 'Part Replacement') { if (document.getElementById('partName')?.value) entry.partName =
+                    document.getElementById('partName').value; if (document.getElementById('brandName')?.value) entry
+                    .brandName = document.getElementById('brandName').value; if (document.getElementById('shopName')
+                    ?.value) entry.shopName = document.getElementById('shopName').value; }
+            if (category === 'Servicing') { if (document.getElementById('serviceType')?.value) entry.serviceType =
+                    document.getElementById('serviceType').value; if (document.getElementById('serviceCenter')?.value)
+                    entry.serviceCenter = document.getElementById('serviceCenter').value; if (document.getElementById(
+                    'odometer')?.value) entry.odometer = parseFloat(document.getElementById('odometer').value); }
+            if (category === 'Modification') { if (document.getElementById('modPart')?.value) entry.modPart = document
+                    .getElementById('modPart').value; if (document.getElementById('modBrand')?.value) entry.modBrand =
+                    document.getElementById('modBrand').value; if (document.getElementById('installerShop')?.value)
+                    entry.installerShop = document.getElementById('installerShop').value; }
+            if (category === 'Tyre/Air') { if (document.getElementById('tyrePosition')?.value) entry.tyrePosition =
+                    document.getElementById('tyrePosition').value; if (document.getElementById('tyreSize')?.value)
+                    entry.tyreSize = document.getElementById('tyreSize').value; if (document.getElementById(
+                    'tyreBrand')?.value) entry.tyreBrand = document.getElementById('tyreBrand').value; if (document
+                    .getElementById('punctureNote')?.value) entry.punctureNote = document.getElementById(
+                    'punctureNote').value; }
+            if (category === 'Cleaning') { if (document.getElementById('cleaningType')?.value) entry.cleaningType =
+                    document.getElementById('cleaningType').value; if (document.getElementById('serviceCenterName')
+                    ?.value) entry.serviceCenterName = document.getElementById('serviceCenterName').value; }
+            let editId = document.getElementById('editId').value;
+            try { if (editId) { await update(ref(db, `vehicleExpenses/${editId}`), entry);
+                    showToast("Updated ✓"); } else { await push(expensesRef, entry);
+                    showToast("Saved ✓"); } document.getElementById('expenseForm').reset();
+                document.getElementById('editId').value = '';
+                document.getElementById('category').value = '';
+                document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+                updateConditionalFields('');
+                document.getElementById('expenseDate').value = getISOStringForStorage();
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+                editingId = null; } catch (err) { alert("Error"); } });
+
+        window.editEntry = (id) => { let entry = allEntries.find(e => e.id === id); if (!entry) return;
+            editingId = id;
+            document.getElementById('editId').value = id;
+            document.getElementById('vehicleList').value = entry.name;
+            document.getElementById('cost').value = entry.cost;
+            document.getElementById('category').value = entry.category;
+            updateConditionalFields(entry.category);
+            document.querySelectorAll('.expense-option').forEach(opt => opt.classList.toggle('selected', opt.dataset.cat ===
+                entry.category));
+            document.getElementById('details').value = entry.details || '';
+            if (entry.rawDate) document.getElementById('expenseDate').value = entry.rawDate;
+            document.getElementById('cancelEditBtn').classList.remove('hidden');
+            window.scrollTo({ top: 0 }); };
+        window.deleteEntry = async (id) => { if (confirm("Delete entry?")) { await remove(ref(db,
+                `vehicleExpenses/${id}`));
+                showToast("Deleted"); } };
+        window.filterEntries = () => { currentSearchTerm = document.getElementById('searchBar').value.toLowerCase();
+            renderFilteredEntries(); };
+        window.startVoiceSearch = () => { let SpeechRecognition = window.SpeechRecognition || window
+            .webkitSpeechRecognition; if (!SpeechRecognition) return alert("Not supported"); let rec =
+            new SpeechRecognition();
+            rec.lang = 'en-IN';
+            rec.start();
+            rec.onresult = (e) => { document.getElementById('searchBar').value = e.results[0][0].transcript;
+                currentSearchTerm = e.results[0][0].transcript.toLowerCase();
+                renderFilteredEntries(); }; };
+
+        function renderFilteredEntries() { let filtered = allEntries.filter(e => !currentVehicleFilter || e.name ===
+                currentVehicleFilter); if (currentCategoryFilter !== 'all') filtered = filtered.filter(e => e
+                .category === currentCategoryFilter); if (currentSearchTerm) filtered = filtered.filter(e => JSON
+                .stringify(e).toLowerCase().includes(currentSearchTerm));
+            document.getElementById('logCounter').innerText = filtered.length; let cont = document.getElementById(
+                'logsContainer'); if (!filtered.length) { cont.innerHTML =
+                    `<div class="glass-panel p-6 text-center"><i class="fa fa-receipt text-gray-300 text-2xl"></i><p class="text-sm mt-2">No entries</p></div>`;
+                return; }
+            cont.innerHTML = filtered.map(d =>
+                `<div class="entry-card"><div class="flex justify-between items-start gap-3"><div><div class="flex gap-2 flex-wrap"><span class="font-bold text-gold date-display">${d.date}</span><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs">${d.category}</span></div><h3 class="font-black mt-1">${escapeHtml(d.name)}</h3>${d.details?`<p class="text-gray-500 text-xs mt-1">${escapeHtml(d.details)}</p>`:''}${d.fuelVolume?`<p class="text-xs text-gray-400 mt-1">⛽ ${d.fuelVolume} L ${d.fuelRate?`@ ₹${d.fuelRate}/L`:''}</p>`:''}${d.punctureNote?`<p class="text-xs text-gray-400 mt-1">🛞 ${escapeHtml(d.punctureNote)}</p>`:''}</div><div class="text-right"><span class="font-black text-gold text-lg">₹${d.cost.toLocaleString('en-IN')}</span><div class="flex gap-2 mt-2"><button onclick='window.editEntry("${d.id}")' class="text-blue-500 action-btn"><i class="fa-regular fa-pen-to-square"></i></button><button onclick='window.deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 action-btn"><i class="fa-regular fa-trash-can"></i></button></div></div></div></div>`
+            ).join(''); }
+
+        function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;',
+                '>': '&gt;' } [m])); }
+
+        function getServiceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.serviceStartDate)
+                html += `<div>📅 Start: ${formatDateToDisplay(r.serviceStartDate)}</div>`; if (r.nextServiceDate) html +=
+                `<div>⏰ Next Service: ${formatDateToDisplay(r.nextServiceDate)}</div>`; if (r.nextServiceKM) html +=
+                `<div>📊 Next KM: ${r.nextServiceKM.toLocaleString()} km</div>`; if (r.currentOdometer) html +=
+                `<div>📍 Current Odometer: ${r.currentOdometer.toLocaleString()} km</div>`; if (r.serviceNotes) html +=
+                `<div>📝 Notes: ${escapeHtml(r.serviceNotes)}</div>`; html += '</div>'; return html; }
+
+        function getPUCDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.pucStartDate) html +=
+                `<div>📅 Issue Date: ${formatDateToDisplay(r.pucStartDate)}</div>`; if (r.pucDueDate) html +=
+                `<div>⚠️ Due Date: ${formatDateToDisplay(r.pucDueDate)}</div>`; if (r.pucAmount) html +=
+                `<div>💰 Amount: ₹${r.pucAmount}</div>`; if (r.pucShop) html +=
+                `<div>🏪 Shop: ${escapeHtml(r.pucShop)}</div>`; if (r.pucCertNo) html +=
+                `<div>📜 Cert No: ${escapeHtml(r.pucCertNo)}</div>`; html += '</div>'; return html; }
+
+        function getInsuranceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.insuranceStartDate)
+                html += `<div>📅 Start: ${formatDateToDisplay(r.insuranceStartDate)}</div>`; if (r.insuranceExpiry)
+                html += `<div>⚠️ Expiry: ${formatDateToDisplay(r.insuranceExpiry)}</div>`; if (r.insuranceAmount)
+                html += `<div>💰 Premium: ₹${r.insuranceAmount}</div>`; if (r.insuranceProvider) html +=
+                `<div>🏢 Provider: ${escapeHtml(r.insuranceProvider)}</div>`; if (r.insurancePolicyNo) html +=
+                `<div>📄 Policy: ${escapeHtml(r.insurancePolicyNo)}</div>`; html += '</div>'; return html; }
+
+        function getVehicleInfoDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.regNumber) html +=
+                `<div>🚗 Reg No: ${escapeHtml(r.regNumber)}</div>`; if (r.chassisNo) html +=
+                `<div>🔢 Chassis: ${escapeHtml(r.chassisNo)}</div>`; if (r.engineNo) html +=
+                `<div>⚙️ Engine: ${escapeHtml(r.engineNo)}</div>`; if (r.modelYear) html +=
+                `<div>📅 Model Year: ${escapeHtml(r.modelYear)}</div>`; if (r.ownershipType) html +=
+                `<div>👑 Ownership: ${escapeHtml(r.ownershipType)}</div>`; if (r.prevOwnerName) html +=
+                `<div>👤 Previous Owner: ${escapeHtml(r.prevOwnerName)}</div>`; if (r.showroomName) html +=
+                `<div>🏬 Showroom: ${escapeHtml(r.showroomName)}</div>`; if (r.purchasePrice) html +=
+                `<div>💰 Purchase Price: ₹${r.purchasePrice.toLocaleString()}</div>`; html += '</div>'; return html; }
+
         let currentReminderFilterTab = 'service';
-        function loadRemindersList() { 
+
+        function loadRemindersList() {
             let filteredReminders = reminders.filter(r => {
-                if (currentReminderFilterTab === 'service') return r.nextServiceDate || r.serviceStartDate || r.serviceNotes || r.nextServiceKM;
+                if (currentReminderFilterTab === 'service') return r.nextServiceDate || r.serviceStartDate || r
+                    .serviceNotes || r.nextServiceKM;
                 if (currentReminderFilterTab === 'puc') return r.pucDueDate || r.pucStartDate || r.pucAmount;
-                if (currentReminderFilterTab === 'insurance') return r.insuranceExpiry || r.insuranceStartDate || r.insuranceAmount;
-                if (currentReminderFilterTab === 'vehicleInfo') return r.regNumber || r.chassisNo || r.engineNo || r.ownershipType;
+                if (currentReminderFilterTab === 'insurance') return r.insuranceExpiry || r.insuranceStartDate || r
+                    .insuranceAmount;
+                if (currentReminderFilterTab === 'vehicleInfo') return r.regNumber || r.chassisNo || r.engineNo || r
+                    .ownershipType;
                 return true;
             });
             let cont = document.getElementById('remindersList');
-            if (!filteredReminders.length) { cont.innerHTML = '<div class="text-center text-gray-400 py-5">No records for this category</div>'; return; }
+            if (!filteredReminders.length) { cont.innerHTML =
+                    '<div class="text-center text-gray-400 py-5">No records for this category</div>'; return; }
             cont.innerHTML = filteredReminders.map(r => {
                 let detailsHtml = '';
                 if (currentReminderFilterTab === 'service') detailsHtml = getServiceDetailsHTML(r);
@@ -380,32 +1282,174 @@
                 return `<div class="glass-panel p-3"><div class="flex justify-between items-start"><div><div class="font-bold text-gold text-base">${escapeHtml(r.vehicle)}</div>${detailsHtml}</div><button onclick='window.deleteReminder("${r.id}")' class="text-red-400 hover:text-red-600 transition ml-2"><i class="fa fa-trash"></i></button></div></div>`;
             }).join('');
         }
-        
-        window.saveComprehensiveReminder = async ()=>{ let vehicle=document.getElementById('reminderVehicleSelect').value; if(!vehicle){ alert("Select vehicle"); return; } let ownershipType = document.querySelector('input[name="ownershipType"]:checked')?.value || ''; let data={ vehicle, serviceStartDate:document.getElementById('serviceStartDate').value||null, nextServiceDate:document.getElementById('nextServiceDate').value||null, nextServiceKM:document.getElementById('nextServiceKM').value||null, currentOdometer:document.getElementById('currentOdometer').value||null, serviceNotes:document.getElementById('serviceNotes').value||null, pucStartDate:document.getElementById('pucStartDate').value||null, pucDueDate:document.getElementById('pucDueDate').value||null, pucAmount:document.getElementById('pucAmount').value||null, pucShop:document.getElementById('pucShop').value||null, pucCertNo:document.getElementById('pucCertNo').value||null, insuranceStartDate:document.getElementById('insuranceStartDate').value||null, insuranceExpiry:document.getElementById('insuranceExpiry').value||null, insuranceAmount:document.getElementById('insuranceAmount').value||null, insuranceProvider:document.getElementById('insuranceProvider').value||null, insurancePolicyNo:document.getElementById('insurancePolicyNo').value||null, regNumber:document.getElementById('regNumber').value||null, chassisNo:document.getElementById('chassisNo').value||null, engineNo:document.getElementById('engineNo').value||null, modelYear:document.getElementById('modelYear').value||null, ownershipType, prevOwnerName:document.getElementById('prevOwnerName').value||null, prevOwnerPhone:document.getElementById('prevOwnerPhone').value||null, showroomName:document.getElementById('showroomName').value||null, purchasePrice:document.getElementById('purchasePrice').value||null, firstHandShowroom:document.getElementById('firstHandShowroom').value||null, firstHandPrice:document.getElementById('firstHandPrice').value||null, invoiceNo:document.getElementById('invoiceNo').value||null, updatedAt:Date.now() };
-            let existing=reminders.find(r=>r.vehicle===vehicle); if(existing) await update(ref(db,`serviceReminders/${existing.id}`),data); else await push(remindersRef,data); showToast(`Saved all details for ${vehicle}`); loadRemindersList(); checkDueDatesAndSendNotifications(); };
-        window.deleteReminder=async(id)=>{ if(confirm("Delete record?")){ await remove(ref(db,`serviceReminders/${id}`)); showToast("Deleted"); checkDueDatesAndSendNotifications(); } };
-        
-        window.openServiceReminderModal=()=>{ document.getElementById('serviceReminderModal').style.display='flex'; document.getElementById('serviceStartDate').value=getISOStringForStorage(); document.getElementById('pucStartDate').value=getISOStringForStorage(); document.getElementById('insuranceStartDate').value=getISOStringForStorage(); document.getElementById('secondHandFields').style.display='none'; document.getElementById('firstHandFields').style.display='none'; document.querySelectorAll('input[name="ownershipType"]').forEach(r=>r.checked=false); initCollapsibles(); currentReminderFilterTab = 'service'; document.getElementById('recordFilterBadge').innerText = 'SERVICE'; loadRemindersList(); };
-        window.closeServiceReminderModal=()=>{ document.getElementById('serviceReminderModal').style.display='none'; };
-        
-        window.switchServiceTab = (tab) => { 
-            document.getElementById('serviceTabPanel').style.display = 'none'; document.getElementById('pucTabPanel').style.display = 'none'; document.getElementById('insuranceTabPanel').style.display = 'none'; document.getElementById('infoTabPanel').style.display = 'none'; 
-            document.getElementById('tabServiceBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold'; document.getElementById('tabPucBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold'; document.getElementById('tabInsuranceBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold'; document.getElementById('tabInfoBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold'; 
-            if(tab==='service') { document.getElementById('serviceTabPanel').style.display='block'; document.getElementById('tabServiceBtn').className='service-tab-active px-4 py-2 text-sm font-bold'; initCollapsibles(); currentReminderFilterTab = 'service'; document.getElementById('recordFilterBadge').innerText = 'SERVICE'; loadRemindersList(); }
-            if(tab==='puc') { document.getElementById('pucTabPanel').style.display='block'; document.getElementById('tabPucBtn').className='service-tab-active px-4 py-2 text-sm font-bold'; initCollapsibles(); currentReminderFilterTab = 'puc'; document.getElementById('recordFilterBadge').innerText = 'PUC'; loadRemindersList(); }
-            if(tab==='insurance') { document.getElementById('insuranceTabPanel').style.display='block'; document.getElementById('tabInsuranceBtn').className='service-tab-active px-4 py-2 text-sm font-bold'; initCollapsibles(); currentReminderFilterTab = 'insurance'; document.getElementById('recordFilterBadge').innerText = 'INSURANCE'; loadRemindersList(); }
-            if(tab==='vehicleInfo') { document.getElementById('infoTabPanel').style.display='block'; document.getElementById('tabInfoBtn').className='service-tab-active px-4 py-2 text-sm font-bold'; initCollapsibles(); currentReminderFilterTab = 'vehicleInfo'; document.getElementById('recordFilterBadge').innerText = 'VEHICLE INFO'; loadRemindersList(); }
+
+        window.saveComprehensiveReminder = async () => { let vehicle = document.getElementById('reminderVehicleSelect')
+                .value; if (!vehicle) { alert("Select vehicle"); return; } let ownershipType = document.querySelector(
+                'input[name="ownershipType"]:checked')?.value || ''; let data = { vehicle, serviceStartDate: document
+                    .getElementById('serviceStartDate').value || null, nextServiceDate: document.getElementById(
+                    'nextServiceDate').value || null, nextServiceKM: document.getElementById('nextServiceKM')
+                    .value || null, currentOdometer: document.getElementById('currentOdometer').value || null,
+                serviceNotes: document.getElementById('serviceNotes').value || null, pucStartDate: document
+                    .getElementById('pucStartDate').value || null, pucDueDate: document.getElementById(
+                    'pucDueDate').value || null, pucAmount: document.getElementById('pucAmount').value || null,
+                pucShop: document.getElementById('pucShop').value || null, pucCertNo: document.getElementById(
+                    'pucCertNo').value || null, insuranceStartDate: document.getElementById('insuranceStartDate')
+                    .value || null, insuranceExpiry: document.getElementById('insuranceExpiry').value || null,
+                insuranceAmount: document.getElementById('insuranceAmount').value || null, insuranceProvider: document
+                    .getElementById('insuranceProvider').value || null, insurancePolicyNo: document.getElementById(
+                    'insurancePolicyNo').value || null, regNumber: document.getElementById('regNumber').value ||
+                    null, chassisNo: document.getElementById('chassisNo').value || null, engineNo: document
+                    .getElementById('engineNo').value || null, modelYear: document.getElementById('modelYear')
+                    .value || null, ownershipType, prevOwnerName: document.getElementById('prevOwnerName').value ||
+                    null, prevOwnerPhone: document.getElementById('prevOwnerPhone').value || null, showroomName: document
+                    .getElementById('showroomName').value || null, purchasePrice: document.getElementById(
+                    'purchasePrice').value || null, firstHandShowroom: document.getElementById(
+                    'firstHandShowroom').value || null, firstHandPrice: document.getElementById('firstHandPrice')
+                    .value || null, invoiceNo: document.getElementById('invoiceNo').value || null,
+                updatedAt: Date.now() };
+            let existing = reminders.find(r => r.vehicle === vehicle); if (existing) await update(ref(db,
+                `serviceReminders/${existing.id}`), data); else await push(remindersRef, data);
+            showToast(`Saved all details for ${vehicle}`);
+            loadRemindersList();
+            checkDueDatesAndSendNotifications(); };
+        window.deleteReminder = async (id) => { if (confirm("Delete record?")) { await remove(ref(db,
+                `serviceReminders/${id}`));
+                showToast("Deleted");
+                checkDueDatesAndSendNotifications(); } };
+
+        window.openServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'flex';
+            document.getElementById('serviceStartDate').value = getISOStringForStorage();
+            document.getElementById('pucStartDate').value = getISOStringForStorage();
+            document.getElementById('insuranceStartDate').value = getISOStringForStorage();
+            document.getElementById('secondHandFields').style.display = 'none';
+            document.getElementById('firstHandFields').style.display = 'none';
+            document.querySelectorAll('input[name="ownershipType"]').forEach(r => r.checked = false);
+            initCollapsibles();
+            currentReminderFilterTab = 'service';
+            document.getElementById('recordFilterBadge').innerText = 'SERVICE';
+            loadRemindersList(); };
+        window.closeServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'none'; };
+
+        window.switchServiceTab = (tab) => {
+            document.getElementById('serviceTabPanel').style.display = 'none';
+            document.getElementById('pucTabPanel').style.display = 'none';
+            document.getElementById('insuranceTabPanel').style.display = 'none';
+            document.getElementById('infoTabPanel').style.display = 'none';
+            document.getElementById('tabServiceBtn').className =
+            'service-tab-inactive px-4 py-2 text-sm font-bold';
+            document.getElementById('tabPucBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold';
+            document.getElementById('tabInsuranceBtn').className =
+            'service-tab-inactive px-4 py-2 text-sm font-bold';
+            document.getElementById('tabInfoBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold';
+            if (tab === 'service') { document.getElementById('serviceTabPanel').style.display = 'block';
+                document.getElementById('tabServiceBtn').className =
+                    'service-tab-active px-4 py-2 text-sm font-bold';
+                initCollapsibles();
+                currentReminderFilterTab = 'service';
+                document.getElementById('recordFilterBadge').innerText = 'SERVICE';
+                loadRemindersList(); }
+            if (tab === 'puc') { document.getElementById('pucTabPanel').style.display = 'block';
+                document.getElementById('tabPucBtn').className = 'service-tab-active px-4 py-2 text-sm font-bold';
+                initCollapsibles();
+                currentReminderFilterTab = 'puc';
+                document.getElementById('recordFilterBadge').innerText = 'PUC';
+                loadRemindersList(); }
+            if (tab === 'insurance') { document.getElementById('insuranceTabPanel').style.display = 'block';
+                document.getElementById('tabInsuranceBtn').className =
+                    'service-tab-active px-4 py-2 text-sm font-bold';
+                initCollapsibles();
+                currentReminderFilterTab = 'insurance';
+                document.getElementById('recordFilterBadge').innerText = 'INSURANCE';
+                loadRemindersList(); }
+            if (tab === 'vehicleInfo') { document.getElementById('infoTabPanel').style.display = 'block';
+                document.getElementById('tabInfoBtn').className =
+                    'service-tab-active px-4 py-2 text-sm font-bold';
+                initCollapsibles();
+                currentReminderFilterTab = 'vehicleInfo';
+                document.getElementById('recordFilterBadge').innerText = 'VEHICLE INFO';
+                loadRemindersList(); }
         };
-        
-        onValue(query(ref(db,'vehicleExpenses'),orderByChild('timestamp')),(snap)=>{ let data=snap.val(); allEntries=data?Object.entries(data).map(([id,val])=>({id,...val})).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)):[]; renderFilteredEntries(); updateTotalCard(); let vehicles=[...new Set(allEntries.map(e=>e.name))]; ['vehicleList','historyVehicleSelect','reminderVehicleSelect'].forEach(id=>{ let sel=document.getElementById(id); if(sel){ let html='<option value="">—— SELECT VEHICLE ——</option>'; vehicles.sort().forEach(v=>html+=`<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`); html+='<option value="NEW" class="text-gold font-bold">+ ADD NEW</option>'; sel.innerHTML=html; } }); });
-        onValue(ref(db,'serviceReminders'),(snap)=>{ let data=snap.val(); reminders=data?Object.entries(data).map(([id,val])=>({id,...val})):[]; loadRemindersList(); checkDueDatesAndSendNotifications(); });
-        
-        window.openHistoryModal=()=>{ if(!currentVehicleFilter){ alert("Select vehicle from 'VIEW DATA FOR'"); return; } historyCurrentVehicle=currentVehicleFilter; document.getElementById('modalVehicleName').innerHTML=`<i class="fa fa-car"></i> ${currentVehicleFilter}`; updateHistoryModal(currentVehicleFilter,'all'); document.getElementById('historyModal').style.display='flex'; };
-        window.closeHistoryModal=()=>{ document.getElementById('historyModal').style.display='none'; };
-        window.filterHistoryByCategory=(cat)=>{ updateHistoryModal(historyCurrentVehicle,cat); document.querySelectorAll('.history-stat-card').forEach(c=>c.classList.remove('active')); let map={'all':'historyAllCard','Petrol':'historyPetrolCard','Part Replacement':'historyPartCard','Servicing':'historyServicingCard','Modification':'historyModCard','Tyre/Air':'historyTyreCard'}; document.getElementById(map[cat]||'historyAllCard').classList.add('active'); };
-        function updateHistoryModal(vehicle,cat){ let entries=allEntries.filter(e=>e.name===vehicle); let sums={Petrol:0,Part:0,Servicing:0,Mod:0,Tyre:0,total:0},cnts={Petrol:0,Part:0,Servicing:0,Mod:0,Tyre:0}; entries.forEach(e=>{ sums.total+=e.cost; if(e.category==='Petrol'){ sums.Petrol+=e.cost; cnts.Petrol++; } else if(e.category==='Part Replacement'){ sums.Part+=e.cost; cnts.Part++; } else if(e.category==='Servicing'){ sums.Servicing+=e.cost; cnts.Servicing++; } else if(e.category==='Modification'){ sums.Mod+=e.cost; cnts.Mod++; } else if(e.category==='Tyre/Air'){ sums.Tyre+=e.cost; cnts.Tyre++; } }); document.getElementById('historyTotalAmount').innerHTML=`₹${sums.total.toLocaleString('en-IN')}`; document.getElementById('historyTotalCount').innerText=entries.length; document.getElementById('historyPetrolAmount').innerHTML=`₹${sums.Petrol.toLocaleString('en-IN')}`; document.getElementById('historyPetrolCount').innerText=cnts.Petrol; document.getElementById('historyPartAmount').innerHTML=`₹${sums.Part.toLocaleString('en-IN')}`; document.getElementById('historyPartCount').innerText=cnts.Part; document.getElementById('historyServicingAmount').innerHTML=`₹${sums.Servicing.toLocaleString('en-IN')}`; document.getElementById('historyServicingCount').innerText=cnts.Servicing; document.getElementById('historyModAmount').innerHTML=`₹${sums.Mod.toLocaleString('en-IN')}`; document.getElementById('historyModCount').innerText=cnts.Mod; document.getElementById('historyTyreAmount').innerHTML=`₹${sums.Tyre.toLocaleString('en-IN')}`; document.getElementById('historyTyreCount').innerText=cnts.Tyre; let filtered=cat==='all'?entries:entries.filter(e=>e.category===cat); filtered.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0)); let cont=document.getElementById('historyEntriesList'); if(!filtered.length){ cont.innerHTML='<div class="text-center text-gray-400 text-sm py-5">No records</div>'; return; } cont.innerHTML=filtered.map(e=>`<div class="glass-panel p-3"><div class="flex flex-wrap justify-between"><div><div class="font-bold text-gold text-base">${e.date}</div><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs inline-block mt-1">${e.category}</span></div><div class="text-right"><span class="font-black text-gold text-xl">₹${e.cost.toLocaleString('en-IN')}</span></div></div>${e.details?`<div class="text-gray-500 text-xs mt-2">📝 ${escapeHtml(e.details)}</div>`:''}</div>`).join(''); }
-        
-        window.shareVehiclePDF=async()=>{ if(!currentVehicleFilter){ alert("Select vehicle"); return; } let entries=allEntries.filter(e=>e.name===currentVehicleFilter); if(!entries.length){ alert("No data"); return; } let {jsPDF}=window.jspdf; let doc=new jsPDF(); doc.setFillColor(218,165,32); doc.rect(0,0,210,45,'F'); doc.setFont("helvetica","bold"); doc.setFontSize(22); doc.setTextColor(255,255,255); doc.text("VEHICLE EXPENSE REPORT",105,20,{align:'center'}); doc.setFontSize(11); doc.text(`Vehicle: ${currentVehicleFilter}`,105,30,{align:'center'}); doc.text(`Generated: ${formatDateToDisplay(getISOStringForStorage())}`,105,38,{align:'center'}); let total=entries.reduce((s,e)=>s+e.cost,0); doc.setTextColor(0,0,0); doc.setFontSize(12); doc.text("FINANCIAL SUMMARY",14,60); doc.setFontSize(10); doc.text(`Total Expenditure: ₹${total.toLocaleString('en-IN')}`,14,70); let rows=entries.map(e=>[e.date, e.category, `₹${e.cost.toLocaleString('en-IN')}`, e.details||'-']); doc.autoTable({startY:85,head:[['Date','Category','Amount','Description']],body:rows,theme:'striped',headStyles:{fillColor:[218,165,32],textColor:[255,255,255],fontStyle:'bold'},bodyStyles:{fontSize:8},margin:{left:14,right:14}}); doc.save(`${currentVehicleFilter}_Expense_Report.pdf`); showToast("PDF Ready!"); };
+
+        window.openHistoryModal = () => { if (!currentVehicleFilter) { alert("Select vehicle from 'VIEW DATA FOR'");
+                return; }
+            historyCurrentVehicle = currentVehicleFilter;
+            document.getElementById('modalVehicleName').innerHTML =
+                `<i class="fa fa-car"></i> ${currentVehicleFilter}`;
+            updateHistoryModal(currentVehicleFilter, 'all');
+            document.getElementById('historyModal').style.display = 'flex'; };
+        window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; };
+        window.filterHistoryByCategory = (cat) => { updateHistoryModal(historyCurrentVehicle, cat);
+            document.querySelectorAll('.history-stat-card').forEach(c => c.classList.remove('active')); let map = {
+                'all': 'historyAllCard',
+                'Petrol': 'historyPetrolCard',
+                'Part Replacement': 'historyPartCard',
+                'Servicing': 'historyServicingCard',
+                'Modification': 'historyModCard',
+                'Tyre/Air': 'historyTyreCard'
+            };
+            document.getElementById(map[cat] || 'historyAllCard').classList.add('active'); };
+
+        function updateHistoryModal(vehicle, cat) { let entries = allEntries.filter(e => e.name === vehicle); let sums = {
+                Petrol: 0,
+                Part: 0,
+                Servicing: 0,
+                Mod: 0,
+                Tyre: 0,
+                total: 0
+            },
+            cnts = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, Tyre: 0 };
+            entries.forEach(e => { sums.total += e.cost; if (e.category === 'Petrol') { sums.Petrol += e.cost;
+                    cnts.Petrol++; } else if (e.category === 'Part Replacement') { sums.Part += e.cost;
+                    cnts.Part++; } else if (e.category === 'Servicing') { sums.Servicing += e.cost;
+                    cnts.Servicing++; } else if (e.category === 'Modification') { sums.Mod += e.cost;
+                    cnts.Mod++; } else if (e.category === 'Tyre/Air') { sums.Tyre += e.cost;
+                    cnts.Tyre++; } });
+            document.getElementById('historyTotalAmount').innerHTML = `₹${sums.total.toLocaleString('en-IN')}`;
+            document.getElementById('historyTotalCount').innerText = entries.length;
+            document.getElementById('historyPetrolAmount').innerHTML = `₹${sums.Petrol.toLocaleString('en-IN')}`;
+            document.getElementById('historyPetrolCount').innerText = cnts.Petrol;
+            document.getElementById('historyPartAmount').innerHTML = `₹${sums.Part.toLocaleString('en-IN')}`;
+            document.getElementById('historyPartCount').innerText = cnts.Part;
+            document.getElementById('historyServicingAmount').innerHTML = `₹${sums.Servicing.toLocaleString('en-IN')}`;
+            document.getElementById('historyServicingCount').innerText = cnts.Servicing;
+            document.getElementById('historyModAmount').innerHTML = `₹${sums.Mod.toLocaleString('en-IN')}`;
+            document.getElementById('historyModCount').innerText = cnts.Mod;
+            document.getElementById('historyTyreAmount').innerHTML = `₹${sums.Tyre.toLocaleString('en-IN')}`;
+            document.getElementById('historyTyreCount').innerText = cnts.Tyre;
+            let filtered = cat === 'all' ? entries : entries.filter(e => e.category === cat);
+            filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            let cont = document.getElementById('historyEntriesList'); if (!filtered.length) { cont.innerHTML =
+                    '<div class="text-center text-gray-400 text-sm py-5">No records</div>'; return; }
+            cont.innerHTML = filtered.map(e =>
+                `<div class="glass-panel p-3"><div class="flex flex-wrap justify-between"><div><div class="font-bold text-gold text-base">${e.date}</div><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs inline-block mt-1">${e.category}</span></div><div class="text-right"><span class="font-black text-gold text-xl">₹${e.cost.toLocaleString('en-IN')}</span></div></div>${e.details?`<div class="text-gray-500 text-xs mt-2">📝 ${escapeHtml(e.details)}</div>`:''}</div>`
+            ).join(''); }
+
+        window.shareVehiclePDF = async () => { if (!currentVehicleFilter) { alert("Select vehicle"); return; } let entries =
+                allEntries.filter(e => e.name === currentVehicleFilter); if (!entries.length) { alert("No data");
+                return; } let { jsPDF } = window.jspdf; let doc = new jsPDF();
+            doc.setFillColor(218, 165, 32);
+            doc.rect(0, 0, 210, 45, 'F');
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(255, 255, 255);
+            doc.text("VEHICLE EXPENSE REPORT", 105, 20, { align: 'center' });
+            doc.setFontSize(11);
+            doc.text(`Vehicle: ${currentVehicleFilter}`, 105, 30, { align: 'center' });
+            doc.text(`Generated: ${formatDateToDisplay(getISOStringForStorage())}`, 105, 38, { align: 'center' });
+            let total = entries.reduce((s, e) => s + e.cost, 0);
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.text("FINANCIAL SUMMARY", 14, 60);
+            doc.setFontSize(10);
+            doc.text(`Total Expenditure: ₹${total.toLocaleString('en-IN')}`, 14, 70);
+            let rows = entries.map(e => [e.date, e.category, `₹${e.cost.toLocaleString('en-IN')}`, e.details || '-']);
+            doc.autoTable({ startY: 85, head: [
+                    ['Date', 'Category', 'Amount', 'Description']
+                ], body: rows, theme: 'striped', headStyles: { fillColor: [218, 165, 32], textColor: [255, 255,
+                        255
+                    ], fontStyle: 'bold' }, bodyStyles: { fontSize: 8 }, margin: { left: 14, right: 14 } });
+            doc.save(`${currentVehicleFilter}_Expense_Report.pdf`);
+            showToast("PDF Ready!"); };
     </script>
 </body>
 </html>
