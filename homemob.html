@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="mobile-web-app-capable" content="yes">
 
-    <!-- Firebase SDKs - LOADED ONLY ONCE -->
+    <!-- Firebase SDKs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-app-compat.min.js">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.6.10/firebase-database-compat.min.js">
@@ -105,7 +105,6 @@
             --card: #1e293b;
             --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            /* Fix: brighter text for dark mode */
             --text-dim: #cbd5e1;
         }
 
@@ -422,7 +421,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* HOVER: Blue color + Slight upward motion */
         .nav-link:hover {
             transform: translateY(-4px);
             color: #2563eb !important;
@@ -1286,6 +1284,8 @@
         // Firebase instances
         let db, auth, storage;
         let userDataLoaded = false;
+        let loginDetected = false;
+        let redirectTimeout = null;
 
         try {
             db = firebase.database();
@@ -1501,6 +1501,14 @@
 
         // Auth state handler
         if (auth) {
+            // Set a 7-second timeout for redirect
+            redirectTimeout = setTimeout(() => {
+                if (!loginDetected) {
+                    console.log("⏰ 7 seconds passed - no login detected, redirecting...");
+                    window.location.replace("indexmob.html");
+                }
+            }, 7000);
+
             auth.onIdTokenChanged(async (user) => {
                 if (!user) {
                     console.log("No user found, redirecting...");
@@ -1540,6 +1548,13 @@
                         nameElement.innerText = finalName;
                         nameElement.style.color = '#ffe11b';
                         userDataLoaded = true;
+                        loginDetected = true;
+                        
+                        // Clear the redirect timeout since we have login
+                        if (redirectTimeout) {
+                            clearTimeout(redirectTimeout);
+                            redirectTimeout = null;
+                        }
                     }
 
                     // Load avatar image
@@ -1567,7 +1582,7 @@
                     loadTodaysDashboard();
                     fetchAndShowTodaysEvents();
                     loadGroceryItems();
-                    loadRemindersFromVehicleData(); // Updated to fetch from serviceReminders
+                    loadRemindersFromVehicleData();
                     if (typeof loadAnalytics === "function") loadAnalytics();
                     if (typeof initializeSavigSearch === "function") initializeSavigSearch();
 
@@ -1596,35 +1611,6 @@
                     user.getIdToken(true).catch(() => {});
                 }
             }
-
-            // If user data hasn't loaded after 3 seconds, force a refresh
-            setTimeout(() => {
-                if (!userDataLoaded && auth && auth.currentUser) {
-                    console.log("User data not loaded, forcing refresh...");
-                    const nameElement = document.getElementById('user-display-name');
-                    if (nameElement && nameElement.innerText === "Loading...") {
-                        // Try to reload the user data
-                        const user = auth.currentUser;
-                        if (user && db) {
-                            db.ref('users/' + user.uid).once('value')
-                                .then((snapshot) => {
-                                    const userData = snapshot.val();
-                                    if (userData && userData.name) {
-                                        nameElement.innerText = userData.name;
-                                        nameElement.style.color = '#ffe11b';
-                                        userDataLoaded = true;
-                                        updateTimeGreeting();
-                                        // Load avatar too
-                                        if (userData) {
-                                            loadUserAvatar(user.uid, userData.avatar, user.photoURL);
-                                        }
-                                    }
-                                })
-                                .catch(() => {});
-                        }
-                    }
-                }
-            }, 3000);
         };
 
         document.getElementById("monthSelector").addEventListener("change", loadAnalytics);
@@ -2489,7 +2475,7 @@
             }
         });
 
-        console.log("✅ Savig app initialized successfully with all features");
+        console.log("✅ Savig app initialized with 7-second redirect timeout");
     </script>
 
 </body>
