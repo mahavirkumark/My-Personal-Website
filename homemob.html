@@ -769,6 +769,71 @@
             margin-bottom: 10px;
         }
 
+        /* NEW: Login not detected overlay - shows after 10s */
+        #login-not-detected-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(6px);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        #login-not-detected-overlay .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 30px 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+            border: 1px solid var(--border-color);
+        }
+        #login-not-detected-overlay .card h2 {
+            color: var(--text-main);
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        #login-not-detected-overlay .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        #login-not-detected-overlay .card .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #login-not-detected-overlay .card .logout-btn:hover {
+            background: #dc2626;
+            transform: scale(1.03);
+        }
+        #login-not-detected-overlay .card .logout-btn:active {
+            transform: scale(0.95);
+        }
+        #login-not-detected-overlay .card .icon-big {
+            font-size: 56px;
+            color: #f59e0b;
+            margin-bottom: 12px;
+        }
+
         #offline-indicator {
             display: none;
             position: fixed;
@@ -996,6 +1061,18 @@
         <button onclick="forceLogout()" style="background: #ef4444; margin-top: 10px;">
             <i class="fas fa-sign-out-alt"></i> Sign Out
         </button>
+    </div>
+
+    <!-- NEW: Login not detected overlay (appears after 10s) -->
+    <div id="login-not-detected-overlay">
+        <div class="card">
+            <div class="icon-big">🔐</div>
+            <h2>Login Not Detected</h2>
+            <p>We couldn't verify your session. Please click the button below to return to the login page and sign in again.</p>
+            <button class="logout-btn" onclick="forceLogoutFromOverlay()">
+                <i class="fas fa-sign-out-alt"></i> Go to Login
+            </button>
+        </div>
     </div>
 
     <header class="nav-container relative w-full border-b border-white/10 shadow-2xl overflow-hidden pb-1">
@@ -1286,6 +1363,7 @@
         let userDataLoaded = false;
         let loginDetected = false;
         let redirectTimeout = null;
+        let loginNotDetectedShown = false;
 
         try {
             db = firebase.database();
@@ -1364,6 +1442,22 @@
         };
 
         window.forceLogout = function() {
+            if (auth) {
+                auth.signOut()
+                    .then(() => {
+                        window.location.replace("indexmob.html");
+                    })
+                    .catch((error) => {
+                        console.error("Logout error:", error);
+                        window.location.replace("indexmob.html");
+                    });
+            } else {
+                window.location.replace("indexmob.html");
+            }
+        };
+
+        // NEW: Force logout from overlay (redirects to login)
+        window.forceLogoutFromOverlay = function() {
             if (auth) {
                 auth.signOut()
                     .then(() => {
@@ -1501,18 +1595,21 @@
 
         // Auth state handler
         if (auth) {
-            // Set a 7-second timeout for redirect
+            // Set 10-second timeout to show login-not-detected overlay (NO REDIRECT)
             redirectTimeout = setTimeout(() => {
-                if (!loginDetected) {
-                    console.log("⏰ 7 seconds passed - no login detected, redirecting...");
-                    window.location.replace("indexmob.html");
+                if (!loginDetected && !loginNotDetectedShown) {
+                    console.log("⏰ 10 seconds passed - no login detected, showing overlay.");
+                    loginNotDetectedShown = true;
+                    const overlay = document.getElementById('login-not-detected-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'flex';
+                    }
                 }
             }, 10000);
 
             auth.onIdTokenChanged(async (user) => {
                 if (!user) {
-                    console.log("No user found, redirecting...");
-                    window.location.replace("indexmob.html");
+                    console.log("No user found, but we wait for login. Overlay will show after 10s.");
                     return;
                 }
 
@@ -1549,11 +1646,18 @@
                         nameElement.style.color = '#ffe11b';
                         userDataLoaded = true;
                         loginDetected = true;
+                        loginNotDetectedShown = true; // prevent overlay from showing later
                         
                         // Clear the redirect timeout since we have login
                         if (redirectTimeout) {
                             clearTimeout(redirectTimeout);
                             redirectTimeout = null;
+                        }
+                        
+                        // Hide the overlay if it was shown
+                        const overlay = document.getElementById('login-not-detected-overlay');
+                        if (overlay) {
+                            overlay.style.display = 'none';
                         }
                     }
 
@@ -2475,7 +2579,7 @@
             }
         });
 
-        console.log("✅ Savig app initialized with 7-second redirect timeout");
+        console.log("✅ Savig app initialized with login-not-detected overlay after 10s (no auto-redirect)");
     </script>
 
 </body>
