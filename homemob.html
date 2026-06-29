@@ -1507,7 +1507,7 @@
                     console.log("⏰ 7 seconds passed - no login detected, redirecting...");
                     window.location.replace("indexmob.html");
                 }
-            }, 7000);
+            }, 10000);
 
             auth.onIdTokenChanged(async (user) => {
                 if (!user) {
