@@ -358,22 +358,18 @@
         .collapse-content.collapsed {
             max-height: 0 !important;
         }
-        .right-scroll-container {
-            max-height: calc(100vh - 200px);
-            min-height: 500px;
-            overflow-y: auto;
-            scrollbar-width: thin;
+        .right-panel-static {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
-        .right-scroll-container::-webkit-scrollbar {
-            width: 5px;
+        .right-panel-static .glass-panel {
+            flex-shrink: 0;
         }
-        .right-scroll-container::-webkit-scrollbar-track {
-            background: #E5E7EB;
-            border-radius: 10px;
-        }
-        .right-scroll-container::-webkit-scrollbar-thumb {
-            background: #DAA520;
-            border-radius: 10px;
+        .right-panel-static .logs-scroll-container {
+            flex: 1 1 auto;
+            min-height: 300px;
+            max-height: 450px;
         }
         .dark .right-scroll-container::-webkit-scrollbar-track {
             background: #2A2A30;
@@ -418,7 +414,7 @@
         }
         @media (min-width: 1024px) {
             #expenseFormContainer.collapsed #expenseForm {
-                max-height: 2000px !important;
+                max-height: 500px !important;
                 padding-top: 0.5rem !important;
                 padding-bottom: 0.5rem !important;
                 margin-top: 0.5rem !important;
@@ -624,6 +620,51 @@
                 font-size: 9px !important;
             }
         }
+
+        /* Full-page modal override for service & docs */
+        #serviceReminderModal.modal-overlay {
+            align-items: stretch;
+            padding: 0;
+            background: #F0F2F5;
+        }
+        .dark #serviceReminderModal.modal-overlay {
+            background: #0A0A0C;
+        }
+        #serviceReminderModal .modal-content {
+            max-width: 100%;
+            max-height: 100vh;
+            height: 100vh;
+            border-radius: 0;
+            padding: 24px 24px 80px 24px;
+            overflow-y: auto;
+            background: #F0F2F5;
+        }
+        .dark #serviceReminderModal .modal-content {
+            background: #0A0A0C;
+        }
+        @media (max-width: 640px) {
+            #serviceReminderModal .modal-content {
+                padding: 16px 16px 80px 16px;
+            }
+        }
+        #serviceReminderModal .modal-content .glass-panel {
+            background: #FFFFFF;
+        }
+        .dark #serviceReminderModal .modal-content .glass-panel {
+            background: #121216;
+        }
+
+        /* history transactions height increased */
+        #historyEntriesList {
+            max-height: calc(100vh - 400px) !important;
+            min-height: 350px;
+        }
+        @media (max-width: 640px) {
+            #historyEntriesList {
+                max-height: calc(100vh - 350px) !important;
+                min-height: 250px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -674,19 +715,29 @@
             </div>
         </div>
 
-        <!-- VIEW DATA FOR -->
-        <div class="glass-panel p-2 mb-1">
-            <label class="input-label"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
-            <div class="flex flex-wrap gap-2 items-center">
-                <select id="historyVehicleSelect" class="modern-input flex-1 min-w-[120px]"><option value="">SELECT</option></select>
-                <button onclick="window.shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-file-pdf"></i> PDF</button>
-                <button onclick="window.openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-chart-simple"></i> HIST</button>
+        <!-- VIEW DATA FOR - now with total expenditure in same row -->
+      <!-- VIEW DATA FOR - now with total expenditure in same row -->
+<div class="glass-panel p-2 mb-1">
+    <label class="input-label"><i class="fa fa-chart-line"></i> VIEW DATA FOR</label>
+    <div class="flex flex-wrap gap-2 items-center">
+        <select id="historyVehicleSelect" class="modern-input flex-1 min-w-[120px]"><option value="">SELECT</option></select>
+        
+        <!-- EXPENDITURE CONTAINER WITH HEADING AND BORDER -->
+        <div id="totalExpenditureInline" class="hidden border border-gold/30 bg-gold/5 px-3 py-1.5 rounded-xl text-center">
+            <span class="block text-[14px] font-bold tracking-wider uppercase text-black-700 dark:text-white-700 leading-none mb-1">Total Spent</span>
+            <div class="text-base md:text-lg font-black text-gold whitespace-nowrap flex items-center justify-center gap-1 leading-none">
+                💰 ₹<span id="totalExpenditureInlineAmount">0</span>
             </div>
         </div>
 
+        <button onclick="window.shareVehiclePDF()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-file-pdf"></i> PDF</button>
+        <button onclick="window.openHistoryModal()" class="bg-gold/10 hover:bg-gold/20 text-gold font-bold px-2 py-2 rounded-xl flex items-center gap-2 text-sm whitespace-nowrap"><i class="fa fa-chart-simple"></i> HIST</button>
+    </div>
+</div>
+
         <!-- Main layout -->
         <div class="flex flex-col lg:flex-row gap-3">
-            <div class="w-full lg:w-[680px] flex-shrink-0">
+            <div class="w-full lg:w-[580px] flex-shrink-0">
                 <div id="expenseFormContainer" class="glass-panel p-4 collapsed">
                     <div class="flex justify-between items-center mb-1 cursor-pointer lg:cursor-default" onclick="toggleExpenseForm()">
                         <div class="flex items-center gap-2"><div class="w-1 h-5 bg-gold rounded-full"></div><h2 class="text-xs font-black tracking-wide uppercase text-gray-500">Record Expense</h2></div>
@@ -708,8 +759,9 @@
                 </div>
             </div>
 
-            <div class="flex-1 space-y-4 right-scroll-container">
-                <div id="totalExpenditureCard" class="glass-panel p-4 hidden"><div class="flex justify-between"><div><p class="text-xs uppercase font-bold text-gold">Total Expenditure</p><p id="totalExpenditureAmount" class="text-2xl font-black">₹0</p></div><i class="fa fa-chart-line text-gold/40 text-2xl"></i></div></div>
+            <!-- RIGHT PANEL: static header + scrollable logs -->
+            <div class="flex-1 right-panel-static">
+                <!-- Removed totalExpenditureCard from here, now inline -->
                 <div class="glass-panel p-3"><label class="input-label">FILTER</label><div class="flex flex-wrap gap-2"><button data-filter="all" class="filter-chip active">ALL</button><button data-filter="Petrol" class="filter-chip">PETROL</button><button data-filter="Part Replacement" class="filter-chip">PART</button><button data-filter="Servicing" class="filter-chip">SERVICE</button><button data-filter="Modification" class="filter-chip">MOD</button><button data-filter="Tyre/Air" class="filter-chip">TYRE/AIR</button><button data-filter="Cleaning" class="filter-chip">CLEAN</button></div></div>
                 <div class="glass-panel p-3 flex items-center gap-2"><i class="fa fa-search text-gray-400"></i><input type="text" id="searchBar" placeholder="Search vehicle, notes..." class="flex-1 outline-none bg-transparent text-sm" onkeyup="window.filterEntries()"><button onclick="window.startVoiceSearch()" class="bg-gold/10 rounded-full w-8 h-8 flex items-center justify-center"><i class="fa fa-microphone text-gold"></i></button><div id="logCounter" class="text-xs font-bold text-gray-400">0</div></div>
                 <div id="logsContainer" class="logs-scroll-container space-y-2"><div class="glass-panel p-6 text-center"><i class="fa fa-database text-gray-300 text-2xl"></i><p class="text-sm mt-2">Loading...</p></div></div>
@@ -726,10 +778,13 @@
         </div>
     </div>
 
-    <!-- SERVICE & DOCS MODAL -->
+    <!-- SERVICE & DOCS MODAL - FULL PAGE -->
     <div id="serviceReminderModal" class="modal-overlay" style="display: none;">
         <div class="modal-content">
-            <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-black flex gap-2"><i class="fa fa-calendar-alt text-gold"></i> Vehicle Docs & Reminders</h2><button onclick="window.closeServiceReminderModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition"><i class="fa fa-times text-gray-500 dark:text-gray-400"></i></button></div>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-black flex gap-2"><i class="fa fa-calendar-alt text-gold"></i> Vehicle Docs & Reminders</h2>
+                <button onclick="window.closeServiceReminderModal()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 transition"><i class="fa fa-times text-gray-500 dark:text-gray-400"></i></button>
+            </div>
             <div class="flex border-b border-gray-200 dark:border-gray-700 mb-5 gap-2 overflow-x-auto">
                 <button onclick="switchServiceTab('service')" id="tabServiceBtn" class="service-tab-active px-4 py-2 text-sm font-bold transition whitespace-nowrap">🔧 SERVICE</button>
                 <button onclick="switchServiceTab('puc')" id="tabPucBtn" class="service-tab-inactive px-4 py-2 text-sm font-bold transition whitespace-nowrap">🌿 PUC</button>
@@ -738,50 +793,70 @@
             </div>
             <div id="reminderFormContainer" class="space-y-4">
                 <div><label class="input-label">Select Vehicle</label><select id="reminderVehicleSelect" class="modern-input"><option value="">—— SELECT VEHICLE ——</option></select></div>
+                
+                <!-- SERVICE TAB PANEL -->
                 <div id="serviceTabPanel" class="reminder-section mt-2">
                     <div class="collapse-header" onclick="toggleCollapse('serviceCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-wrench"></i> Service Reminder</h3><i id="serviceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="serviceCollapse" class="collapse-content mt-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><label class="input-label">Service Start Date</label><input type="date" id="serviceStartDate" class="modern-input"></div>
                             <div><label class="input-label">Next Service Date</label><input type="date" id="nextServiceDate" class="modern-input"></div>
                             <div><label class="input-label">Next Service KM</label><input type="number" id="nextServiceKM" placeholder="Odometer (km)" class="modern-input"></div>
-                            <div><label class="input-label">Current Odometer</label><input type="number" id="currentOdometer" placeholder="Current km" class="modern-input"></div>
                         </div>
-                        <div class="mt-2"><label class="input-label">Service Notes</label><textarea id="serviceNotes" rows="2" class="modern-input" placeholder="Any service remarks..."></textarea></div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                            <div><label class="input-label">Current Odometer</label><input type="number" id="currentOdometer" placeholder="Current km" class="modern-input"></div>
+                            <div><label class="input-label">Service Notes</label><input type="text" id="serviceNotes" placeholder="Any service remarks..." class="modern-input"></div>
+                            <div></div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- PUC TAB PANEL -->
                 <div id="pucTabPanel" class="reminder-section mt-2" style="display: none;">
                     <div class="collapse-header" onclick="toggleCollapse('pucCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-leaf"></i> PUC Certificate</h3><i id="pucCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="pucCollapse" class="collapse-content mt-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><label class="input-label">PUC Issue Date</label><input type="date" id="pucStartDate" class="modern-input"></div>
                             <div><label class="input-label">PUC Due Date</label><input type="date" id="pucDueDate" class="modern-input"></div>
                             <div><label class="input-label">Amount (₹)</label><input type="number" id="pucAmount" class="modern-input"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                             <div><label class="input-label">Shop Name</label><input type="text" id="pucShop" class="modern-input"></div>
                             <div><label class="input-label">Certificate No.</label><input type="text" id="pucCertNo" class="modern-input"></div>
+                            <div></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- INSURANCE TAB PANEL -->
                 <div id="insuranceTabPanel" class="reminder-section mt-2" style="display: none;">
                     <div class="collapse-header" onclick="toggleCollapse('insuranceCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-shield-alt"></i> Insurance</h3><i id="insuranceCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="insuranceCollapse" class="collapse-content mt-3">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><label class="input-label">Insurance Start Date</label><input type="date" id="insuranceStartDate" class="modern-input"></div>
                             <div><label class="input-label">Expiry Date</label><input type="date" id="insuranceExpiry" class="modern-input"></div>
                             <div><label class="input-label">Premium (₹)</label><input type="number" id="insuranceAmount" class="modern-input"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                             <div><label class="input-label">Provider</label><input type="text" id="insuranceProvider" class="modern-input"></div>
                             <div><label class="input-label">Policy Number</label><input type="text" id="insurancePolicyNo" class="modern-input"></div>
+                            <div></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- VEHICLE INFO TAB PANEL -->
                 <div id="infoTabPanel" class="reminder-section mt-2" style="display: none;">
                     <div class="collapse-header" onclick="toggleCollapse('infoCollapse')"><h3 class="font-bold text-gold mb-0"><i class="fa fa-info-circle"></i> Vehicle Info & Ownership</h3><i id="infoCollapseIcon" class="fa fa-chevron-down text-gold transition-transform"></i></div>
                     <div id="infoCollapse" class="collapse-content mt-3">
-                        <div class="info-grid">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div><label class="input-label">Registration Number</label><input type="text" id="regNumber" class="modern-input"></div>
                             <div><label class="input-label">Chassis Number</label><input type="text" id="chassisNo" class="modern-input"></div>
                             <div><label class="input-label">Engine Number</label><input type="text" id="engineNo" class="modern-input"></div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
                             <div><label class="input-label">Model Year</label><input type="text" id="modelYear" class="modern-input" placeholder="2023"></div>
+                            <div></div><div></div>
                         </div>
                         <div class="owner-detail-row mt-3">
                             <label class="input-label">OWNERSHIP STATUS</label>
@@ -790,10 +865,11 @@
                                 <label class="flex items-center gap-2"><input type="radio" name="ownershipType" value="Second Hand" class="w-4 h-4 accent-gold"> <span class="text-sm">Second Hand (Pre-owned)</span></label>
                             </div>
                         </div>
-                        <div id="secondHandFields" style="display: none;"><div class="info-grid mt-2"><div><label class="input-label">Previous Owner Name</label><input type="text" id="prevOwnerName" class="modern-input"></div><div><label class="input-label">Previous Owner Phone</label><input type="tel" id="prevOwnerPhone" class="modern-input"></div><div><label class="input-label">Showroom / Dealer Name</label><input type="text" id="showroomName" class="modern-input"></div><div><label class="input-label">Purchase Price (₹)</label><input type="number" id="purchasePrice" class="modern-input"></div></div></div>
-                        <div id="firstHandFields" style="display: none;"><div class="info-grid mt-2"><div><label class="input-label">Showroom Name</label><input type="text" id="firstHandShowroom" class="modern-input"></div><div><label class="input-label">Purchase Price (₹)</label><input type="number" id="firstHandPrice" class="modern-input"></div><div><label class="input-label">Invoice Number</label><input type="text" id="invoiceNo" class="modern-input"></div></div></div>
+                        <div id="secondHandFields" style="display: none;"><div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2"><div><label class="input-label">Previous Owner Name</label><input type="text" id="prevOwnerName" class="modern-input"></div><div><label class="input-label">Previous Owner Phone</label><input type="tel" id="prevOwnerPhone" class="modern-input"></div><div><label class="input-label">Showroom / Dealer Name</label><input type="text" id="showroomName" class="modern-input"></div><div><label class="input-label">Purchase Price (₹)</label><input type="number" id="purchasePrice" class="modern-input"></div></div></div>
+                        <div id="firstHandFields" style="display: none;"><div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2"><div><label class="input-label">Showroom Name</label><input type="text" id="firstHandShowroom" class="modern-input"></div><div><label class="input-label">Purchase Price (₹)</label><input type="number" id="firstHandPrice" class="modern-input"></div><div><label class="input-label">Invoice Number</label><input type="text" id="invoiceNo" class="modern-input"></div></div></div>
                     </div>
                 </div>
+
                 <button onclick="window.saveComprehensiveReminder()" class="w-full bg-gold hover:bg-amber-500 text-white font-black py-3 rounded-xl transition flex items-center justify-center gap-2 mt-4"><i class="fa fa-save"></i> Save All Documents</button>
             </div>
             <div class="reminder-section mt-5">
@@ -818,12 +894,9 @@
                 <div onclick="window.filterHistoryByCategory('Modification')" id="historyModCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-microphone text-gold"></i><p class="font-bold text-xs">Mod</p><p id="historyModAmount" class="font-black text-gold text-sm">₹0</p><p id="historyModCount" class="text-xs">0</p></div>
                 <div onclick="window.filterHistoryByCategory('Tyre/Air')" id="historyTyreCard" class="history-stat-card glass-panel text-center p-2 cursor-pointer"><i class="fa fa-circle text-gold"></i><p class="font-bold text-xs">Tyre/Air</p><p id="historyTyreAmount" class="font-black text-gold text-sm">₹0</p><p id="historyTyreCount" class="text-xs">0</p></div>
             </div>
-            <div><h3 class="text-xs font-bold uppercase text-gray-500 mb-3">Transactions</h3><div id="historyEntriesList" class="space-y-3 max-h-96 overflow-y-auto"></div></div>
+            <div><h3 class="text-xs font-bold uppercase text-gray-500 mb-3">Transactions</h3><div id="historyEntriesList" class="space-y-3 overflow-y-auto" style="max-height: calc(100vh - 400px); min-height: 350px;"></div></div>
         </div>
     </div>
-
-    <!-- BOTTOM NAVIGATION -->
-   
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
@@ -928,7 +1001,7 @@
                 allEntries = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a, b) => (b.timestamp ||
                         0) - (a.timestamp || 0)) : [];
                 renderFilteredEntries();
-                updateTotalCard();
+                updateTotalInline();
                 populateVehicleSelects(); });
             onValue(ref(db, 'serviceReminders'), (snap) => { let data = snap.val();
                 reminders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
@@ -1099,15 +1172,22 @@
         document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { currentVehicleFilter = e.target
                 .value;
             renderFilteredEntries();
-            updateTotalCard(); });
+            updateTotalInline(); });
         document.getElementById('vehicleList').addEventListener('change', (e) => document.getElementById(
             'newVehicleWrapper').classList.toggle('hidden', e.target.value !== 'NEW'));
 
-        function updateTotalCard() { let card = document.getElementById('totalExpenditureCard'); if (!currentVehicleFilter) {
-                card.classList.add('hidden'); return; } let total = allEntries.filter(e => e.name === currentVehicleFilter)
-                .reduce((s, e) => s + e.cost, 0);
-            document.getElementById('totalExpenditureAmount').innerHTML = `₹${total.toLocaleString('en-IN')}`;
-            card.classList.remove('hidden'); }
+        function updateTotalInline() {
+            let card = document.getElementById('totalExpenditureInline');
+            let amountEl = document.getElementById('totalExpenditureInlineAmount');
+            if (!currentVehicleFilter) {
+                card.classList.add('hidden');
+                return;
+            }
+            let total = allEntries.filter(e => e.name === currentVehicleFilter).reduce((s, e) => s + e.cost, 0);
+            amountEl.innerText = total.toLocaleString('en-IN');
+            card.classList.remove('hidden');
+        }
+
         document.getElementById('cancelEditBtn').addEventListener('click', () => { editingId = null;
             document.getElementById('editId').value = '';
             document.getElementById('expenseForm').reset();
@@ -1205,6 +1285,7 @@
         function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;',
                 '>': '&gt;' } [m])); }
 
+        // Updated: removed start/issue dates from PUC and Insurance display
         function getServiceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.serviceStartDate)
                 html += `<div>📅 Start: ${formatDateToDisplay(r.serviceStartDate)}</div>`; if (r.nextServiceDate) html +=
                 `<div>⏰ Next Service: ${formatDateToDisplay(r.nextServiceDate)}</div>`; if (r.nextServiceKM) html +=
@@ -1212,18 +1293,16 @@
                 `<div>📍 Current Odometer: ${r.currentOdometer.toLocaleString()} km</div>`; if (r.serviceNotes) html +=
                 `<div>📝 Notes: ${escapeHtml(r.serviceNotes)}</div>`; html += '</div>'; return html; }
 
-        function getPUCDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.pucStartDate) html +=
-                `<div>📅 Issue Date: ${formatDateToDisplay(r.pucStartDate)}</div>`; if (r.pucDueDate) html +=
-                `<div>⚠️ Due Date: ${formatDateToDisplay(r.pucDueDate)}</div>`; if (r.pucAmount) html +=
-                `<div>💰 Amount: ₹${r.pucAmount}</div>`; if (r.pucShop) html +=
+        function getPUCDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; // removed pucStartDate
+            if (r.pucDueDate) html += `<div>⚠️ Due Date: ${formatDateToDisplay(r.pucDueDate)}</div>`; if (r.pucAmount)
+                html += `<div>💰 Amount: ₹${r.pucAmount}</div>`; if (r.pucShop) html +=
                 `<div>🏪 Shop: ${escapeHtml(r.pucShop)}</div>`; if (r.pucCertNo) html +=
                 `<div>📜 Cert No: ${escapeHtml(r.pucCertNo)}</div>`; html += '</div>'; return html; }
 
-        function getInsuranceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.insuranceStartDate)
-                html += `<div>📅 Start: ${formatDateToDisplay(r.insuranceStartDate)}</div>`; if (r.insuranceExpiry)
-                html += `<div>⚠️ Expiry: ${formatDateToDisplay(r.insuranceExpiry)}</div>`; if (r.insuranceAmount)
-                html += `<div>💰 Premium: ₹${r.insuranceAmount}</div>`; if (r.insuranceProvider) html +=
-                `<div>🏢 Provider: ${escapeHtml(r.insuranceProvider)}</div>`; if (r.insurancePolicyNo) html +=
+        function getInsuranceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; // removed insuranceStartDate
+            if (r.insuranceExpiry) html += `<div>⚠️ Expiry: ${formatDateToDisplay(r.insuranceExpiry)}</div>`; if (r
+                .insuranceAmount) html += `<div>💰 Premium: ₹${r.insuranceAmount}</div>`; if (r.insuranceProvider)
+                html += `<div>🏢 Provider: ${escapeHtml(r.insuranceProvider)}</div>`; if (r.insurancePolicyNo) html +=
                 `<div>📄 Policy: ${escapeHtml(r.insurancePolicyNo)}</div>`; html += '</div>'; return html; }
 
         function getVehicleInfoDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.regNumber) html +=
@@ -1242,9 +1321,10 @@
             let filteredReminders = reminders.filter(r => {
                 if (currentReminderFilterTab === 'service') return r.nextServiceDate || r.serviceStartDate || r
                     .serviceNotes || r.nextServiceKM;
-                if (currentReminderFilterTab === 'puc') return r.pucDueDate || r.pucStartDate || r.pucAmount;
-                if (currentReminderFilterTab === 'insurance') return r.insuranceExpiry || r.insuranceStartDate || r
-                    .insuranceAmount;
+                if (currentReminderFilterTab === 'puc') return r.pucDueDate || r.pucAmount || r.pucShop || r
+                    .pucCertNo;
+                if (currentReminderFilterTab === 'insurance') return r.insuranceExpiry || r.insuranceAmount || r
+                    .insuranceProvider || r.insurancePolicyNo;
                 if (currentReminderFilterTab === 'vehicleInfo') return r.regNumber || r.chassisNo || r.engineNo || r
                     .ownershipType;
                 return true;
@@ -1296,7 +1376,9 @@
                 showToast("Deleted");
                 checkDueDatesAndSendNotifications(); } };
 
-        window.openServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'flex';
+        window.openServiceReminderModal = () => {
+            document.getElementById('serviceReminderModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
             document.getElementById('serviceStartDate').value = getISOStringForStorage();
             document.getElementById('pucStartDate').value = getISOStringForStorage();
             document.getElementById('insuranceStartDate').value = getISOStringForStorage();
@@ -1306,8 +1388,12 @@
             initCollapsibles();
             currentReminderFilterTab = 'service';
             document.getElementById('recordFilterBadge').innerText = 'SERVICE';
-            loadRemindersList(); };
-        window.closeServiceReminderModal = () => { document.getElementById('serviceReminderModal').style.display = 'none'; };
+            loadRemindersList();
+        };
+        window.closeServiceReminderModal = () => {
+            document.getElementById('serviceReminderModal').style.display = 'none';
+            document.body.style.overflow = '';
+        };
 
         window.switchServiceTab = (tab) => {
             document.getElementById('serviceTabPanel').style.display = 'none';
