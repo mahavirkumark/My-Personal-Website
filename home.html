@@ -618,15 +618,15 @@
     return userData;
   }
 
+  // 🔧 FIXED: Removed the 1-day expiration check so users stay logged in
   function loadUserFromStorage() {
     try {
       let stored = sessionStorage.getItem('savig_user_data');
       if (!stored) stored = localStorage.getItem('savig_user_data');
       if (stored) {
         const userData = JSON.parse(stored);
-        if (userData.timestamp && (Date.now() - userData.timestamp) < 86400000) {
-          return userData;
-        }
+        // ✅ No expiration check - user stays logged in even after days
+        return userData;
       }
     } catch (e) {}
     return null;
