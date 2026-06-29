@@ -2,7 +2,6 @@
   "name": "Savig app",
   "short_name": "Savig",
   "description": "Personal data and finance management assistant.",
-  "gcm_sender_id": "103953800507",
   "start_url": "/indexmob.html?launcher=true",
   "scope": "/",
   "display": "standalone",
@@ -21,12 +20,6 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
-    },
-    {
-      "src": "t.gif",
-      "sizes": "512x512",
-      "type": "image/gif",
-      "purpose": "any"
     }
   ]
 }
