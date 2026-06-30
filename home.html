@@ -571,6 +571,7 @@
   let shownGroceryIds = new Set();
   let authChecked = false;
   let dataLoaded = false;
+  let allContactsCache = {};
 
   const pageMapping = {
     'home':'home.html','income':'income.html','calendar':'calender.html','birthday':'birthday.html',
@@ -679,6 +680,10 @@
 
   function loadAllData(userId) {
     if (!userId) return;
+    // Load contacts for WhatsApp search
+    db.ref(`users/${userId}/contacts`).on('value', snap => {
+      allContactsCache = snap.val() || {};
+    });
     loadDashboardData(userId);
     initLinksManager(userId);
     setupLinkUI(userId);
@@ -738,6 +743,57 @@
     clearTimeout(toast._timeout);
     toast._timeout = setTimeout(() => toast.classList.remove('show'), autoClose);
   }
+
+  // ✅ FIXED: Improved WhatsApp function with contact search
+  window.sendWhatsAppMsg = function(phone, msg, name = '') {
+    // If phone is empty, undefined, or 'undefined', try to find from contacts
+    if(!phone || phone === 'undefined' || phone === '') {
+      // Try to find phone from allContacts by name
+      if (name && currentUserId) {
+        const contacts = allContactsCache || {};
+        let foundPhone = null;
+        let foundName = '';
+        Object.values(contacts).forEach(contact => {
+          if (contact.name && contact.name.toLowerCase().includes(name.toLowerCase())) {
+            foundPhone = contact.phone || contact.mobile;
+            foundName = contact.name;
+          }
+        });
+        if (foundPhone) {
+          const clean = foundPhone.replace(/\D/g,'');
+          if(clean) {
+            window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
+          } else {
+            alert('Invalid phone number found.');
+          }
+        } else {
+          // Try searching in the database one more time
+          db.ref(`users/${currentUserId}/contacts`).once('value', snap => {
+            const contacts = snap.val() || {};
+            let found = null;
+            Object.values(contacts).forEach(contact => {
+              if (contact.name && contact.name.toLowerCase().includes(name.toLowerCase())) {
+                found = contact.phone || contact.mobile;
+              }
+            });
+            if (found) {
+              const clean = found.replace(/\D/g,'');
+              if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
+              else alert('Invalid phone number.');
+            } else {
+              alert(`No phone number saved for "${name}". Please add a contact with this name.`);
+            }
+          });
+        }
+      } else {
+        alert('No phone number saved and no name provided to search.');
+      }
+      return;
+    }
+    const clean = phone.replace(/\D/g,'');
+    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
+    else alert('Invalid phone number.');
+  };
 
   function checkReminderNotifications(reminders) {
     if (!reminders || !reminders.length) return;
@@ -961,7 +1017,7 @@
     });
   }
 
-  // ✅ FIXED: Corrected anniversary path
+  // ✅ FIXED: Corrected anniversary path and improved WhatsApp
   function loadDashboardData(userId) {
     if(!userId) return;
     const now=new Date(); const yyyy=now.getFullYear(); const mm=String(now.getMonth()+1).padStart(2,'0'); const dd=String(now.getDate()).padStart(2,'0'); const dateKey=`${yyyy}-${mm}-${dd}`;
@@ -982,7 +1038,7 @@
       div.innerHTML=html;
     });
     
-    // ✅ FIXED: Correct path for anniversaries - using users/${userId}/anniversaries
+    // ✅ FIXED: Correct path for anniversaries
     Promise.all([
       db.ref(`users/${userId}/birthdays`).once('value'), 
       db.ref(`users/${userId}/anniversaries`).once('value')
@@ -996,7 +1052,12 @@
           const b=child.val(); 
           if(b.birthdate && b.birthdate.endsWith(`-${mm}-${dd}`)){
             found=true; 
-            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${escapeHtml(b.name)}</span> <span class="text-xs">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile||''}','Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; 
+            const name = escapeHtml(b.name);
+            const mobile = b.mobile || '';
+            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);">
+              <div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${name}</span> <span class="text-xs">🎂 Birthday</span></div>
+              <button onclick="sendWhatsAppMsg('${mobile}','Happy Birthday ${name}! 🎉','${name}')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button>
+            </div>`; 
           }
         });
       }
@@ -1007,7 +1068,14 @@
           const a=child.val(); 
           if(a.d && a.d.endsWith(`-${mm}-${dd}`)){
             found=true; 
-            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile||''}','Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; 
+            const hName = escapeHtml(a.h);
+            const wName = escapeHtml(a.w);
+            const coupleName = `${hName} & ${wName}`;
+            const mobile = a.mobile || '';
+            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);">
+              <div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${coupleName}</span> <span class="text-xs">💍 Anniversary</span></div>
+              <button onclick="sendWhatsAppMsg('${mobile}','Happy Anniversary ${coupleName}! ','${hName}')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button>
+            </div>`; 
           }
         });
       }
@@ -1085,13 +1153,6 @@
       urlInp.value=''; titleInp.value=''; autoCheck.checked=false; autoDate.disabled=true; autoDate.value='';
     };
   }
-
-  window.sendWhatsAppMsg = function(phone,msg) {
-    if(!phone||phone==='undefined'){alert('No phone number saved.');return;}
-    const clean=phone.replace(/\D/g,'');
-    if(clean) window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`,'_blank');
-    else alert('Invalid phone');
-  };
 
   const saved=localStorage.getItem('theme')||'light';
   document.documentElement.setAttribute('data-theme',saved);
