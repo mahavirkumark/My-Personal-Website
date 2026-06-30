@@ -2,1285 +2,1829 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savig</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Savig · Birthdays & Anniversaries</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f3f4f6; 
-            margin: 0;
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<style>
+    :root {
+        --bg-body: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-main: #1e293b;
+        --text-bold: #0f172a;
+        --border: #e2e8f0;
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --nav-bg: rgba(255,255,255,0.96);
+    }
+    
+    [data-theme="dark"] {
+        --bg-body: #0f172a;
+        --bg-card: #1e293b;
+        --text-main: #cbd5e1;
+        --text-bold: #f1f5f9;
+        --border: #334155;
+        --primary: #818cf8;
+        --primary-hover: #6366f1;
+        --nav-bg: #0f172a !important;
+    }
+    
+    * { 
+        box-sizing: border-box; 
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        font-family: 'Inter', system-ui, sans-serif;
+        transition: background 0.2s, color 0.2s;
+        overflow-x: hidden;
+    }
+    
+    /* Fix body padding for bottom nav */
+    body {
+        padding-bottom: 80px !important;
+    }
+    
+    @media (min-width: 1024px) {
+        #universal-bottom-nav {
+            display: none !important;
         }
-        nav a { 
-            text-decoration: none; 
-            color: black; 
-            padding: 5px; 
-            transition: color 0.3s ease-in-out; 
+        body {
+            padding-bottom: 0 !important;
         }
-        nav a:hover { 
-            text-decoration: none; 
-            color: #4f46e5;
+    }
+    
+    /* ==================== GO TO TOP BUTTON ==================== */
+    #goToTopBtn {
+        position: fixed;
+        bottom: 90px;
+        right: 20px;
+        z-index: 99998;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: none;
+        background: var(--primary);
+        color: white;
+        font-size: 22px;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+    }
+    
+    #goToTopBtn.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    #goToTopBtn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 30px rgba(79, 70, 229, 0.6);
+    }
+    
+    #goToTopBtn:active {
+        transform: scale(0.9);
+    }
+    
+    [data-theme="dark"] #goToTopBtn {
+        box-shadow: 0 4px 20px rgba(129, 140, 248, 0.5);
+    }
+    
+    [data-theme="dark"] #goToTopBtn:hover {
+        box-shadow: 0 6px 30px rgba(129, 140, 248, 0.7);
+    }
+    
+    @media (min-width: 1024px) {
+        #goToTopBtn {
+            bottom: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            font-size: 24px;
         }
-
-        /* Adjusted width for equal distribution in the new single row structure */
-        @media (min-width: 1024px) { /* lg breakpoint */
-            .bday-card-lg {
-                width: calc(50% - 12px); /* Half width minus half the gap (1.5rem gap / 2 = 12px) */
-            }
+    }
+    
+    /* ==================== BOTTOM NAVIGATION ==================== */
+    #universal-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background: var(--nav-bg);
+        backdrop-filter: blur(0px);
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        border-top: 1px solid var(--border);
+        z-index: 99999;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    [data-theme="dark"] #universal-bottom-nav {
+        background: #0a0e1a !important;
+        border-top-color: #1a1f2e !important;
+        box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    [data-theme="light"] #universal-bottom-nav {
+        background: #ffffff !important;
+        border-top-color: #e5e7eb !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+    
+    /* Bottom Nav Links - Light Mode (PURE BLACK with BLUE HOVER) */
+    #universal-bottom-nav .nav-link {
+        color: #000000 !important;
+        font-weight: 800 !important;
+        font-size: 16px !important;
+        opacity: 2;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+        padding: 8px 0;
+        position: relative;
+    }
+    
+    #universal-bottom-nav .nav-link i {
+        font-size: 24px;
+        margin-bottom: 2px;
+        color: #000000 !important;
+        transition: all 0.3s ease;
+    }
+    
+    #universal-bottom-nav .nav-link div {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        color: #000000 !important;
+        transition: all 0.3s ease;
+    }
+    
+    /* BLUE HOVER EFFECT - Light Mode */
+    #universal-bottom-nav .nav-link:hover i {
+        color: #3b82f6 !important;
+        transform: translateY(-2px);
+    }
+    
+    #universal-bottom-nav .nav-link:hover div {
+        color: #3b82f6 !important;
+    }
+    
+    #universal-bottom-nav .nav-link:hover {
+        opacity: 1;
+    }
+    
+    #universal-bottom-nav .nav-link:active {
+        transform: scale(0.92);
+    }
+    
+    /* Bottom Nav Links - Dark Mode (PURE WHITE with BLUE HOVER) */
+    [data-theme="dark"] #universal-bottom-nav .nav-link {
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        font-size: 16px !important;
+        opacity: 1;
+    }
+    
+    [data-theme="dark"] #universal-bottom-nav .nav-link i {
+        color: #ffffff !important;
+    }
+    
+    [data-theme="dark"] #universal-bottom-nav .nav-link div {
+        color: #ffffff !important;
+    }
+    
+    /* BLUE HOVER EFFECT - Dark Mode */
+    [data-theme="dark"] #universal-bottom-nav .nav-link:hover i {
+        color: #818cf8 !important;
+        transform: translateY(-2px);
+    }
+    
+    [data-theme="dark"] #universal-bottom-nav .nav-link:hover div {
+        color: #818cf8 !important;
+    }
+    
+    [data-theme="dark"] #universal-bottom-nav .nav-link:hover {
+        opacity: 1;
+    }
+    
+    /* ==================== ALL OTHER STYLES ==================== */
+    .card, .bg-white, .bg-gray-50, .shadow-lg, .rounded-xl {
+        background-color: var(--bg-card) !important;
+        border-color: var(--border) !important;
+        color: var(--text-main) !important;
+    }
+    
+    .text-gray-700, .text-gray-800, .text-gray-900, .font-bold, .font-semibold, h1, h2, h3 {
+        color: var(--text-bold) !important;
+    }
+    
+    .text-gray-500, .text-gray-600, .text-sm { 
+        color: var(--text-main) !important; 
+    }
+    
+    .border-gray-300 { 
+        border-color: var(--border) !important; 
+    }
+    
+    input, select {
+        background-color: var(--bg-body);
+        color: var(--text-main);
+        border-color: var(--border);
+    }
+    
+    input:focus, select:focus { 
+        outline: 2px solid var(--primary); 
+        border-color: transparent; 
+    }
+    
+    .btn-primary { 
+        background: var(--primary); 
+        color: white; 
+    }
+    
+    .btn-primary:hover { 
+        background: var(--primary-hover); 
+    }
+    
+    .grid-today { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr 1fr; 
+        gap: 12px; 
+    }
+    
+    @media (max-width: 768px) { 
+        .grid-today { 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px;
         }
-
-        /* Styling for the list items to fit two in a row */
-        .grid-col-2-container {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px; 
+        #todayEternalContainer {
+            display: none !important;
         }
-        .grid-col-2-container li {
-            padding: 0; 
+    }
+    
+    .bday-item { 
+        background: var(--bg-body); 
+        border-radius: 12px; 
+        padding: 8px 14px; 
+        display: flex; 
+        align-items: center; 
+        gap: 12px; 
+    }
+    
+    .bday-item i { 
+        color: var(--primary); 
+        font-size: 1.1rem; 
+    }
+    
+    #theme-toggle-btn {
+        display: none !important;
+    }
+    
+    .list-item {
+        background: var(--bg-body);
+        border-radius: 14px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        border: 1px solid var(--border);
+        transition: all 0.15s;
+        min-height: 60px;
+    }
+    
+    .list-item:hover { 
+        border-color: var(--primary); 
+    }
+    
+    .name-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .name-line .name-text {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text-bold);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        margin:4px;
+        padding:4px;
+    }
+    
+    .name-line .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        align-items: center;
+         margin:4px;
+        padding:4px;
+    }
+    
+    .details-line {
+        font-size: 13px;
+        color: var(--text-main);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        align-items: center;
+        width: 100%;
+         margin:4px;
+        padding:4px;
+    }
+    
+    .details-line .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--bg-card);
+        padding: 4px 8px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        white-space: nowrap;
+    }
+    
+    .date-line {
+        font-size: 13px;
+        color: var(--text-main);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 10px;
+        width: 100%;
+        padding-top: 3px;
+        border-top: 1px dashed var(--border);
+    }
+    
+    .date-line .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--bg-card);
+        padding: 2px 10px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 500;
+    }
+    
+    .date-line .badge i { 
+        font-size: 12px; 
+    }
+    
+    .date-line .badge.birthday-badge {
+        background: #fef2f2;
+        border-color: #fca5a5;
+        color: #991b1b;
+    }
+    
+    .date-line .badge.anniversary-badge {
+        background: #fdf2f8;
+        border-color: #f9a8d4;
+        color: #9d174d;
+    }
+    
+    [data-theme="dark"] .date-line .badge.birthday-badge {
+        background: #451a1a;
+        border-color: #7f1d1d;
+        color: #fca5a5;
+    }
+    
+    [data-theme="dark"] .date-line .badge.anniversary-badge {
+        background: #4a1a2e;
+        border-color: #7f1d4a;
+        color: #f9a8d4;
+    }
+    
+    .btn-sm {
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+        white-space: nowrap;
+        letter-spacing: 0.3px;
+        line-height: 1.2;
+    }
+    
+    @media (min-width: 1024px) {
+        .btn-sm { 
+            font-size: 16px; 
+            padding: 8px 18px; 
         }
-        .grid-col-2-item {
-            display: flex;
+    }
+    
+    @media (max-width: 1023px) {
+        .btn-sm { 
+            font-size: 14px; 
+            padding: 4px 10px; 
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .btn-sm { 
+            font-size: 13px; 
+            padding: 4px 4px; 
+        }
+    }
+    
+    .btn-edit { 
+        background: #f59e0b; 
+        color: #fff; 
+    }
+    
+    .btn-edit:hover { 
+        background: #d97706; 
+        transform: scale(1.03); 
+    }
+    
+    .btn-delete { 
+        background: #ef4444; 
+        color: #fff; 
+    }
+    
+    .btn-delete:hover { 
+        background: #dc2626; 
+        transform: scale(1.03); 
+    }
+    
+    .btn-add { 
+        background: #4f46e5; 
+        color: #fff; 
+    }
+    
+    .btn-add:hover { 
+        background: #4338ca; 
+        transform: scale(1.03); 
+    }
+    
+    .btn-share { 
+        background: #10b981; 
+        color: #fff; 
+    }
+    
+    .btn-share:hover { 
+        background: #059669; 
+        transform: scale(1.03); 
+    }
+    
+    .delete-btn:hover, .delete-contact-btn:hover {
+        background: #b91c1c !important;
+        transform: scale(1.05);
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+    }
+    
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+    
+    .modal-box {
+        background: var(--bg-card);
+        border-radius: 20px;
+        max-width: 520px;
+        width: 100%;
+        padding: 32px;
+        max-height: 90vh;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+        position: relative;
+    }
+    
+    .modal-close {
+        position: absolute;
+        top: 16px;
+        right: 20px;
+        font-size: 32px;
+        font-weight: 300;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.2s;
+        background: none;
+        border: none;
+        line-height: 1;
+    }
+    
+    .modal-close:hover { 
+        color: #ef4444; 
+        transform: rotate(90deg) scale(1.2); 
+    }
+    
+    .modal-box input, .modal-box select { 
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+    
+    .modal-box label { 
+        font-weight: 600;
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .form-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .form-row input, .form-row select { 
+        flex: 1; 
+        min-width: 120px; 
+    }
+    
+    @media (max-width: 480px) {
+        .form-row { 
+            flex-direction: column; 
+        }
+        .form-row input, .form-row select { 
+            min-width: unset; 
+        }
+        .list-item { 
+            padding: 8px 10px;
+            gap: 10px;
+        }
+        .name-line .name-text { 
+            font-size: 15px;
+            max-width: 70%;
+        }
+        .date-line .badge { 
+            font-size: 11px; 
+            padding: 4px 4px; 
+        }
+        .details-line .badge { 
+            font-size: 11px; 
+            padding: 2px 8px; 
+        }
+        .details-line { 
+            font-size: 12px; 
+        }
+        .date-line { 
+            font-size: 12px; 
+        }
+        .entry-toggle-btn {
+            padding: 6px 12px !important;
+            font-size: 14px !important;
+            margin-bottom: 4px !important;
+        }
+        .entry-content { 
+            padding-top: 0 !important; 
+        }
+        .page-heading {
+            font-size: 18px !important;
+            padding: 4px 0 8px 0 !important;
+            margin-bottom: 4px !important;
+        }
+        .bg-white.p-4.rounded-xl.shadow-lg {
+            padding: 10px !important;
+        }
+        .name-line .name-text {
+            max-width: 65%;
+        }
+    }
+    
+    .contacts-container {
+        padding: 4px 0;
+        width: 100%;
+        overflow: visible;
+    }
+    
+    .contacts-container .list-item:last-child { 
+        margin-bottom: 0; 
+    }
+    
+    #mobileMenu {
+        transition: all 0.3s ease;
+        overflow: hidden;
+        max-height: 0;
+        padding: 0 16px;
+        opacity: 0;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+    }
+    
+    #mobileMenu.open {
+        max-height: 500px;
+        padding: 16px 16px 20px;
+        opacity: 1;
+    }
+    
+    #mobileMenu a, #mobileMenu div {
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    #mobileMenu.open a, #mobileMenu.open div { 
+        opacity: 1; 
+    }
+    
+    #menu-btn {
+        background: none;
+        border: none;
+        color: var(--text-bold);
+        font-size: 1.8rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .today-container h2 {
+        font-size: 19px !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+        .desktop-nav, .desktop-user-section, .desktop-logo { 
+            display: none !important; 
+        }
+        
+        .mobile-header {
+            display: flex !important;
+            justify-content: space-between;
             align-items: center;
-            justify-content: flex-start;
-            padding: 12px;
-            background-color: #f9fafb; 
-            border-radius: 0.5rem; 
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); 
-            height: 100%; 
+            width: 100%;
+            background: var(--bg-card);
+            padding: 8px 12px !important;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
         }
         
-        /* Custom adjustment for reduced space below nav (margin bottom nav by 5px) */
-        .nav-increased-padding {
-            padding-top: 5px; 
-            padding-bottom: 5px; 
+        nav {
+            background: transparent !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
+            padding: 6px 8px !important;
         }
         
-        /* Custom adjustment for main content padding (reduced space below nav) */
-        .main-reduced-padding {
-            /* Adjusted to 90px to accommodate fixed nav height + 5px margin */
-            padding-top: 90px; 
+        #addEntryContainer {
+            display: block !important;
+            width: 100% !important;
+            margin-bottom: 12px;
         }
-    </style>
+        
+        .flex-col.md\:flex-row { 
+            flex-direction: column !important; 
+        }
+        
+        .md\:w-2\/3 { 
+            width: 100% !important; 
+        }
+        
+        #all-items-list {
+            max-height: 400px !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px !important;
+            margin: 2px;
+        }
+        
+        .contacts-container {
+            max-height: 450px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px !important;
+            margin-bottom: 10px !important;
+        }
+        
+        #all-items-list::-webkit-scrollbar,
+        .contacts-container::-webkit-scrollbar { 
+            width: 6px; 
+             margin: 2px;
+        }
+        
+        #all-items-list::-webkit-scrollbar-track,
+        .contacts-container::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        
+        #all-items-list::-webkit-scrollbar-thumb,
+        .contacts-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        main {
+            padding-top: 12px !important;
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            padding-bottom: 80px !important;
+        }
+        
+        #addEntryContainer .entry-toggle-btn { 
+            display: flex !important; 
+        }
+        
+        #addEntryContainer .entry-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0;
+        }
+        
+        #addEntryContainer .entry-content.open {
+            max-height: 800px;
+            padding: 8px 0 0 0;
+        }
+        
+        .today-container { 
+            display: block !important; 
+            padding: 10px !important; 
+        }
+        
+        .grid-today { 
+            gap: 10px; 
+            margin-bottom: 20px !important;
+        }
+        
+        #todayEternalContainer { 
+            display: none !important; 
+        }
+        
+        .today-container h2 { 
+            font-size: 17px !important; 
+        }
+        
+        .page-heading {
+            display: block !important;
+            text-align: center;
+            padding: 4px 0 8px 0 !important;
+            font-size: 18px !important;
+            font-weight: 700;
+            color: var(--text-bold);
+            margin-bottom: 4px !important;
+        }
+        
+        .container.mx-auto {
+            padding-bottom: 80px !important;
+        }
+        
+        .list-item:last-child {
+            margin-bottom: 30px !important;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        #addEntryContainer {
+            display: block !important;
+            width: 33.333% !important;
+        }
+        
+        .mobile-header { 
+            display: none !important; 
+        }
+        
+        .desktop-nav { 
+            display: flex !important; 
+        }
+        
+        .desktop-user-section { 
+            display: flex !important; 
+        }
+        
+        .desktop-logo { 
+            display: flex !important; 
+        }
+        
+        #addEntryContainer .entry-toggle-btn { 
+            display: none !important; 
+        }
+        
+        #addEntryContainer .entry-content {
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 0 !important;
+        }
+        
+        .page-heading { 
+            display: none !important; 
+        }
+    }
+    
+    .today-container { 
+        transition: all 0.3s ease; 
+    }
+    
+    .desktop-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        gap: 24px;
+    }
+    
+    .desktop-nav-link {
+        font-size: 19px !important;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        color: var(--text-main);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 8px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+    
+    .desktop-nav-link:hover { 
+        color: #3b82f6 !important; 
+        transform: translateY(-2px); 
+    }
+    
+    .desktop-nav-link:active { 
+        transform: translateY(-4px); 
+    }
+    
+    
+    
+    .navbar-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .navbar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .navbar-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .entry-toggle-btn {
+        display: none;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        transition: background 0.2s;
+        margin-bottom: 2px;
+    }
+    
+    .entry-toggle-btn:hover { 
+        background: var(--primary-hover); 
+    }
+    
+    .entry-toggle-btn i { 
+        transition: transform 0.3s ease; 
+    }
+    
+    .entry-toggle-btn.open i { 
+        transform: rotate(180deg); 
+    }
+    
+    .today-container ul li { 
+        font-size: 13px !important; 
+    }
+    
+    .page-heading { 
+        display: none; 
+    }
+    /* ==================== SCROLLBAR STYLING ==================== */
+/* For WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px !important; /* Increased from 4px to 8px */
+    height: 8px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-body) !important;
+    border-radius: 10px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary) !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover) !important;
+    width: 10px !important;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin !important;
+    scrollbar-color: var(--primary) var(--bg-body) !important;
+}
+
+/* Custom scrollbar for specific containers */
+#all-items-list::-webkit-scrollbar,
+.contacts-container::-webkit-scrollbar {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+#all-items-list::-webkit-scrollbar-track,
+.contacts-container::-webkit-scrollbar-track {
+    background: var(--bg-body) !important;
+    border-radius: 10px !important;
+}
+
+#all-items-list::-webkit-scrollbar-thumb,
+.contacts-container::-webkit-scrollbar-thumb {
+    background: var(--primary) !important;
+    border-radius: 10px !important;
+    transition: all 0.3s ease;
+}
+
+#all-items-list::-webkit-scrollbar-thumb:hover,
+.contacts-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover) !important;
+    width: 10px !important;
+}
+
+/* Dark mode scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: #1e293b !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #818cf8 !important;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: #6366f1 !important;
+}
+
+[data-theme="dark"] #all-items-list::-webkit-scrollbar-track,
+[data-theme="dark"] .contacts-container::-webkit-scrollbar-track {
+    background: #1e293b !important;
+}
+
+[data-theme="dark"] #all-items-list::-webkit-scrollbar-thumb,
+[data-theme="dark"] .contacts-container::-webkit-scrollbar-thumb {
+    background: #818cf8 !important;
+}
+
+[data-theme="dark"] #all-items-list::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .contacts-container::-webkit-scrollbar-thumb:hover {
+    background: #6366f1 !important;
+}
+
+/* For mobile devices - slightly thinner */
+@media (max-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 16px !important;
+        height: 9px !important;
+    }
+    
+    #all-items-list::-webkit-scrollbar,
+    .contacts-container::-webkit-scrollbar {
+        width: 16px !important;
+        height: 9px !important;
+    }
+}
+</style>
 </head>
-
-<body class="bg-gray-100 font-sans antialiased">
-
-    <nav class="bg-white shadow-lg fixed w-full z-50" style="margin-bottom: 5px;">
-        <div class="container mx-auto flex justify-between items-center nav-increased-padding md:px-8">
-            <div class="flex items-center gap-2 text-xl font-bold text-gray-800">
-                <i class="fas fa-user-circle text-indigo-500" style="font-size: 28px;"></i>
-                <span style="font-size: 22px;">My Personal Website</span>
+<body>
+<!-- TOP NAV -->
+<nav class="fixed w-full z-50 hidden md:block" style="top:0; left:0; background:var(--bg-card); border-bottom:1px solid var(--border);">
+    <div class="container mx-auto px-4 py-2">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <div class="desktop-logo hidden md:flex items-center gap-2">
+                    <div class="relative flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-blue-600 text-2xl"></i>
+                        <i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                    </div>
+                    <h1 class="font-black text-2xl" style="color: var(--text-bold);">Savig</h1>
+                </div>
+                <div class="mobile-header hidden items-center gap-2 w-full">
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex items-center justify-center">
+                            <i class="fas fa-shield text-blue-600 text-2xl"></i>
+                            <i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
+                        </div>
+                        <h1 class="font-black text-2xl" style="color: var(--text-bold);">Savig</h1>
+                    </div>
+                    <button id="menu-btn" class="ml-auto" aria-label="Toggle menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
             </div>
-            <div class="hidden md:flex space-x-6 text-gray-600 font-medium">
-                <a href="home.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-house"></i> Home</a>
-             
-                <a href="password.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-key"></i> Passwords</a>
-                <a href="income.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-wallet"></i> Income</a>
-             
-                <a href="calender.html" class="flex items-center gap-2 hover:text-indigo-500 transition duration-300" style="font-size: 18px;"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <div class="desktop-nav hidden md:flex">
+                <a href="home.html" class="desktop-nav-link active-link"><i class="fas fa-house"></i> Home</a>
+                <a href="password.html" class="desktop-nav-link"><i class="fas fa-key"></i> Passwords</a>
+                <a href="income.html" class="desktop-nav-link"><i class="fas fa-wallet"></i> Income</a>
+                <a href="calender.html" class="desktop-nav-link"><i class="fas fa-calendar-alt"></i> Calendar</a>
             </div>
-            <div class="hidden md:flex items-center gap-4">
+            <div class="navbar-right desktop-user-section hidden md:flex items-center gap-4">
                 <div class="text-right">
-                    <p id="userName" class="font-bold text-gray-900">Loading...</p>
-                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
+                    <p id="userName" class="font-bold text-sm">Loading...</p>
+                    <p id="userEmail" class="text-xs">Loading...</p>
                 </div>
                 <img id="userPhoto" src="https://via.placeholder.com/40" class="w-10 h-10 rounded-full border-2 border-indigo-500">
-                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition duration-300">Logout</button>
+                <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 text-sm">Logout</button>
             </div>
-            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl"><i class="fas fa-bars"></i></button>
         </div>
-        <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50">
-            <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-house"></i> Home</a>
-      
-            <a href="password.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-key"></i> Passwords</a>
-            <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
+        <div id="mobileMenu" class="md:hidden">
+            <a href="homemob.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-house"></i> Home</a>
+            <a href="passwordmob.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-key"></i> Passwords</a>
+            <a href="incomemob.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-link"></i> Links</a>
             <a href="calender.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <div class="border-t border-gray-300 mt-2 pt-2">
-                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 mt-2 w-full">Logout</button>
+            <div class="border-t pt-2 mt-1">
+                <p id="mobileUserName" class="font-bold">Loading...</p>
+                <p id="mobileUserEmail" class="text-xs">Loading...</p>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded-full w-full mt-2 text-sm">Logout</button>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <main class="main-reduced-padding p-4 md:p-8">
-        <div class="container mx-auto">
-            <h1 class="text-sm  text-center text-white-10 mb-6">🎉 Birthday Saver & Contacts 🎉</h1>
-            
-            <div class="flex flex-wrap lg:flex-nowrap justify-center gap-6 mb-5" style="margin-top: 10px;">
+<!-- MAIN -->
+<main class="p-4 md:p-8" style="padding-top:90px;">
+    <div class="container mx-auto">
+      
+
+        <div class="grid-today mb-3" id="todayGrid">
+            <div id="todayBirthdayContainer" class="bg-white p-4 rounded-xl shadow-lg today-container">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fas fa-gift text-red-500"></i> Today's Birthdays</h2>
+                <ul id="today-list" class="space-y-2"><li class="text-gray-500 text-center text-sm">No birthdays today.</li></ul>
+            </div>
+            <div id="todayAnniversaryContainer" class="bg-white p-4 rounded-xl shadow-lg today-container">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fas fa-heart text-pink-500"></i> Today's Anniversaries</h2>
+                <ul id="today-anniversary-list" class="space-y-2"><li class="text-gray-500 text-center text-sm">No anniversaries today.</li></ul>
+            </div>
+            <div id="todayEternalContainer" class="bg-white p-4 rounded-xl shadow-lg today-container">
+                <h2 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2"><i class="fas fa-infinity text-indigo-500"></i> Today's Eternal Moments</h2>
+                <ul id="today-eternal-list" class="space-y-2"><li class="text-gray-500 text-center text-sm">No eternal moments today.</li></ul>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-4">
+            <div id="addEntryContainer" class="bg-white p-5 rounded-xl shadow-lg md:w-1/3 h-fit">
+                <button class="entry-toggle-btn" id="entryToggleBtn">
+                    <span><i class="fas fa-plus-circle mr-2"></i>Add Entry</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
                 
-                <div class="bg-white p-6 rounded-xl shadow-lg w-full sm:w-full lg:w-1/2 transform hover:scale-105 transition duration-300 bday-card-lg">
-                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-4 flex items-center justify-center gap-2"><i class="fas fa-gift text-red-500"></i> Today's Birthdays</h2>
-                    <ul id="today-list" class="grid-col-2-container">
-                        <li class="text-gray-500 text-center col-span-2">No birthdays today.</li>
-                    </ul>
-                </div>
-                
-                <div class="bg-white p-6 rounded-xl shadow-lg w-full sm:w-full lg:w-1/2 transform hover:scale-105 transition duration-300 bday-card-lg">
-                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-4 flex items-center justify-center gap-2"><i class="fas fa-calendar-alt text-purple-500"></i> Upcoming Birthdays</h2>
-                    <ul id="upcoming-birthdays-list" class="grid-col-2-container">
-                        <li class="text-center text-gray-500 p-4 col-span-2">Loading upcoming birthdays...</li>
-                    </ul>
+                <div class="entry-content" id="entryContent">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Add Entry</h2>
+                    <div class="flex gap-2 mb-4 border-b border-gray-200 pb-2">
+                        <button id="tabBirthday" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-indigo-600 border-b-2 border-indigo-600">Birthday</button>
+                        <button id="tabAnniversary" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-500">Anniversary</button>
+                    </div>
+
+                    <form id="add-birthday-form" class="space-y-3">
+                        <select id="bday-contact-select" class="w-full p-2 border rounded-lg">
+                            <option value="">Select from contact...</option>
+                        </select>
+                        <div class="form-row">
+                            <input type="text" id="name" placeholder="Name" class="p-2 border rounded-lg flex-1">
+                            <input type="text" id="mobile" placeholder="Mobile" class="p-2 border rounded-lg flex-1">
+                        </div>
+                        <div class="form-row">
+                            <input type="date" id="birthdate" placeholder="Date" class="p-2 border rounded-lg flex-1">
+                            <input type="number" id="age" placeholder="Age" class="p-2 border rounded-lg flex-1">
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-2 rounded-lg font-semibold"><i class="fas fa-save mr-2"></i>Save Birthday</button>
+                    </form>
+
+                    <form id="add-anniversary-form" class="space-y-3 hidden">
+                        <select id="anni-contact-select" class="w-full p-2 border rounded-lg">
+                            <option value="">Select from contact...</option>
+                        </select>
+                        <div class="form-row">
+                            <input type="text" id="hName" placeholder="Husband" class="p-2 border rounded-lg flex-1">
+                            <input type="text" id="wName" placeholder="Wife" class="p-2 border rounded-lg flex-1">
+                        </div>
+                        <div class="form-row">
+                            <input type="date" id="anniDate" placeholder="Date" class="p-2 border rounded-lg flex-1">
+                            <input type="number" id="manualYears" placeholder="Years" class="p-2 border rounded-lg flex-1">
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-2 rounded-lg font-semibold"><i class="fas fa-save mr-2"></i>Save Anniversary</button>
+                    </form>
+                    <p class="text-xs text-gray-500 mt-2">* Select contact or enter manually.</p>
                 </div>
             </div>
-            <div class="flex flex-col md:flex-row gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-lg md:w-1/3 h-fit">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Add a Birthday</h2>
-                    <form id="add-birthday-form" class="space-y-5">
-                        <div>
-                            <input type="text" id="name" required placeholder="Name" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                        </div>
-                        <div>
-                            <input type="text" id="mobile" placeholder="Mobile Number (Optional)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                        </div>
-                        <div>
-                            <input type="date" id="birthdate" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                            <p class="text-xs text-gray-500 mt-1">Enter a full date to save the birth year, or only month/day if age is provided.</p>
-                        </div>
-                        <div>
-                            <input type="number" id="age" placeholder="Current Age (Optional - Required if date is partial)" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-                        </div>
-                        <div id="notes-container" class="space-y-4 hidden">
-                            <h3 class="text-lg font-semibold text-gray-700 pt-2 border-t border-gray-200 mt-4">Notes (Optional)</h3>
-                            <div id="notes-fields">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
-                                    <input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
-                                </div>
-                            </div>
-                            <button type="button" id="add-note-btn" class="text-indigo-500 text-sm font-medium hover:text-indigo-700 transition duration-150 ease-in-out">
-                                <i class="fas fa-plus-circle mr-1"></i> Add Another Note
-                            </button>
-                        </div>
-                        <button type="button" id="toggle-notes-btn" class="w-full text-indigo-600 font-semibold py-3 px-4 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition duration-150 ease-in-out">
-                            <i class="fas fa-plus mr-2"></i> Add Notes
-                        </button>
-                        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 ease-in-out">
-                            <i class="fas fa-save mr-2"></i> Save Birthday
-                        </button>
-                    </form>
-                </div>
 
-                <div class="md:w-2/3 space-y-8">
-                    <div class="bg-white p-6 rounded-xl shadow-lg">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">All Contacts & Birthdays</h2>
-                        <div class="relative mb-4">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput" placeholder="Search by name, number..." class="w-full pl-10 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <ul id="all-items-list" class="space-y-3 max-h-96 overflow-y-auto">
-                            <li class="text-center text-gray-500 p-4">Loading contacts and birthdays...</li>
+            <div class="md:w-2/3 space-y-4" style="width:100%;">
+                <div class="bg-white p-3 rounded-xl shadow-lg" id="allContactsMilestoneContainer">
+                    <h2 class="text-lg font-bold text-gray-800 mb-3">All Contacts & Milestones</h2>
+                    <div class="relative mb-3">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name, number..." class="w-full pl-10 p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div class="contacts-container">
+                        <ul id="all-items-list" class="overflow-y-auto" style="max-height:500px; -webkit-overflow-scrolling:touch;">
+                            <li class="text-center text-gray-500 p-4">Loading ...</li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-
-    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex justify-center items-center p-4 z-50">
-        <div class="bg-white p-6 rounded-xl shadow-lg w-full max-w-md overflow-y-auto max-h-[90vh] relative">
-            <div class="flex justify-between items-center pb-3 border-b border-gray-200 mb-4">
-                <h3 class="text-2xl font-bold" id="edit-modal-title">Edit Birthday</h3>
-                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-700 text-xl">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <form id="edit-birthday-form" class="space-y-4">
-                <input type="hidden" id="edit-id">
-                <div>
-                    <label for="edit-name" class="block text-sm font-medium text-gray-700">Name (Mandatory):</label>
-                    <input type="text" id="edit-name" required class="mt-1 block w-full rounded-lg border-gray-300 p-2">
-                </div>
-                <div>
-                    <label for="edit-mobile" class="block text-sm font-medium text-gray-700">Mobile No (Multiple separated by comma):</label>
-                    <input type="text" id="edit-mobile" placeholder="e.g., +91 98765 43210, +91 12345 67890" class="mt-1 block w-full rounded-lg border-gray-300 p-2">
-                </div>
-                <div>
-                    <label for="edit-birthdate" class="block text-sm font-medium text-gray-700">Full Date (YYYY-MM-DD):</label>
-                    <input type="date" id="edit-birthdate" class="mt-1 block w-full rounded-lg border-gray-300 p-2">
-                </div>
-                <div>
-                    <label for="edit-age" class="block text-sm font-medium text-gray-700">Current Age:</label>
-                    <input type="number" id="edit-age" class="mt-1 block w-full rounded-lg border-gray-300 p-2">
-                </div>
-                <div id="edit-notes-container" class="space-y-4">
-                    </div>
-                <button type="button" id="edit-add-note-btn" class="text-indigo-500 text-sm font-medium hover:text-indigo-700 transition duration-150 ease-in-out">
-                    <i class="fas fa-plus-circle mr-1"></i> Add Another Note
-                </button>
-                <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">Save Changes</button>
-            </form>
-        </div>
     </div>
+</main>
 
-<style>
-    /* Desktop Check */
-    @media only screen and (min-width: 768px) {
-        #universal-bottom-nav, .nav-spacer { display: none !important; }
-    }
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <button id="closeModalBtn" class="modal-close">&times;</button>
+        <h3 class="text-xl font-bold mb-4" id="editModalTitle">Edit Entry</h3>
+        <form id="editForm">
+            <input type="hidden" id="editId">
+            <input type="hidden" id="editType">
+            <div id="editFields"></div>
+            <button type="submit" class="w-full btn-primary py-2 rounded-lg font-semibold mt-2"><i class="fas fa-save mr-2"></i>Update</button>
+        </form>
+    </div>
+</div>
 
-    :root {
-        --nav-bg: #ffffff;
-        --nav-text: #666666;
-        --nav-hover: #007AFF; /* Modern Blue */
-        --nav-height: 65px;
-    }
+<!-- ADD BIRTHDAY MODAL -->
+<div id="addBdayModal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <button id="closeAddBdayModal" class="modal-close">&times;</button>
+        <h3 class="text-xl font-bold mb-4">Add Birthday for <span id="addBdayName" class="text-indigo-600"></span></h3>
+        <form id="addBdayModalForm" class="space-y-3">
+            <input type="hidden" id="addBdayContactName">
+            <div class="form-row">
+                <input type="text" id="addBdayNameInput" placeholder="Name" class="p-2 border rounded-lg flex-1" readonly>
+                <input type="text" id="addBdayMobileInput" placeholder="Mobile" class="p-2 border rounded-lg flex-1">
+            </div>
+            <div class="form-row">
+                <input type="date" id="addBdayDateInput" placeholder="Date" class="p-2 border rounded-lg flex-1">
+                <input type="number" id="addBdayAgeInput" placeholder="Age" class="p-2 border rounded-lg flex-1">
+            </div>
+            <button type="submit" class="w-full btn-primary py-2 rounded-lg font-semibold"><i class="fas fa-save mr-2"></i>Save Birthday</button>
+        </form>
+    </div>
+</div>
 
-    /* THE HOVER EFFECT (For Laptop/Mouse) */
-    .nav-link:hover {
-        color: var(--nav-hover) !important;
-    }
 
-    .nav-link:hover i {
-        transform: translateY(-3px); /* Icon pops up slightly */
-        transition: 0.3s;
-    }
+<!-- THEME TOGGLE (hidden) -->
+<button id="theme-toggle-btn"><span id="theme-icon">🌙</span></button>
 
-    /* THE ACTIVE/TAP EFFECT (For Mobile/Touch) */
-    .nav-link:active {
-        transform: scale(0.9); /* Button shrinks slightly when pressed */
-        color: var(--nav-hover) !important;
-    }
-
-    .nav-link {
-        transition: all 0.2s ease;
-    }
-</style>
-
-<nav id="universal-bottom-nav" style="position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background-color: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #eee; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 999999; font-family: sans-serif;">
-
-    <a href="home.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-house" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Home</div>
-    </a>
-
-    <a href="adress.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-location-dot" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Address</div>
-    </a>
-
-    <a href="password.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-key" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Passwords</div>
-    </a>
-
-    <a href="grocery.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-cart-shopping" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Grocery</div>
-    </a>
-
-    <a href="contact.html" class="nav-link" style="text-decoration: none; color: var(--nav-text); text-align: center; flex: 1; -webkit-tap-highlight-color: transparent;">
-        <i class="fa-solid fa-envelope" style="font-size: 18px; display: block; margin-bottom: 3px;"></i>
-        <div style="font-size: 10px; font-weight: 600;">Contact</div>
-    </a>
-
-</nav>
-
-<div class="nav-spacer" style="height: 75px; width: 100%;"></div>
-    
 <script>
-    // --- Firebase Configuration (REPLACE WITH YOUR OWN CONFIG) ---
-const firebaseConfig = {
-        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", // Placeholder
-            authDomain: "sk12-58e9e.firebaseapp.com",     // Placeholder
-            projectId: "sk12-58e9e",                       // Placeholder
-            storageBucket: "sk12-58e9e.appspot.com",       // Placeholder
-            messagingSenderId: "470207874652",             // Placeholder
-            appId: "1:470207874652:web:67ba1cf3629b7e5b144899" // Placeholder
-};
-    // Initialize Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    const database = firebase.database();
+    const firebaseConfig = {
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc",
+        authDomain: "sk12-58e9e.firebaseapp.com",
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com",
+        projectId: "sk12-58e9e",
+        storageBucket: "sk12-58e9e.firebasestorage.app",
+        messagingSenderId: "470207874652",
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
     const auth = firebase.auth();
 
-    // --- Global Variables ---
     let currentUserId = null;
     let allBirthdays = {};
+    let allAnniversaries = {};
     let allContacts = {};
-    let initialLoadComplete = false; 
-
-    const vcardContacts = [
-        { id: 'vc1', name: 'Samsung Helpline', phone: '+91 1800 407 267 864' },
-        { id: 'vc2', name: 'ATHARAV DOLAS😎', phone: '+91 98608 92299' },
-        { id: 'vc3', name: 'Hardik', phone: '+91 75585 15739' },
-        { id: 'vc4', name: 'Symphony Phone Number', phone: '+91 95109 76161' },
-        { id: 'vc5', name: 'Ganesh', phone: '+91 83080 66627' },
-        { id: 'vc6', name: 'Harsh', phone: '+91 87881 48821' },
-        { id: 'vc7', name: 'omlonkar447', phone: '+91 74473 81139' },
-        { id: 'vc8', name: 'AADITYA AMAR', phone: '+91 94037 45013' },
-        { id: 'vc9', name: 'Vilas Kulkarni', phone: '+91 98222 33913' },
-        { id: 'vc10', name: 'Swati Kulkarni', phone: '+91 88886 42200' },
-        { id: 'vc11', name: 'Jaya Raut', phone: '+91 96738 86002' },
-        { id: 'vc12', name: 'Adwaiyata', phone: '+91 98508 12323' },
-        { id: 'vc13', name: 'Abhishek', phone: '+91 98819 83721' },
-        { id: 'vc14', name: 'Kalyani Khangan', phone: '+91 77220 02989' },
-        { id: 'vc15', name: 'Jyoti', phone: '+91 94061 58783' },
-        { id: 'vc16', name: 'Anand', phone: '+91 99750 29539' },
-        { id: 'vc17', name: 'Amit Mainde Papad Wala', phone: '+91 89832 60793' },
+    let vcardContacts = [
+        { id:'vc1', name:'Samsung Helpline', phone:'+91 1800 407 267 864' },
+        { id:'vc2', name:'ATHARAV DOLAS😎', phone:'+91 98608 92299' },
+        { id:'vc3', name:'Hardik', phone:'+91 75585 15739' },
+        { id:'vc4', name:'Symphony', phone:'+91 95109 76161' },
+        { id:'vc5', name:'Ganesh', phone:'+91 83080 66627' },
+        { id:'vc6', name:'Harsh', phone:'+91 87881 48821' },
+        { id:'vc7', name:'omlonkar447', phone:'+91 74473 81139' },
+        { id:'vc8', name:'AADITYA AMAR', phone:'+91 94037 45013' },
+        { id:'vc9', name:'Vilas Kulkarni', phone:'+91 98222 33913' },
+        { id:'vc10', name:'Swati Kulkarni', phone:'+91 88886 42200' },
+        { id:'vc11', name:'Jaya Raut', phone:'+91 96738 86002' },
+        { id:'vc12', name:'Adwaiyata', phone:'+91 98508 12323' },
+        { id:'vc13', name:'Abhishek', phone:'+91 98819 83721' },
+        { id:'vc14', name:'Kalyani', phone:'+91 77220 02989' },
+        { id:'vc15', name:'Jyoti', phone:'+91 94061 58783' },
+        { id:'vc16', name:'Anand', phone:'+91 99750 29539' },
+        { id:'vc17', name:'Amit Mainde', phone:'+91 89832 60793' },
     ];
 
+    const todayList = document.getElementById('today-list');
+    const todayAnniList = document.getElementById('today-anniversary-list');
+    const todayEternalList = document.getElementById('today-eternal-list');
+    const allList = document.getElementById('all-items-list');
+    const searchInput = document.getElementById('searchInput');
+    const bdayForm = document.getElementById('add-birthday-form');
+    const anniForm = document.getElementById('add-anniversary-form');
+    const tabBday = document.getElementById('tabBirthday');
+    const tabAnni = document.getElementById('tabAnniversary');
+    const editModal = document.getElementById('editModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const editForm = document.getElementById('editForm');
+    const editFields = document.getElementById('editFields');
+    const editId = document.getElementById('editId');
+    const editType = document.getElementById('editType');
+    const editModalTitle = document.getElementById('editModalTitle');
+    const bdayContactSelect = document.getElementById('bday-contact-select');
+    const anniContactSelect = document.getElementById('anni-contact-select');
+    
+    const addBdayModal = document.getElementById('addBdayModal');
+    const closeAddBdayModal = document.getElementById('closeAddBdayModal');
+    const addBdayModalForm = document.getElementById('addBdayModalForm');
+    const addBdayNameInput = document.getElementById('addBdayNameInput');
+    const addBdayMobileInput = document.getElementById('addBdayMobileInput');
+    const addBdayDateInput = document.getElementById('addBdayDateInput');
+    const addBdayAgeInput = document.getElementById('addBdayAgeInput');
+    const addBdayNameSpan = document.getElementById('addBdayName');
 
-    // --- DOM Elements ---
+    const todayBirthdayContainer = document.getElementById('todayBirthdayContainer');
+    const todayAnniversaryContainer = document.getElementById('todayAnniversaryContainer');
+    const todayEternalContainer = document.getElementById('todayEternalContainer');
+
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobileMenu');
-    const addBirthdayForm = document.getElementById('add-birthday-form');
-    const allItemsList = document.getElementById('all-items-list');
-    const searchInput = document.getElementById('searchInput');
-    const todayList = document.getElementById('today-list');
-    const upcomingList = document.getElementById('upcoming-birthdays-list');
-    const editModal = document.getElementById('edit-modal');
-    const closeBtn = document.getElementById('close-modal-btn');
-    const editForm = document.getElementById('edit-birthday-form');
-    const notesContainer = document.getElementById('notes-container');
-    const toggleNotesBtn = document.getElementById('toggle-notes-btn');
-    const notesFields = document.getElementById('notes-fields');
-    const addNoteBtn = document.getElementById('add-note-btn');
-    const editNotesContainer = document.getElementById('edit-notes-container');
-    const editAddNoteBtn = document.getElementById('edit-add-note-btn');
-    const editNameInput = document.getElementById('edit-name');
-    const editMobileInput = document.getElementById('edit-mobile');
-    const editDateInput = document.getElementById('edit-birthdate');
-    const editAgeInput = document.getElementById('edit-age');
-    const editIdInput = document.getElementById('edit-id');
     
-    const newDateInput = document.getElementById('birthdate'); 
-    const newAgeInput = document.getElementById('age'); 
-
-    // --- Core Helper Functions ---
-
-    function calculateNextAge(birthdate) {
-        if (!birthdate || birthdate.length !== 10) return null;
-
-        const [birthYear, birthMonth, birthDay] = birthdate.split('-').map(Number);
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        
-        if (isNaN(birthYear) || isNaN(birthMonth) || isNaN(birthDay)) return null;
-
-        let age = currentYear - birthYear;
-        
-        const currentMonth = today.getMonth() + 1; 
-        const currentDay = today.getDate();
-        
-        const bdayPassedThisYear = (currentMonth > birthMonth) || 
-                                 (currentMonth === birthMonth && currentDay >= birthDay);
-        
-        if (bdayPassedThisYear) {
-            return age + 1;
+    const entryToggleBtn = document.getElementById('entryToggleBtn');
+    const entryContent = document.getElementById('entryContent');
+    let isEntryOpen = false;
+    
+    entryToggleBtn.addEventListener('click', () => {
+        isEntryOpen = !isEntryOpen;
+        entryContent.classList.toggle('open', isEntryOpen);
+        entryToggleBtn.classList.toggle('open', isEntryOpen);
+        if (isEntryOpen) {
+            entryToggleBtn.querySelector('span').innerHTML = '<i class="fas fa-minus-circle mr-2"></i>Close Entry';
         } else {
-            return age;
+            entryToggleBtn.querySelector('span').innerHTML = '<i class="fas fa-plus-circle mr-2"></i>Add Entry';
         }
-    }
-
-    function updateDateFromAge(dateInput, ageInput) {
-        const age = parseInt(ageInput.value);
-        const dateInputValue = dateInput.value;
-        let monthDay = '';
-
-        if (dateInputValue && dateInputValue.length === 10) {
-            monthDay = dateInputValue.substring(5); 
-        } else if (dateInputValue && dateInputValue.length === 5 && dateInputValue.includes('-')) {
-            monthDay = dateInputValue;
-        }
-
-        if (!monthDay || monthDay.length !== 5 || !monthDay.includes('-') || isNaN(age) || age <= 0) {
-            if (!dateInput.value) ageInput.value = '';
-            return;
-        }
-
-        const [birthMonth, birthDay] = monthDay.split('-').map(Number);
-        const currentYear = new Date().getFullYear();
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1; 
-        const currentDay = today.getDate();
-
-        let calculatedBirthYear;
-
-        const bdayOccurredThisYear = (currentMonth > birthMonth) ||
-                                     (currentMonth === birthMonth && currentDay >= birthDay);
-
-        if (bdayOccurredThisYear) {
-            calculatedBirthYear = currentYear - age;
+    });
+    
+    menuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('open');
+        const icon = menuBtn.querySelector('i');
+        if (mobileMenu.classList.contains('open')) {
+            icon.className = 'fas fa-times';
         } else {
-            calculatedBirthYear = currentYear - age - 1;
+            icon.className = 'fas fa-bars';
         }
+    });
 
-        dateInput.value = `${calculatedBirthYear}-${monthDay.padStart(2, '0')}`;
-    }
-    
-    function calculateAge(birthdate) {
-        if (!birthdate || birthdate.length !== 10) return null; 
-
-        const today = new Date();
-        const [birthYear, birthMonth, birthDay] = birthdate.split('-').map(Number);
-        
-        if (isNaN(birthYear) || isNaN(birthMonth) || isNaN(birthDay)) return null;
-
-        let age = today.getFullYear() - birthYear;
-        const m = today.getMonth() + 1 - birthMonth; 
-        
-        if (m < 0 || (m === 0 && today.getDate() < birthDay)) {
-            age--;
-        }
-        return age;
-    }
-
-    function getNextBirthdayDate(birthdate) {
-        if (!birthdate || birthdate.length !== 10) return null;
-        
-        const today = new Date();
-        const [year, month, day] = birthdate.split('-').map(Number);
-        
-        let nextBirthday = new Date(today.getFullYear(), month - 1, day);
-        
-        if (nextBirthday < today) {
-            nextBirthday.setFullYear(today.getFullYear() + 1);
-        }
-        return nextBirthday;
-    }
-    
-    function getUpcomingBirthdays(birthdays) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); 
-
-        const upcoming = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-            
-            const nextBday = getNextBirthdayDate(item.birthdate);
-            if (!nextBday) return false;
-            
-            const diffTime = nextBday.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return diffDays > 1 && diffDays <= 6;
-        }).sort((a, b) => {
-            return getNextBirthdayDate(a.birthdate) - getNextBirthdayDate(b.birthdate);
-        });
-        return upcoming;
-    }
-
-    function getTodayAndTomorrowBirthdays(birthdays) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today); 
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        
-        const todayBirthdays = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-            
-            const [year, month, day] = item.birthdate.split('-').map(Number);
-            
-            return today.getMonth() === (month - 1) && today.getDate() === day;
-        });
-        
-        const tomorrowBirthdays = Object.values(birthdays).filter(item => {
-            if (!item.birthdate || item.birthdate.length !== 10) return false;
-
-            const [year, month, day] = item.birthdate.split('-').map(Number);
-
-            return tomorrow.getMonth() === (month - 1) && tomorrow.getDate() === day;
-        });
-
-        return { todayBirthdays, tomorrowBirthdays }; 
-
-    }
-
-    function renderBirthdayList(listId, items) {
-        const list = document.getElementById(listId);
-        list.innerHTML = ''; 
-
-        if (items.length === 0) {
-            list.innerHTML = `<li class="text-gray-500 text-center col-span-2">${listId === 'today-list' ? 'No birthdays today.' : 'No upcoming birthdays.'}</li>`;
-            return;
-        }
-
-        items.forEach(item => {
-            const li = document.createElement('li');
-            
-            const nextAge = calculateNextAge(item.birthdate);
-            const ageDisplay = nextAge !== null ? `(turning ${nextAge})` : ''; 
-            
-            const nextBday = getNextBirthdayDate(item.birthdate);
-            const dateString = nextBday ? nextBday.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Unknown Date';
-            
-            li.innerHTML = `
-                <div class="grid-col-2-item">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-gift text-lg text-indigo-500 flex-shrink-0"></i>
-                        <div>
-                            <p class="font-bold text-gray-900 leading-snug">${item.name} <span class="text-indigo-600 font-semibold text-sm">${ageDisplay}</span></p>
-                            <p class="text-xs text-gray-600">${dateString}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-            list.appendChild(li);
-        });
-    }
-        
-    function renderAllItems(searchTerm = '') {
-        const list = document.getElementById('all-items-list');
-        list.innerHTML = '';
-        
-        let combinedItemsMap = new Map();
-        
-        // 1. Process Contacts (from VCard array for initial display)
-        vcardContacts.forEach(contact => {
-            const item = { ...contact, contactId: contact.id, isContact: true, isBirthday: false };
-            combinedItemsMap.set(contact.name.toLowerCase(), item);
-        });
-
-        // 2. Process Contacts (from Firebase)
-        for (const key in allContacts) {
-            const contact = allContacts[key];
-            const item = { ...contact, contactId: key, isContact: true, isBirthday: false, phone: contact.phone || contact.mobile };
-            combinedItemsMap.set(contact.name.toLowerCase(), item);
-        }
-
-        // 3. Process Birthdays and merge with existing contacts
-        for (const key in allBirthdays) {
-            const birthday = allBirthdays[key];
-            const existingItem = combinedItemsMap.get(birthday.name.toLowerCase());
-            
-            // Collect all potential numbers for the merge/birthday item
-            const numbers = [];
-            if (birthday.mobile) {
-                birthday.mobile.split(',').forEach(num => {
-                    const trimmedNum = num.trim();
-                    if (trimmedNum) numbers.push(trimmedNum);
-                });
+    document.addEventListener('click', (e) => {
+        if (mobileMenu.classList.contains('open')) {
+            const nav = document.querySelector('nav');
+            if (!nav.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+                const icon = menuBtn.querySelector('i');
+                icon.className = 'fas fa-bars';
             }
-            if (existingItem && existingItem.phone) {
-                existingItem.phone.split(',').forEach(num => {
-                    const trimmedNum = num.trim();
-                    if (trimmedNum) numbers.push(trimmedNum);
-                });
-            }
-            
-            const uniqueNumbers = [...new Set(numbers)].join(', ');
+        }
+    });
 
-            if (existingItem) {
-                existingItem.birthdate = birthday.birthdate;
-                existingItem.age = birthday.age;
-                existingItem.notes = birthday.notes;
-                existingItem.isBirthday = true;
-                existingItem.birthdayId = key;
-                // Store the consolidated numbers in the 'mobile' field
-                existingItem.mobile = uniqueNumbers;
-                existingItem.phone = undefined; 
-                
+    function parseDate(str) { if(!str || str.length<10) return null; const p=str.split('-'); return {year:parseInt(p[0]), month:parseInt(p[1]), day:parseInt(p[2])}; }
+    function isToday(dateStr) { if(!dateStr) return false; const d=parseDate(dateStr); if(!d) return false; const t=new Date(); return t.getMonth()+1===d.month && t.getDate()===d.day; }
+    function formatDate(dateStr) { if(!dateStr) return ''; const d=parseDate(dateStr); if(!d) return dateStr; const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${d.day} ${months[d.month-1]} ${d.year}`; }
+    function getYear(dateStr) { if(!dateStr) return ''; const d=parseDate(dateStr); if(!d) return ''; return d.year; }
+
+    function getAllContactsList() {
+        const map = new Map();
+        vcardContacts.forEach(c => map.set(c.name.toLowerCase(), {name:c.name, phone:c.phone, id:c.id, source:'vcard'}));
+        Object.keys(allContacts).forEach(k => {
+            const c = allContacts[k];
+            map.set(c.name.toLowerCase(), {name:c.name, phone:c.phone||c.mobile||'', id:k, source:'firebase'});
+        });
+        return Array.from(map.values());
+    }
+
+    function populateContactSelects() {
+        const contacts = getAllContactsList();
+        [bdayContactSelect, anniContactSelect].forEach(sel => {
+            const currentVal = sel.value;
+            sel.innerHTML = '<option value="">Select from contact...</option>';
+            contacts.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.name;
+                opt.textContent = c.name + (c.phone ? ` (${c.phone})` : '');
+                sel.appendChild(opt);
+            });
+            if(currentVal && contacts.some(c => c.name === currentVal)) sel.value = currentVal;
+        });
+    }
+
+    bdayContactSelect.addEventListener('change', (e) => {
+        const name = e.target.value;
+        const nameInput = document.getElementById('name');
+        const mobileInput = document.getElementById('mobile');
+        if(name) {
+            const contacts = getAllContactsList();
+            const found = contacts.find(c => c.name === name);
+            nameInput.value = name;
+            nameInput.placeholder = '';
+            mobileInput.value = found?.phone || '';
+        } else {
+            nameInput.value = '';
+            nameInput.placeholder = 'Name';
+        }
+    });
+
+    anniContactSelect.addEventListener('change', (e) => {
+        const name = e.target.value;
+        const hInput = document.getElementById('hName');
+        const wInput = document.getElementById('wName');
+        if(name) {
+            const parts = name.split(' & ');
+            if(parts.length===2) {
+                hInput.value = parts[0].trim();
+                wInput.value = parts[1].trim();
             } else {
-                const item = { ...birthday, birthdayId: key, isContact: false, isBirthday: true, mobile: uniqueNumbers };
-                combinedItemsMap.set(birthday.name.toLowerCase(), item);
+                hInput.value = name;
+                wInput.value = '';
             }
+            hInput.placeholder = '';
+            wInput.placeholder = '';
+        } else {
+            hInput.value = '';
+            wInput.value = '';
+            hInput.placeholder = 'Husband';
+            wInput.placeholder = 'Wife';
         }
+    });
 
-        const filteredItems = Array.from(combinedItemsMap.values()).filter(item => 
-            (item.name && item.name.toLowerCase().includes(searchTerm)) ||
-            (item.phone && item.phone.toLowerCase().includes(searchTerm)) ||
-            (item.mobile && item.mobile.toLowerCase().includes(searchTerm))
-        );
-        
-        if (filteredItems.length === 0) {
-            list.innerHTML = `<li class="text-center text-gray-500 p-4">No contacts or birthdays found.</li>`;
-            return;
+    function updateTodayContainers() {
+        if (window.innerWidth <= 768) {
+            todayBirthdayContainer.style.display = 'block';
+            todayAnniversaryContainer.style.display = 'block';
+            todayEternalContainer.style.display = 'none';
         }
-        
-        filteredItems.sort((a, b) => a.name.localeCompare(b.name));
+    }
 
-        filteredItems.forEach(item => {
+    window.addEventListener('resize', updateTodayContainers);
+
+    function renderTodayBirthdays() {
+        const items = Object.values(allBirthdays).filter(b => b.birthdate && isToday(b.birthdate));
+        todayList.innerHTML = '';
+        if(items.length===0) { 
+            todayList.innerHTML='<li class="text-gray-500 text-center text-sm">No birthdays today.</li>'; 
+        } else {
+            items.forEach(b => {
+                const li = document.createElement('li');
+                li.className = 'bday-item';
+                li.innerHTML = `<i class="fas fa-gift"></i><div><span class="font-bold">${b.name}</span> ${b.age ? `(turning ${parseInt(b.age)+1})` : ''}</div>`;
+                todayList.appendChild(li);
+            });
+        }
+        updateTodayContainers();
+    }
+
+    function renderTodayAnniversaries() {
+        const items = Object.values(allAnniversaries).filter(a => a.d && isToday(a.d));
+        todayAnniList.innerHTML = '';
+        if(items.length===0) { 
+            todayAnniList.innerHTML='<li class="text-gray-500 text-center text-sm">No anniversaries today.</li>'; 
+        } else {
+            items.forEach(a => {
+                const li = document.createElement('li');
+                li.className = 'bday-item';
+                let years = '';
+                if(a.manualYears) {
+                    const base = new Date().getFullYear() - new Date(a.d).getFullYear();
+                    const m = new Date().getMonth() - new Date(a.d).getMonth();
+                    const adj = (m<0 || (m===0 && new Date().getDate()<new Date(a.d).getDate())) ? -1 : 0;
+                    years = parseInt(a.manualYears)+base+adj;
+                }
+                li.innerHTML = `<i class="fas fa-heart text-pink-500"></i><div><span class="font-bold">${a.h} & ${a.w}</span> ${years ? `(${years} years)` : ''}</div>`;
+                todayAnniList.appendChild(li);
+            });
+        }
+        updateTodayContainers();
+    }
+
+    function renderTodayEternal() {
+        const bdays = Object.values(allBirthdays).filter(b => b.birthdate && isToday(b.birthdate));
+        const annis = Object.values(allAnniversaries).filter(a => a.d && isToday(a.d));
+        todayEternalList.innerHTML = '';
+        if(bdays.length===0 && annis.length===0) {
+            todayEternalList.innerHTML='<li class="text-gray-500 text-center text-sm">No eternal moments today.</li>';
+        } else {
+            bdays.forEach(b => {
+                const li = document.createElement('li');
+                li.className = 'bday-item';
+                li.innerHTML = `<i class="fas fa-birthday-cake text-red-500"></i><div><span class="font-bold">${b.name}</span> 🎂</div>`;
+                todayEternalList.appendChild(li);
+            });
+            annis.forEach(a => {
+                const li = document.createElement('li');
+                li.className = 'bday-item';
+                let years = '';
+                if(a.manualYears) {
+                    const base = new Date().getFullYear() - new Date(a.d).getFullYear();
+                    const m = new Date().getMonth() - new Date(a.d).getMonth();
+                    const adj = (m<0 || (m===0 && new Date().getDate()<new Date(a.d).getDate())) ? -1 : 0;
+                    years = parseInt(a.manualYears)+base+adj;
+                }
+                li.innerHTML = `<i class="fas fa-heart text-pink-500"></i><div><span class="font-bold">${a.h} & ${a.w}</span> ${years ? `(${years} yrs)` : ''}</div>`;
+                todayEternalList.appendChild(li);
+            });
+        }
+        updateTodayContainers();
+    }
+
+    function renderAllItems(filter='') {
+        const map = new Map();
+        vcardContacts.forEach(c => { map.set(c.name.toLowerCase(), {...c, isContact:true, isBirthday:false, isAnniversary:false, phone:c.phone, id:c.id}); });
+        Object.keys(allContacts).forEach(k => {
+            const c = allContacts[k];
+            const key = c.name.toLowerCase();
+            if(map.has(key)) {
+                const existing = map.get(key);
+                existing.phone = c.phone || c.mobile || existing.phone;
+                existing.contactId = k;
+                existing.isContact = true;
+            } else {
+                map.set(key, {...c, isContact:true, isBirthday:false, isAnniversary:false, phone:c.phone||c.mobile||'', contactId:k, id:k});
+            }
+        });
+        Object.keys(allBirthdays).forEach(k => {
+            const b = allBirthdays[k];
+            const key = b.name.toLowerCase();
+            if(map.has(key)) {
+                const existing = map.get(key);
+                existing.birthdate = b.birthdate;
+                existing.age = b.age;
+                existing.isBirthday = true;
+                existing.birthdayId = k;
+                if(b.mobile) existing.mobile = b.mobile;
+            } else {
+                map.set(key, {...b, isBirthday:true, isAnniversary:false, isContact:false, birthdayId:k, id:k});
+            }
+        });
+        Object.keys(allAnniversaries).forEach(k => {
+            const a = allAnniversaries[k];
+            const key = (a.h+' '+a.w).toLowerCase();
+            if(map.has(key)) {
+                const existing = map.get(key);
+                existing.anniversaryDate = a.d;
+                existing.manualYears = a.manualYears;
+                existing.isAnniversary = true;
+                existing.anniversaryId = k;
+            } else {
+                map.set(key, {name:a.h+' & '+a.w, anniversaryDate:a.d, manualYears:a.manualYears, isAnniversary:true, isBirthday:false, isContact:false, anniversaryId:k, id:k});
+            }
+        });
+
+        let arr = Array.from(map.values());
+        if(filter) {
+            const f = filter.toLowerCase();
+            arr = arr.filter(item => (item.name && item.name.toLowerCase().includes(f)) || (item.phone && item.phone.includes(f)) || (item.mobile && item.mobile.includes(f)));
+        }
+        arr.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+        allList.innerHTML = '';
+        if(arr.length===0) { allList.innerHTML='<li class="text-center text-gray-500 p-4">No entries found.</li>'; return; }
+
+        arr.forEach(item => {
             const li = document.createElement('li');
-            li.className = 'flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm';
-            li.setAttribute('data-name', item.name);
-            if (item.contactId) li.setAttribute('data-contact-id', item.contactId);
-            if (item.birthdayId) li.setAttribute('data-birthday-id', item.birthdayId);
-            if (item.mobile) li.setAttribute('data-mobile', item.mobile);
+            li.className = 'list-item';
+
+            let nameLine = `<div class="name-line"><span class="name-text">${item.name}</span><div class="action-group">`;
             
-            let iconHtml = '';
-            if(item.isContact) {
-                iconHtml += `<i class="fas fa-address-card text-purple-500 text-2xl"></i>`;
+            if(item.isContact && !item.isBirthday) {
+                nameLine += `<button class="btn-sm btn-add add-bday-btn" data-name="${item.name}" data-mobile="${item.phone||''}"><i class="fas fa-plus"></i> Birthday</button>`;
             }
             if(item.isBirthday) {
-                iconHtml += `<i class="fas fa-birthday-cake text-red-500 text-2xl"></i>`;
+                nameLine += `<button class="btn-sm btn-edit edit-btn" data-type="birthday" data-id="${item.birthdayId}"><i class="fas fa-edit"></i> Edit</button>`;
             }
+            if(item.isAnniversary) {
+                nameLine += `<button class="btn-sm btn-edit edit-btn" data-type="anniversary" data-id="${item.anniversaryId}"><i class="fas fa-edit"></i> Edit</button>`;
+            }
+            if(item.isBirthday) {
+                nameLine += `<button class="btn-sm btn-delete delete-btn" data-type="birthday" data-id="${item.birthdayId}"><i class="fas fa-trash"></i> Delete</button>`;
+            } else if(item.isAnniversary) {
+                nameLine += `<button class="btn-sm btn-delete delete-btn" data-type="anniversary" data-id="${item.anniversaryId}"><i class="fas fa-trash"></i> Delete</button>`;
+            } else if(item.isContact) {
+                nameLine += `<button class="btn-sm btn-delete delete-contact-btn" data-id="${item.id}"><i class="fas fa-trash"></i> Delete</button>`;
+            }
+            if(item.mobile || item.phone) {
+                nameLine += `<button class="btn-sm btn-share share-btn" data-name="${item.name}" data-phone="${item.mobile||item.phone}"><i class="fas fa-share-alt"></i> Share</button>`;
+            }
+            nameLine += `</div></div>`;
 
-            let ageDisplay = '';
-            let bdayDateDisplay = ''; 
-            let currentAgeDisplay = '';
+            let detailsLine = `<div class="details-line">`;
+            let icons = '';
+            if(item.isBirthday) icons += '<i class="fas fa-birthday-cake text-red-500 padding:2px margin:2px"></i> ';
+            if(item.isAnniversary) icons += '<i class="fas fa-heart text-pink-500 padding:2px margin:2px"></i> ';
+            if(item.isContact) icons += '<i class="fas fa-address-card text-purple-500 padding:2px margin:2px"></i> ';
+            detailsLine += `<span>${icons}</span>`;
+            if(item.phone) detailsLine += `<span class="badge"><i class="fas fa-phone"></i> ${item.phone}</span>`;
+            if(item.mobile && item.mobile !== item.phone) detailsLine += `<span class="badge"><i class="fas fa-mobile-alt"></i> ${item.mobile}</span>`;
+            detailsLine += `</div>`;
 
-            if (item.isBirthday) {
-                if (item.birthdate && item.birthdate.length === 10) {
-                    const savedDate = new Date(item.birthdate);
-                    const nextBday = getNextBirthdayDate(item.birthdate);
-                    const currentAge = calculateAge(item.birthdate);
-                    const nextAge = calculateNextAge(item.birthdate); 
-
-                    // Display saved birth date and calculated current age
-                    bdayDateDisplay = savedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                    currentAgeDisplay = currentAge !== null ? `(Current: ${currentAge} years old)` : '';
-                    
-                    // Display age turning on the next birthday
-                    ageDisplay = nextAge !== null ? `Turning ${nextAge} on ${nextBday.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}` : '';
-
-                } else if (item.age) {
-                    // Fallback display if full date is missing, but age is saved
-                    currentAgeDisplay = `(Saved Age: ${item.age} years old)`;
-                    bdayDateDisplay = 'Date required for full calculations';
+            let dateLine = `<div class="date-line">`;
+            if(item.isBirthday && item.birthdate) {
+                const birthYear = getYear(item.birthdate);
+                dateLine += `<span class="badge birthday-badge"><i class="fas fa-calendar-day"></i> ${formatDate(item.birthdate)}</span>`;
+                if(birthYear) {
+                    dateLine += `<span class="badge birthday-badge"><i class="fas fa-calendar-alt"></i> Year: ${birthYear}</span>`;
+                }
+                if(item.age) {
+                    dateLine += `<span class="badge birthday-badge"><i class="fas fa-user"></i> Age: ${item.age}</span>`;
                 }
             }
-
-            let actionsHtml = '';
-            if (item.isBirthday) {
-                actionsHtml = `
-                    <button class="edit-btn bg-yellow-500 text-white px-3 py-2 rounded-full hover:bg-yellow-600 transition duration-300 text-sm"><i class="fas fa-edit"></i></button>
-                `;
-            } else {
-                actionsHtml = `
-                    <button class="add-birthday-btn bg-indigo-500 text-white px-3 py-2 rounded-full hover:bg-indigo-600 transition duration-300 text-sm">
-                        <i class="fas fa-plus"></i> Add Birthday
-                    </button>
-                `;
+            if(item.isAnniversary && item.anniversaryDate) {
+                const anniYear = getYear(item.anniversaryDate);
+                dateLine += `<span class="badge anniversary-badge"><i class="fas fa-calendar-day"></i> ${formatDate(item.anniversaryDate)}</span>`;
+                if(anniYear) {
+                    dateLine += `<span class="badge anniversary-badge"><i class="fas fa-calendar-alt"></i> Year: ${anniYear}</span>`;
+                }
+                if(item.manualYears) {
+                    dateLine += `<span class="badge anniversary-badge"><i class="fas fa-clock"></i> ${item.manualYears} yrs</span>`;
+                }
             }
-            
-            let shareButtonsHtml = '';
-            if(item.mobile) { 
-                shareButtonsHtml += `<button class="share-contact-btn bg-blue-500 text-white px-3 py-2 rounded-full hover:bg-blue-600 transition duration-300 text-sm"><i class="fas fa-mobile-alt"></i></button>`;
-            }
+            dateLine += `</div>`;
 
-
-            itemHtml = `
-                <div class="flex items-start gap-4 flex-grow">
-                    <div class="flex-shrink-0 flex items-center gap-2">
-                        ${iconHtml}
-                    </div>
-                    <div class="flex-grow">
-                        <p class="font-bold text-gray-900">${item.name}</p>
-                        ${item.mobile ? `<p class="text-sm text-gray-600"><i class="fas fa-mobile-alt mr-1"></i> ${item.mobile}</p>` : ''}
-                        ${item.isBirthday ? `
-                            ${bdayDateDisplay ? `
-                            <p class="text-sm text-gray-600">
-                                <i class="fas fa-calendar-alt mr-1"></i> 
-                                DOB: ${bdayDateDisplay} 
-                                <span class="font-semibold text-gray-700">${currentAgeDisplay}</span>
-                            </p>
-                            ` : ''}
-                            ${ageDisplay ? `<p class="text-sm text-indigo-700 font-semibold"><i class="fas fa-birthday-cake mr-1"></i> ${ageDisplay}</p>` : ''}
-                            ${item.notes && item.notes.length > 0 ? `
-                                <div class="mt-2 text-sm text-gray-500">
-                                    ${item.notes.map(note => `<p><i class="fas fa-sticky-note mr-1"></i> <strong>${note.title}:</strong> ${note.content}</p>`).join('')}
-                                </div>
-                            ` : ''}
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="flex-shrink-0 flex items-center gap-2">
-                    ${actionsHtml}
-                    <button class="delete-btn bg-red-500 text-white px-3 py-2 rounded-full hover:bg-red-600 transition duration-300 text-sm"><i class="fas fa-trash-alt"></i></button>
-                    ${shareButtonsHtml}
-                </div>
-            `;
-            li.innerHTML = itemHtml;
-            list.appendChild(li);
+            li.innerHTML = nameLine + detailsLine + dateLine;
+            allList.appendChild(li);
         });
     }
 
-    // --- Note Helper Function ---
-
-    function addNoteField(container, title = '', content = '') {
-        const noteDiv = document.createElement('div');
-        noteDiv.className = 'flex items-center gap-2 mb-2';
-        noteDiv.innerHTML = `
-            <input type="text" value="${title.replace(/"/g, '&quot;')}" placeholder="Note Title" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title">
-            <input type="text" value="${content.replace(/"/g, '&quot;')}" placeholder="Note Content" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content">
-            <button type="button" class="text-red-500 hover:text-red-700 remove-note-btn flex-shrink-0"><i class="fas fa-times-circle"></i></button>
-        `;
-        container.appendChild(noteDiv);
-        noteDiv.querySelector('.remove-note-btn').addEventListener('click', () => {
-            noteDiv.remove();
-        });
-    }
-
-    // --- Event Listeners and Functions (Continuation) ---
-    
-    if(newAgeInput && newDateInput) {
-        newAgeInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
-        newDateInput.addEventListener('input', () => updateDateFromAge(newDateInput, newAgeInput));
-    }
-        
-    editAgeInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
-    editDateInput.addEventListener('input', () => updateDateFromAge(editDateInput, editAgeInput));
-
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.toggle('hidden');
-    });
-
-    toggleNotesBtn.addEventListener('click', () => {
-        notesContainer.classList.toggle('hidden');
-        if (notesContainer.classList.contains('hidden')) {
-            toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-        } else {
-            toggleNotesBtn.innerHTML = '<i class="fas fa-minus mr-2"></i> Hide Notes';
-        }
-    });
-
-    addNoteBtn.addEventListener('click', () => {
-        addNoteField(notesFields);
-    });
-
-    editAddNoteBtn.addEventListener('click', () => {
-        addNoteField(editNotesContainer);
-    });
-
-    addBirthdayForm.addEventListener('submit', handleAddBirthday);
-    editForm.addEventListener('submit', handleEditBirthday);
-    closeBtn.addEventListener('click', () => editModal.classList.add('hidden'));
-
-    allItemsList.addEventListener('click', (e) => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-        
-        const listItem = e.target.closest('li');
-        const birthdayId = listItem.dataset.birthdayId;
-        const contactId = listItem.dataset.contactId;
-        const name = listItem.dataset.name;
-
-        if (btn.classList.contains('delete-btn')) {
-             if (confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) {
-                if (birthdayId) {
-                    deleteBirthday(birthdayId);
-                }
-                if (contactId && !birthdayId) { 
-                    deleteContact(contactId);
-                }
-            }
-        } else if (btn.classList.contains('edit-btn')) {
-            if(birthdayId) {
-                openEditModal(birthdayId);
-            }
-        } else if (btn.classList.contains('add-birthday-btn')) {
-            document.getElementById('name').value = name;
-            document.getElementById('mobile').value = listItem.dataset.mobile || '';
-            document.getElementById('birthdate').value = '';
-            document.getElementById('age').value = '';
-            document.getElementById('name').focus(); 
-        } else if (btn.classList.contains('share-contact-btn')) {
-             const contact = allContacts[contactId] || vcardContacts.find(c => c.id === contactId);
-            if (contact) {
-                shareContact(contact);
-            } else {
-                console.error("No contact details to share for this entry.");
-            }
-        } else if (btn.classList.contains('share-birthday-btn')) {
-            const birthday = allBirthdays[birthdayId];
-            if (birthday) {
-                shareBirthday(birthday);
-            } else {
-                console.error("No birthday details to share for this entry.");
-            }
-        }
-    });
-
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-        renderAllItems(searchTerm);
-    });
-
-
-    // --- Firebase Functions ---
-        
-    function handleAddBirthday(e) {
+    bdayForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('name').value;
-        const mobile = document.getElementById('mobile').value;
-        const birthdateToSave = newDateInput.value; 
-        const ageToSave = newAgeInput.value;
-        const notes = Array.from(notesFields.querySelectorAll('div')).map(div => ({
-            title: div.querySelector('.note-title').value,
-            content: div.querySelector('.note-content').value,
-        })).filter(note => note.title || note.content);
+        if(!currentUserId) return alert('Please login.');
+        const name = document.getElementById('name').value.trim();
+        if(!name) return alert('Name is mandatory');
+        const mobile = document.getElementById('mobile').value.trim();
+        const birthdate = document.getElementById('birthdate').value;
+        const age = document.getElementById('age').value;
+        db.ref(`users/${currentUserId}/birthdays`).push({ name, mobile, birthdate, age: age || '' }).then(() => {
+            bdayForm.reset();
+            bdayContactSelect.value = '';
+            document.getElementById('name').placeholder = 'Name';
+        }).catch(err => console.error(err));
+    });
 
-        // Name is mandatory
-        if (!name) {
-            alert("Please ensure the Name is entered. This field is mandatory.");
-            return;
-        }
+    addBdayModalForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if(!currentUserId) return alert('Please login.');
+        const name = addBdayNameInput.value.trim();
+        if(!name) return alert('Name is mandatory');
+        const mobile = addBdayMobileInput.value.trim();
+        const birthdate = addBdayDateInput.value;
+        const age = addBdayAgeInput.value;
+        db.ref(`users/${currentUserId}/birthdays`).push({ name, mobile, birthdate, age: age || '' }).then(() => {
+            addBdayModal.classList.add('hidden');
+            addBdayModalForm.reset();
+        }).catch(err => console.error(err));
+    });
 
-        const newBirthday = { 
-            name, 
-            mobile, 
-            birthdate: birthdateToSave || "", 
-            // Fixed: Save age as "" if empty/not provided (instead of 0)
-            age: parseInt(ageToSave) || "", 
-            notes 
-        };
-        
-        if (currentUserId) {
-            const newBdayRef = database.ref(`users/${currentUserId}/birthdays`).push();
-            newBdayRef.set(newBirthday).then(() => {
-                addBirthdayForm.reset();
-                notesContainer.classList.add('hidden');
-                notesFields.innerHTML = `<div class="flex items-center gap-2 mb-2"><input type="text" placeholder="Note Title (e.g., Gift Idea)" class="w-1/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-title"><input type="text" placeholder="Note Content (e.g., A new book)" class="w-2/3 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 note-content"></div>`;
-                toggleNotesBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Notes';
-            }).catch(error => {
-                console.error("Error adding birthday: ", error);
-            });
-        } else {
-            alert("Please log in to save birthdays.");
-        }
-    }
+    anniForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if(!currentUserId) return alert('Please login.');
+        const h = document.getElementById('hName').value.trim();
+        const w = document.getElementById('wName').value.trim();
+        const d = document.getElementById('anniDate').value;
+        const manualYears = document.getElementById('manualYears').value;
+        if(!h || !w || !d) return alert('Husband, Wife and date required.');
+        db.ref(`users/${currentUserId}/anniversaries`).push({ h, w, d, manualYears: manualYears || '' }).then(() => {
+            anniForm.reset();
+            anniContactSelect.value = '';
+            document.getElementById('hName').placeholder = 'Husband';
+            document.getElementById('wName').placeholder = 'Wife';
+        }).catch(err => console.error(err));
+    });
 
-    function openEditModal(id) {
-        const itemToEdit = allBirthdays[id];
-        if (!itemToEdit) return;
+    tabBday.addEventListener('click', ()=>{
+        tabBday.className='tab-btn px-4 py-2 rounded-t-lg font-semibold text-indigo-600 border-b-2 border-indigo-600';
+        tabAnni.className='tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-500';
+        bdayForm.classList.remove('hidden');
+        anniForm.classList.add('hidden');
+        populateContactSelects();
+    });
+    tabAnni.addEventListener('click', ()=>{
+        tabAnni.className='tab-btn px-4 py-2 rounded-t-lg font-semibold text-indigo-600 border-b-2 border-indigo-600';
+        tabBday.className='tab-btn px-4 py-2 rounded-t-lg font-semibold text-gray-500';
+        anniForm.classList.remove('hidden');
+        bdayForm.classList.add('hidden');
+        populateContactSelects();
+    });
 
-        // Collect numbers directly from the raw birthday item, prioritizing 'mobile' but also checking 'phone'
-        const numbers = [];
-        if (itemToEdit.mobile) {
-            itemToEdit.mobile.split(',').forEach(num => {
-                const trimmedNum = num.trim();
-                if (trimmedNum) numbers.push(trimmedNum);
-            });
-        }
-        if (itemToEdit.phone) {
-            itemToEdit.phone.split(',').forEach(num => {
-                const trimmedNum = num.trim();
-                if (trimmedNum) numbers.push(trimmedNum);
-            });
-        }
-        
-        const consolidatedMobile = [...new Set(numbers)].join(', ');
-
-        editIdInput.value = id;
-        editNameInput.value = itemToEdit.name || '';
-        
-        editMobileInput.value = consolidatedMobile; 
-        
-        editDateInput.value = itemToEdit.birthdate && itemToEdit.birthdate.length === 10 ? itemToEdit.birthdate : '';
-        editAgeInput.value = itemToEdit.age || '';
-        
-        editNotesContainer.innerHTML = '';
-        if (itemToEdit.notes && itemToEdit.notes.length > 0) {
-            itemToEdit.notes.forEach(note => {
-                addNoteField(editNotesContainer, note.title, note.content);
-            });
-        } else {
-            addNoteField(editNotesContainer); 
-        }
-        
-        updateDateFromAge(editDateInput, editAgeInput);
-        
+    function openEditModal(type, id) {
         editModal.classList.remove('hidden');
+        editId.value = id;
+        editType.value = type;
+        editModalTitle.textContent = type==='birthday' ? 'Edit Birthday' : 'Edit Anniversary';
+        let html = '';
+        if(type==='birthday') {
+            const item = allBirthdays[id];
+            if(!item) return;
+            html = `
+                <label>Name</label><input type="text" id="edit-name" value="${item.name||''}">
+                <label>Mobile</label><input type="text" id="edit-mobile" value="${item.mobile||''}">
+                <label>Birthdate</label><input type="date" id="edit-birthdate" value="${item.birthdate||''}">
+                <label>Age</label><input type="number" id="edit-age" value="${item.age||''}">
+            `;
+        } else {
+            const item = allAnniversaries[id];
+            if(!item) return;
+            html = `
+                <label>Husband</label><input type="text" id="edit-h" value="${item.h||''}">
+                <label>Wife</label><input type="text" id="edit-w" value="${item.w||''}">
+                <label>Date</label><input type="date" id="edit-d" value="${item.d||''}">
+                <label>Years</label><input type="number" id="edit-years" value="${item.manualYears||''}">
+            `;
+        }
+        editFields.innerHTML = html;
     }
 
-    function handleEditBirthday(e) {
+    function closeEditModal() { editModal.classList.add('hidden'); }
+    closeModalBtn.addEventListener('click', closeEditModal);
+    editModal.addEventListener('click', (e) => { if(e.target===editModal) closeEditModal(); });
+
+    editForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const id = editIdInput.value;
-        const name = editNameInput.value;
-        const mobile = editMobileInput.value; 
-        
-        updateDateFromAge(editDateInput, editAgeInput);
+        const type = editType.value;
+        const id = editId.value;
+        if(!currentUserId || !id) return;
+        if(type==='birthday') {
+            const name = document.getElementById('edit-name').value.trim();
+            if(!name) return alert('Name is required');
+            const mobile = document.getElementById('edit-mobile').value.trim();
+            const birthdate = document.getElementById('edit-birthdate').value;
+            const age = document.getElementById('edit-age').value;
+            db.ref(`users/${currentUserId}/birthdays/${id}`).update({ name, mobile, birthdate, age: age || '' }).then(closeEditModal);
+        } else {
+            const h = document.getElementById('edit-h').value.trim();
+            const w = document.getElementById('edit-w').value.trim();
+            const d = document.getElementById('edit-d').value;
+            const manualYears = document.getElementById('edit-years').value;
+            if(!h || !w || !d) return alert('All fields required');
+            db.ref(`users/${currentUserId}/anniversaries/${id}`).update({ h, w, d, manualYears: manualYears || '' }).then(closeEditModal);
+        }
+    });
 
-        const birthdateToSave = editDateInput.value; 
-        const ageToSave = editAgeInput.value;
+    function openAddBdayModal(name, mobile) {
+        addBdayNameSpan.textContent = name;
+        addBdayNameInput.value = name;
+        addBdayMobileInput.value = mobile || '';
+        addBdayDateInput.value = '';
+        addBdayAgeInput.value = '';
+        addBdayModal.classList.remove('hidden');
+    }
 
-        const notes = Array.from(editNotesContainer.querySelectorAll('div')).map(div => ({
-            title: div.querySelector('.note-title').value.trim(),
-            content: div.querySelector('.note-content').value.trim(),
-        })).filter(note => note.title || note.content);
+    closeAddBdayModal.addEventListener('click', () => addBdayModal.classList.add('hidden'));
+    addBdayModal.addEventListener('click', (e) => { if(e.target===addBdayModal) addBdayModal.classList.add('hidden'); });
 
-        // Name is mandatory
-        if (!name) {
-            alert("Please ensure the Name is entered. This field is mandatory.");
+    allList.addEventListener('click', (e) => {
+        const target = e.target.closest('button');
+        if(!target) return;
+
+        if(target.classList.contains('delete-btn')) {
+            const type = target.dataset.type;
+            const id = target.dataset.id;
+            if(!id) return;
+            if(!confirm('Delete this entry?')) return;
+            if(type==='birthday' && currentUserId) db.ref(`users/${currentUserId}/birthdays/${id}`).remove();
+            else if(type==='anniversary' && currentUserId) db.ref(`users/${currentUserId}/anniversaries/${id}`).remove();
             return;
         }
-
-        const updatedBirthday = { 
-            name, 
-            mobile: mobile, 
-            birthdate: birthdateToSave || "", 
-            age: parseInt(ageToSave) || "", 
-            notes 
-        };
-
-        if (currentUserId && id) {
-            database.ref(`users/${currentUserId}/birthdays/${id}`).set(updatedBirthday)
-                .then(() => {
-                    editModal.classList.add('hidden');
-                })
-                .catch(error => {
-                    console.error("Error updating birthday: ", error);
-                });
-        }
-    }
-
-    function deleteBirthday(id) {
-        if (currentUserId) {
-            database.ref(`users/${currentUserId}/birthdays/${id}`).remove()
-                .catch(error => {
-                    console.error("Error removing birthday: ", error);
-                });
-        }
-    }
-        
-    function deleteContact(id) {
-        if (currentUserId) {
-            database.ref(`users/${currentUserId}/contacts/${id}`).remove()
-                .catch(error => {
-                    console.error("Error removing contact: ", error);
-                });
-        }
-    }
-
-    function shareBirthday(birthday) {
-        let shareText = `Name: ${birthday.name}!`;
-        
-        if(birthday.birthdate && birthday.birthdate.length === 10) {
-            shareText += `\nBirth Date: ${new Date(birthday.birthdate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`;
-        }
-        
-        if (birthday.age) {
-            shareText += `\nThey are ${birthday.age} years old.`;
-        }
-        
-        if (navigator.share) {
-            navigator.share({
-                title: `Birthday Reminder: ${birthday.name}`,
-                text: shareText
-            }).catch(error => console.error('Error sharing:', error));
-        } else {
-            alert('Birthday details (copied to clipboard if supported):\n\n' + shareText);
-            navigator.clipboard.writeText(shareText).catch(err => console.error('Could not copy text: ', err));
-        }
-    }
-        
-    function shareContact(contact) {
-        let shareText = `Name: ${contact.name}`;
-        if(contact.mobile) {
-            shareText += `\nMobile No: ${contact.mobile}`;
-        }
-
-        if (navigator.share) {
-            navigator.share({
-                title: `Contact: ${contact.name}`,
-                text: shareText
-            }).catch(error => console.error('Error sharing:', error));
-        } else {
-            alert('Contact details (copied to clipboard if supported):\n\n' + shareText);
-            navigator.clipboard.writeText(shareText).catch(err => console.error('Could not copy text: ', err));
-        }
-    }
-
-    // --- Data Retrieval and Display ---
-    function initializeData() {
-        if (currentUserId) {
-            const birthdaysRef = database.ref(`users/${currentUserId}/birthdays`);
-            
-            birthdaysRef.once('value').then((snapshot) => {
-                allBirthdays = snapshot.val() || {};
-                renderDashboardLists();
+        if(target.classList.contains('delete-contact-btn')) {
+            const id = target.dataset.id;
+            if(id.startsWith('vc')) {
+                vcardContacts = vcardContacts.filter(c => c.id !== id);
                 renderAllItems(searchInput.value);
-                
-                if (!initialLoadComplete) {
-                    checkAndNotify(); 
-                    initialLoadComplete = true; 
-                }
-            }).catch(error => {
-                console.error("Error fetching initial birthday data:", error);
-            });
-            
-            birthdaysRef.on('value', (snapshot) => {
-                allBirthdays = snapshot.val() || {};
-                renderDashboardLists();
-                renderAllItems(searchInput.value); 
-            });
-            
-            function renderDashboardLists() {
-                const { todayBirthdays } = getTodayAndTomorrowBirthdays(allBirthdays);
-                const upcomingBirthdays = getUpcomingBirthdays(allBirthdays);
-                document.getElementById('today-list').innerHTML = ''; 
-                document.getElementById('upcoming-birthdays-list').innerHTML = '';
-                renderBirthdayList('today-list', todayBirthdays);
-                renderBirthdayList('upcoming-birthdays-list', upcomingBirthdays);
-            }
-            
-            const contactsRef = database.ref(`users/${currentUserId}/contacts`);
-            contactsRef.on('value', (snapshot) => {
-                allContacts = snapshot.val() || {};
-                renderAllItems(searchInput.value);
-            });
-        }
-    }
-
-    // --- Notification Functions ---
-    function requestNotificationPermission() {
-        if ('Notification' in window) {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    console.log('Notification permission granted.');
-                } else {
-                    console.warn('Notification permission denied.');
-                }
-            });
-        } else {
-            console.warn('This browser does not support notifications.');
-        }
-    }
-
-    const LAST_NOTIFICATION_KEY = 'birthday_notification_timestamp';
-
-    function checkAndNotify() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); 
-        
-        const lastNotifiedTime = localStorage.getItem(LAST_NOTIFICATION_KEY);
-        const msInDay = 24 * 60 * 60 * 1000;
-        
-        if (lastNotifiedTime) {
-            const timeElapsed = today.getTime() - parseInt(lastNotifiedTime);
-            if (timeElapsed < msInDay) {
-                console.log("Birthday notification already sent today. Skipping.");
+                populateContactSelects();
                 return;
             }
+            if(currentUserId && id) db.ref(`users/${currentUserId}/contacts/${id}`).remove();
+            return;
         }
 
-        if (currentUserId && Notification.permission === 'granted') {
-            
-            const birthdaysToday = Object.values(allBirthdays).filter(bday => {
-                if (!bday.birthdate || bday.birthdate.length !== 10) return false;
-                
-                const [year, month, day] = bday.birthdate.split('-').map(Number);
-                
-                return (today.getMonth() + 1) === month && today.getDate() === day;
-            });
+        if(target.classList.contains('edit-btn')) {
+            const type = target.dataset.type;
+            const id = target.dataset.id;
+            openEditModal(type, id);
+            return;
+        }
 
-            if (birthdaysToday.length > 0) {
-                let notificationTitle = "Happy Birthday! 🎉";
-                let notificationBody = "Here are today's birthdays:\n";
+        if(target.classList.contains('add-bday-btn')) {
+            const name = target.dataset.name;
+            const mobile = target.dataset.mobile;
+            openAddBdayModal(name, mobile);
+            return;
+        }
 
-                birthdaysToday.forEach(bday => {
-                    const ageTurning = bday.birthdate && bday.birthdate.length === 10 ? calculateNextAge(bday.birthdate) : null;
-                    const ageDisplay = ageTurning !== null ? ` (turning ${ageTurning})` : '';
-                    
-                    notificationBody += `- ${bday.name}${ageDisplay}\n`;
-                });
-                
-                if (notificationBody.trim() !== "Here are today's birthdays:") {
-                    new Notification(notificationTitle, {
-                        body: notificationBody,
-                        icon: 'https://via.placeholder.com/40' 
-                    });
-                    
-                    localStorage.setItem(LAST_NOTIFICATION_KEY, today.getTime());
-                }
+        if(target.classList.contains('share-btn')) {
+            const name = target.dataset.name;
+            const phone = target.dataset.phone;
+            if(navigator.share) {
+                navigator.share({ title: name, text: `${name}\n📞 ${phone}` }).catch(()=>{});
+            } else {
+                alert(`${name}\n📞 ${phone}`);
             }
         }
-    }
-        
-    // --- Auth State Listener ---
+    });
+
+    searchInput.addEventListener('input', (e) => renderAllItems(e.target.value));
+
     auth.onAuthStateChanged(user => {
-        if (user) {
+        if(user) {
             currentUserId = user.uid;
-            document.getElementById('userName').textContent = user.displayName || 'Guest';
-            document.getElementById('userEmail').textContent = user.email || 'guest@example.com';
-            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/40';
-            document.getElementById('mobileUserName').textContent = user.displayName || 'Guest';
-            document.getElementById('mobileUserEmail').textContent = user.email || 'guest@example.com';
-            
-            initializeData();
-            requestNotificationPermission();
-            
+            document.getElementById('userName').textContent = user.displayName || 'User';
+            document.getElementById('userEmail').textContent = user.email || '';
+            document.getElementById('mobileUserName').textContent = user.displayName || 'User';
+            document.getElementById('mobileUserEmail').textContent = user.email || '';
+            if(user.photoURL) document.getElementById('userPhoto').src = user.photoURL;
+
+            db.ref(`users/${currentUserId}/birthdays`).on('value', snap => {
+                allBirthdays = snap.val() || {};
+                renderTodayBirthdays();
+                renderTodayEternal();
+                renderAllItems(searchInput.value);
+                populateContactSelects();
+            });
+            db.ref(`users/${currentUserId}/anniversaries`).on('value', snap => {
+                allAnniversaries = snap.val() || {};
+                renderTodayAnniversaries();
+                renderTodayEternal();
+                renderAllItems(searchInput.value);
+                populateContactSelects();
+            });
+            db.ref(`users/${currentUserId}/contacts`).on('value', snap => {
+                allContacts = snap.val() || {};
+                renderAllItems(searchInput.value);
+                populateContactSelects();
+            });
         } else {
             window.location.href = 'index.html';
         }
     });
-        
-    // Logout function
-    function logout() {
-        auth.signOut().then(() => {
-            window.location.href = 'index.html';
-        }).catch(error => {
-            console.error('Sign out error', error);
-        });
-    }
+
+    function logout() { auth.signOut().then(()=> window.location.href='index.html'); }
+
+    // theme toggle logic removed, but we apply from localStorage
+    (function(){
+        const saved = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+        document.getElementById('theme-icon').textContent = saved==='dark' ? '☀️' : '🌙';
+    })();
+
+    setTimeout(populateContactSelects, 500);
 </script>
-    
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('theme-toggle-btn');
-    const icon = document.getElementById('theme-icon');
-    
-    // 1. Load saved theme immediately on page load
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    icon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    // 2. Click Event
-    btn.addEventListener('click', () => {
-        let currentTheme = document.documentElement.getAttribute('data-theme');
-        let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-        // Apply new theme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        
-        // Save to LocalStorage (works across all pages on your site)
-        localStorage.setItem('theme', newTheme);
-        
-        // Update Icon
-        icon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-});
-</script>
-     <button id="theme-toggle-btn">
-    <span id="theme-icon">🌙</span>
-</button>
-<style>
-    /* --- 1. THEME VARIABLE DEFINITIONS --- */
-    :root {
-        --bg-body: #f9fafb;
-        --bg-card: #ffffff;
-        --text-main: #1f2937;   /* Deep Gray 800 */
-        --text-bold: #000000;   /* Pure Black */
-        --border: #e5e7eb;
-        
-        /* BOTTOM NAV COLORS (LIGHT) */
-        --nav-bg: #ffffff;
-        --nav-text: #000000;    /* Pure Black for text and icons */
-        --nav-height: 65px;
-    }
-
-    [data-theme="dark"] {
-        --bg-body: #0f172a;     /* Deep Navy/Black */
-        --bg-card: #1e293b;     /* Slate 800 */
-        --text-main: #cbd5e1;   /* Slate 300 */
-        --text-bold: #f8fafc;   /* Slate 50 */
-        --border: #334155;      /* Slate 700 */
-        
-        /* BOTTOM NAV COLORS (DARK) */
-        --nav-bg: #0f172a;
-        --nav-text: #ffffff;    /* Pure White */
-    }
-
-    /* --- 2. GLOBAL OVERRIDES --- */
-    body { background-color: var(--bg-body) !important; color: var(--text-main) !important; transition: background 0.3s; }
-    
-    /* Ensure all text classes inside containers adapt */
-    h1, h2, h3, h4, .font-bold, .font-semibold, 
-    .text-gray-900, .text-gray-800, .text-blue-800, .text-green-800, .text-yellow-800 { 
-        color: var(--text-bold) !important; 
-    }
-
-    p, li, span, .text-gray-700, .text-gray-600 { 
-        color: var(--text-main) !important; 
-    }
-
-    /* Component Surfaces */
-    .bg-white, header, aside, main, #mobile-menu, footer {
-        background-color: var(--bg-card) !important;
-        border-color: var(--border) !important;
-    }
-
-    /* --- 3. SIDEBAR & CORE FEATURES FIXES --- */
-    [data-theme="dark"] .sidebar-desktop, [data-theme="dark"] aside {
-        background-color: var(--bg-card) !important;
-    }
-    
-    /* Muted Sidebar links in dark mode */
-    [data-theme="dark"] .sidebar-nav-internal a { color: #94a3b8 !important; }
-    [data-theme="dark"] .sidebar-nav-internal a:hover,
-    [data-theme="dark"] .sidebar-nav-internal a.active {
-        background-color: #334155 !important;
-        color: #60a5fa !important;
-    }
-
-    /* Core Features Overview Boxes */
-    [data-theme="dark"] .bg-gray-100, 
-    [data-theme="dark"] .bg-yellow-50,
-    [data-theme="dark"] .bg-blue-50,
-    [data-theme="dark"] .bg-green-50 {
-        background-color: #334155 !important;
-        border-color: var(--border) !important;
-    }
-
-    /* Brighter borders for boxes in dark mode */
-    [data-theme="dark"] .border-l-4, [data-theme="dark"] .border-t-4 {
-        border-color: #4f46e5 !important; 
-    }
-
-    /* --- 4. BOTTOM NAV (DARKER FONTS & ICONS) --- */
-    #universal-bottom-nav {
-        background-color: var(--nav-bg) !important;
-        border-top: 1px solid var(--border) !important;
-        height: var(--nav-height);
-    }
-
-    /* This targets the icon specifically */
-    .nav-link i { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Makes icons look thicker/bolder */
-        font-size: 20px !important;  /* Slightly larger for visibility */
-        transition: transform 0.2s;
-    }
-
-    /* This targets the text label specifically */
-    .nav-link div { 
-        color: var(--nav-text) !important; 
-        font-weight: 900 !important; /* Thickest weight for labels */
-        font-size: 11px !important;
-        margin-top: 2px;
-    }
-
-    /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
-    #theme-toggle-btn {
-        position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
-        right: 20px;
-        z-index: 10000;
-        width: 52px;
-        height: 52px;
-        border-radius: 50%;
-        border: none;
-        background: #4f46e5;
-        color: white;
-        cursor: pointer;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    #theme-toggle-btn:active { transform: scale(0.9); }
-</style>
+  <!-- BOTTOM NAVIGATION (FIXED) -->
+  <div id="universal-bottom-nav">
+    <a href="homemob.html" class="nav-link"><i class="fas fa-house"></i><div>Home</div></a>
+    <a href="passwordmob.html" class="nav-link"><i class="fas fa-key"></i><div>Passwords</div></a>
+    <a href="incomemob.html" class="nav-link"><i class="fas fa-wallet"></i><div>Income</div></a>
+    <a href="links.html" class="nav-link"><i class="fas fa-link"></i><div>Links</div></a>
+    <a href="calender.html" class="nav-link"><i class="fas fa-calendar-alt"></i><div>Calendar</div></a>
+  </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
