@@ -241,7 +241,7 @@
     .mobile-nav-item:hover { background:var(--sidebar-hover); color:#2563eb !important; transform:translateX(4px) translateY(-2px); }
     .mobile-nav-item:active { transform:translateX(2px) translateY(-1px); color:#1d4ed8; }
 
-    /* ── NEW PROFESSIONAL REMINDER CARD ── */
+    /* ── PROFESSIONAL REMINDER CARD ── */
     .reminder-card {
       background: var(--item-bg);
       border-radius: 0.75rem;
@@ -618,14 +618,12 @@
     return userData;
   }
 
-  // 🔧 FIXED: Removed the 1-day expiration check so users stay logged in
   function loadUserFromStorage() {
     try {
       let stored = sessionStorage.getItem('savig_user_data');
       if (!stored) stored = localStorage.getItem('savig_user_data');
       if (stored) {
         const userData = JSON.parse(stored);
-        // ✅ No expiration check - user stays logged in even after days
         return userData;
       }
     } catch (e) {}
@@ -924,7 +922,6 @@
         iconBg = 'service';
       }
 
-      // Determine icon based on type
       let typeIcon = label === 'Service' ? 'fa-wrench' : (label === 'PUC' ? 'fa-file-certificate' : 'fa-shield-alt');
       let typeClass = label.toLowerCase();
 
@@ -964,9 +961,11 @@
     });
   }
 
+  // ✅ FIXED: Corrected anniversary path
   function loadDashboardData(userId) {
     if(!userId) return;
     const now=new Date(); const yyyy=now.getFullYear(); const mm=String(now.getMonth()+1).padStart(2,'0'); const dd=String(now.getDate()).padStart(2,'0'); const dateKey=`${yyyy}-${mm}-${dd}`;
+    
     db.ref(`users/${userId}/events/${dateKey}`).on('value', snap=>{
       const container=document.getElementById('dash-events-list'); if(!container)return;
       if(!snap.exists()){ container.innerHTML='<div class="empty-state"><i class="fas fa-calendar-check text-green-400 text-xl mb-1 block"></i>No events today.</div>'; return; }
@@ -974,6 +973,7 @@
       snap.forEach(child=>{ const ev=child.val(); html+=`<div class="p-2 rounded-xl border-l-4 border-l-indigo-500" style="background:var(--item-bg);"><div class="font-bold text-sm">📌 ${escapeHtml(ev.title)}</div><div class="text-xs text-blue-500"><i class="far fa-clock"></i> ${ev.time||'All day'}</div></div>`; });
       html+='</div>'; container.innerHTML=html;
     });
+    
     db.ref(`users/${userId}/groceryList/${dateKey}`).on('value', snap=>{
       const div=document.getElementById('dash-grocery-list'); if(!div)return;
       if(!snap.exists()){ div.innerHTML='<div class="empty-state"><i class="fas fa-shopping-basket text-emerald-400 text-xl mb-1 block"></i>No grocery items today.</div>'; return; }
@@ -981,13 +981,43 @@
       snap.forEach(child=>{ const item=child.val(); html+=`<div class="grocery-item"><span class="grocery-name">${escapeHtml(item.name)}</span><span class="grocery-qty">${item.quantity||''}</span></div>`; });
       div.innerHTML=html;
     });
-    Promise.all([db.ref(`users/${userId}/birthdays`).once('value'), db.ref(`anniversaries/${userId}`).once('value')]).then(([bSnap,aSnap])=>{
+    
+    // ✅ FIXED: Correct path for anniversaries - using users/${userId}/anniversaries
+    Promise.all([
+      db.ref(`users/${userId}/birthdays`).once('value'), 
+      db.ref(`users/${userId}/anniversaries`).once('value')
+    ]).then(([bSnap, aSnap])=>{
       const celebDiv=document.getElementById('dash-celebrations-list'); if(!celebDiv)return;
       let html='', found=false;
-      bSnap.forEach(child=>{ const b=child.val(); if(b.birthdate&&b.birthdate.endsWith(`-${mm}-${dd}`)){ found=true; html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${escapeHtml(b.name)}</span> <span class="text-xs">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile||''}','Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; }});
-      aSnap.forEach(child=>{ const a=child.val(); if(a.d&&a.d.endsWith(`-${mm}-${dd}`)){ found=true; html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile||''}','Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; }});
-      celebDiv.innerHTML=found?html:'<div class="empty-state"><i class="fas fa-mug-hot text-2xl mb-2 block"></i>No celebrations today</div>';
-    }).catch(console.error);
+      
+      // Process birthdays
+      if (bSnap.exists()) {
+        bSnap.forEach(child=>{ 
+          const b=child.val(); 
+          if(b.birthdate && b.birthdate.endsWith(`-${mm}-${dd}`)){
+            found=true; 
+            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-cake-candles text-rose-500 mr-2"></i><span class="font-bold">${escapeHtml(b.name)}</span> <span class="text-xs">🎂 Birthday</span></div><button onclick="sendWhatsAppMsg('${b.mobile||''}','Happy Birthday ${escapeHtml(b.name)}! 🎉')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; 
+          }
+        });
+      }
+      
+      // Process anniversaries
+      if (aSnap.exists()) {
+        aSnap.forEach(child=>{ 
+          const a=child.val(); 
+          if(a.d && a.d.endsWith(`-${mm}-${dd}`)){
+            found=true; 
+            html+=`<div class="flex justify-between items-center p-2 rounded-xl mb-2" style="background:var(--item-bg);"><div><i class="fas fa-ring text-pink-500 mr-2"></i><span class="font-bold">${escapeHtml(a.h)} & ${escapeHtml(a.w)}</span> <span class="text-xs">💍 Anniversary</span></div><button onclick="sendWhatsAppMsg('${a.mobile||''}','Happy Anniversary ${escapeHtml(a.h)} & ${escapeHtml(a.w)}! 💖')" class="btn-wish-sm"><i class="fab fa-whatsapp"></i> Wish</button></div>`; 
+          }
+        });
+      }
+      
+      celebDiv.innerHTML=found ? html : '<div class="empty-state"><i class="fas fa-mug-hot text-2xl mb-2 block"></i>No celebrations today</div>';
+    }).catch(err => {
+      console.error('Error loading celebrations:', err);
+      const celebDiv = document.getElementById('dash-celebrations-list');
+      if (celebDiv) celebDiv.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle text-red-400 text-xl mb-1 block"></i>Error loading celebrations</div>';
+    });
   }
 
   function initLinksManager(userId) {
