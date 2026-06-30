@@ -155,7 +155,7 @@
     /* Bottom Nav Links - Light Mode (PURE BLACK with BLUE HOVER) */
     #universal-bottom-nav .nav-link {
         color: #000000 !important;
-        font-weight: 900 !important;
+        font-weight: 800 !important;
         font-size: 16px !important;
         opacity: 2;
         flex: 1;
@@ -178,7 +178,7 @@
     
     #universal-bottom-nav .nav-link div {
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 800;
         letter-spacing: 0.5px;
         text-transform: uppercase;
         color: #000000 !important;
@@ -192,22 +192,10 @@
     }
     
     #universal-bottom-nav .nav-link:hover div {
-        color:blue !important;
+        color: #3b82f6 !important;
     }
     
     #universal-bottom-nav .nav-link:hover {
-        opacity: 1;
-    }
-    
-    #universal-bottom-nav .nav-link.active i {
-        color: #2563eb !important;
-    }
-    
-    #universal-bottom-nav .nav-link.active div {
-        color: #2563eb !important;
-    }
-    
-    #universal-bottom-nav .nav-link.active {
         opacity: 1;
     }
     
@@ -218,9 +206,9 @@
     /* Bottom Nav Links - Dark Mode (PURE WHITE with BLUE HOVER) */
     [data-theme="dark"] #universal-bottom-nav .nav-link {
         color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 15px !important;
-        opacity: 0.8;
+        font-weight: 800 !important;
+        font-size: 16px !important;
+        opacity: 1;
     }
     
     [data-theme="dark"] #universal-bottom-nav .nav-link i {
@@ -242,18 +230,6 @@
     }
     
     [data-theme="dark"] #universal-bottom-nav .nav-link:hover {
-        opacity: 1;
-    }
-    
-    [data-theme="dark"] #universal-bottom-nav .nav-link.active i {
-        color: #818cf8 !important;
-    }
-    
-    [data-theme="dark"] #universal-bottom-nav .nav-link.active div {
-        color: #818cf8 !important;
-    }
-    
-    [data-theme="dark"] #universal-bottom-nav .nav-link.active {
         opacity: 1;
     }
     
@@ -910,14 +886,7 @@
         transform: translateY(-4px); 
     }
     
-    .desktop-nav-link.active-link { 
-        color: #2563eb !important; 
-        font-weight: 600; 
-    }
     
-    .desktop-nav-link i { 
-        font-size: 19px; 
-    }
     
     .navbar-container {
         display: flex;
@@ -1080,7 +1049,7 @@
             <div class="navbar-left">
                 <div class="desktop-logo hidden md:flex items-center gap-2">
                     <div class="relative flex items-center justify-center">
-                        <i class="fas fa-shield text-blue-600 text-2xl"></i>
+                        <i class="fas fa-shield-alt text-blue-600 text-2xl"></i>
                         <i class="fas fa-database text-white absolute text-xs top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></i>
                     </div>
                     <h1 class="font-black text-2xl" style="color: var(--text-bold);">Savig</h1>
@@ -1131,7 +1100,7 @@
 <!-- MAIN -->
 <main class="p-4 md:p-8" style="padding-top:90px;">
     <div class="container mx-auto">
-        <h1 class="page-heading">📅 Today's Events</h1>
+      
 
         <div class="grid-today mb-3" id="todayGrid">
             <div id="todayBirthdayContainer" class="bg-white p-4 rounded-xl shadow-lg today-container">
@@ -1849,395 +1818,13 @@
 
     setTimeout(populateContactSelects, 500);
 </script>
-  <style>
-        /* 1. Theme Variables - EXACT same as your code */
-        :root {
-            --bg-main: #0f172a;
-            --text-primary: #ffffff;
-            --text-dim: #94a3b8;
-            --accent: #2563eb;
-            --savig-yellow: #ffe11b;
-            --glass: rgba(30, 41, 59, 0.45);
-            --border: rgba(255, 255, 255, 0.1);
-            --bg-color: #ffffff;
-            --nav-bg: rgba(255, 255, 255, 0.95);
-            --nav-text: #000000;
-            --hover-bg: #f8fafc;
-            --active-color: #2563eb;
-            --border-color: rgba(0, 0, 0, 0.1);
-            --card: #f8fafc;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-        }
-
-        [data-theme='dark'] {
-            --bg-color: #0f172a;
-            --nav-bg: rgba(15, 23, 42, 0.98);
-            --nav-text: #ffffff;
-            --hover-bg: #1e293b;
-            --active-color: #60a5fa;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --card: #1e293b;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-        }
-
-        /* ===== BOTTOM NAVIGATION - FIXED ===== */
-        #universal-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--nav-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid var(--border-color);
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
-            z-index: 999999;
-            padding-bottom: env(safe-area-inset-bottom);
-            animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            font-size: 14px;
-        }
-
-        @keyframes navSlideUp {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .nav-link {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--nav-text) !important;
-            text-decoration: none !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            height: 40px;
-            cursor: pointer;
-        }
-
-        .nav-link i {
-            font-size: 25px;
-            margin-bottom: 4px;
-            color: inherit;
-            -webkit-text-stroke: 0.5px var(--nav-text);
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .nav-link div {
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: inherit;
-            letter-spacing: 0.02em;
-            gap: 5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* HOVER: Blue color + Slight upward motion */
-        .nav-link:hover {
-            transform: translateY(-4px);
-            color: #2563eb !important;
-        }
-        .nav-link:hover i {
-            color: #2563eb !important;
-            -webkit-text-stroke: 0.5px #2563eb;
-        }
-        .nav-link:hover div {
-            color: #2563eb !important;
-        }
-
-        /* ACTIVE state */
-        .nav-link.active {
-            color: var(--active-color) !important;
-        }
-        .nav-link.active i {
-            transform: translateY(-3px);
-            -webkit-text-stroke: 0.5px var(--active-color);
-        }
-
-        /* Dark mode hover overrides */
-        [data-theme='dark'] .nav-link:hover {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link:hover i {
-            color: #60a5fa !important;
-            -webkit-text-stroke: 0.5px #60a5fa;
-        }
-        [data-theme='dark'] .nav-link:hover div {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link.active {
-            color: #60a5fa !important;
-        }
-        [data-theme='dark'] .nav-link.active i {
-            -webkit-text-stroke: 0.5px #60a5fa;
-        }
-
-        /* Just for demo - body spacing */
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg-color);
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 80px;
-            transition: background 0.3s ease;
-        }
-
-        .demo-content {
-            background: var(--card);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            max-width: 500px;
-            transition: all 0.3s ease;
-        }
-
-        .demo-content h1 {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .demo-content p {
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-
-        .theme-toggle {
-            margin-top: 16px;
-            padding: 10px 24px;
-            border: none;
-            border-radius: 50px;
-            background: var(--active-color);
-            color: white;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.05);
-        }
-
-        .theme-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .status-badge {
-            margin-top: 16px;
-            padding: 12px;
-            background: var(--bg-color);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .status-badge span {
-            color: var(--active-color);
-        }
-    </style>
-</head>
-<body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bottom Nav Only</title>
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        /* ---------- RESET & BASE ---------- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #f1f5f9;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* demo card – just to show content above nav */
-        .demo-content {
-            max-width: 400px;
-            background: white;
-            border-radius: 24px;
-            padding: 30px 20px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            text-align: center;
-            margin-bottom: 80px;
-        }
-        .demo-content h2 {
-            font-weight: 700;
-            font-size: 1.8rem;
-            color: #0f172a;
-        }
-        .demo-content p {
-            color: #475569;
-            margin-top: 8px;
-        }
-
-        /* ============================================================
-                    BOTTOM NAVIGATION – FIXED (PURE CSS, ONE FILE)
-                   ============================================================ */
-
-        /* 1. The fixed bottom bar – same as your original */
-        #universal-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background-color: var(--nav-bg, rgba(255, 255, 255, 0.95));
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.06);
-            z-index: 999999;
-            padding-bottom: env(safe-area-inset-bottom);
-            /* animation: navSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; */
-            animation: navSlideUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-            font-size: 14px;
-        }
-
-        @keyframes navSlideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to   { transform: translateY(0); opacity: 1; }
-        }
-
-        /* 2. Each nav link – column layout */
-        .nav-link {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--nav-text, #1e293b) !important;
-            text-decoration: none !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            height: 40px;
-            cursor: pointer;
-            /* remove default button styles if any */
-            background: transparent;
-            border: none;
-        }
-
-        /* icon styling */
-        .nav-link i {
-            font-size: 25px;
-            margin-bottom: 4px;
-            color: inherit;
-            -webkit-text-stroke: 0.5px var(--nav-text, #1e293b);
-            font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* label text */
-        .nav-link div {
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: inherit;
-            letter-spacing: 0.02em;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* ----- HOVER: blue color + slight lift (EXACT same as your code) ----- */
-        .nav-link:hover {
-            transform: translateY(-4px);
-            color: #2563eb !important;
-        }
-        .nav-link:hover i {
-            color: #2563eb !important;
-            -webkit-text-stroke: 0.5px #2563eb;
-        }
-        .nav-link:hover div {
-            color: #2563eb !important;
-        }
-
-        /* ----- PRESS (active) scale feedback (EXACT same) ----- */
-        .nav-link:active {
-            transform: scale(0.92) !important;
-            transition: transform 0.1s ease;
-        }
-
-        /* ----- DARK THEME SUPPORT (via data-theme on html) ----- */
-        [data-theme="dark"] {
-            --nav-bg: rgba(15, 23, 42, 0.98);
-            --nav-text: #f1f5f9;
-            --border-color: rgba(255, 255, 255, 0.08);
-        }
-        /* default light theme vars (fallback) */
-        :root {
-            --nav-bg: rgba(255, 255, 255, 0.95);
-            --nav-text: #0f172a;
-            --border-color: rgba(0, 0, 0, 0.08);
-        }
-
-        /* ----- tiny demo dark toggle (not part of nav) ----- */
-        .theme-toggle {
-            margin-top: 20px;
-            background: #1e293b;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .theme-toggle:hover {
-            background: #334155;
-        }
-        [data-theme="dark"] .theme-toggle {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-        [data-theme="dark"] .theme-toggle:hover {
-            background: #f1f5f9;
-        }
-    </style>
-
-
-
-
-</body>
-</html>
-  
-
+  <!-- BOTTOM NAVIGATION (FIXED) -->
+  <div id="universal-bottom-nav">
+    <a href="homemob.html" class="nav-link"><i class="fas fa-house"></i><div>Home</div></a>
+    <a href="passwordmob.html" class="nav-link"><i class="fas fa-key"></i><div>Passwords</div></a>
+    <a href="incomemob.html" class="nav-link"><i class="fas fa-wallet"></i><div>Income</div></a>
+    <a href="links.html" class="nav-link"><i class="fas fa-link"></i><div>Links</div></a>
+    <a href="calender.html" class="nav-link"><i class="fas fa-calendar-alt"></i><div>Calendar</div></a>
+  </div>
 </body>
 </html>
