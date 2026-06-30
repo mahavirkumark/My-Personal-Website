@@ -1936,7 +1936,7 @@
             }
         }
 
-        // --- BIRTHDAY AND ANNIVERSARY FUNCTION ---
+        // --- BIRTHDAY AND ANNIVERSARY FUNCTION - SIMPLIFIED MESSAGES ---
         async function fetchAndShowTodaysEvents() {
             if (!auth || !db) return;
 
@@ -1951,7 +1951,7 @@
             try {
                 const [bdaySnap, anniSnap, contactSnap] = await Promise.all([
                     db.ref(`users/${user.uid}/birthdays`).once("value"),
-                    db.ref(`anniversaries/${user.uid}`).once("value"),
+                    db.ref(`users/${user.uid}/anniversaries`).once("value"),
                     db.ref(`users/${user.uid}/contacts`).once("value")
                 ]);
 
@@ -1968,33 +1968,29 @@
                     return { d: parseInt(p[0]), m: parseInt(p[1]), y: parseInt(p[2]) };
                 };
 
-                // Check birthdays
+                // Check birthdays - SIMPLIFIED: just name with cake and flower
                 Object.values(allBdays).forEach(person => {
                     const dt = parseDate(person.birthdate);
                     if (dt && dt.d === tDay && dt.m === tMonth) {
                         mergedItems.push({
                             name: person.name,
                             type: 'birthday',
-                            icon: "🎂",
-                            msg: `Hey ${person.name}, Happy Birthday! 🥳🎂 Wishing you a fantastic day! ✨🎈`
+                            icon: "🎂🌸",
+                            msg: `🎂🌸 Happy Birthday ${person.name}!`
                         });
                     }
                 });
 
-                // Check anniversaries
+                // Check anniversaries - SIMPLIFIED: just name with heart
                 Object.values(allAnnis).forEach(item => {
                     const dt = parseDate(item.d);
                     if (dt && dt.d === tDay && dt.m === tMonth) {
-                        let baseYears = now.getFullYear() - dt.y;
-                        let displayYears = item.manualYears ? (parseInt(item.manualYears) + baseYears) : baseYears;
-
                         mergedItems.push({
                             name: `${item.h} & ${item.w}`,
                             searchNames: [item.h, item.w],
                             type: 'anniversary',
-                            icon: "💍",
-                            years: displayYears,
-                            msg: `Happy ${displayYears > 0 ? displayYears + 'th ' : ''}Anniversary ${item.h} & ${item.w}! 🥂💖 Wishing you a lifetime of love! ✨`
+                            icon: "💕",
+                            msg: ` Happy Anniversary ${item.h} & ${item.w}`
                         });
                     }
                 });
@@ -2030,10 +2026,6 @@
                                         <div class="text-[12px] font-[900] pl-[-5] text-[var(--text-main)] uppercase break-words leading-[1.1]">
                                             ${event.name}
                                         </div>
-                                        ${event.years ? `
-                                            <div class="text-[9px] font-bold text-pink-600 uppercase mt-0.5 leading-none">
-                                                ${event.years} Years Completed
-                                            </div>` : ''}
                                     </div>
                                 </div>
                                 <div class="flex-shrink-0 w-10 flex justify-end">
@@ -2049,7 +2041,7 @@
                 }).join('');
 
             } catch (e) {
-                console.error("Birthday fetch error:", e);
+                console.error("Birthday/Anniversary fetch error:", e);
                 listCont.innerHTML =
                     `<div class="text-[14px] font-bold text-center border border-[var(--text-main)] p-2 rounded-xl text-[var(--text-main)]">Error Loading ⚠️</div>`;
             }
