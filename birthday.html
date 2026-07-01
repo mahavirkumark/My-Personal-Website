@@ -1817,6 +1817,32 @@
     })();
 
     setTimeout(populateContactSelects, 500);
+// ===== AUTO-SAVE MILESTONES DIRECTLY INTO MASTER CONTACT PATH =====
+function autoSaveToContactCard(targetName, birthDate, anniversaryDate) {
+    if (!currentUserId || !targetName) return;
+
+    // 1. Check if a contact with this exact name already exists in Firebase
+    db.ref(`users/${currentUserId}/contacts`).once('value', snap => {
+        const contacts = snap.val() || {};
+        const matchedKey = Object.keys(contacts).find(key => 
+            contacts[key].name && contacts[key].name.trim().toLowerCase() === targetName.trim().toLowerCase()
+        );
+
+        const updatedData = {};
+        if (birthDate) updatedData.birthDate = birthDate;
+        if (anniversaryDate) updatedData.anniversaryDate = anniversaryDate;
+
+        if (matchedKey) {
+            // 2. If person exists, update their contact card seamlessly
+            db.ref(`users/${currentUserId}/contacts/${matchedKey}`).update(updatedData);
+        } else {
+            // 3. If person doesn't exist, build a brand new contact profile card automatically
+            updatedData.name = targetName;
+            db.ref(`users/${currentUserId}/contacts`).push(updatedData);
+        }
+    });
+}
+    
 </script>
   <!-- BOTTOM NAVIGATION (FIXED) -->
   <div id="universal-bottom-nav">
