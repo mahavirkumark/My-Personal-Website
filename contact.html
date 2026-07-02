@@ -12,73 +12,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
-        /* ===== THEME VARIABLES ===== */
-        :root {
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --bg-nav: #ffffff;
-            --bg-input: #ffffff;
-            --bg-modal: #ffffff;
-            --bg-hover: #f3f4f6;
-            --bg-alt: #f8fafc;
-            --text-main: #0f172a;
-            --text-dim: #475569;
-            --text-muted: #64748b;
-            --text-inverse: #ffffff;
-            --text-nav: #0f172a;
-            --border: #cbd5e1;
-            --border-light: #e2e8f0;
-            --border-dark: #94a3b8;
-            --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --shadow-hover: 0 12px 24px rgba(0,0,0,0.1);
-            --accent: #2563eb;
-            --accent-hover: #1d4ed8;
-            --danger: #dc2626;
-            --danger-hover: #b91c1c;
-            --success: #16a34a;
-            --success-hover: #15803d;
-            --warning: #f59e0b;
-            --warning-hover: #d97706;
-            --nav-text: #0f172a;
-            --nav-border: #e2e8f0;
-            --input-placeholder: #94a3b8;
-            --border-radius: 10px;
-        }
-        [data-theme="dark"] {
-            --bg-body: #0b1120;
-            --bg-card: #1e293b;
-            --bg-nav: #0f172a;
-            --bg-input: #1e293b;
-            --bg-modal: #1e293b;
-            --bg-hover: #334155;
-            --bg-alt: #162032;
-            --text-main: #ffffff;
-            --text-dim: WHITE;
-            --text-muted: WHITE;
-            --text-inverse: WHITE;
-            --text-nav: #ffffff;
-            --border: WHITE;
-            --border-light: WHITE;
-            --border-dark: WHITE;
-            --shadow: 0 4px 12px rgba(0,0,0,0.4);
-            --shadow-hover: 0 12px 24px rgba(0,0,0,0.6);
-            --accent: #3b82f6;
-            --accent-hover: #60a5fa;
-            --nav-text: #ffffff;
-            --nav-border: #334155;
-            --input-placeholder: #94a3b8;
-            --border-radius: 10px;
-        }
+        :root { --bg-body: #f1f5f9; --bg-card: #ffffff; --bg-nav: #ffffff; --bg-input: #ffffff; --bg-modal: #ffffff; --bg-hover: #f3f4f6; --bg-alt: #f8fafc; --text-main: #0f172a; --text-dim: #1e293b; --text-muted: #475569; --text-inverse: #ffffff; --text-nav: #0f172a; --border: #cbd5e1; --border-light: #e2e8f0; --border-dark: #94a3b8; --shadow: 0 4px 12px rgba(0,0,0,0.05); --shadow-hover: 0 12px 24px rgba(0,0,0,0.1); --accent: #2563eb; --accent-hover: #1d4ed8; --danger: #dc2626; --danger-hover: #b91c1c; --success: #16a34a; --success-hover: #15803d; --warning: #f59e0b; --warning-hover: #d97706; --nav-text: #0f172a; --nav-border: #e2e8f0; --input-placeholder: #94a3b8; --border-radius: 10px; }
+        [data-theme="dark"] { --bg-body: #0b1120; --bg-card: #1e293b; --bg-nav: #0f172a; --bg-input: #1e293b; --bg-modal: #1e293b; --bg-hover: #334155; --bg-alt: #162032; --text-main: #ffffff; --text-dim: #e2e8f0; --text-muted: #cbd5e1; --text-inverse: #ffffff; --text-nav: #ffffff; --border: #64748b; --border-light: #475569; --border-dark: #94a3b8; --shadow: 0 4px 12px rgba(0,0,0,0.4); --shadow-hover: 0 12px 24px rgba(0,0,0,0.6); --accent: #3b82f6; --accent-hover: #60a5fa; --nav-text: #ffffff; --nav-border: #334155; --input-placeholder: #94a3b8; --border-radius: 10px; }
         * { box-sizing: border-box; }
-        body {
-            background: var(--bg-body);
-            color: var(--text-main);
-            font-family: 'Times New Roman', Times, serif;
-            transition: background 0.3s, color 0.3s;
-            padding-top: 76px;
-            padding-bottom: 20px;
-            min-height: 100vh;
-        }
+        body { background: var(--bg-body); color: var(--text-main); font-family: 'Times New Roman', Times, serif; transition: background 0.3s, color 0.3s; padding-top: 76px; padding-bottom: 20px; min-height: 100vh; }
         .bg-body { background: var(--bg-body) !important; }
         .bg-card { background: var(--bg-card) !important; }
         .bg-nav { background: var(--bg-nav) !important; }
@@ -100,13 +37,7 @@
         ::-webkit-scrollbar-track { background: var(--bg-body); }
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
-
-        /* ===== NAVBAR ===== */
-        nav {
-            background: var(--bg-nav) !important;
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--nav-border) !important;
-        }
+        nav { background: var(--bg-nav) !important; backdrop-filter: blur(14px); border-bottom: 1px solid var(--nav-border) !important; }
         nav .text-gray-900 { color: var(--text-nav) !important; }
         nav .text-gray-600 { color: var(--text-nav) !important; }
         nav .text-gray-500 { color: var(--text-nav) !important; }
@@ -117,147 +48,16 @@
         nav .hover\:bg-gray-200:hover { background: var(--bg-hover) !important; }
         nav .hover\:text-blue-500:hover { color: var(--accent) !important; }
         nav .text-white { color: var(--text-nav) !important; }
-
-        /* ===== CONTACT CARDS ===== */
-        .contact-card {
-            background: var(--bg-card);
-            border-radius: 16px;
-            padding: 1.25rem;
-            border: 2px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        .contact-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-hover);
-            border-color: var(--accent);
-        }
-        .contact-name {
-            font-weight: 700;
-            font-size: 1.1rem;
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 0.5rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-main);
-        }
-
-        /* ===== MODAL ===== */
-        .modal-backdrop {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-            display: none; align-items: center; justify-content: center; z-index: 99999;
-            padding: 16px; backdrop-filter: blur(4px);
-        }
-        .modal-content-box {
-            background: var(--bg-modal);
-            border-radius: 24px;
-            max-width: 1200px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 24px;
-            border: 2px solid var(--border);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-        }
-        .modal-content-box input, 
-        .modal-content-box select, 
-        .modal-content-box textarea {
-            background: var(--bg-input) !important;
-            color: var(--text-main) !important;
-            border: 2px solid var(--border) !important;
-            border-radius: var(--border-radius) !important;
-            padding: 10px 14px !important;
-            width: 100%;
-            transition: 0.2s;
-            font-size: 14px;
-        }
-        .modal-content-box input::placeholder,
-        .modal-content-box textarea::placeholder {
-            color: var(--input-placeholder) !important;
-            opacity: 0.8;
-        }
-        [data-theme="dark"] .modal-content-box input::placeholder,
-        [data-theme="dark"] .modal-content-box textarea::placeholder {
-            color: #94a3b8 !important;
-            opacity: 0.9;
-        }
-        .modal-content-box input:focus, 
-        .modal-content-box select:focus, 
-        .modal-content-box textarea:focus {
-            outline: none !important;
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
-        }
-        .modal-content-box label {
-            color: var(--text-dim) !important;
-            font-weight: 600;
-            margin-bottom: 4px;
-            display: block;
-        }
-        .modal-content-box .border-theme { border-color: var(--border) !important; }
-
-        /* ===== COLLAPSIBLE ===== */
-        .collapsible-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 2px solid var(--border);
-            color: var(--text-main);
-            font-weight: 600;
-        }
-        .collapsible-header:hover { color: var(--accent); }
-
-        /* ===== DYNAMIC ROWS ===== */
-        .dynamic-row {
-            background: var(--bg-body);
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 12px;
-            border: 2px solid var(--border-light);
-        }
-        .dynamic-row:hover {
-            border-color: var(--border);
-        }
-        .dynamic-row input, .dynamic-row select, .dynamic-row textarea {
-            border: 2px solid var(--border) !important;
-            border-radius: var(--border-radius) !important;
-            padding: 8px 12px !important;
-            background: var(--bg-input) !important;
-            color: var(--text-main) !important;
-            width: 100%;
-        }
-        .dynamic-row input::placeholder,
-        .dynamic-row textarea::placeholder {
-            color: var(--input-placeholder) !important;
-            opacity: 0.8;
-        }
-        [data-theme="dark"] .dynamic-row input::placeholder,
-        [data-theme="dark"] .dynamic-row textarea::placeholder {
-            color: #94a3b8 !important;
-            opacity: 0.9;
-        }
-        .dynamic-row input:focus, .dynamic-row select:focus, .dynamic-row textarea:focus {
-            outline: none !important;
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
-        }
-
-        /* ===== ACTION BUTTONS ===== */
-        .action-btn {
-            width: 38px; height: 38px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid transparent;
-            color: white;
-            transition: all 0.2s;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        .contact-card { background: var(--bg-card); border-radius: 16px; padding: 1.25rem; border: 2px solid var(--border); box-shadow: var(--shadow); transition: all 0.25s ease; display: flex; flex-direction: column; }
+        .contact-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--accent); }
+        .contact-name { font-weight: 700; font-size: 1.1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.5rem; color: var(--text-main); }
+        .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 16px; backdrop-filter: blur(4px); }
+        .modal-content-box { background: var(--bg-modal); border-radius: 24px; max-width: 1200px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; border: 2px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,0.4); }
+        .modal-content-box input, .modal-content-box select, .modal-content-box textarea { background: var(--bg-input) !important; color: var(--text-main) !important; border: 2px solid var(--border) !important; border-radius: var(--border-radius) !important; padding: 10px 14px !important; width: 100%; transition: 0.2s; font-size: 14px; }
+        .modal-content-box input::placeholder, .modal-content-box textarea::placeholder { color: var(--input-placeholder) !important; opacity: 0.8; }
+        .modal-content-box input:focus, .modal-content-box select:focus, .modal-content-box textarea:focus { outline: none !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important; }
+        .modal-content-box label { color: var(--text-dim) !important; font-weight: 600; margin-bottom: 4px; display: block; }
+        .action-btn { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; border: 2px solid transparent; color: white; transition: all 0.2s; cursor: pointer; font-size: 14px; }
         .action-btn:hover { transform: scale(1.08); opacity: 0.9; border-color: white; }
         .action-btn-edit { background: var(--warning); }
         .action-btn-edit:hover { background: var(--warning-hover); }
@@ -267,113 +67,38 @@
         .action-btn-share:hover { background: #0e7490; }
         .action-btn-delete { background: var(--danger); }
         .action-btn-delete:hover { background: var(--danger-hover); }
-
-        /* ===== SEARCH ===== */
-        #searchInput {
-            background: var(--bg-input) !important;
-            color: var(--text-main) !important;
-            border: 2px solid var(--border) !important;
-            border-radius: 40px !important;
-            padding: 10px 20px 10px 44px !important;
-            width: 100%;
-            font-size: 14px;
-        }
-        #searchInput::placeholder {
-            color: var(--input-placeholder) !important;
-            opacity: 0.8;
-        }
-        [data-theme="dark"] #searchInput::placeholder {
-            color: #94a3b8 !important;
-            opacity: 0.9;
-        }
-        #searchInput:focus { 
-            outline: none !important;
-            border-color: var(--accent) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
-        }
-
-        /* ===== BOTTOM NAV ===== */
-        #bottom-nav {
-            display: none;
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-            background: var(--bg-nav); backdrop-filter: blur(14px);
-            border-top: 2px solid var(--border); z-index: 9998;
-            justify-content: space-around; align-items: center;
-        }
-        @media (max-width: 767px) {
-            #bottom-nav { display: flex; }
-            body { padding-bottom: 70px; }
-        }
-        .bottom-nav-link {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--text-nav) !important;
-            font-size: 0.65rem; font-weight: 700;
-            text-decoration: none; transition: 0.2s;
-            padding: 4px 12px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-        }
+        #searchInput { background: var(--bg-input) !important; color: var(--text-main) !important; border: 2px solid var(--border) !important; border-radius: 40px !important; padding: 10px 20px 10px 44px !important; width: 100%; font-size: 14px; }
+        #searchInput::placeholder { color: var(--input-placeholder) !important; opacity: 0.8; }
+        #searchInput:focus { outline: none !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important; }
+        #bottom-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 60px; background: var(--bg-nav); backdrop-filter: blur(14px); border-top: 2px solid var(--border); z-index: 9998; justify-content: space-around; align-items: center; }
+        @media (max-width: 767px) { #bottom-nav { display: flex; } body { padding-bottom: 70px; } }
+        .bottom-nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-nav) !important; font-size: 0.65rem; font-weight: 700; text-decoration: none; transition: 0.2s; padding: 4px 12px; border-radius: 8px; border: 2px solid transparent; }
         .bottom-nav-link i { font-size: 20px; margin-bottom: 2px; color: var(--text-nav) !important; }
         .bottom-nav-link:hover { color: var(--accent) !important; transform: translateY(-2px); border-color: var(--accent); }
         .bottom-nav-link:hover i { color: var(--accent) !important; }
         .bottom-nav-link.active { color: var(--accent) !important; border-color: var(--accent); }
         .bottom-nav-link.active i { color: var(--accent) !important; }
-
-        /* ===== GRIDS ===== */
-        .contact-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-        }
+        .contact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
         @media (max-width: 1200px) { .contact-grid { grid-template-columns: repeat(4, 1fr); } }
         @media (max-width: 992px) { .contact-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 768px) { .contact-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .contact-grid { grid-template-columns: 1fr; } }
-        .form-grid-4 {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
+        .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
         @media (max-width: 768px) { .form-grid-4 { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 480px) { .form-grid-4 { grid-template-columns: 1fr; } }
-
-        /* ===== PROFILE VIEW ===== */
-        .profile-row {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            padding: 5px 0;
-            border-bottom: 1px dashed var(--border);
-            font-size: 0.9rem;
-        }
+        .profile-section { background: var(--bg-alt); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 2px solid var(--border-light); }
+        .profile-section-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .profile-row { display: grid; grid-template-columns: 140px 1fr; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 0.95rem; gap: 8px; }
         .profile-row span:first-child { font-weight: 600; color: var(--text-dim); }
-        .profile-dynamic-item {
-            background: var(--bg-body);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 8px;
-            border: 2px solid var(--border-light);
-        }
-
-        /* ===== SAVIG LOGO ===== */
-        .savig-logo {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-weight: 800; font-size: 1.5rem;
-        }
+        .profile-row span:last-child { word-break: break-word; color: var(--text-main); }
+        .profile-dynamic-item { background: var(--bg-card); border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; border: 2px solid var(--border-light); display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 4px 16px; }
+        .profile-dynamic-item .dyn-label { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; }
+        .profile-dynamic-item .dyn-value { color: var(--text-main); }
+        .savig-logo { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size: 1.5rem; }
         .savig-logo i { color: #eab308; font-size: 1.8rem; }
-        .savig-logo span {
-            background: linear-gradient(135deg, #2563eb, #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ===== ICON BUTTONS ===== */
+        .savig-logo span { background: linear-gradient(135deg, #2563eb, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .edit-input-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .edit-input-group .btn-icon {
-            height: 40px; width: 40px; border-radius: var(--border-radius); border: 2px solid transparent;
-            display: inline-flex; align-items: center; justify-content: center;
-            color: white; cursor: pointer; transition: 0.2s; flex-shrink: 0;
-        }
+        .edit-input-group .btn-icon { height: 40px; width: 40px; border-radius: var(--border-radius); border: 2px solid transparent; display: inline-flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .edit-input-group .btn-icon:hover { transform: scale(1.05); border-color: white; }
         .btn-copy { background: #64748b; }
         .btn-copy:hover { background: var(--accent); }
@@ -381,7 +106,6 @@
         .btn-open:hover { background: var(--accent-hover); }
         .btn-map { background: #0d9488; }
         .btn-map:hover { background: #0f766e; }
-
         .bg-red-700 { background: #b91c1c !important; }
         .bg-red-700:hover { background: #991b1b !important; }
         .hover\:bg-red-800:hover { background: #991b1b !important; }
@@ -389,194 +113,41 @@
         .dark\:bg-slate-600 { background: #475569 !important; }
         .dark\:hover\:bg-slate-500:hover { background: #64748b !important; }
         .dark\:text-white { color: var(--text-inverse) !important; }
-
-        /* ===== ADD BUTTONS ===== */
-        .add-btn {
-            border: 2px solid var(--border) !important;
-            border-radius: var(--border-radius) !important;
-            padding: 6px 16px !important;
-            transition: 0.2s;
-        }
-        .add-btn:hover {
-            border-color: var(--accent) !important;
-            transform: scale(1.02);
-        }
-
-        /* ===== SECTION HEADERS ===== */
-        .section-header {
-            border-bottom: 2px solid var(--border);
-            padding-bottom: 6px;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        /* ===== FORM LABELS ===== */
-        .form-label {
-            color: var(--text-dim);
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            display: block;
-            margin-bottom: 4px;
-        }
-        [data-theme="dark"] .form-label {
-            color: #94a3b8 !important;
-        }
-
-        /* ===== NAV LINKS DARK MODE ===== */
-        [data-theme="dark"] nav a {
-            color: #ffffff !important;
-        }
-        [data-theme="dark"] nav .text-gray-600 {
-            color: #ffffff !important;
-        }
-        [data-theme="dark"] nav .text-gray-900 {
-            color: #ffffff !important;
-        }
-        [data-theme="dark"] nav .text-gray-500 {
-            color: #94a3b8 !important;
-        }
-        [data-theme="dark"] nav .hover\:text-blue-500:hover {
-            color: #60a5fa !important;
-        }
-        [data-theme="dark"] #mobileMenu .text-gray-700 {
-            color: #e2e8f0 !important;
-        }
-        [data-theme="dark"] #mobileMenu .border-gray-300 {
-            border-color: #334155 !important;
-        }
-        [data-theme="dark"] #mobileMenu .bg-gray-50 {
-            background: #1e293b !important;
-        }
-        [data-theme="dark"] #mobileMenu .hover\:bg-gray-200:hover {
-            background: #334155 !important;
-        }
-        [data-theme="dark"] #mobileMenu .text-gray-900 {
-            color: #ffffff !important;
-        }
-        [data-theme="dark"] #mobileMenu .text-gray-500 {
-            color: #94a3b8 !important;
-        }
-/* Base Navigation Link Styling */
-.nav-link {
-    position: relative;
-    color: #475569;
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    padding: 0.5rem 0;
-    transition: color 0.25s ease-in-out;
-}
-.nav-link:hover {
-    color: #2563eb;
-}
-.nav-link::after {
-    content: '';
-    position: relative;
-    width: 100%;
-    transform: scaleX(0);
-    height: 2px;
-    bottom: 0;
-    left: 0;
-    background-color: #2563eb;
-    transform-origin: bottom right;
-    transition: transform 0.25s ease-out;
-}
-.nav-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-.desktop-nav-link {
-    position: relative;
-    overflow: visible;
-    padding-bottom: 6px !important;
-}
-.desktop-nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 2.5px;
-    background-color: blue;
-    border-radius: 9999px;
-    opacity: 0;
-    transform: scaleX(0);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                opacity 0.3s ease;
-}
-.desktop-nav-link:hover::after {
-    opacity: 1;
-    transform: scaleX(1);
-}
-.hidden.md\:flex a {
-    position: relative;
-    overflow: visible;
-    padding-bottom: 6px !important;
-}
-.hidden.md\:flex a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 2.5px;
-    background-color: #2563eb;
-    border-radius: 9999px;
-    opacity: 0;
-    transform: scaleX(0);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                opacity 0.3s ease;
-}
-.hidden.md\:flex a:hover::after {
-    opacity: 1;
-    transform: scaleX(1);
-}
-/* ===== ADD CONTACT MODAL PLACEHOLDER COLORS ===== */
-#addContactModal input::placeholder {
-    color: white !important;
-    opacity: 0.8;
-}
-[data-theme="dark"] #addContactModal input::placeholder {
-    color: white !important;
-    opacity: 0.9;
-}
-#addContactModal input:focus {
-    outline: none !important;
-    border-color: var(--accent) !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
-}
-/* ===== ADD CONTACT MODAL CLOSE BUTTON ===== */
-#addContactModal .close-btn {
-    color: var(--text-dim);
-    transition: all 0.3s ease;
-    font-size: 2rem;
-    line-height: 1;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 50%;
-}
-#addContactModal .close-btn:hover {
-    color: #dc2626 !important;
-    transform: rotate(90deg) scale(1.1);
-    background: rgba(220, 38, 38, 0.1);
-}
-[data-theme="dark"] #addContactModal .close-btn:hover {
-    color: #f87171 !important;
-    background: rgba(248, 113, 113, 0.15);
-}
-#addContactModal .close-btn {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        .add-btn { border: 2px solid var(--border) !important; border-radius: var(--border-radius) !important; padding: 6px 16px !important; transition: 0.2s; background: var(--bg-card); color: var(--text-main); }
+        .add-btn:hover { border-color: var(--accent) !important; transform: scale(1.02); }
+        .section-header { border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 10px; font-weight: 600; color: var(--text-main); }
+        .form-label { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 4px; }
+        [data-theme="dark"] .form-label { color: #cbd5e1 !important; }
+        [data-theme="dark"] nav a { color: #ffffff !important; }
+        [data-theme="dark"] nav .text-gray-600 { color: #ffffff !important; }
+        [data-theme="dark"] nav .text-gray-900 { color: #ffffff !important; }
+        [data-theme="dark"] nav .text-gray-500 { color: #cbd5e1 !important; }
+        [data-theme="dark"] nav .hover\:text-blue-500:hover { color: #60a5fa !important; }
+        .modal-close-btn { color: var(--text-dim); font-size: 2rem; line-height: 1; background: transparent; border: none; cursor: pointer; padding: 4px 12px; border-radius: 50%; }
+        .modal-close-btn:hover { color: #dc2626 !important; background: rgba(220,38,38,0.1); }
+        [data-theme="dark"] .modal-close-btn:hover { color: #f87171 !important; background: rgba(248,113,113,0.15); }
+        .collapsible-social { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 2px solid var(--border); color: var(--text-main); font-weight: 600; }
+        .collapsible-social:hover { color: var(--accent); }
+        .social-fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; }
+        @media (max-width: 768px) { .social-fields { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .social-fields { grid-template-columns: 1fr; } }
+        .dynamic-job-row { background: var(--bg-body); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 2px solid var(--border-light); }
+        .dynamic-job-row:hover { border-color: var(--border); }
+        .dynamic-job-row input, .dynamic-job-row select, .dynamic-job-row textarea { border: 2px solid var(--border) !important; border-radius: var(--border-radius) !important; padding: 8px 12px !important; background: var(--bg-input) !important; color: var(--text-main) !important; width: 100%; }
+        .dynamic-job-row input::placeholder, .dynamic-job-row textarea::placeholder { color: var(--input-placeholder) !important; opacity: 0.8; }
+        .dynamic-job-row input:focus, .dynamic-job-row select:focus, .dynamic-job-row textarea:focus { outline: none !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important; }
+        .collapsible-header { cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 2px solid var(--border); color: var(--text-main); font-weight: 600; }
+        .collapsible-header:hover { color: var(--accent); }
+        .dynamic-row { background: var(--bg-body); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 2px solid var(--border-light); }
+        .dynamic-row:hover { border-color: var(--border); }
+        .dynamic-row input, .dynamic-row select, .dynamic-row textarea { border: 2px solid var(--border) !important; border-radius: var(--border-radius) !important; padding: 8px 12px !important; background: var(--bg-input) !important; color: var(--text-main) !important; width: 100%; }
+        .dynamic-row input::placeholder, .dynamic-row textarea::placeholder { color: var(--input-placeholder) !important; opacity: 0.8; }
+        .dynamic-row input:focus, .dynamic-row select:focus, .dynamic-row textarea:focus { outline: none !important; border-color: var(--accent) !important; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important; }
+        /* make family and health sections easy to open - they are already collapsible with clickable headers */
     </style>
 </head>
 <body>
-
-    <!-- ===== NAVBAR ===== -->
+    <!-- NAVBAR -->
     <nav class="bg-white shadow-lg fixed w-full z-50 top-0">
         <div class="container mx-auto flex justify-between items-center p-3 md:px-8">
             <div class="flex items-center gap-1 -ml-[22px]">
@@ -587,33 +158,18 @@
                 <span class="text-gray-900 tracking-tighter" style="font-size: 23px; font-weight:bolder;">Savig</span>
             </div>
             <div class="hidden md:flex space-x-6 font-medium ml-[100px]">
-                <a href="home.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-house"></i> <span>Home</span>
-                </a>
-                <a href="password.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-key"></i> <span>Passwords</span>
-                </a>
-                <a href="income.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-wallet"></i> <span>Income</span>
-                </a>
-                <a href="birthday.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-birthday-cake"></i> <span>Birthday</span>
-                </a>
-                <a href="calendar.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-calendar-alt"></i> <span>Calendar</span>
-                </a>
+                <a href="home.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;"><i class="fas fa-house"></i> <span>Home</span></a>
+                <a href="password.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;"><i class="fas fa-key"></i> <span>Passwords</span></a>
+                <a href="income.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;"><i class="fas fa-wallet"></i> <span>Income</span></a>
+                <a href="birthday.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;"><i class="fas fa-birthday-cake"></i> <span>Birthday</span></a>
+                <a href="calendar.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;"><i class="fas fa-calendar-alt"></i> <span>Calendar</span></a>
             </div>
             <div class="hidden md:flex items-center gap-4">
-                <div class="text-right">
-                    <p id="userName" class="font-bold text-gray-900 leading-none">Loading...</p>
-                    <p id="userEmail" class="text-sm text-gray-500">Loading...</p>
-                </div>
+                <div class="text-right"><p id="userName" class="font-bold text-gray-900 leading-none">Loading...</p><p id="userEmail" class="text-sm text-gray-500">Loading...</p></div>
                 <img id="userPhoto" src="https://via.placeholder.com/40" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #4f46e5;" alt="User">
                 <button onclick="logout()" class="bg-red-700 text-white px-4 py-1 rounded-full shadow-md hover:bg-red-800 text-base transition duration-150">Logout</button>
             </div>
-            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl focus:outline-none">
-                <i class="fas fa-bars"></i>
-            </button>
+            <button id="menu-btn" class="md:hidden text-gray-700 text-2xl focus:outline-none"><i class="fas fa-bars"></i></button>
         </div>
         <div id="mobileMenu" class="hidden flex-col px-4 pb-4 space-y-2 text-sm text-gray-700 font-medium bg-gray-50 border-t border-gray-100">
             <a href="home.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-house"></i> Home</a>
@@ -621,91 +177,55 @@
             <a href="income.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-wallet"></i> Income</a>
             <a href="links.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-link"></i> Links</a>
             <a href="calendar.html" class="flex items-center gap-2 p-2 rounded hover:bg-gray-200 hover:text-blue-500 transition duration-300"><i class="fas fa-calendar-alt"></i> Calendar</a>
-            <div class="border-t border-gray-300 mt-2 pt-2">
-                <p id="mobileUserName" class="font-bold text-gray-900">Loading...</p>
-                <p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p>
-                <button onclick="logout()" class="bg-red-500 text-white px-1 py-1 rounded-full hover:bg-red-600 mt-1 w-full">Logout</button>
-            </div>
+            <div class="border-t border-gray-300 mt-2 pt-2"><p id="mobileUserName" class="font-bold text-gray-900">Loading...</p><p id="mobileUserEmail" class="text-xs text-gray-500">Loading...</p><button onclick="logout()" class="bg-red-500 text-white px-1 py-1 rounded-full hover:bg-red-600 mt-1 w-full">Logout</button></div>
         </div>
     </nav>
-    
+
     <main class="max-w-9xl mx-auto px-4">
         <!-- Toolbar -->
         <div class="bg-card border-1 border-theme rounded-2xl shadow-theme p-3 mb-5 flex flex-wrap items-center gap-3">
-            
             <div class="relative flex-1 min-w-[250px]">
                 <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-dim"></i>
                 <input type="text" id="searchInput" placeholder="Search contacts (name, number, company, skill, address...)" class="pl-11 pr-4 py-2 w-full rounded-full border-2 border-theme bg-body focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </div>
-            
             <div class="flex items-center gap-2 sm:flex-nowrap">
-                <!-- Upload VCF Button -->
-                <label class="bg-blue-600 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-md text-sm font-semibold border-2 border-blue-700 whitespace-nowrap">
-                    <i class="fas fa-cloud-upload-alt mr-1"></i> Upload VCF
-                    <input type="file" id="fileInput" class="hidden" accept=".vcf,.txt" />
-                </label>
-
-                <!-- Import Button -->
-                <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-blue-700">
-                    <i class="fas fa-upload mr-1"></i> Import
-                </button>
-
-                <!-- ADD CONTACT BUTTON -->
-                <button onclick="openAddContactModal()" 
-                        class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-green-700">
-                    <i class="fas fa-user-plus mr-1"></i> Add Contact
-                </button>
+                <label class="bg-blue-600 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-md text-sm font-semibold border-2 border-blue-700 whitespace-nowrap"><i class="fas fa-cloud-upload-alt mr-1"></i> Upload VCF<input type="file" id="fileInput" class="hidden" accept=".vcf,.txt" /></label>
+                <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-blue-700"><i class="fas fa-upload mr-1"></i> Import</button>
+                <button onclick="openAddContactModal()" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-green-700"><i class="fas fa-user-plus mr-1"></i> Add Contact</button>
             </div>
         </div>
 
-        <!-- ===== ADD CONTACT MODAL ===== -->
+        <!-- ADD CONTACT MODAL -->
         <div id="addContactModal" class="modal-backdrop">
             <div class="modal-content-box max-w-md">
                 <div class="flex justify-between items-center border-b-2 border-theme pb-3 mb-3">
-                    <h2 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-main);">
-                        <i class="fas fa-user-plus text-green-600"></i> Add Contact
-                    </h2>
-                    <button onclick="closeAddContactModal()" class="text-3xl leading-none" style="color: var(--text-dim);">&times;</button>
+                    <h2 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-main);"><i class="fas fa-user-plus text-green-600"></i> Add Contact</h2>
+                    <button onclick="closeAddContactModal()" class="modal-close-btn">&times;</button>
                 </div>
                 <form id="addContactForm" onsubmit="saveNewContact(event)">
                     <div class="space-y-3">
-                        <div>
-                            <label class="form-label" style="color: var(--text-main);">Full Name *</label>
-                            <input type="text" id="newContactName" placeholder="Enter full name" required class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
-                        </div>
-                        <div>
-                            <label class="form-label" style="color: var(--text-main);">Phone</label>
-                            <input type="text" id="newContactPhone" placeholder="+91 98765 43210" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
-                        </div>
-                        <div>
-                            <label class="form-label" style="color: var(--text-main);">Email</label>
-                            <input type="email" id="newContactEmail" placeholder="name@domain.com" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
-                        </div>
+                        <div><label class="form-label" style="color: var(--text-main);">Full Name *</label><input type="text" id="newContactName" placeholder="Enter full name" required class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" /></div>
+                        <div><label class="form-label" style="color: var(--text-main);">Phone</label><input type="text" id="newContactPhone" placeholder="+91 98765 43210" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" /></div>
+                        <div><label class="form-label" style="color: var(--text-main);">Email</label><input type="email" id="newContactEmail" placeholder="name@domain.com" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" /></div>
                     </div>
                     <div class="flex justify-end gap-3 mt-4 border-t-2 border-theme pt-3">
-                        <button type="button" onclick="closeAddContactModal()" class="px-5 py-2 rounded-full border-2 transition" style="background: #9ca3af; color: #1f2937; border-color: #9ca3af;">
-                            Cancel
-                        </button>
-                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition shadow-md border-2 border-green-700">
-                            Add Contact
-                        </button>
+                        <button type="button" onclick="closeAddContactModal()" class="px-5 py-2 rounded-full border-2 transition" style="background: #9ca3af; color: #1f2937; border-color: #9ca3af;">Cancel</button>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition shadow-md border-2 border-green-700">Add Contact</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Contact Grid (5 columns) -->
-        <div id="contactGrid" class="contact-grid">
-            <p id="loadingMsg" class="col-span-full text-center text-dim py-10 hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Loading...</p>
-        </div>
+        <!-- Contact Grid -->
+        <div id="contactGrid" class="contact-grid"><p id="loadingMsg" class="col-span-full text-center text-dim py-10 hidden"><i class="fas fa-spinner fa-spin mr-2"></i> Loading...</p></div>
     </main>
 
-    <!-- ===== EDIT MODAL ===== -->
+    <!-- EDIT MODAL -->
     <div id="editModal" class="modal-backdrop">
         <div class="modal-content-box">
             <div class="flex justify-between items-center border-b-2 border-theme pb-3 mb-3">
                 <h2 class="text-xl font-bold flex items-center gap-2 text-main"><i class="fas fa-pen text-blue-600"></i> Edit Contact</h2>
-                <button onclick="closeEditModal()" class="text-3xl leading-none text-dim hover:text-red-500">&times;</button>
+                <button onclick="closeEditModal()" class="modal-close-btn">&times;</button>
             </div>
             <form id="editForm">
                 <input type="hidden" id="editContactId" />
@@ -713,17 +233,11 @@
                 <div class="form-grid-4">
                     <div><label class="form-label">Full Name *</label><input type="text" id="editName" placeholder="Full name" required /></div>
                     <div><label class="form-label">Nickname</label><input type="text" id="editNickname" placeholder="Nickname" /></div>
-                    <div><label class="form-label">Gender</label>
-                        <select id="editGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
-                    </div>
+                    <div><label class="form-label">Gender</label><select id="editGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
                     <div><label class="form-label">Date of Birth</label><input type="date" id="editBirthDate" /></div>
                     <div><label class="form-label">Age</label><input type="number" id="editAge" placeholder="Age" min="0" style="color: var(--text-main); background: var(--bg-input);" /></div>
-                    <div><label class="form-label">Blood Group</label>
-                        <select id="editBloodGroup"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
-                    </div>
-                    <div><label class="form-label">Marital Status</label>
-                        <select id="editMaritalStatus"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select>
-                    </div>
+                    <div><label class="form-label">Blood Group</label><select id="editBloodGroup"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+                    <div><label class="form-label">Marital Status</label><select id="editMaritalStatus"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div>
                     <div><label class="form-label">Anniversary</label><input type="date" id="editAnniversaryDate" /></div>
                     <div><label class="form-label">Religion</label><input type="text" id="editReligion" placeholder="Religion" /></div>
                     <div><label class="form-label">Nationality</label><input type="text" id="editNationality" placeholder="Nationality" /></div>
@@ -736,63 +250,77 @@
                 </div>
                 <!-- CONTACT -->
                 <div class="form-grid-4 mt-3 border-t-2 border-theme pt-3">
-                    <div><label class="form-label">Mobile</label><div class="edit-input-group"><input type="text" id="editMobile" placeholder="+91 98765" /><button class="btn-icon btn-copy" data-link-id="editMobile"><i class="fas fa-copy"></i></button></div></div>
+                    <div><label class="form-label">Mobile</label><div class="edit-input-group"><input type="text" id="editMobile" placeholder="+91 98765" /><button class="btn-icon btn-copy" data-link-id="editMobile"><i class="fas fa-copy"></i></button><button class="btn-icon btn-whatsapp" data-link-id="editMobile" style="background:#25D366;" onclick="makeWhatsApp(this)"><i class="fab fa-whatsapp"></i></button></div></div>
                     <div><label class="form-label">WhatsApp</label><div class="edit-input-group"><input type="text" id="editWhatsapp" placeholder="+91 12345" /><button class="btn-icon btn-copy" data-link-id="editWhatsapp"><i class="fas fa-copy"></i></button></div></div>
                     <div><label class="form-label">Work Phone</label><div class="edit-input-group"><input type="text" id="editWorkPhone" placeholder="Office" /><button class="btn-icon btn-copy" data-link-id="editWorkPhone"><i class="fas fa-copy"></i></button></div></div>
                     <div><label class="form-label">Home Phone</label><div class="edit-input-group"><input type="text" id="editHomePhone" placeholder="Landline" /><button class="btn-icon btn-copy" data-link-id="editHomePhone"><i class="fas fa-copy"></i></button></div></div>
-                    <div class="col-span-2"><label class="form-label">Email</label><div class="edit-input-group"><input type="email" id="editEmail" placeholder="name@domain.com" /><button class="btn-icon btn-copy" data-link-id="editEmail"><i class="fas fa-copy"></i></button><button class="btn-icon btn-open" data-link-id="editEmail" data-base-url="mailto:"><i class="fas fa-envelope"></i></button></div></div>
+                    <div class="col-span-2"><label class="form-label">Email</label><div class="edit-input-group"><input type="email" id="editEmail" placeholder="name@domain.com" /><button class="btn-icon btn-copy" data-link-id="editEmail"><i class="fas fa-copy"></i></button><button class="btn-icon btn-open" data-link-id="editEmail" data-base-url="mailto:"><i class="fas fa-envelope"></i></button><button onclick="addExtraField('editEmail','email')" class="btn-icon" style="background:#6366f1;"><i class="fas fa-plus"></i></button></div></div>
+                    <div id="extraEmailContainer" class="col-span-4"></div>
                     <div><label class="form-label">Website</label><input type="text" id="editWebsite" placeholder="https://" /></div>
                     <div><label class="form-label">Skype</label><input type="text" id="editSkype" placeholder="Skype ID" /></div>
-                    <div class="col-span-4"><label class="form-label">Home Address</label><div class="edit-input-group"><input type="text" id="editHomeAddress" placeholder="Street, City, PIN" /><button class="btn-icon btn-copy" data-link-id="editHomeAddress"><i class="fas fa-copy"></i></button><button class="btn-icon btn-map" data-link-id="editHomeAddress" onclick="openGoogleMaps(this)"><i class="fas fa-map-pin"></i></button></div></div>
+                    <div class="col-span-4"><label class="form-label">Home Address</label><div class="edit-input-group"><input type="text" id="editHomeAddress" placeholder="Street, City, PIN" /><button class="btn-icon btn-copy" data-link-id="editHomeAddress"><i class="fas fa-copy"></i></button><button class="btn-icon btn-map" data-link-id="editHomeAddress" onclick="openGoogleMaps(this)"><i class="fas fa-map-pin"></i></button><button onclick="addExtraField('editHomeAddress','address')" class="btn-icon" style="background:#6366f1;"><i class="fas fa-plus"></i></button></div></div>
+                    <div id="extraAddressContainer" class="col-span-4"></div>
                     <div><label class="form-label">Office Address</label><div class="edit-input-group"><input type="text" id="editOfficeAddress" placeholder="Office location" /><button class="btn-icon btn-copy" data-link-id="editOfficeAddress"><i class="fas fa-copy"></i></button><button class="btn-icon btn-map" data-link-id="editOfficeAddress" onclick="openGoogleMaps(this)"><i class="fas fa-map-pin"></i></button></div></div>
                     <div><label class="form-label">Landmark</label><input type="text" id="editLandmark" placeholder="Near park" /></div>
                     <div><label class="form-label">Map Link</label><input type="text" id="editHomeMapLink" placeholder="https://maps.app.goo.gl/" /></div>
                     <div><label class="form-label">Timezone</label><input type="text" id="editTimezone" placeholder="Asia/Kolkata" /></div>
                 </div>
-                <!-- SOCIAL -->
-                <div class="form-grid-4 mt-3 border-t-2 border-theme pt-3">
-                    <div><label class="form-label"><i class="fab fa-facebook text-blue-600"></i> Facebook</label><input type="text" id="editFacebook" placeholder="username" /></div>
-                    <div><label class="form-label"><i class="fab fa-instagram text-pink-500"></i> Instagram</label><input type="text" id="editInstagram" placeholder="@handle" /></div>
-                    <div><label class="form-label"><i class="fab fa-twitter text-blue-400"></i> X</label><input type="text" id="editTwitter" placeholder="@handle" /></div>
-                    <div><label class="form-label"><i class="fab fa-linkedin text-blue-700"></i> LinkedIn</label><input type="text" id="editLinkedin" placeholder="username" /></div>
-                    <div><label class="form-label"><i class="fab fa-github"></i> GitHub</label><input type="text" id="editGithub" placeholder="username" /></div>
-                    <div><label class="form-label"><i class="fab fa-threads"></i> Threads</label><input type="text" id="editThreads" placeholder="@handle" /></div>
-                    <div><label class="form-label"><i class="fab fa-youtube text-red-600"></i> YouTube</label><input type="text" id="editYoutube" placeholder="channel" /></div>
-                    <div><label class="form-label"><i class="fab fa-telegram text-blue-500"></i> Telegram</label><input type="text" id="editTelegram" placeholder="@username" /></div>
+                <!-- SOCIAL - collapsible -->
+                <div class="mt-3 border-t-2 border-theme pt-3">
+                    <div class="collapsible-social" data-toggle="socialSection"><span><i class="fas fa-share-alt text-blue-500"></i> Social Media</span><i class="fas fa-plus toggle-icon-social"></i></div>
+                    <div id="socialSection" class="hidden mt-2">
+                        <div class="social-fields">
+                            <div><label class="form-label"><i class="fab fa-facebook text-blue-600"></i> Facebook</label><input type="text" id="editFacebook" placeholder="username" /></div>
+                            <div><label class="form-label"><i class="fab fa-instagram text-pink-500"></i> Instagram</label><input type="text" id="editInstagram" placeholder="@handle" /></div>
+                            <div><label class="form-label"><i class="fab fa-twitter text-blue-400"></i> X</label><input type="text" id="editTwitter" placeholder="@handle" /></div>
+                            <div><label class="form-label"><i class="fab fa-linkedin text-blue-700"></i> LinkedIn</label><input type="text" id="editLinkedin" placeholder="username" /></div>
+                            <div><label class="form-label"><i class="fab fa-github"></i> GitHub</label><input type="text" id="editGithub" placeholder="username" /></div>
+                            <div><label class="form-label"><i class="fab fa-threads"></i> Threads</label><input type="text" id="editThreads" placeholder="@handle" /></div>
+                            <div><label class="form-label"><i class="fab fa-youtube text-red-600"></i> YouTube</label><input type="text" id="editYoutube" placeholder="channel" /></div>
+                            <div><label class="form-label"><i class="fab fa-telegram text-blue-500"></i> Telegram</label><input type="text" id="editTelegram" placeholder="@username" /></div>
+                        </div>
+                    </div>
                 </div>
-                <!-- WORK -->
-                <div class="form-grid-4 mt-3 border-t-2 border-theme pt-3">
-                    <div><label class="form-label">Job Title</label><input type="text" id="editJobTitle" placeholder="Senior Developer" /></div>
-                    <div><label class="form-label">Company</label><input type="text" id="editCompanyName" placeholder="Company name" /></div>
-                    <div><label class="form-label">Department</label><input type="text" id="editDepartment" placeholder="Engineering" /></div>
-                    <div><label class="form-label">Salary (₹)</label><input type="text" id="editSalary" placeholder="Monthly" /></div>
-                    <div><label class="form-label">Pension</label><input type="text" id="editPensionAmount" placeholder="Pension" /></div>
-                    <div><label class="form-label">Retirement Year</label><input type="number" id="editRetirementYear" placeholder="2050" /></div>
-                    <div><label class="form-label">School</label><input type="text" id="editSchool" placeholder="High school" /></div>
-                    <div><label class="form-label">College</label><input type="text" id="editCollege" placeholder="Alma mater" /></div>
-                    <div><label class="form-label">Degree</label><input type="text" id="editDegree" placeholder="B.Tech" /></div>
-                    <div><label class="form-label">Skills</label><input type="text" id="editSkill" placeholder="JavaScript, Python" /></div>
-                    <div class="col-span-2"><label class="form-label">Certifications</label><input type="text" id="editCertifications" placeholder="AWS, PMP" /></div>
-                    <div><label class="form-label">Experience (yrs)</label><input type="number" id="editExperience" placeholder="Years" /></div>
-                    <div><label class="form-label">Work Email</label><input type="email" id="editWorkEmail" placeholder="work@company.com" /></div>
+                <!-- WORK - with multiple jobs for user and partner -->
+                <div class="mt-3 border-t-2 border-theme pt-3">
+                    <div class="collapsible-header" data-toggle="workSection"><span><i class="fas fa-briefcase text-blue-600"></i> Work &amp; Career</span><i class="fas fa-plus toggle-icon"></i></div>
+                    <div id="workSection" class="hidden mt-2 space-y-3">
+                        <div><label class="form-label">Current Job Title</label><input type="text" id="editJobTitle" placeholder="Senior Developer" /></div>
+                        <div><label class="form-label">Current Company</label><input type="text" id="editCompanyName" placeholder="Company name" /></div>
+                        <div><label class="form-label">Department</label><input type="text" id="editDepartment" placeholder="Engineering" /></div>
+                        <div><label class="form-label">Salary (₹)</label><input type="text" id="editSalary" placeholder="Monthly" /></div>
+                        <div><label class="form-label">Work Email</label><input type="email" id="editWorkEmail" placeholder="work@company.com" /></div>
+                        <div class="border-t-2 border-theme pt-2 mt-2">
+                            <h4 class="font-semibold text-sm text-main">Previous Jobs <button type="button" onclick="addJobRow('jobList','Previous Job')" class="add-btn text-xs ml-2"><i class="fas fa-plus"></i> Add</button></h4>
+                            <div id="jobList" class="mt-2"></div>
+                        </div>
+                        <div class="border-t-2 border-theme pt-2 mt-2">
+                            <h4 class="font-semibold text-sm text-main">Partner's Jobs <button type="button" onclick="addJobRow('partnerJobList','Partner Job')" class="add-btn text-xs ml-2"><i class="fas fa-plus"></i> Add</button></h4>
+                            <div id="partnerJobList" class="mt-2"></div>
+                        </div>
+                        <div><label class="form-label">Pension</label><input type="text" id="editPensionAmount" placeholder="Pension" /></div>
+                        <div><label class="form-label">Retirement Year</label><input type="number" id="editRetirementYear" placeholder="2050" /></div>
+                        <div><label class="form-label">School</label><input type="text" id="editSchool" placeholder="High school" /></div>
+                        <div><label class="form-label">College</label><input type="text" id="editCollege" placeholder="Alma mater" /></div>
+                        <div><label class="form-label">Degree</label><input type="text" id="editDegree" placeholder="B.Tech" /></div>
+                        <div><label class="form-label">Skills</label><input type="text" id="editSkill" placeholder="JavaScript, Python" /></div>
+                        <div><label class="form-label">Certifications</label><input type="text" id="editCertifications" placeholder="AWS, PMP" /></div>
+                        <div><label class="form-label">Experience (yrs)</label><input type="number" id="editExperience" placeholder="Years" /></div>
+                    </div>
                 </div>
-                <!-- FAMILY - EXPANDED -->
+                <!-- FAMILY -->
                 <div class="mt-3 border-t-2 border-theme pt-3">
                     <div class="collapsible-header" data-toggle="familySection"><span><i class="fas fa-people-arrows text-teal-500"></i> Family &amp; Relationships</span><i class="fas fa-plus toggle-icon"></i></div>
                     <div id="familySection" class="hidden mt-2 space-y-2">
-                        <!-- Partner -->
                         <div class="form-grid-4">
                             <div><label class="form-label">Partner's Name</label><input type="text" id="editPartnerName" placeholder="Partner's name" /></div>
                             <div><label class="form-label">Maiden Name</label><input type="text" id="editMaidenName" placeholder="Maiden name" /></div>
                             <div><label class="form-label">Partner Email</label><input type="text" id="editPartnerEmail" placeholder="Partner email" /></div>
                             <div><label class="form-label">Partner Mobile</label><input type="text" id="editPartnerMobile" placeholder="Partner mobile" /></div>
-                            <div><label class="form-label">Partner Job</label><input type="text" id="editPartnerJob" placeholder="Partner's job" /></div>
-                            <div><label class="form-label">Partner Salary</label><input type="text" id="editPartnerSalary" placeholder="Partner's salary" /></div>
                             <div><label class="form-label">Partner DOB</label><input type="date" id="editPartnerDob" placeholder="Partner DOB" /></div>
                             <div><label class="form-label">Partner Company</label><input type="text" id="editPartnerCompany" placeholder="Partner company" /></div>
+                            <div><label class="form-label">Partner Salary</label><input type="text" id="editPartnerSalary" placeholder="Partner's salary" /></div>
                         </div>
-                        
-                        <!-- In-Laws -->
                         <h4 class="font-semibold text-sm text-main mt-2 border-t-2 border-theme pt-2">In-Laws</h4>
                         <div class="form-grid-4">
                             <div><label class="form-label">Father-in-law</label><input type="text" id="editFatherInLaw" placeholder="Father-in-law's name" /></div>
@@ -802,32 +330,20 @@
                             <div><label class="form-label">Father-in-law Job</label><input type="text" id="editFatherInLawJob" placeholder="Father-in-law job" /></div>
                             <div><label class="form-label">Mother-in-law Job</label><input type="text" id="editMotherInLawJob" placeholder="Mother-in-law job" /></div>
                         </div>
-
-                        <!-- Brothers-in-law -->
                         <h4 class="font-semibold text-sm text-main mt-2">Brothers-in-law</h4>
-                        <div><button type="button" onclick="addBrotherInLawRow({})" class="add-btn bg-blue-600 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-700 transition"><i class="fas fa-plus"></i> Add Brother-in-law</button></div>
+                        <div><button type="button" onclick="addBrotherInLawRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Brother-in-law</button></div>
                         <div id="brotherInLawList"></div>
-
-                        <!-- Sisters-in-law -->
                         <h4 class="font-semibold text-sm text-main mt-2">Sisters-in-law</h4>
-                        <div><button type="button" onclick="addSisterInLawRow({})" class="add-btn bg-pink-600 text-white px-3 py-1 rounded-full text-xs hover:bg-pink-700 transition"><i class="fas fa-plus"></i> Add Sister-in-law</button></div>
+                        <div><button type="button" onclick="addSisterInLawRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Sister-in-law</button></div>
                         <div id="sisterInLawList"></div>
-
-                        <!-- Nieces & Nephews -->
                         <h4 class="font-semibold text-sm text-main mt-2">Nieces &amp; Nephews</h4>
-                        <div><button type="button" onclick="addNieceNephewRow({})" class="add-btn bg-green-600 text-white px-3 py-1 rounded-full text-xs hover:bg-green-700 transition"><i class="fas fa-plus"></i> Add Niece/Nephew</button></div>
+                        <div><button type="button" onclick="addNieceNephewRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Niece/Nephew</button></div>
                         <div id="nieceNephewList"></div>
-
-                        <!-- GF/BF -->
                         <h4 class="font-semibold text-sm text-main mt-2">Relationships (GF/BF)</h4>
-                        <div><button type="button" onclick="addGfBfRow({})" class="add-btn bg-pink-600 text-white px-3 py-1 rounded-full text-xs hover:bg-pink-700 transition"><i class="fas fa-plus"></i> Add Relationship</button></div>
+                        <div><button type="button" onclick="addGfBfRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Relationship</button></div>
                         <div id="gfbfList"></div>
-
-                        <!-- Children -->
                         <div><label class="form-label">Number of Children</label><input type="number" id="editChildCount" min="0" oninput="generateChildRows()" class="w-32" /></div>
                         <div id="childList"></div>
-
-                        <!-- Parents -->
                         <div class="form-grid-4">
                             <h4 class="col-span-4 font-semibold text-sm text-main mt-2 border-t-2 border-theme pt-2"><i class="fas fa-male"></i> Father</h4>
                             <div><label class="form-label">Father's Name</label><input type="text" id="editFatherName" placeholder="Father's name" /></div>
@@ -846,8 +362,6 @@
                             <div><label class="form-label">Mother Email</label><input type="text" id="editMotherEmail" placeholder="Mother email" /></div>
                             <div><label class="form-label">Mother Address</label><input type="text" id="editMotherAddress" placeholder="Mother address" /></div>
                         </div>
-
-                        <!-- Siblings (Multiple) -->
                         <div><label class="form-label">Number of Siblings</label><input type="number" id="editSiblingCount" min="0" oninput="generateSiblingRows()" class="w-32" /></div>
                         <div id="siblingList"></div>
                     </div>
@@ -856,11 +370,11 @@
                 <div class="mt-3 border-t-2 border-theme pt-3">
                     <div class="collapsible-header" data-toggle="financialSection"><span><i class="fas fa-wallet text-green-600"></i> Financial &amp; Assets</span><i class="fas fa-plus toggle-icon"></i></div>
                     <div id="financialSection" class="hidden mt-2 space-y-2">
-                        <button type="button" onclick="addPromotionRow({})" class="add-btn bg-blue-600 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-700 transition"><i class="fas fa-plus"></i> Add Promotion</button>
+                        <button type="button" onclick="addPromotionRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Promotion</button>
                         <div id="promotionList"></div>
-                        <button type="button" onclick="addLoanRow({})" class="add-btn bg-red-500 text-white px-3 py-1 rounded-full text-xs hover:bg-red-600 transition"><i class="fas fa-plus"></i> Add Loan</button>
+                        <button type="button" onclick="addLoanRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Loan</button>
                         <div id="loanList"></div>
-                        <button type="button" onclick="addAssetRow({})" class="add-btn bg-green-600 text-white px-3 py-1 rounded-full text-xs hover:bg-green-700 transition"><i class="fas fa-plus"></i> Add Asset</button>
+                        <button type="button" onclick="addAssetRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Asset</button>
                         <div id="assetList"></div>
                     </div>
                 </div>
@@ -878,7 +392,7 @@
                             <div><label class="form-label">Insurance Provider</label><input type="text" id="editInsuranceProvider" placeholder="Insurance provider" /></div>
                             <div><label class="form-label">Policy Number</label><input type="text" id="editInsurancePolicy" placeholder="Policy number" /></div>
                         </div>
-                        <button type="button" onclick="addHealthRow({})" class="add-btn bg-red-500 text-white px-3 py-1 rounded-full text-xs hover:bg-red-600 transition"><i class="fas fa-plus"></i> Add Health Concern</button>
+                        <button type="button" onclick="addHealthRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Health Concern</button>
                         <div id="healthList"></div>
                     </div>
                 </div>
@@ -886,15 +400,13 @@
                 <div class="mt-3 border-t-2 border-theme pt-3">
                     <div class="collapsible-header" data-toggle="loggedSection"><span><i class="fas fa-list-alt text-blue-600"></i> Logged Data</span><i class="fas fa-plus toggle-icon"></i></div>
                     <div id="loggedSection" class="hidden mt-2 space-y-2">
-                        <button type="button" onclick="addGiftRow({})" class="add-btn bg-green-600 text-white px-3 py-1 rounded-full text-xs hover:bg-green-700 transition"><i class="fas fa-plus"></i> Add Gift</button>
+                        <button type="button" onclick="addGiftRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Gift</button>
                         <div id="giftList"></div>
-                        <button type="button" onclick="addTripRow({})" class="add-btn bg-green-600 text-white px-3 py-1 rounded-full text-xs hover:bg-green-700 transition"><i class="fas fa-plus"></i> Add Trip</button>
+                        <button type="button" onclick="addTripRow({})" class="add-btn text-xs"><i class="fas fa-plus"></i> Add Trip</button>
                         <div id="tripList"></div>
                     </div>
                 </div>
-                <!-- NOTES -->
                 <div class="mt-3"><label class="form-label">Notes</label><textarea id="editNote" rows="2" placeholder="Additional notes..."></textarea></div>
-                <!-- BUTTONS -->
                 <div class="flex justify-end gap-3 mt-4 border-t-2 border-theme pt-3">
                     <button type="button" onclick="closeEditModal()" class="bg-gray-300 dark:bg-slate-600 text-gray-800 dark:text-white px-5 py-2 rounded-full hover:bg-gray-400 dark:hover:bg-slate-500 transition border-2 border-gray-400 dark:border-slate-500">Cancel</button>
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition shadow-md border-2 border-blue-700">Save Changes</button>
@@ -903,22 +415,22 @@
         </div>
     </div>
 
-    <!-- ===== VIEW MODAL ===== -->
+    <!-- VIEW MODAL -->
     <div id="viewModal" class="modal-backdrop">
         <div class="modal-content-box">
             <div class="flex justify-between items-center border-b-2 border-theme pb-3 mb-3">
                 <h2 id="viewTitle" class="text-xl font-bold flex items-center gap-2 text-main"><i class="fas fa-user-circle text-blue-600"></i> Profile</h2>
                 <div class="flex gap-2">
                     <button onclick="exportPDF()" class="bg-red-600 text-white px-3 py-1 rounded-full text-sm hover:bg-red-700 transition border-2 border-red-700"><i class="fas fa-file-pdf mr-1"></i> PDF</button>
-                    <button onclick="closeViewModal()" class="text-3xl leading-none text-dim hover:text-red-500">&times;</button>
+                    <button onclick="closeViewModal()" class="modal-close-btn">&times;</button>
                 </div>
             </div>
-            <div id="viewContent" class="space-y-1"></div>
+            <div id="viewContent" class="space-y-3"></div>
             <div class="mt-4 flex justify-end"><button onclick="closeViewModal()" class="bg-gray-300 dark:bg-slate-600 px-5 py-2 rounded-full hover:bg-gray-400 dark:hover:bg-slate-500 transition border-2 border-gray-400 dark:border-slate-500">Close</button></div>
         </div>
     </div>
 
-    <!-- ===== BOTTOM NAV ===== -->
+    <!-- BOTTOM NAV -->
     <div id="bottom-nav">
         <a href="#" class="bottom-nav-link"><i class="fas fa-house"></i><span>Home</span></a>
         <a href="#" class="bottom-nav-link"><i class="fas fa-key"></i><span>Passwords</span></a>
@@ -953,14 +465,8 @@
         const searchInput = document.getElementById('searchInput');
 
         function logout() { auth.signOut().then(() => window.location.href = 'index.html'); }
-
-        function debounce(fn, ms) {
-            let t;
-            return function(...args) {
-                clearTimeout(t);
-                t = setTimeout(() => fn.apply(this, args), ms);
-            };
-        }
+        function debounce(fn, ms) { let t; return function(...args) { clearTimeout(t); t = setTimeout(() => fn.apply(this,
+                args), ms); }; }
 
         function calculateAge(bd) {
             if (!bd) return null;
@@ -972,11 +478,108 @@
             return a >= 0 ? a : null;
         }
 
+        function calculateAnniversaryYears(annDate) {
+            if (!annDate) return null;
+            const now = new Date();
+            const ann = new Date(annDate);
+            let years = now.getFullYear() - ann.getFullYear();
+            const m = now.getMonth() - ann.getMonth();
+            if (m < 0 || (m === 0 && now.getDate() < ann.getDate())) years--;
+            return years >= 0 ? years : 0;
+        }
+
+        document.getElementById('editAnniversaryDate').addEventListener('change', function() {
+            if (this.value) document.getElementById('editMaritalStatus').value = 'Married';
+        });
         document.getElementById('editBirthDate').addEventListener('change', function() {
             const age = calculateAge(this.value);
-            document.getElementById('editAge').value = age || '';
+            document.getElementById('editAge').value = age !== null ? age : '';
         });
 
+        // Extra fields
+        function addExtraField(linkedId, type) {
+            const container = document.getElementById(type === 'email' ? 'extraEmailContainer' : 'extraAddressContainer');
+            const idx = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'edit-input-group mt-1';
+            div.innerHTML =
+                `<input type="${type === 'email' ? 'email' : 'text'}" id="extra_${type}_${idx}" placeholder="Additional ${type}" class="flex-1" style="border:2px solid var(--border);border-radius:var(--border-radius);padding:8px;background:var(--bg-input);color:var(--text-main);" />
+                            <button type="button" onclick="this.parentElement.remove()" class="btn-icon" style="background:#ef4444;"><i class="fas fa-times"></i></button>`;
+            container.appendChild(div);
+        }
+
+        // WhatsApp button - stays in edit modal, no redirect
+        function makeWhatsApp(btn) {
+            const mobileField = document.getElementById(btn.dataset.linkId);
+            if (!mobileField || !mobileField.value) return alert('Enter mobile number first');
+            document.getElementById('editWhatsapp').value = mobileField.value;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => btn.innerHTML = '<i class="fab fa-whatsapp"></i>', 1000);
+        }
+
+        // Job rows
+        function addJobRow(containerId, label) {
+            const container = document.getElementById(containerId);
+            const idx = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'dynamic-job-row';
+            div.innerHTML = `
+                <div class="form-grid-4">
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">${label} #${idx}</span><button type="button" onclick="this.closest('.dynamic-job-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div><label class="form-label text-xs">Job Title</label><input name="job_title" placeholder="Job title" /></div>
+                    <div><label class="form-label text-xs">Company</label><input name="job_company" placeholder="Company" /></div>
+                    <div><label class="form-label text-xs">From</label><input name="job_from" type="date" /></div>
+                    <div><label class="form-label text-xs">To</label><input name="job_to" type="date" /></div>
+                    <div><label class="form-label text-xs">Salary (₹)</label><input name="job_salary" placeholder="Salary" /></div>
+                    <div class="col-span-2"><label class="form-label text-xs">Description</label><input name="job_desc" placeholder="Description" /></div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function collectJobs(containerId) {
+            const rows = document.querySelectorAll(`#${containerId} .dynamic-job-row`);
+            const data = [];
+            rows.forEach(row => {
+                const item = {
+                    title: row.querySelector('[name="job_title"]')?.value?.trim() || '',
+                    company: row.querySelector('[name="job_company"]')?.value?.trim() || '',
+                    from: row.querySelector('[name="job_from"]')?.value || '',
+                    to: row.querySelector('[name="job_to"]')?.value || '',
+                    salary: row.querySelector('[name="job_salary"]')?.value?.trim() || '',
+                    desc: row.querySelector('[name="job_desc"]')?.value?.trim() || ''
+                };
+                if (item.title || item.company) data.push(item);
+            });
+            return data.length ? JSON.stringify(data) : null;
+        }
+
+        function loadJobs(containerId, json) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            if (!json) return;
+            try {
+                const arr = JSON.parse(json);
+                arr.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'dynamic-job-row';
+                    div.innerHTML = `
+                        <div class="form-grid-4">
+                            <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">${containerId === 'jobList' ? 'Previous Job' : 'Partner Job'}</span><button type="button" onclick="this.closest('.dynamic-job-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
+                            <div><label class="form-label text-xs">Job Title</label><input name="job_title" placeholder="Job title" value="${item.title||''}" /></div>
+                            <div><label class="form-label text-xs">Company</label><input name="job_company" placeholder="Company" value="${item.company||''}" /></div>
+                            <div><label class="form-label text-xs">From</label><input name="job_from" type="date" value="${item.from||''}" /></div>
+                            <div><label class="form-label text-xs">To</label><input name="job_to" type="date" value="${item.to||''}" /></div>
+                            <div><label class="form-label text-xs">Salary (₹)</label><input name="job_salary" placeholder="Salary" value="${item.salary||''}" /></div>
+                            <div class="col-span-2"><label class="form-label text-xs">Description</label><input name="job_desc" placeholder="Description" value="${item.desc||''}" /></div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {}
+        }
+
+        // ===== GROUP & RENDER =====
         function groupByName(contacts) {
             const groups = new Map();
             contacts.forEach(c => {
@@ -1037,59 +640,42 @@
                 grid.appendChild(card);
             });
         }
-function loadContacts() {
-    if (!currentUserId) return;
-    loadingMsg.style.display = 'block';
-    
-    // 1. Fetch Master Contacts
-    db.ref(`users/${currentUserId}/contacts`).on('value', snap => {
-        const val = snap.val();
-        let raw = val ? Object.keys(val).map(k => ({ id: k, data: val[k] })) : [];
-        
-        // 2. Fetch Birthdays Path
-        db.ref(`users/${currentUserId}/birthdays`).once('value', bSnap => {
-            const birthdays = bSnap.val() || {};
-            
-            // 3. Fetch Anniversaries Path
-            db.ref(`users/${currentUserId}/anniversaries`).once('value', aSnap => {
-                const anniversaries = aSnap.val() || {};
-                
-                // 4. Temporarily match data into memory for display purposes
-                raw.forEach(c => {
-                    const contactName = c.data.name ? c.data.name.trim().toLowerCase() : '';
-                    if (!contactName) return;
 
-                    // Match Birthday by name
-                    const bMatch = Object.values(birthdays).find(b => b.name && b.name.trim().toLowerCase() === contactName);
-                    if (bMatch && bMatch.birthdate) {
-                        c.data.birthDate = bMatch.birthdate;
-                    }
-
-                    // Match Anniversary by Husband or Wife name from birthday.html fields
-                    const aMatch = Object.values(anniversaries).find(a => 
-                        (a.h && a.h.trim().toLowerCase() === contactName) || 
-                        (a.w && a.w.trim().toLowerCase() === contactName)
-                    );
-                    
-                    // CRITICAL FIX: Extract 'd' and assign it to your display field 'anniversaryDate'
-                    if (aMatch && aMatch.d) {
-                        c.data.anniversaryDate = aMatch.d;
-                        
-                        // Optional: Link the partner name dynamically if empty
-                        if (!c.data.partnerName) {
-                            c.data.partnerName = (aMatch.h.toLowerCase() === contactName) ? aMatch.w : aMatch.h;
-                        }
-                    }
+        function loadContacts() {
+            if (!currentUserId) return;
+            loadingMsg.style.display = 'block';
+            db.ref(`users/${currentUserId}/contacts`).on('value', snap => {
+                const val = snap.val();
+                let raw = val ? Object.keys(val).map(k => ({ id: k, data: val[k] })) : [];
+                db.ref(`users/${currentUserId}/birthdays`).once('value', bSnap => {
+                    const birthdays = bSnap.val() || {};
+                    db.ref(`users/${currentUserId}/anniversaries`).once('value', aSnap => {
+                        const anniversaries = aSnap.val() || {};
+                        raw.forEach(c => {
+                            const contactName = c.data.name ? c.data.name.trim().toLowerCase() : '';
+                            if (!contactName) return;
+                            const bMatch = Object.values(birthdays).find(b => b.name && b.name.trim()
+                                .toLowerCase() === contactName);
+                            if (bMatch && bMatch.birthdate) c.data.birthDate = bMatch.birthdate;
+                            const aMatch = Object.values(anniversaries).find(a =>
+                                (a.h && a.h.trim().toLowerCase() === contactName) ||
+                                (a.w && a.w.trim().toLowerCase() === contactName)
+                            );
+                            if (aMatch && aMatch.d) {
+                                c.data.anniversaryDate = aMatch.d;
+                                if (!c.data.partnerName) {
+                                    c.data.partnerName = (aMatch.h.toLowerCase() === contactName) ? aMatch
+                                        .w : aMatch.h;
+                                }
+                            }
+                        });
+                        loadingMsg.style.display = 'none';
+                        allContacts = raw;
+                        renderContacts(raw);
+                    });
                 });
-
-                // 5. Render to screen
-                loadingMsg.style.display = 'none';
-                allContacts = raw;
-                renderContacts(raw);
             });
-        });
-    });
-}
+        }
 
         searchInput.addEventListener('input', debounce(function() {
             const term = this.value.toLowerCase().trim();
@@ -1119,72 +705,61 @@ function loadContacts() {
         }, 300));
 
         // ===== DYNAMIC ROW FUNCTIONS =====
-   function addRow(containerId, data, template) {
-    const el = document.getElementById(containerId);
-    if (!el) return null; // Guard clause in case container doesn't exist
-
-    const idx = el.children.length;
-    const div = document.createElement('div');
-    div.className = 'dynamic-row';
-    div.innerHTML = template(data, idx);
-    el.appendChild(div);
-
-    div.querySelectorAll('.btn-copy, .btn-open, .btn-map').forEach(b => {
-        if (b.classList.contains('btn-map')) {
-            b.onclick = () => openGoogleMaps(b);
-        } else if (b.classList.contains('btn-copy')) {
-            b.onclick = () => {
-                const id = b.dataset.linkId;
-                const inp = document.getElementById(id);
-                if (inp && inp.value) {
-                    navigator.clipboard.writeText(inp.value).then(() => {
-                        b.innerHTML = '<i class="fas fa-check"></i>';
-                        setTimeout(() => b.innerHTML = '<i class="fas fa-copy"></i>', 800);
-                    });
+        function addRow(containerId, data, template) {
+            const el = document.getElementById(containerId);
+            if (!el) return null;
+            const idx = el.children.length;
+            const div = document.createElement('div');
+            div.className = 'dynamic-row';
+            div.innerHTML = template(data, idx);
+            el.appendChild(div);
+            div.querySelectorAll('.btn-copy, .btn-open, .btn-map').forEach(b => {
+                if (b.classList.contains('btn-map')) b.onclick = () => openGoogleMaps(b);
+                else if (b.classList.contains('btn-copy')) {
+                    b.onclick = () => {
+                        const id = b.dataset.linkId;
+                        const inp = document.getElementById(id);
+                        if (inp && inp.value) navigator.clipboard.writeText(inp.value).then(() => {
+                            b.innerHTML = '<i class="fas fa-check"></i>';
+                            setTimeout(() => b.innerHTML = '<i class="fas fa-copy"></i>', 800);
+                        });
+                    };
+                } else if (b.classList.contains('btn-open')) {
+                    b.onclick = () => {
+                        const id = b.dataset.linkId;
+                        const inp = document.getElementById(id);
+                        const url = inp ? inp.value : '';
+                        if (!url) return alert('Enter a value first');
+                        window.open(b.dataset.baseUrl + url, '_blank');
+                    };
                 }
-            };
-        } else if (b.classList.contains('btn-open')) {
-            b.onclick = () => {
-                const id = b.dataset.linkId;
-                const inp = document.getElementById(id); // Safely grab the element first
-                const url = inp ? inp.value : '';         // Fallback if element is missing
-                
-                if (!url) return alert('Enter a value first');
-                window.open(b.dataset.baseUrl + url, '_blank');
-            };
+            });
+            return div;
         }
-    });
-    return div;
-}
 
-        // Brother-in-law
         window.addBrotherInLawRow = (d = {}) => addRow('brotherInLawList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Brother-in-law #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
-                    <div><label class="form-label text-xs">Name</label><input name="bil_name" placeholder="Name" value="${data.name||''}" class="col-span-2" /></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Brother-in-law #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div><label class="form-label text-xs">Name</label><input name="bil_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Mobile</label><input name="bil_mobile" placeholder="Mobile" value="${data.mobile||''}" /></div>
                     <div><label class="form-label text-xs">Job</label><input name="bil_job" placeholder="Job" value="${data.job||''}" /></div>
                     <div><label class="form-label text-xs">Age</label><input name="bil_age" type="number" placeholder="Age" value="${data.age||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Spouse's Name</label><input name="bil_spouse" placeholder="Spouse's name" value="${data.spouse||''}" /></div>
                 </div>
             `);
-
-        // Sister-in-law
         window.addSisterInLawRow = (d = {}) => addRow('sisterInLawList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Sister-in-law #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
-                    <div><label class="form-label text-xs">Name</label><input name="sil_name" placeholder="Name" value="${data.name||''}" class="col-span-2" /></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Sister-in-law #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div><label class="form-label text-xs">Name</label><input name="sil_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Mobile</label><input name="sil_mobile" placeholder="Mobile" value="${data.mobile||''}" /></div>
                     <div><label class="form-label text-xs">Job</label><input name="sil_job" placeholder="Job" value="${data.job||''}" /></div>
                     <div><label class="form-label text-xs">Age</label><input name="sil_age" type="number" placeholder="Age" value="${data.age||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Spouse's Name</label><input name="sil_spouse" placeholder="Spouse's name" value="${data.spouse||''}" /></div>
                 </div>
             `);
-
-        // Niece/Nephew
         window.addNieceNephewRow = (d = {}) => addRow('nieceNephewList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Niece/Nephew #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Niece/Nephew #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Name</label><input name="nn_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Gender</label>
                         <select name="nn_gender">
@@ -1198,22 +773,18 @@ function loadContacts() {
                     <div class="col-span-2"><label class="form-label text-xs">Parents' Name</label><input name="nn_parents" placeholder="Parents' name" value="${data.parents||''}" /></div>
                 </div>
             `);
-
-        // GF/BF
         window.addGfBfRow = (d = {}) => addRow('gfbfList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Relationship #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Relationship #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Name</label><input name="gfbf_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Mobile</label><div class="edit-input-group"><input name="gfbf_mobile" placeholder="Mobile" value="${data.mobile||''}" id="gfbf_mobile_${i}" /><button class="btn-icon btn-copy" data-link-id="gfbf_mobile_${i}"><i class="fas fa-copy"></i></button></div></div>
                     <div class="col-span-4"><label class="form-label text-xs">Email</label><div class="edit-input-group"><input name="gfbf_email" placeholder="Email" value="${data.email||''}" id="gfbf_email_${i}" /><button class="btn-icon btn-copy" data-link-id="gfbf_email_${i}"><i class="fas fa-copy"></i></button><button class="btn-icon btn-open" data-link-id="gfbf_email_${i}" data-base-url="mailto:"><i class="fas fa-envelope"></i></button></div></div>
                     <div class="col-span-4"><label class="form-label text-xs">Address</label><div class="edit-input-group"><input name="gfbf_address" placeholder="Address" value="${data.address||''}" id="gfbf_address_${i}" /><button class="btn-icon btn-copy" data-link-id="gfbf_address_${i}"><i class="fas fa-copy"></i></button><button class="btn-icon btn-map" data-link-id="gfbf_address_${i}"><i class="fas fa-map-pin"></i></button></div></div>
                 </div>
             `);
-
-        // Child
         window.addChildRow = (d = {}) => addRow('childList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Child #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Child #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Name</label><input name="child_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">DOB</label><input name="child_dob" type="date" value="${data.dob||''}" /></div>
                     <div class="col-span-4"><label class="form-label text-xs">School</label><input name="child_school" placeholder="School" value="${data.school||''}" /></div>
@@ -1221,11 +792,9 @@ function loadContacts() {
                     <div class="col-span-2"><label class="form-label text-xs">Mobile</label><div class="edit-input-group"><input name="child_mobile" placeholder="Mobile" value="${data.mobile||''}" id="child_mobile_${i}" /><button class="btn-icon btn-copy" data-link-id="child_mobile_${i}"><i class="fas fa-copy"></i></button></div></div>
                 </div>
             `);
-
-        // Sibling
         window.addSiblingRow = (d = {}) => addRow('siblingList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Sibling #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Sibling #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Name</label><input name="sibling_name" placeholder="Name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Age</label><input name="sibling_age" type="number" placeholder="Age" value="${data.age||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Job</label><input name="sibling_job" placeholder="Job" value="${data.job||''}" /></div>
@@ -1234,11 +803,9 @@ function loadContacts() {
                     <div class="col-span-2"><label class="form-label text-xs">Spouse's Name</label><input name="sibling_spouse" placeholder="Spouse's name" value="${data.spouse||''}" /></div>
                 </div>
             `);
-
-        // Promotion
         window.addPromotionRow = (d = {}) => addRow('promotionList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Promotion #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Promotion #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Date</label><input name="promotion_date" type="date" value="${data.date||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Job Before</label><input name="job_before" placeholder="Job before" value="${data.job_before||''}" /></div>
                     <div><label class="form-label text-xs">Old Salary</label><input name="old_salary" placeholder="Old salary (₹)" value="${data.old_salary||''}" /></div>
@@ -1246,11 +813,9 @@ function loadContacts() {
                     <div class="col-span-4"><label class="form-label text-xs">Job After</label><input name="job_after" placeholder="Job after" value="${data.job_after||''}" /></div>
                 </div>
             `);
-
-        // Loan
         window.addLoanRow = (d = {}) => addRow('loanList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Loan #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Loan #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div><label class="form-label text-xs">Product</label><input name="loan_product" placeholder="Product" value="${data.product||''}" /></div>
                     <div><label class="form-label text-xs">Bank</label><input name="loan_bank" placeholder="Bank" value="${data.bank||''}" /></div>
                     <div><label class="form-label text-xs">Amount</label><input name="loan_amount" placeholder="Amount (₹)" value="${data.amount||''}" /></div>
@@ -1263,11 +828,9 @@ function loadContacts() {
                     <div class="flex items-center gap-2"><input type="checkbox" name="loan_paid" ${data.paid?'checked':''} /> <label class="text-sm">Paid Off</label></div>
                 </div>
             `);
-
-        // Asset
         window.addAssetRow = (d = {}) => addRow('assetList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Asset #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Asset #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Name</label><input name="asset_name" placeholder="Asset name" value="${data.name||''}" /></div>
                     <div class="col-span-2"><label class="form-label text-xs">Location</label><div class="edit-input-group"><input name="asset_location" placeholder="Location" value="${data.location||''}" id="asset_location_${i}" /><button class="btn-icon btn-map" data-link-id="asset_location_${i}"><i class="fas fa-map-pin"></i></button></div></div>
                     <div><label class="form-label text-xs">Buy Date</label><input name="asset_buy_date" type="date" value="${data.buy_date||''}" /></div>
@@ -1276,31 +839,25 @@ function loadContacts() {
                     <div><label class="form-label text-xs">Sell Price</label><input name="asset_sell_price" placeholder="Sell price (₹)" value="${data.sell_price||''}" /></div>
                 </div>
             `);
-
-        // Health
         window.addHealthRow = (d = {}) => addRow('healthList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Health Concern #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Health Concern #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Condition</label><input name="health_name" placeholder="Condition" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Date</label><input name="health_date" type="date" value="${data.date||''}" /></div>
                     <div><label class="form-label text-xs">Doctor/Hospital</label><input name="health_doctor" placeholder="Doctor/Hospital" value="${data.doctor||''}" /></div>
                 </div>
             `);
-
-        // Gift
         window.addGiftRow = (d = {}) => addRow('giftList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Gift #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Gift #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Gift Name</label><input name="gift_name" placeholder="Gift name" value="${data.name||''}" /></div>
                     <div><label class="form-label text-xs">Date</label><input name="gift_date" type="date" value="${data.date||''}" /></div>
                     <div class="col-span-4"><label class="form-label text-xs">Occasion</label><input name="gift_occasion" placeholder="Occasion" value="${data.occasion||''}" /></div>
                 </div>
             `);
-
-        // Trip
         window.addTripRow = (d = {}) => addRow('tripList', d, (data, i) => `
                 <div class="form-grid-4">
-                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Trip #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700 border border-red-300 rounded px-2 py-0.5 hover:bg-red-50"><i class="fas fa-trash"></i> Remove</button></div>
+                    <div class="col-span-4 flex justify-between items-center"><span class="text-xs font-medium text-dim">Trip #${i+1}</span><button onclick="this.closest('.dynamic-row').remove()" class="text-red-500 text-sm hover:text-red-700"><i class="fas fa-trash"></i> Remove</button></div>
                     <div class="col-span-2"><label class="form-label text-xs">Location</label><div class="edit-input-group"><input name="trip_location" placeholder="Location" value="${data.location||''}" id="trip_location_${i}" /><button class="btn-icon btn-map" data-link-id="trip_location_${i}"><i class="fas fa-map-pin"></i></button></div></div>
                     <div><label class="form-label text-xs">Date</label><input name="trip_date" type="date" value="${data.date||''}" /></div>
                     <div><label class="form-label text-xs">Expense</label><input name="trip_expense" placeholder="Expense (₹)" value="${data.expense||''}" /></div>
@@ -1311,26 +868,20 @@ function loadContacts() {
                 </div>
             `);
 
-        // Generate functions
         window.generateChildRows = function() {
             const count = parseInt(document.getElementById('editChildCount').value) || 0;
             const container = document.getElementById('childList');
             const current = container.querySelectorAll('.dynamic-row').length;
-            if (count > current) {
-                for (let i = current; i < count; i++) addChildRow({});
-            } else if (count < current) {
+            if (count > current) { for (let i = current; i < count; i++) addChildRow({}); } else if (count < current) {
                 const rows = container.querySelectorAll('.dynamic-row');
                 for (let i = rows.length - 1; i >= count; i--) rows[i].remove();
             }
         };
-
         window.generateSiblingRows = function() {
             const count = parseInt(document.getElementById('editSiblingCount').value) || 0;
             const container = document.getElementById('siblingList');
             const current = container.querySelectorAll('.dynamic-row').length;
-            if (count > current) {
-                for (let i = current; i < count; i++) addSiblingRow({});
-            } else if (count < current) {
+            if (count > current) { for (let i = current; i < count; i++) addSiblingRow({}); } else if (count < current) {
                 const rows = container.querySelectorAll('.dynamic-row');
                 for (let i = rows.length - 1; i >= count; i--) rows[i].remove();
             }
@@ -1350,12 +901,9 @@ function loadContacts() {
                 const item = {};
                 fields.forEach(f => {
                     const inp = row.querySelector(`[name="${f}"]`);
-                    if (inp && inp.type !== 'checkbox') {
-                        const v = inp.value.trim();
-                        if (v) item[f.split('_').slice(1).join('_')] = v;
-                    } else if (inp && inp.type === 'checkbox') {
-                        item['paid'] = inp.checked ? 'true' : 'false';
-                    }
+                    if (inp && inp.type !== 'checkbox') { const v = inp.value.trim(); if (v) item[f.split(
+                            '_').slice(1).join('_')] = v; } else if (inp && inp.type === 'checkbox') { item[
+                            'paid'] = inp.checked ? 'true' : 'false'; }
                 });
                 if (Object.keys(item).length) data.push(item);
             });
@@ -1367,110 +915,117 @@ function loadContacts() {
             const data = contactMap.get(id);
             if (!data) return alert('Contact not found');
             document.getElementById('editContactId').value = id;
-
-            // Personal
-            document.getElementById('editName').value = data.name || '';
-            document.getElementById('editNickname').value = data.nickname || '';
-            document.getElementById('editGender').value = data.gender || '';
-            document.getElementById('editBirthDate').value = data.birthDate || '';
+            const set = (el, val) => document.getElementById(el).value = val || '';
+            set('editName', data.name);
+            set('editNickname', data.nickname);
+            set('editGender', data.gender);
+            set('editBirthDate', data.birthDate);
             document.getElementById('editAge').value = calculateAge(data.birthDate) || '';
-            document.getElementById('editBloodGroup').value = data.bloodGroup || '';
-            document.getElementById('editMaritalStatus').value = data.maritalStatus || '';
-            document.getElementById('editAnniversaryDate').value = data.anniversaryDate || '';
-            document.getElementById('editReligion').value = data.religion || '';
-            document.getElementById('editNationality').value = data.nationality || '';
-            document.getElementById('editLanguages').value = data.languages || '';
-            document.getElementById('editHobbies').value = data.hobbies || '';
-            document.getElementById('editZodiac').value = data.zodiac || '';
-            document.getElementById('editPermanentAddress').value = data.permanentAddress || '';
-            document.getElementById('editCurrentCity').value = data.currentCity || '';
-            document.getElementById('editHomeTown').value = data.homeTown || '';
+            set('editBloodGroup', data.bloodGroup);
+            set('editMaritalStatus', data.maritalStatus);
+            set('editAnniversaryDate', data.anniversaryDate);
+            set('editReligion', data.religion);
+            set('editNationality', data.nationality);
+            set('editLanguages', data.languages);
+            set('editHobbies', data.hobbies);
+            set('editZodiac', data.zodiac);
+            set('editPermanentAddress', data.permanentAddress);
+            set('editCurrentCity', data.currentCity);
+            set('editHomeTown', data.homeTown);
+            set('editMobile', data.mobile);
+            set('editWhatsapp', data.whatsapp);
+            set('editWorkPhone', data.workPhone);
+            set('editHomePhone', data.homePhone);
+            set('editEmail', data.email);
+            set('editWebsite', data.website);
+            set('editSkype', data.skype);
+            set('editHomeAddress', data.homeAddress);
+            set('editOfficeAddress', data.officeAddress);
+            set('editLandmark', data.landmark);
+            set('editHomeMapLink', data.homeMapLink);
+            set('editTimezone', data.timezone);
+            set('editFacebook', data.facebook);
+            set('editInstagram', data.instagram);
+            set('editTwitter', data.twitter);
+            set('editLinkedin', data.linkedin);
+            set('editGithub', data.github);
+            set('editThreads', data.threads);
+            set('editYoutube', data.youtube);
+            set('editTelegram', data.telegram);
+            set('editJobTitle', data.jobTitle);
+            set('editCompanyName', data.companyName);
+            set('editDepartment', data.department);
+            set('editSalary', data.salary);
+            set('editPensionAmount', data.pensionAmount);
+            set('editRetirementYear', data.retirementYear);
+            set('editSchool', data.school);
+            set('editCollege', data.college);
+            set('editDegree', data.degree);
+            set('editSkill', data.skill);
+            set('editCertifications', data.certifications);
+            set('editExperience', data.experience);
+            set('editWorkEmail', data.workEmail);
+            set('editPartnerName', data.partnerName);
+            set('editMaidenName', data.maidenName);
+            set('editPartnerEmail', data.partnerEmail);
+            set('editPartnerMobile', data.partnerMobile);
+            set('editPartnerDob', data.partnerDob);
+            set('editPartnerCompany', data.partnerCompany);
+            set('editPartnerSalary', data.partnerSalary);
+            set('editFatherInLaw', data.fatherInLaw);
+            set('editMotherInLaw', data.motherInLaw);
+            set('editFatherInLawMobile', data.fatherInLawMobile);
+            set('editMotherInLawMobile', data.motherInLawMobile);
+            set('editFatherInLawJob', data.fatherInLawJob);
+            set('editMotherInLawJob', data.motherInLawJob);
+            set('editFatherName', data.fatherName);
+            set('editFatherMobile', data.fatherMobile);
+            set('editFatherJob', data.fatherJob);
+            set('editFatherSalary', data.fatherSalary);
+            set('editFatherAge', data.fatherAge);
+            set('editFatherEmail', data.fatherEmail);
+            set('editFatherAddress', data.fatherAddress);
+            set('editMotherName', data.motherName);
+            set('editMotherMobile', data.motherMobile);
+            set('editMotherJob', data.motherJob);
+            set('editMotherSalary', data.motherSalary);
+            set('editMotherAge', data.motherAge);
+            set('editMotherEmail', data.motherEmail);
+            set('editMotherAddress', data.motherAddress);
+            set('editAllergies', data.allergies);
+            set('editMedications', data.medications);
+            set('editChronicConditions', data.chronicConditions);
+            set('editLastAdmitted', data.lastAdmitted);
+            set('editEmergencyContact', data.emergencyContact);
+            set('editEmergencyPhone', data.emergencyPhone);
+            set('editInsuranceProvider', data.insuranceProvider);
+            set('editInsurancePolicy', data.insurancePolicy);
+            set('editNote', data.note);
+            document.getElementById('extraEmailContainer').innerHTML = '';
+            document.getElementById('extraAddressContainer').innerHTML = '';
+            if (data.extraEmails) {
+                data.extraEmails.forEach((e, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'edit-input-group mt-1';
+                    div.innerHTML =
+                        `<input type="email" id="extra_email_${i+1}" value="${e}" placeholder="Additional email" class="flex-1" style="border:2px solid var(--border);border-radius:var(--border-radius);padding:8px;background:var(--bg-input);color:var(--text-main);" />
+                                <button type="button" onclick="this.parentElement.remove()" class="btn-icon" style="background:#ef4444;"><i class="fas fa-times"></i></button>`;
+                    document.getElementById('extraEmailContainer').appendChild(div);
+                });
+            }
+            if (data.extraAddresses) {
+                data.extraAddresses.forEach((a, i) => {
+                    const div = document.createElement('div');
+                    div.className = 'edit-input-group mt-1';
+                    div.innerHTML =
+                        `<input type="text" id="extra_address_${i+1}" value="${a}" placeholder="Additional address" class="flex-1" style="border:2px solid var(--border);border-radius:var(--border-radius);padding:8px;background:var(--bg-input);color:var(--text-main);" />
+                                <button type="button" onclick="this.parentElement.remove()" class="btn-icon" style="background:#ef4444;"><i class="fas fa-times"></i></button>`;
+                    document.getElementById('extraAddressContainer').appendChild(div);
+                });
+            }
+            loadJobs('jobList', data.jobs);
+            loadJobs('partnerJobList', data.partnerJobs);
 
-            // Contact
-            document.getElementById('editMobile').value = data.mobile || '';
-            document.getElementById('editWhatsapp').value = data.whatsapp || '';
-            document.getElementById('editWorkPhone').value = data.workPhone || '';
-            document.getElementById('editHomePhone').value = data.homePhone || '';
-            document.getElementById('editEmail').value = data.email || '';
-            document.getElementById('editWebsite').value = data.website || '';
-            document.getElementById('editSkype').value = data.skype || '';
-            document.getElementById('editHomeAddress').value = data.homeAddress || '';
-            document.getElementById('editOfficeAddress').value = data.officeAddress || '';
-            document.getElementById('editLandmark').value = data.landmark || '';
-            document.getElementById('editHomeMapLink').value = data.homeMapLink || '';
-            document.getElementById('editTimezone').value = data.timezone || '';
-
-            // Social
-            document.getElementById('editFacebook').value = data.facebook || '';
-            document.getElementById('editInstagram').value = data.instagram || '';
-            document.getElementById('editTwitter').value = data.twitter || '';
-            document.getElementById('editLinkedin').value = data.linkedin || '';
-            document.getElementById('editGithub').value = data.github || '';
-            document.getElementById('editThreads').value = data.threads || '';
-            document.getElementById('editYoutube').value = data.youtube || '';
-            document.getElementById('editTelegram').value = data.telegram || '';
-
-            // Work
-            document.getElementById('editJobTitle').value = data.jobTitle || '';
-            document.getElementById('editCompanyName').value = data.companyName || '';
-            document.getElementById('editDepartment').value = data.department || '';
-            document.getElementById('editSalary').value = data.salary || '';
-            document.getElementById('editPensionAmount').value = data.pensionAmount || '';
-            document.getElementById('editRetirementYear').value = data.retirementYear || '';
-            document.getElementById('editSchool').value = data.school || '';
-            document.getElementById('editCollege').value = data.college || '';
-            document.getElementById('editDegree').value = data.degree || '';
-            document.getElementById('editSkill').value = data.skill || '';
-            document.getElementById('editCertifications').value = data.certifications || '';
-            document.getElementById('editExperience').value = data.experience || '';
-            document.getElementById('editWorkEmail').value = data.workEmail || '';
-
-            // Family - Extended
-            document.getElementById('editPartnerName').value = data.partnerName || '';
-            document.getElementById('editMaidenName').value = data.maidenName || '';
-            document.getElementById('editPartnerEmail').value = data.partnerEmail || '';
-            document.getElementById('editPartnerMobile').value = data.partnerMobile || '';
-            document.getElementById('editPartnerJob').value = data.partnerJob || '';
-            document.getElementById('editPartnerSalary').value = data.partnerSalary || '';
-            document.getElementById('editPartnerDob').value = data.partnerDob || '';
-            document.getElementById('editPartnerCompany').value = data.partnerCompany || '';
-
-            // In-Laws
-            document.getElementById('editFatherInLaw').value = data.fatherInLaw || '';
-            document.getElementById('editMotherInLaw').value = data.motherInLaw || '';
-            document.getElementById('editFatherInLawMobile').value = data.fatherInLawMobile || '';
-            document.getElementById('editMotherInLawMobile').value = data.motherInLawMobile || '';
-            document.getElementById('editFatherInLawJob').value = data.fatherInLawJob || '';
-            document.getElementById('editMotherInLawJob').value = data.motherInLawJob || '';
-
-            // Parents
-            document.getElementById('editFatherName').value = data.fatherName || '';
-            document.getElementById('editFatherMobile').value = data.fatherMobile || '';
-            document.getElementById('editFatherJob').value = data.fatherJob || '';
-            document.getElementById('editFatherSalary').value = data.fatherSalary || '';
-            document.getElementById('editFatherAge').value = data.fatherAge || '';
-            document.getElementById('editFatherEmail').value = data.fatherEmail || '';
-            document.getElementById('editFatherAddress').value = data.fatherAddress || '';
-            document.getElementById('editMotherName').value = data.motherName || '';
-            document.getElementById('editMotherMobile').value = data.motherMobile || '';
-            document.getElementById('editMotherJob').value = data.motherJob || '';
-            document.getElementById('editMotherSalary').value = data.motherSalary || '';
-            document.getElementById('editMotherAge').value = data.motherAge || '';
-            document.getElementById('editMotherEmail').value = data.motherEmail || '';
-            document.getElementById('editMotherAddress').value = data.motherAddress || '';
-
-            // Health
-            document.getElementById('editAllergies').value = data.allergies || '';
-            document.getElementById('editMedications').value = data.medications || '';
-            document.getElementById('editChronicConditions').value = data.chronicConditions || '';
-            document.getElementById('editLastAdmitted').value = data.lastAdmitted || '';
-            document.getElementById('editEmergencyContact').value = data.emergencyContact || '';
-            document.getElementById('editEmergencyPhone').value = data.emergencyPhone || '';
-            document.getElementById('editInsuranceProvider').value = data.insuranceProvider || '';
-            document.getElementById('editInsurancePolicy').value = data.insurancePolicy || '';
-            document.getElementById('editNote').value = data.note || '';
-
-            // Dynamic lists
             loadDynamic('brotherInLawList', data.brotherInLawData, addBrotherInLawRow);
             loadDynamic('sisterInLawList', data.sisterInLawData, addSisterInLawRow);
             loadDynamic('nieceNephewList', data.nieceNephewData, addNieceNephewRow);
@@ -1483,13 +1038,10 @@ function loadContacts() {
             loadDynamic('healthList', data.healthConcerns, addHealthRow);
             loadDynamic('giftList', data.gifts, addGiftRow);
             loadDynamic('tripList', data.trips, addTripRow);
-
-            // Counts
             const cCount = data.childData ? JSON.parse(data.childData).length : 0;
             document.getElementById('editChildCount').value = cCount;
             const sCount = data.siblingData ? JSON.parse(data.siblingData).length : 0;
             document.getElementById('editSiblingCount').value = sCount;
-
             document.getElementById('editModal').style.display = 'flex';
         };
 
@@ -1500,331 +1052,470 @@ function loadContacts() {
             currentViewId = id;
             const data = contactMap.get(id);
             if (!data) return alert('No data');
-            document.getElementById('viewTitle').innerHTML = `<i class="fas fa-user-circle text-blue-600"></i> ${data.name}`;
+            document.getElementById('viewTitle').innerHTML =
+                `<i class="fas fa-user-circle text-blue-600"></i> ${data.name || 'Contact'}`;
             const content = document.getElementById('viewContent');
-            const fields = [
-                ['Name', data.name],
-                ['Nickname', data.nickname],
-                ['Gender', data.gender],
-                ['Birth Date', data.birthDate],
-                ['Age', calculateAge(data.birthDate) || ''],
-                ['Blood Group', data.bloodGroup],
-                ['Marital Status', data.maritalStatus],
-                ['Anniversary', data.anniversaryDate],
-                ['Religion', data.religion],
-                ['Nationality', data.nationality],
-                ['Languages', data.languages],
-                ['Hobbies', data.hobbies],
-                ['Zodiac', data.zodiac],
-                ['Permanent Address', data.permanentAddress],
-                ['Current City', data.currentCity],
-                ['Home Town', data.homeTown],
-                ['Mobile', data.mobile],
-                ['WhatsApp', data.whatsapp],
-                ['Work Phone', data.workPhone],
-                ['Home Phone', data.homePhone],
-                ['Email', data.email],
-                ['Website', data.website],
-                ['Skype', data.skype],
-                ['Home Address', data.homeAddress],
-                ['Office Address', data.officeAddress],
-                ['Landmark', data.landmark],
-                ['Map Link', data.homeMapLink],
-                ['Timezone', data.timezone],
-                ['Facebook', data.facebook],
-                ['Instagram', data.instagram],
-                ['Twitter', data.twitter],
-                ['LinkedIn', data.linkedin],
-                ['GitHub', data.github],
-                ['Threads', data.threads],
-                ['YouTube', data.youtube],
-                ['Telegram', data.telegram],
-                ['Job Title', data.jobTitle],
-                ['Company', data.companyName],
-                ['Department', data.department],
-                ['Salary', data.salary],
-                ['Pension', data.pensionAmount],
-                ['Retirement Year', data.retirementYear],
-                ['School', data.school],
-                ['College', data.college],
-                ['Degree', data.degree],
-                ['Skills', data.skill],
-                ['Certifications', data.certifications],
-                ['Experience', data.experience],
-                ['Work Email', data.workEmail],
-                ['Partner', data.partnerName],
-                ['Partner Email', data.partnerEmail],
-                ['Partner Mobile', data.partnerMobile],
-                ['Partner Job', data.partnerJob],
-                ['Partner Salary', data.partnerSalary],
-                ['Partner DOB', data.partnerDob],
-                ['Partner Company', data.partnerCompany],
-                ['Maiden Name', data.maidenName],
-                ['Father-in-law', data.fatherInLaw],
-                ['Mother-in-law', data.motherInLaw],
-                ['Father-in-law Mobile', data.fatherInLawMobile],
-                ['Mother-in-law Mobile', data.motherInLawMobile],
-                ['Father-in-law Job', data.fatherInLawJob],
-                ['Mother-in-law Job', data.motherInLawJob],
-                ['Father', data.fatherName],
-                ['Father Mobile', data.fatherMobile],
-                ['Father Job', data.fatherJob],
-                ['Father Salary', data.fatherSalary],
-                ['Father Age', data.fatherAge],
-                ['Father Email', data.fatherEmail],
-                ['Father Address', data.fatherAddress],
-                ['Mother', data.motherName],
-                ['Mother Mobile', data.motherMobile],
-                ['Mother Job', data.motherJob],
-                ['Mother Salary', data.motherSalary],
-                ['Mother Age', data.motherAge],
-                ['Mother Email', data.motherEmail],
-                ['Mother Address', data.motherAddress],
-                ['Allergies', data.allergies],
-                ['Medications', data.medications],
-                ['Chronic Conditions', data.chronicConditions],
-                ['Last Admitted', data.lastAdmitted],
-                ['Emergency Contact', data.emergencyContact],
-                ['Emergency Phone', data.emergencyPhone],
-                ['Insurance Provider', data.insuranceProvider],
-                ['Insurance Policy', data.insurancePolicy],
-                ['Notes', data.note]
+
+            const sections = [
+                { title: 'Personal Information', icon: 'fa-user', fields: [
+                        ['Name', data.name],
+                        ['Nickname', data.nickname],
+                        ['Gender', data.gender],
+                        ['Date of Birth', data.birthDate],
+                        ['Age', calculateAge(data.birthDate) || ''],
+                        ['Blood Group', data.bloodGroup],
+                        ['Marital Status', data.maritalStatus],
+                        ['Anniversary', data.anniversaryDate ? `${data.anniversaryDate} (${calculateAnniversaryYears(data.anniversaryDate)} years completed)` : ''],
+                        ['Religion', data.religion],
+                        ['Nationality', data.nationality],
+                        ['Languages', data.languages],
+                        ['Hobbies', data.hobbies],
+                        ['Zodiac', data.zodiac],
+                        ['Permanent Address', data.permanentAddress],
+                        ['Current City', data.currentCity],
+                        ['Home Town', data.homeTown]
+                    ] },
+                { title: 'Contact Details', icon: 'fa-address-book', fields: [
+                        ['Mobile', data.mobile],
+                        ['WhatsApp', data.whatsapp],
+                        ['Work Phone', data.workPhone],
+                        ['Home Phone', data.homePhone],
+                        ['Email', data.email],
+                        ['Website', data.website],
+                        ['Skype', data.skype],
+                        ['Home Address', data.homeAddress],
+                        ['Office Address', data.officeAddress],
+                        ['Landmark', data.landmark],
+                        ['Map Link', data.homeMapLink],
+                        ['Timezone', data.timezone]
+                    ] },
+                { title: 'Social Media', icon: 'fa-share-alt', fields: [
+                        ['Facebook', data.facebook],
+                        ['Instagram', data.instagram],
+                        ['Twitter', data.twitter],
+                        ['LinkedIn', data.linkedin],
+                        ['GitHub', data.github],
+                        ['Threads', data.threads],
+                        ['YouTube', data.youtube],
+                        ['Telegram', data.telegram]
+                    ] },
+                { title: 'Work & Education', icon: 'fa-briefcase', fields: [
+                        ['Current Job Title', data.jobTitle],
+                        ['Current Company', data.companyName],
+                        ['Department', data.department],
+                        ['Salary (₹)', data.salary],
+                        ['Work Email', data.workEmail],
+                        ['Pension', data.pensionAmount],
+                        ['Retirement Year', data.retirementYear],
+                        ['School', data.school],
+                        ['College', data.college],
+                        ['Degree', data.degree],
+                        ['Skills', data.skill],
+                        ['Certifications', data.certifications],
+                        ['Experience (yrs)', data.experience]
+                    ] },
+                { title: 'Family & Relationships', icon: 'fa-people-arrows', fields: [
+                        ['Partner', data.partnerName],
+                        ['Maiden Name', data.maidenName],
+                        ['Partner Email', data.partnerEmail],
+                        ['Partner Mobile', data.partnerMobile],
+                        ['Partner DOB', data.partnerDob],
+                        ['Partner Company', data.partnerCompany],
+                        ['Partner Salary', data.partnerSalary],
+                        ['Father-in-law', data.fatherInLaw],
+                        ['Mother-in-law', data.motherInLaw],
+                        ['Father-in-law Mobile', data.fatherInLawMobile],
+                        ['Mother-in-law Mobile', data.motherInLawMobile],
+                        ['Father-in-law Job', data.fatherInLawJob],
+                        ['Mother-in-law Job', data.motherInLawJob],
+                        ['Father', data.fatherName],
+                        ['Father Mobile', data.fatherMobile],
+                        ['Father Job', data.fatherJob],
+                        ['Father Salary', data.fatherSalary],
+                        ['Father Age', data.fatherAge],
+                        ['Father Email', data.fatherEmail],
+                        ['Father Address', data.fatherAddress],
+                        ['Mother', data.motherName],
+                        ['Mother Mobile', data.motherMobile],
+                        ['Mother Job', data.motherJob],
+                        ['Mother Salary', data.motherSalary],
+                        ['Mother Age', data.motherAge],
+                        ['Mother Email', data.motherEmail],
+                        ['Mother Address', data.motherAddress]
+                    ] },
+                { title: 'Health', icon: 'fa-briefcase-medical', fields: [
+                        ['Allergies', data.allergies],
+                        ['Medications', data.medications],
+                        ['Chronic Conditions', data.chronicConditions],
+                        ['Last Admitted', data.lastAdmitted],
+                        ['Emergency Contact', data.emergencyContact],
+                        ['Emergency Phone', data.emergencyPhone],
+                        ['Insurance Provider', data.insuranceProvider],
+                        ['Insurance Policy', data.insurancePolicy]
+                    ] },
+                { title: 'Notes', icon: 'fa-sticky-note', fields: [
+                        ['Note', data.note]
+                    ] }
             ];
+
             let html = '';
-            fields.forEach(([label, val]) => { if (val) html +=
-                    `<div class="profile-row"><span>${label}</span><span>${val}</span></div>`; });
+            sections.forEach(section => {
+                const filtered = section.fields.filter(f => f[1] && f[1].toString().trim() !== '');
+                if (filtered.length === 0) return;
+                html += `<div class="profile-section">
+                        <div class="profile-section-title"><i class="fas ${section.icon}"></i> ${section.title}</div>`;
+                filtered.forEach(([label, val]) => {
+                    html += `<div class="profile-row"><span>${label}</span><span>${val}</span></div>`;
+                });
+                html += `</div>`;
+            });
 
-            const dyn = [
-                ['Brothers-in-law', data.brotherInLawData, ['name', 'mobile', 'job', 'age', 'spouse']],
-                ['Sisters-in-law', data.sisterInLawData, ['name', 'mobile', 'job', 'age', 'spouse']],
-                ['Nieces & Nephews', data.nieceNephewData, ['name', 'gender', 'age', 'school', 'parents']],
-                ['GF/BF', data.gfbfData, ['name', 'mobile', 'email', 'address']],
-                ['Children', data.childData, ['name', 'dob', 'school', 'email', 'mobile']],
-                ['Siblings', data.siblingData, ['name', 'age', 'job', 'salary', 'marital', 'spouse']],
-                ['Promotions', data.promotionData, ['date', 'job_before', 'old_salary', 'new_salary', 'job_after']],
-                ['Loans', data.loanData, ['product', 'bank', 'amount', 'installment', 'start_date', 'end_date',
-                    'purpose', 'paid', 'interest_rate', 'interest_amount'
-                ]],
-                ['Assets', data.assets, ['name', 'location', 'buy_date', 'buy_price', 'sell_date', 'sell_price']],
-                ['Health Concerns', data.healthConcerns, ['name', 'date', 'doctor']],
-                ['Gifts', data.gifts, ['name', 'date', 'occasion']],
-                ['Trips', data.trips, ['location', 'date', 'specialty', 'howToVisit', 'expense', 'review',
-                    'description'
-                ]]
+            if (data.extraEmails && data.extraEmails.length) {
+                html += `<div class="profile-section"><div class="profile-section-title"><i class="fas fa-envelope"></i> Additional Emails</div>`;
+                data.extraEmails.forEach(e => html +=
+                    `<div class="profile-row"><span>Email</span><span>${e}</span></div>`);
+                html += `</div>`;
+            }
+            if (data.extraAddresses && data.extraAddresses.length) {
+                html += `<div class="profile-section"><div class="profile-section-title"><i class="fas fa-map-pin"></i> Additional Addresses</div>`;
+                data.extraAddresses.forEach(a => html +=
+                    `<div class="profile-row"><span>Address</span><span>${a}</span></div>`);
+                html += `</div>`;
+            }
+
+            const jobSections = [
+                { title: 'Previous Jobs', key: 'jobs' },
+                { title: "Partner's Jobs", key: 'partnerJobs' }
             ];
-
-            dyn.forEach(([label, json, fields]) => {
+            jobSections.forEach(sec => {
+                const json = data[sec.key];
                 if (!json) return;
                 try {
                     const arr = JSON.parse(json);
-                    if (arr.length) {
-                        html += `<h4 class="font-semibold text-blue-600 mt-3 border-b-2 border-blue-200 pb-1">${label}</h4>`;
-                        arr.forEach(item => {
-                            let line = '';
-                            fields.forEach(f => { if (item[f]) line += `${f}: ${item[f]}  `; });
-                            if (line) html += `<div class="profile-dynamic-item text-sm border-2 border-theme-light">${line}</div>`;
-                        });
-                    }
+                    if (arr.length === 0) return;
+                    html += `<div class="profile-section"><div class="profile-section-title"><i class="fas fa-history"></i> ${sec.title}</div>`;
+                    arr.forEach(job => {
+                        let parts = [];
+                        if (job.title) parts.push(
+                            `<span class="dyn-label">Title:</span> <span class="dyn-value">${job.title}</span>`
+                            );
+                        if (job.company) parts.push(
+                            `<span class="dyn-label">Company:</span> <span class="dyn-value">${job.company}</span>`
+                            );
+                        if (job.from) parts.push(
+                            `<span class="dyn-label">From:</span> <span class="dyn-value">${job.from}</span>`
+                            );
+                        if (job.to) parts.push(
+                            `<span class="dyn-label">To:</span> <span class="dyn-value">${job.to}</span>`
+                            );
+                        if (job.salary) parts.push(
+                            `<span class="dyn-label">Salary:</span> <span class="dyn-value">₹${job.salary}</span>`
+                            );
+                        if (job.desc) parts.push(
+                            `<span class="dyn-label">Desc:</span> <span class="dyn-value">${job.desc}</span>`
+                            );
+                        if (parts.length) {
+                            html += `<div class="profile-dynamic-item">${parts.join(' ')}</div>`;
+                        }
+                    });
+                    html += `</div>`;
                 } catch (e) {}
             });
+
+            const dynSections = [
+                { title: 'Brothers-in-law', key: 'brotherInLawData', fields: ['name', 'mobile', 'job', 'age',
+                        'spouse'
+                    ] },
+                { title: 'Sisters-in-law', key: 'sisterInLawData', fields: ['name', 'mobile', 'job', 'age',
+                        'spouse'
+                    ] },
+                { title: 'Nieces & Nephews', key: 'nieceNephewData', fields: ['name', 'gender', 'age', 'school',
+                        'parents'
+                    ] },
+                { title: 'GF/BF Relationships', key: 'gfbfData', fields: ['name', 'mobile', 'email', 'address'] },
+                { title: 'Children', key: 'childData', fields: ['name', 'dob', 'school', 'email', 'mobile'] },
+                { title: 'Siblings', key: 'siblingData', fields: ['name', 'age', 'job', 'salary', 'marital',
+                        'spouse'
+                    ] },
+                { title: 'Promotions', key: 'promotionData', fields: ['date', 'job_before', 'old_salary',
+                        'new_salary', 'job_after'
+                    ] },
+                { title: 'Loans', key: 'loanData', fields: ['product', 'bank', 'amount', 'installment',
+                        'start_date', 'end_date', 'purpose', 'paid', 'interest_rate', 'interest_amount'
+                    ] },
+                { title: 'Assets', key: 'assets', fields: ['name', 'location', 'buy_date', 'buy_price',
+                        'sell_date', 'sell_price'
+                    ] },
+                { title: 'Health Concerns', key: 'healthConcerns', fields: ['name', 'date', 'doctor'] },
+                { title: 'Gifts', key: 'gifts', fields: ['name', 'date', 'occasion'] },
+                { title: 'Trips', key: 'trips', fields: ['location', 'date', 'specialty', 'howToVisit',
+                        'expense', 'review', 'description'
+                    ] }
+            ];
+
+            dynSections.forEach(sec => {
+                const json = data[sec.key];
+                if (!json) return;
+                try {
+                    const arr = JSON.parse(json);
+                    if (arr.length === 0) return;
+                    html += `<div class="profile-section">
+                            <div class="profile-section-title"><i class="fas fa-list-ul"></i> ${sec.title}</div>`;
+                    arr.forEach(item => {
+                        let parts = [];
+                        sec.fields.forEach(f => {
+                            if (item[f] && item[f].toString().trim() !== '') {
+                                parts.push(
+                                    `<span class="dyn-label">${f.replace('_',' ')}:</span> <span class="dyn-value">${item[f]}</span>`
+                                    );
+                            }
+                        });
+                        if (parts.length) {
+                            html += `<div class="profile-dynamic-item">${parts.join(' ')}</div>`;
+                        }
+                    });
+                    html += `</div>`;
+                } catch (e) {}
+            });
+
             content.innerHTML = html || '<p class="text-dim">No data available</p>';
             document.getElementById('viewModal').style.display = 'flex';
         };
+
         window.closeViewModal = function() { document.getElementById('viewModal').style.display = 'none'; };
 
+        // ===== SHARE =====
+        window.shareContact = function(data) {
+            if (!data) return;
+            let text = `${data.name}\n`;
+            if (data.mobile) text += `Phone: ${data.mobile}\n`;
+            if (data.whatsapp) text += `WhatsApp: ${data.whatsapp}\n`;
+            if (data.email) text += `Email: ${data.email}\n`;
+            if (navigator.share) {
+                navigator.share({ title: data.name, text: text }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert('Contact copied to clipboard!'));
+            }
+        };
+
         // ===== PDF EXPORT =====
-     window.exportPDF = function() {
-    const data = contactMap.get(currentViewId);
-    if (!data) return alert('No data to export');
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('p', 'pt', 'a4');
+        window.exportPDF = function() {
+            const data = contactMap.get(currentViewId);
+            if (!data) return alert('No data to export');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'pt', 'a4');
+            doc.setFontSize(22);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(37, 99, 235);
+            doc.text('SAVIG · CONTACT PROFILE', 40, 50);
+            doc.setFontSize(18);
+            doc.setTextColor(15, 23, 42);
+            doc.text(`Name: ${data.name || 'N/A'}`, 40, 80);
+            doc.setDrawColor(200, 200, 200);
+            doc.line(40, 90, 550, 90);
 
-    doc.setFontSize(22);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(37, 99, 235);
-    doc.text('SAVIG · CONTACT PROFILE', 40, 50);
-    doc.setFontSize(18);
-    doc.setTextColor(15, 23, 42);
-    doc.text(`Name: ${data.name || 'N/A'}`, 40, 80);
-    doc.setDrawColor(200, 200, 200);
-    doc.line(40, 90, 550, 90);
+            const englishData = [
+                ['Nickname', data.nickname || ''],
+                ['Gender', data.gender || ''],
+                ['Birth Date', data.birthDate || ''],
+                ['Age', calculateAge(data.birthDate) || ''],
+                ['Blood Group', data.bloodGroup || ''],
+                ['Marital Status', data.maritalStatus || ''],
+                ['Anniversary', data.anniversaryDate || ''],
+                ['Anniversary Years', calculateAnniversaryYears(data.anniversaryDate) || ''],
+                ['Religion', data.religion || ''],
+                ['Nationality', data.nationality || ''],
+                ['Languages', data.languages || ''],
+                ['Hobbies', data.hobbies || ''],
+                ['Zodiac', data.zodiac || ''],
+                ['Permanent Address', data.permanentAddress || ''],
+                ['Current City', data.currentCity || ''],
+                ['Home Town', data.homeTown || ''],
+                ['Mobile', data.mobile || ''],
+                ['WhatsApp', data.whatsapp || ''],
+                ['Work Phone', data.workPhone || ''],
+                ['Home Phone', data.homePhone || ''],
+                ['Email', data.email || ''],
+                ['Website', data.website || ''],
+                ['Skype', data.skype || ''],
+                ['Home Address', data.homeAddress || ''],
+                ['Office Address', data.officeAddress || ''],
+                ['Landmark', data.landmark || ''],
+                ['Map Link', data.homeMapLink || ''],
+                ['Timezone', data.timezone || ''],
+                ['Facebook', data.facebook || ''],
+                ['Instagram', data.instagram || ''],
+                ['Twitter', data.twitter || ''],
+                ['LinkedIn', data.linkedin || ''],
+                ['GitHub', data.github || ''],
+                ['Threads', data.threads || ''],
+                ['YouTube', data.youtube || ''],
+                ['Telegram', data.telegram || ''],
+                ['Current Job Title', data.jobTitle || ''],
+                ['Current Company', data.companyName || ''],
+                ['Department', data.department || ''],
+                ['Salary', data.salary || ''],
+                ['Work Email', data.workEmail || ''],
+                ['Pension', data.pensionAmount || ''],
+                ['Retirement Year', data.retirementYear || ''],
+                ['School', data.school || ''],
+                ['College', data.college || ''],
+                ['Degree', data.degree || ''],
+                ['Skills', data.skill || ''],
+                ['Certifications', data.certifications || ''],
+                ['Experience (yrs)', data.experience || ''],
+                ['Partner', data.partnerName || ''],
+                ['Maiden Name', data.maidenName || ''],
+                ['Partner Email', data.partnerEmail || ''],
+                ['Partner Mobile', data.partnerMobile || ''],
+                ['Partner DOB', data.partnerDob || ''],
+                ['Partner Company', data.partnerCompany || ''],
+                ['Partner Salary', data.partnerSalary || ''],
+                ['Father-in-law', data.fatherInLaw || ''],
+                ['Mother-in-law', data.motherInLaw || ''],
+                ['Father-in-law Mobile', data.fatherInLawMobile || ''],
+                ['Mother-in-law Mobile', data.motherInLawMobile || ''],
+                ['Father-in-law Job', data.fatherInLawJob || ''],
+                ['Mother-in-law Job', data.motherInLawJob || ''],
+                ['Father', data.fatherName || ''],
+                ['Father Mobile', data.fatherMobile || ''],
+                ['Father Job', data.fatherJob || ''],
+                ['Father Salary', data.fatherSalary || ''],
+                ['Father Age', data.fatherAge || ''],
+                ['Father Email', data.fatherEmail || ''],
+                ['Father Address', data.fatherAddress || ''],
+                ['Mother', data.motherName || ''],
+                ['Mother Mobile', data.motherMobile || ''],
+                ['Mother Job', data.motherJob || ''],
+                ['Mother Salary', data.motherSalary || ''],
+                ['Mother Age', data.motherAge || ''],
+                ['Mother Email', data.motherEmail || ''],
+                ['Mother Address', data.motherAddress || ''],
+                ['Allergies', data.allergies || ''],
+                ['Medications', data.medications || ''],
+                ['Chronic Conditions', data.chronicConditions || ''],
+                ['Last Admitted', data.lastAdmitted || ''],
+                ['Emergency Contact', data.emergencyContact || ''],
+                ['Emergency Phone', data.emergencyPhone || ''],
+                ['Insurance Provider', data.insuranceProvider || ''],
+                ['Insurance Policy', data.insurancePolicy || ''],
+                ['Notes', data.note || '']
+            ];
 
-    const englishData = [
-        ['Nickname', data.nickname || ''],
-        ['Gender', data.gender || ''],
-        ['Birth Date', data.birthDate || ''],
-        ['Age', calculateAge(data.birthDate) || ''],
-        ['Blood Group', data.bloodGroup || ''],
-        ['Marital Status', data.maritalStatus || ''],
-        ['Anniversary', data.anniversaryDate || ''],
-        ['Religion', data.religion || ''],
-        ['Nationality', data.nationality || ''],
-        ['Languages', data.languages || ''],
-        ['Hobbies', data.hobbies || ''],
-        ['Zodiac', data.zodiac || ''],
-        ['Permanent Address', data.permanentAddress || ''],
-        ['Current City', data.currentCity || ''],
-        ['Home Town', data.homeTown || ''],
-        ['Mobile', data.mobile || ''],
-        ['WhatsApp', data.whatsapp || ''],
-        ['Work Phone', data.workPhone || ''],
-        ['Home Phone', data.homePhone || ''],
-        ['Email', data.email || ''],
-        ['Website', data.website || ''],
-        ['Skype', data.skype || ''],
-        ['Home Address', data.homeAddress || ''],
-        ['Office Address', data.officeAddress || ''],
-        ['Landmark', data.landmark || ''],
-        ['Map Link', data.homeMapLink || ''],
-        ['Timezone', data.timezone || ''],
-        ['Facebook', data.facebook || ''],
-        ['Instagram', data.instagram || ''],
-        ['Twitter', data.twitter || ''],
-        ['LinkedIn', data.linkedin || ''],
-        ['GitHub', data.github || ''],
-        ['Threads', data.threads || ''],
-        ['YouTube', data.youtube || ''],
-        ['Telegram', data.telegram || ''],
-        ['Job Title', data.jobTitle || ''],
-        ['Company', data.companyName || ''],
-        ['Department', data.department || ''],
-        ['Salary', data.salary || ''],
-        ['Pension', data.pensionAmount || ''],
-        ['Retirement Year', data.retirementYear || ''],
-        ['School', data.school || ''],
-        ['College', data.college || ''],
-        ['Degree', data.degree || ''],
-        ['Skills', data.skill || ''],
-        ['Certifications', data.certifications || ''],
-        ['Experience (yrs)', data.experience || ''],
-        ['Work Email', data.workEmail || ''],
-        ['Partner', data.partnerName || ''],
-        ['Partner Email', data.partnerEmail || ''],
-        ['Partner Mobile', data.partnerMobile || ''],
-        ['Partner Job', data.partnerJob || ''],
-        ['Partner Salary', data.partnerSalary || ''],
-        ['Partner DOB', data.partnerDob || ''],
-        ['Partner Company', data.partnerCompany || ''],
-        ['Maiden Name', data.maidenName || ''],
-        ['Father-in-law', data.fatherInLaw || ''],
-        ['Mother-in-law', data.motherInLaw || ''],
-        ['Father-in-law Mobile', data.fatherInLawMobile || ''],
-        ['Mother-in-law Mobile', data.motherInLawMobile || ''],
-        ['Father-in-law Job', data.fatherInLawJob || ''],
-        ['Mother-in-law Job', data.motherInLawJob || ''],
-        ['Father', data.fatherName || ''],
-        ['Father Mobile', data.fatherMobile || ''],
-        ['Father Job', data.fatherJob || ''],
-        ['Father Salary', data.fatherSalary || ''],
-        ['Father Age', data.fatherAge || ''],
-        ['Father Email', data.fatherEmail || ''],
-        ['Father Address', data.fatherAddress || ''],
-        ['Mother', data.motherName || ''],
-        ['Mother Mobile', data.motherMobile || ''],
-        ['Mother Job', data.motherJob || ''],
-        ['Mother Salary', data.motherSalary || ''],
-        ['Mother Age', data.motherAge || ''],
-        ['Mother Email', data.motherEmail || ''],
-        ['Mother Address', data.motherAddress || ''],
-        ['Allergies', data.allergies || ''],
-        ['Medications', data.medications || ''],
-        ['Chronic Conditions', data.chronicConditions || ''],
-        ['Last Admitted', data.lastAdmitted || ''],
-        ['Emergency Contact', data.emergencyContact || ''],
-        ['Emergency Phone', data.emergencyPhone || ''],
-        ['Insurance Provider', data.insuranceProvider || ''],
-        ['Insurance Policy', data.insurancePolicy || ''],
-        ['Notes', data.note || '']
-    ];
-
-    // Track vertical cursor position dynamically
-    let nextY = 100;
-
-    const filteredEnglish = englishData.filter(row => row[1] && row[1].toString().trim() !== '');
-    if (filteredEnglish.length > 0) {
-        doc.autoTable({
-            startY: nextY,
-            head: [['Field', 'Value']],
-            body: filteredEnglish,
-            theme: 'grid',
-            headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontSize: 14, fontStyle: 'bold' },
-            bodyStyles: { fontSize: 13 },
-            alternateRowStyles: { fillColor: [240, 245, 255] },
-            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 140 }, 1: { cellWidth: 'auto' } },
-            margin: { left: 40, right: 40 },
-            pageBreak: 'auto'
-        });
-        nextY = doc.previousAutoTable.finalY + 30;
-    }
-
-    const dynSections = [
-        ['Brothers-in-law', data.brotherInLawData, ['Name', 'Mobile', 'Job', 'Age', 'Spouse']],
-        ['Sisters-in-law', data.sisterInLawData, ['Name', 'Mobile', 'Job', 'Age', 'Spouse']],
-        ['Nieces & Nephews', data.nieceNephewData, ['Name', 'Gender', 'Age', 'School', 'Parents']],
-        ['GF/BF Relationships', data.gfbfData, ['Name', 'Mobile', 'Email', 'Address']],
-        ['Children', data.childData, ['Name', 'DOB', 'School', 'Email', 'Mobile']],
-        ['Siblings', data.siblingData, ['Name', 'Age', 'Job', 'Salary', 'Marital', 'Spouse']],
-        ['Promotions', data.promotionData, ['Date', 'Job Before', 'Old Salary', 'New Salary', 'Job After']],
-        ['Loans', data.loanData, ['Product', 'Bank', 'Amount', 'Installment', 'Start Date', 'End Date', 'Purpose', 'Paid', 'Interest Rate', 'Interest Amount']],
-        ['Assets', data.assets, ['Name', 'Location', 'Buy Date', 'Buy Price', 'Sell Date', 'Sell Price']],
-        ['Health Concerns', data.healthConcerns, ['Condition', 'Date', 'Doctor']],
-        ['Gifts', data.gifts, ['Gift', 'Date', 'Occasion']],
-        ['Trips', data.trips, ['Location', 'Date', 'Specialty', 'Transport', 'Expense', 'Review', 'Description']]
-    ];
-
-    dynSections.forEach(([label, json, fields]) => {
-        if (!json) return;
-        try {
-            const arr = JSON.parse(json);
-            if (arr.length > 0) {
-                // If appending the title and table headers (~75 units) exceeds printable height, force page break natively
-                if (nextY + 75 > doc.internal.pageSize.height - 40) {
-                    doc.addPage();
-                    nextY = 50; 
-                }
-
-                doc.setFontSize(16);
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(37, 99, 235);
-                doc.text(label, 40, nextY);
-                
-                const body = arr.map(item => fields.map(f => item[f.toLowerCase()] || ''));
-                
+            let nextY = 100;
+            const filteredEnglish = englishData.filter(row => row[1] && row[1].toString().trim() !== '');
+            if (filteredEnglish.length > 0) {
                 doc.autoTable({
-                    startY: nextY + 15,
-                    head: [fields],
-                    body: body,
+                    startY: nextY,
+                    head: [['Field', 'Value']],
+                    body: filteredEnglish,
                     theme: 'grid',
-                    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontSize: 13, fontStyle: 'bold' },
-                    bodyStyles: { fontSize: 12 },
+                    headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontSize: 14,
+                        fontStyle: 'bold' },
+                    bodyStyles: { fontSize: 13 },
                     alternateRowStyles: { fillColor: [240, 245, 255] },
+                    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 140 }, 1: { cellWidth: 'auto' } },
                     margin: { left: 40, right: 40 },
                     pageBreak: 'auto'
                 });
-
-                // Update next placement coordinate safely depending on where table ended
                 nextY = doc.previousAutoTable.finalY + 30;
             }
-        } catch (e) {}
-    });
 
-    doc.save(`${data.name}_profile.pdf`);
-};
+            const jobSectionsPDF = [
+                ['Previous Jobs', data.jobs],
+                ["Partner's Jobs", data.partnerJobs]
+            ];
+            jobSectionsPDF.forEach(([label, json]) => {
+                if (!json) return;
+                try {
+                    const arr = JSON.parse(json);
+                    if (arr.length > 0) {
+                        if (nextY + 75 > doc.internal.pageSize.height - 40) { doc.addPage();
+                            nextY = 50; }
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(37, 99, 235);
+                        doc.text(label, 40, nextY);
+                        const body = arr.map(j => [
+                            j.title || '',
+                            j.company || '',
+                            j.from || '',
+                            j.to || '',
+                            j.salary || '',
+                            j.desc || ''
+                        ]);
+                        doc.autoTable({
+                            startY: nextY + 15,
+                            head: [['Title', 'Company', 'From', 'To', 'Salary', 'Description']],
+                            body: body,
+                            theme: 'grid',
+                            headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontSize: 13,
+                                fontStyle: 'bold' },
+                            bodyStyles: { fontSize: 12 },
+                            alternateRowStyles: { fillColor: [240, 245, 255] },
+                            margin: { left: 40, right: 40 },
+                            pageBreak: 'auto'
+                        });
+                        nextY = doc.previousAutoTable.finalY + 30;
+                    }
+                } catch (e) {}
+            });
 
-        // ===== OTHER FUNCTIONS =====
+            const dynSectionsPDF = [
+                ['Brothers-in-law', data.brotherInLawData, ['Name', 'Mobile', 'Job', 'Age', 'Spouse']],
+                ['Sisters-in-law', data.sisterInLawData, ['Name', 'Mobile', 'Job', 'Age', 'Spouse']],
+                ['Nieces & Nephews', data.nieceNephewData, ['Name', 'Gender', 'Age', 'School', 'Parents']],
+                ['GF/BF Relationships', data.gfbfData, ['Name', 'Mobile', 'Email', 'Address']],
+                ['Children', data.childData, ['Name', 'DOB', 'School', 'Email', 'Mobile']],
+                ['Siblings', data.siblingData, ['Name', 'Age', 'Job', 'Salary', 'Marital', 'Spouse']],
+                ['Promotions', data.promotionData, ['Date', 'Job Before', 'Old Salary', 'New Salary', 'Job After']],
+                ['Loans', data.loanData, ['Product', 'Bank', 'Amount', 'Installment', 'Start Date', 'End Date',
+                    'Purpose', 'Paid', 'Interest Rate', 'Interest Amount'
+                ]],
+                ['Assets', data.assets, ['Name', 'Location', 'Buy Date', 'Buy Price', 'Sell Date', 'Sell Price']],
+                ['Health Concerns', data.healthConcerns, ['Condition', 'Date', 'Doctor']],
+                ['Gifts', data.gifts, ['Gift', 'Date', 'Occasion']],
+                ['Trips', data.trips, ['Location', 'Date', 'Specialty', 'Transport', 'Expense', 'Review',
+                    'Description'
+                ]]
+            ];
+
+            dynSectionsPDF.forEach(([label, json, fields]) => {
+                if (!json) return;
+                try {
+                    const arr = JSON.parse(json);
+                    if (arr.length > 0) {
+                        if (nextY + 75 > doc.internal.pageSize.height - 40) { doc.addPage();
+                            nextY = 50; }
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setTextColor(37, 99, 235);
+                        doc.text(label, 40, nextY);
+                        const body = arr.map(item => fields.map(f => item[f.toLowerCase()] || ''));
+                        doc.autoTable({
+                            startY: nextY + 15,
+                            head: [fields],
+                            body: body,
+                            theme: 'grid',
+                            headStyles: { fillColor: [37, 99, 235], textColor: [255, 255, 255], fontSize: 13,
+                                fontStyle: 'bold' },
+                            bodyStyles: { fontSize: 12 },
+                            alternateRowStyles: { fillColor: [240, 245, 255] },
+                            margin: { left: 40, right: 40 },
+                            pageBreak: 'auto'
+                        });
+                        nextY = doc.previousAutoTable.finalY + 30;
+                    }
+                } catch (e) {}
+            });
+            doc.save(`${data.name}_profile.pdf`);
+        };
+
+        // ===== OTHER =====
         window.deleteContact = function(id, name) {
             if (!currentUserId) return;
             if (!confirm(`Delete "${name}"?`)) return;
             db.ref(`users/${currentUserId}/contacts/${id}`).remove();
-        };
-
-        window.shareContact = function(data) {
-            if (!data) return;
-            let txt = `${data.name}\n`;
-            if (data.mobile) txt += `Phone: ${data.mobile}\n`;
-            if (data.whatsapp) txt += `WhatsApp: ${data.whatsapp}\n`;
-            if (data.email) txt += `Email: ${data.email}\n`;
-            navigator.clipboard.writeText(txt).then(() => alert('Contact copied!'));
         };
 
         window.openGoogleMaps = function(btn) {
@@ -1838,6 +1529,16 @@ function loadContacts() {
         document.getElementById('editForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('editContactId').value;
+
+            const extraEmails = [];
+            document.querySelectorAll('#extraEmailContainer input').forEach(inp => {
+                if (inp.value.trim()) extraEmails.push(inp.value.trim());
+            });
+            const extraAddresses = [];
+            document.querySelectorAll('#extraAddressContainer input').forEach(inp => {
+                if (inp.value.trim()) extraAddresses.push(inp.value.trim());
+            });
+
             const payload = {
                 name: document.getElementById('editName').value.trim(),
                 nickname: document.getElementById('editNickname').value.trim(),
@@ -1879,6 +1580,7 @@ function loadContacts() {
                 companyName: document.getElementById('editCompanyName').value.trim(),
                 department: document.getElementById('editDepartment').value.trim(),
                 salary: document.getElementById('editSalary').value.trim(),
+                workEmail: document.getElementById('editWorkEmail').value.trim(),
                 pensionAmount: document.getElementById('editPensionAmount').value.trim(),
                 retirementYear: document.getElementById('editRetirementYear').value.trim(),
                 school: document.getElementById('editSchool').value.trim(),
@@ -1887,15 +1589,13 @@ function loadContacts() {
                 skill: document.getElementById('editSkill').value.trim(),
                 certifications: document.getElementById('editCertifications').value.trim(),
                 experience: document.getElementById('editExperience').value.trim(),
-                workEmail: document.getElementById('editWorkEmail').value.trim(),
                 partnerName: document.getElementById('editPartnerName').value.trim(),
                 maidenName: document.getElementById('editMaidenName').value.trim(),
                 partnerEmail: document.getElementById('editPartnerEmail').value.trim(),
                 partnerMobile: document.getElementById('editPartnerMobile').value.trim(),
-                partnerJob: document.getElementById('editPartnerJob').value.trim(),
-                partnerSalary: document.getElementById('editPartnerSalary').value.trim(),
                 partnerDob: document.getElementById('editPartnerDob').value.trim(),
                 partnerCompany: document.getElementById('editPartnerCompany').value.trim(),
+                partnerSalary: document.getElementById('editPartnerSalary').value.trim(),
                 fatherInLaw: document.getElementById('editFatherInLaw').value.trim(),
                 motherInLaw: document.getElementById('editMotherInLaw').value.trim(),
                 fatherInLawMobile: document.getElementById('editFatherInLawMobile').value.trim(),
@@ -1925,6 +1625,10 @@ function loadContacts() {
                 insuranceProvider: document.getElementById('editInsuranceProvider').value.trim(),
                 insurancePolicy: document.getElementById('editInsurancePolicy').value.trim(),
                 note: document.getElementById('editNote').value.trim(),
+                extraEmails: extraEmails.length ? extraEmails : null,
+                extraAddresses: extraAddresses.length ? extraAddresses : null,
+                jobs: collectJobs('jobList'),
+                partnerJobs: collectJobs('partnerJobList'),
                 brotherInLawData: collectDynamic('brotherInLawList', ['bil_name', 'bil_mobile', 'bil_job', 'bil_age',
                     'bil_spouse'
                 ]),
@@ -1979,17 +1683,12 @@ function loadContacts() {
                     const c = {};
                     lines.forEach(line => {
                         if (line.startsWith('FN:')) c.name = line.substring(3).trim();
-                        else if (line.startsWith('TEL;')) {
-                            const num = line.substring(line.indexOf(':') + 1).replace(/\s/g, '');
-                            if (num) c.mobile = num;
-                        } else if (line.startsWith('EMAIL;')) {
-                            c.email = line.substring(line.indexOf(':') + 1).trim();
-                        } else if (line.startsWith('ORG:')) {
-                            c.companyName = line.substring(4).trim();
-                        } else if (line.startsWith('BDAY:')) {
-                            const b = line.substring(5).trim();
-                            if (b.length >= 10) c.birthDate = b.substring(0, 10);
-                        }
+                        else if (line.startsWith('TEL;')) { const num = line.substring(line.indexOf(':') +
+                                1).replace(/\s/g, ''); if (num) c.mobile = num; } else if (line.startsWith(
+                                'EMAIL;')) { c.email = line.substring(line.indexOf(':') + 1).trim(); } else if (
+                            line.startsWith('ORG:')) { c.companyName = line.substring(4).trim(); } else if (line
+                            .startsWith('BDAY:')) { const b = line.substring(5).trim(); if (b.length >= 10) c
+                                .birthDate = b.substring(0, 10); }
                     });
                     if (c.name) contacts.push(c);
                 });
@@ -2015,16 +1714,23 @@ function loadContacts() {
                 icon.classList.toggle('fa-minus');
             });
         });
+        document.querySelectorAll('.collapsible-social').forEach(h => {
+            h.addEventListener('click', function() {
+                const target = document.getElementById(this.dataset.toggle);
+                target.classList.toggle('hidden');
+                const icon = this.querySelector('.toggle-icon-social');
+                icon.classList.toggle('fa-plus');
+                icon.classList.toggle('fa-minus');
+            });
+        });
 
-        // ===== THEME (localStorage only) =====
+        // ===== THEME =====
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
         }
-        (function() {
-            const saved = localStorage.getItem('theme') || 'light';
-            setTheme(saved);
-        })();
+        (function() { const saved = localStorage.getItem('theme') || 'light';
+            setTheme(saved); })();
 
         // ===== AUTH =====
         auth.onAuthStateChanged(user => {
@@ -2046,171 +1752,45 @@ function loadContacts() {
             }
         });
 
-        // ===== MOBILE MENU =====
         document.getElementById('menu-btn').addEventListener('click', function() {
             document.getElementById('mobileMenu').classList.toggle('hidden');
             this.querySelector('i').classList.toggle('fa-bars');
             this.querySelector('i').classList.toggle('fa-times');
         });
 
-        console.log('🚀 Savig Contact Manager loaded successfully.');
-// === Add Contact Modal Controls ===
-function openAddContactModal() {
-    document.getElementById('addContactModal').style.display = 'flex';
-    document.getElementById('newContactName').focus();
-}
+        function openAddContactModal() { document.getElementById('addContactModal').style.display = 'flex';
+            document.getElementById('newContactName').focus(); }
 
-function closeAddContactModal() {
-    document.getElementById('addContactModal').style.display = 'none';
-    document.getElementById('addContactForm').reset();
-}
+        function closeAddContactModal() { document.getElementById('addContactModal').style.display = 'none';
+            document.getElementById('addContactForm').reset(); }
 
-// === Save New Contact ===
-function saveNewContact(e) {
-    e.preventDefault();
-    if (!currentUserId) {
-        alert('Please log in first.');
-        return;
-    }
-
-    const name = document.getElementById('newContactName').value.trim();
-    const phone = document.getElementById('newContactPhone').value.trim();
-    const email = document.getElementById('newContactEmail').value.trim();
-
-    if (!name) {
-        alert('Name is required.');
-        return;
-    }
-
-    const newContact = {
-        name: name,
-        mobile: phone || null,
-        email: email || null,
-        // Add more fields here if needed
-    };
-
-    const ref = db.ref(`users/${currentUserId}/contacts`);
-    const key = ref.push().key;
-    const update = {};
-    update[key] = newContact;
-
-    ref.update(update)
-        .then(() => {
-            closeAddContactModal();
-            alert('✅ Contact added successfully!');
-            loadContacts(); // Refresh the list
-        })
-        .catch(err => {
-            alert('❌ Error: ' + err.message);
-        });
-}
-
-// Close modal on backdrop click
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('addContactModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) closeAddContactModal();
-        });
-    }
-});
-
-// Close modal on ESC key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('addContactModal');
-        if (modal && modal.style.display === 'flex') {
-            closeAddContactModal();
+        function saveNewContact(e) {
+            e.preventDefault();
+            if (!currentUserId) { alert('Please log in first.'); return; }
+            const name = document.getElementById('newContactName').value.trim();
+            const phone = document.getElementById('newContactPhone').value.trim();
+            const email = document.getElementById('newContactEmail').value.trim();
+            if (!name) { alert('Name is required.'); return; }
+            const newContact = { name: name, mobile: phone || null, email: email || null };
+            const ref = db.ref(`users/${currentUserId}/contacts`);
+            const key = ref.push().key;
+            const update = {};
+            update[key] = newContact;
+            ref.update(update).then(() => { closeAddContactModal();
+                alert('✅ Contact added successfully!');
+                loadContacts(); }).catch(err => { alert('❌ Error: ' + err.message); });
         }
-    }
-});
 
-// ===== AGE CALCULATION & MANUAL ENTRY =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('addContactModal');
+            if (modal) modal.addEventListener('click', function(e) { if (e.target === this) closeAddContactModal(); });
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { const modal = document.getElementById('addContactModal'); if (modal && modal
+                    .style.display === 'flex') closeAddContactModal(); }
+        });
 
-// Auto-calculate age when DOB changes (but allow manual override)
-document.getElementById('editBirthDate').addEventListener('change', function() {
-    const age = calculateAge(this.value);
-    const ageField = document.getElementById('editAge');
-    if (age !== null) {
-        ageField.value = age;
-    } else {
-        ageField.value = '';
-    }
-});
-
-// Allow manual age entry - the 'readonly' attribute has been removed from HTML
-// No additional code needed - user can type directly in the field
+        console.log('🚀 Savig Contact Manager loaded with PDF asset price fix, WhatsApp stay, and easy family/health sections.');
     </script>
-    <style>
-        /* ===== MODAL CLOSE BUTTON WITH CLASS ===== */
-.modal-close-btn {
-    color: var(--text-dim);
-    font-size: 2rem;
-    line-height: 1;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 50%;
-  
-}
-
-.modal-close-btn:hover {
-    color: #dc2626 !important;
-
-    background: rgba(220, 38, 38, 0.1);
-}
-
-[data-theme="dark"] .modal-close-btn:hover {
-    color: #f87171 !important;
-    background: rgba(248, 113, 113, 0.15);
-}
-/* ===== TARGET CLOSE BUTTONS BY ONCLICK ATTRIBUTE ===== */
-
-/* Base styling - targets all close buttons */
-button[onclick*="closeModal"],
-button[onclick*="closeEditModal"],
-button[onclick*="closeViewModal"],
-button[onclick*="closeAddContactModal"],
-button[onclick*="close()"] {
-    color: var(--text-dim) !important;
-    font-size: 2rem !important;
-    line-height: 1 !important;
-    background: transparent !important;
-    border: none !important;
-    cursor: pointer !important;
-    padding: 4px 12px !important;
-    border-radius: 50% !important;
-
-    min-width: 44px !important;
-    height: 44px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-/* Light mode hover */
-button[onclick*="closeModal"]:hover,
-button[onclick*="closeEditModal"]:hover,
-button[onclick*="closeViewModal"]:hover,
-button[onclick*="closeAddContactModal"]:hover,
-button[onclick*="close()"]:hover {
-    color: red !important;
-font-size:15px;
-    background: rgba(220, 38, 38, 0.1) !important;
-    box-shadow: 0 0 20px rgba(220, 38, 38, 0.15) !important;
-}
-
-/* Dark mode hover */
-[data-theme="dark"] button[onclick*="closeModal"]:hover,
-[data-theme="dark"] button[onclick*="closeEditModal"]:hover,
-[data-theme="dark"] button[onclick*="closeViewModal"]:hover,
-[data-theme="dark"] button[onclick*="closeAddContactModal"]:hover,
-[data-theme="dark"] button[onclick*="close()"]:hover {
-    color: #f87171 !important;
-    background: rgba(248, 113, 113, 0.2) !important;
-    box-shadow: 0 0 20px rgba(248, 113, 113, 0.25) !important;
-}
-    </style>
 </body>
 </html>
