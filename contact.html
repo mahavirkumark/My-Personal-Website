@@ -2280,5 +2280,76 @@
 
         console.log('🚀 Savig Contact Manager loaded with PDF asset price fix, WhatsApp stay, and easy family/health sections.');
     </script>
+        <style>
+        /* ===== MODAL CLOSE BUTTON WITH CLASS ===== */
+.modal-close-btn {
+    color: var(--text-dim);
+    font-size: 2rem;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-close-btn:hover {
+    color: #dc2626 !important;
+    transform: rotate(90deg) scale(1.15);
+    background: rgba(220, 38, 38, 0.1);
+}
+
+[data-theme="dark"] .modal-close-btn:hover {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.15);
+}
+/* ===== TARGET CLOSE BUTTONS BY ONCLICK ATTRIBUTE ===== */
+
+/* Base styling - targets all close buttons */
+button[onclick*="closeModal"],
+button[onclick*="closeEditModal"],
+button[onclick*="closeViewModal"],
+button[onclick*="closeAddContactModal"],
+button[onclick*="close()"] {
+    color: var(--text-dim) !important;
+    font-size: 2rem !important;
+    line-height: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 4px 12px !important;
+    border-radius: 50% !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Light mode hover */
+button[onclick*="closeModal"]:hover,
+button[onclick*="closeEditModal"]:hover,
+button[onclick*="closeViewModal"]:hover,
+button[onclick*="closeAddContactModal"]:hover,
+button[onclick*="close()"]:hover {
+    color: #dc2626 !important;
+    transform: rotate(90deg) scale(1.15) !important;
+    background: rgba(220, 38, 38, 0.1) !important;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.15) !important;
+}
+
+/* Dark mode hover */
+[data-theme="dark"] button[onclick*="closeModal"]:hover,
+[data-theme="dark"] button[onclick*="closeEditModal"]:hover,
+[data-theme="dark"] button[onclick*="closeViewModal"]:hover,
+[data-theme="dark"] button[onclick*="closeAddContactModal"]:hover,
+[data-theme="dark"] button[onclick*="close()"]:hover {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.2) !important;
+    box-shadow: 0 0 20px rgba(248, 113, 113, 0.25) !important;
+}
+    </style>
 </body>
 </html>
