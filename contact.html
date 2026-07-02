@@ -462,20 +462,16 @@
 /* Base Navigation Link Styling */
 .nav-link {
     position: relative;
-    color: #475569; /* Neutral slate color for default state */
+    color: #475569;
     text-decoration: none;
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.875rem;
     font-weight: 500;
     padding: 0.5rem 0;
     transition: color 0.25s ease-in-out;
 }
-
-/* Hover State - Changes Text Color to Vibrant Blue */
 .nav-link:hover {
-    color: #2563eb; /* Tailwind's blue-600 */
+    color: #2563eb;
 }
-
-/* The Animated Underline Trick */
 .nav-link::after {
     content: '';
     position: relative;
@@ -488,74 +484,93 @@
     transform-origin: bottom right;
     transition: transform 0.25s ease-out;
 }
-
 .nav-link:hover::after {
     transform: scaleX(1);
     transform-origin: bottom left;
 }
-/* Ensure desktop links are positioned correctly for the absolute underline */
 .desktop-nav-link {
     position: relative;
     overflow: visible;
-    padding-bottom: 6px !important; /* Creates a clean gap between text and line */
+    padding-bottom: 6px !important;
 }
-
-/* Base style for the pseudo-element underline */
 .desktop-nav-link::after {
     content: '';
     position: absolute;
-    bottom: -2px; /* Pulls line right underneath the link */
+    bottom: -2px;
     left: 0;
     width: 100%;
     height: 2.5px;
-    background-color: blue; /* Matching your hover blue color */
+    background-color: blue;
     border-radius: 9999px;
-    
-    /* Initially invisible and shrunk down horizontally */
     opacity: 0;
     transform: scaleX(0);
-    
-    /* Fluid scale transition matching the transform duration */
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 opacity 0.3s ease;
 }
-
-/* Hover Trigger: Scales up the bar smoothly from the center */
 .desktop-nav-link:hover::after {
     opacity: 1;
     transform: scaleX(1);
 }
-/* Target the desktop menu anchors directly based on your HTML structure */
 .hidden.md\:flex a {
     position: relative;
     overflow: visible;
-    padding-bottom: 6px !important; /* Creates a clean structural gap between text and line */
+    padding-bottom: 6px !important;
 }
-
-/* Base style for the pseudo-element underline matching your nav design */
 .hidden.md\:flex a::after {
     content: '';
     position: absolute;
-    bottom: -4px; /* Pulls line right underneath the link */
+    bottom: -4px;
     left: 0;
     width: 100%;
     height: 2.5px;
-    background-color: #2563eb; /* Matching your hover blue text color */
+    background-color: #2563eb;
     border-radius: 9999px;
-    
-    /* Initially invisible and shrunk down horizontally */
     opacity: 0;
     transform: scaleX(0);
-    
-    /* Fluid scale transition matching your duration-300 elements */
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                 opacity 0.3s ease;
 }
-
-/* Hover Trigger: Scales up the bar smoothly from the center */
 .hidden.md\:flex a:hover::after {
     opacity: 1;
     transform: scaleX(1);
+}
+/* ===== ADD CONTACT MODAL PLACEHOLDER COLORS ===== */
+#addContactModal input::placeholder {
+    color: white !important;
+    opacity: 0.8;
+}
+[data-theme="dark"] #addContactModal input::placeholder {
+    color: white !important;
+    opacity: 0.9;
+}
+#addContactModal input:focus {
+    outline: none !important;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12) !important;
+}
+/* ===== ADD CONTACT MODAL CLOSE BUTTON ===== */
+#addContactModal .close-btn {
+    color: var(--text-dim);
+    transition: all 0.3s ease;
+    font-size: 2rem;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 50%;
+}
+#addContactModal .close-btn:hover {
+    color: #dc2626 !important;
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(220, 38, 38, 0.1);
+}
+[data-theme="dark"] #addContactModal .close-btn:hover {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.15);
+}
+#addContactModal .close-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
     </style>
 </head>
@@ -572,7 +587,7 @@
                 <span class="text-gray-900 tracking-tighter" style="font-size: 23px; font-weight:bolder;">Savig</span>
             </div>
             <div class="hidden md:flex space-x-6 font-medium ml-[100px]">
-                <a href="home.html" class="flex items-center gap-1.5 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
+                <a href="home.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
                     <i class="fas fa-house"></i> <span>Home</span>
                 </a>
                 <a href="password.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
@@ -581,8 +596,8 @@
                 <a href="income.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
                     <i class="fas fa-wallet"></i> <span>Income</span>
                 </a>
-                <a href="links.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
-                    <i class="fas fa-link"></i> <span>Links</span>
+                <a href="birthday.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
+                    <i class="fas fa-birthday-cake"></i> <span>Birthday</span>
                 </a>
                 <a href="calendar.html" class="flex items-center gap-2 whitespace-nowrap transition-all duration-300 transform text-gray-600 hover:!text-blue-600 hover:-translate-y-0.5" style="font-size: 21px; line-height: 1;">
                     <i class="fas fa-calendar-alt"></i> <span>Calendar</span>
@@ -613,27 +628,71 @@
             </div>
         </div>
     </nav>
-<main class="max-w-9xl mx-auto px-4">
-    <div class="bg-card border-1 border-theme rounded-2xl shadow-theme p-3 mb-5 flex flex-wrap items-center gap-3">
-        
-        <div class="relative flex-1 min-w-[250px]">
-            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-dim"></i>
-            <input type="text" id="searchInput" placeholder="Search contacts (name, number, company, skill, address...)" class="pl-11 pr-4 py-2 w-full rounded-full border-2 border-theme bg-body focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        </div>
-        
-        <div class="flex items-center gap-2 sm:flex-nowrap">
-            <label class="bg-blue-600 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-md text-sm font-semibold border-2 border-blue-700 whitespace-nowrap">
-                <i class="fas fa-cloud-upload-alt mr-1"></i> Upload VCF
-                <input type="file" id="fileInput" class="hidden" accept=".vcf,.txt" />
-            </label>
+    
+    <main class="max-w-9xl mx-auto px-4">
+        <!-- Toolbar -->
+        <div class="bg-card border-1 border-theme rounded-2xl shadow-theme p-3 mb-5 flex flex-wrap items-center gap-3">
+            
+            <div class="relative flex-1 min-w-[250px]">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-dim"></i>
+                <input type="text" id="searchInput" placeholder="Search contacts (name, number, company, skill, address...)" class="pl-11 pr-4 py-2 w-full rounded-full border-2 border-theme bg-body focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            </div>
+            
+            <div class="flex items-center gap-2 sm:flex-nowrap">
+                <!-- Upload VCF Button -->
+                <label class="bg-blue-600 text-white px-4 py-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-md text-sm font-semibold border-2 border-blue-700 whitespace-nowrap">
+                    <i class="fas fa-cloud-upload-alt mr-1"></i> Upload VCF
+                    <input type="file" id="fileInput" class="hidden" accept=".vcf,.txt" />
+                </label>
 
-            <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-blue-700">
-                <i class="fas fa-upload mr-1"></i> Import
-            </button>
+                <!-- Import Button -->
+                <button onclick="document.getElementById('fileInput').click()" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-blue-700">
+                    <i class="fas fa-upload mr-1"></i> Import
+                </button>
+
+                <!-- ADD CONTACT BUTTON -->
+                <button onclick="openAddContactModal()" 
+                        class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition shadow-sm text-sm font-semibold whitespace-nowrap border-2 border-green-700">
+                    <i class="fas fa-user-plus mr-1"></i> Add Contact
+                </button>
+            </div>
         </div>
 
-    </div>
-</main>
+        <!-- ===== ADD CONTACT MODAL ===== -->
+        <div id="addContactModal" class="modal-backdrop">
+            <div class="modal-content-box max-w-md">
+                <div class="flex justify-between items-center border-b-2 border-theme pb-3 mb-3">
+                    <h2 class="text-xl font-bold flex items-center gap-2" style="color: var(--text-main);">
+                        <i class="fas fa-user-plus text-green-600"></i> Add Contact
+                    </h2>
+                    <button onclick="closeAddContactModal()" class="text-3xl leading-none" style="color: var(--text-dim);">&times;</button>
+                </div>
+                <form id="addContactForm" onsubmit="saveNewContact(event)">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="form-label" style="color: var(--text-main);">Full Name *</label>
+                            <input type="text" id="newContactName" placeholder="Enter full name" required class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="color: var(--text-main);">Phone</label>
+                            <input type="text" id="newContactPhone" placeholder="+91 98765 43210" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
+                        </div>
+                        <div>
+                            <label class="form-label" style="color: var(--text-main);">Email</label>
+                            <input type="email" id="newContactEmail" placeholder="name@domain.com" class="w-full border-2 border-theme rounded-lg p-2" style="color: var(--text-main); background: var(--bg-input);" />
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-3 mt-4 border-t-2 border-theme pt-3">
+                        <button type="button" onclick="closeAddContactModal()" class="px-5 py-2 rounded-full border-2 transition" style="background: #9ca3af; color: #1f2937; border-color: #9ca3af;">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 transition shadow-md border-2 border-green-700">
+                            Add Contact
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <!-- Contact Grid (5 columns) -->
         <div id="contactGrid" class="contact-grid">
@@ -658,7 +717,7 @@
                         <select id="editGender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
                     </div>
                     <div><label class="form-label">Date of Birth</label><input type="date" id="editBirthDate" /></div>
-                    <div><label class="form-label">Age</label><input type="number" id="editAge" placeholder="Age" min="0" readonly style="background:#e5e7eb !important;cursor:not-allowed;" /></div>
+                    <div><label class="form-label">Age</label><input type="number" id="editAge" placeholder="Age" min="0" style="color: var(--text-main); background: var(--bg-input);" /></div>
                     <div><label class="form-label">Blood Group</label>
                         <select id="editBloodGroup"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
                     </div>
@@ -1995,6 +2054,163 @@ function loadContacts() {
         });
 
         console.log('🚀 Savig Contact Manager loaded successfully.');
+// === Add Contact Modal Controls ===
+function openAddContactModal() {
+    document.getElementById('addContactModal').style.display = 'flex';
+    document.getElementById('newContactName').focus();
+}
+
+function closeAddContactModal() {
+    document.getElementById('addContactModal').style.display = 'none';
+    document.getElementById('addContactForm').reset();
+}
+
+// === Save New Contact ===
+function saveNewContact(e) {
+    e.preventDefault();
+    if (!currentUserId) {
+        alert('Please log in first.');
+        return;
+    }
+
+    const name = document.getElementById('newContactName').value.trim();
+    const phone = document.getElementById('newContactPhone').value.trim();
+    const email = document.getElementById('newContactEmail').value.trim();
+
+    if (!name) {
+        alert('Name is required.');
+        return;
+    }
+
+    const newContact = {
+        name: name,
+        mobile: phone || null,
+        email: email || null,
+        // Add more fields here if needed
+    };
+
+    const ref = db.ref(`users/${currentUserId}/contacts`);
+    const key = ref.push().key;
+    const update = {};
+    update[key] = newContact;
+
+    ref.update(update)
+        .then(() => {
+            closeAddContactModal();
+            alert('✅ Contact added successfully!');
+            loadContacts(); // Refresh the list
+        })
+        .catch(err => {
+            alert('❌ Error: ' + err.message);
+        });
+}
+
+// Close modal on backdrop click
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('addContactModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) closeAddContactModal();
+        });
+    }
+});
+
+// Close modal on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('addContactModal');
+        if (modal && modal.style.display === 'flex') {
+            closeAddContactModal();
+        }
+    }
+});
+
+// ===== AGE CALCULATION & MANUAL ENTRY =====
+
+// Auto-calculate age when DOB changes (but allow manual override)
+document.getElementById('editBirthDate').addEventListener('change', function() {
+    const age = calculateAge(this.value);
+    const ageField = document.getElementById('editAge');
+    if (age !== null) {
+        ageField.value = age;
+    } else {
+        ageField.value = '';
+    }
+});
+
+// Allow manual age entry - the 'readonly' attribute has been removed from HTML
+// No additional code needed - user can type directly in the field
     </script>
+    <style>
+        /* ===== MODAL CLOSE BUTTON WITH CLASS ===== */
+.modal-close-btn {
+    color: var(--text-dim);
+    font-size: 2rem;
+    line-height: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px 12px;
+    border-radius: 50%;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-close-btn:hover {
+    color: #dc2626 !important;
+    transform: rotate(90deg) scale(1.15);
+    background: rgba(220, 38, 38, 0.1);
+}
+
+[data-theme="dark"] .modal-close-btn:hover {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.15);
+}
+/* ===== TARGET CLOSE BUTTONS BY ONCLICK ATTRIBUTE ===== */
+
+/* Base styling - targets all close buttons */
+button[onclick*="closeModal"],
+button[onclick*="closeEditModal"],
+button[onclick*="closeViewModal"],
+button[onclick*="closeAddContactModal"],
+button[onclick*="close()"] {
+    color: var(--text-dim) !important;
+    font-size: 2rem !important;
+    line-height: 1 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+    padding: 4px 12px !important;
+    border-radius: 50% !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Light mode hover */
+button[onclick*="closeModal"]:hover,
+button[onclick*="closeEditModal"]:hover,
+button[onclick*="closeViewModal"]:hover,
+button[onclick*="closeAddContactModal"]:hover,
+button[onclick*="close()"]:hover {
+    color: #dc2626 !important;
+    transform: rotate(90deg) scale(1.15) !important;
+    background: rgba(220, 38, 38, 0.1) !important;
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.15) !important;
+}
+
+/* Dark mode hover */
+[data-theme="dark"] button[onclick*="closeModal"]:hover,
+[data-theme="dark"] button[onclick*="closeEditModal"]:hover,
+[data-theme="dark"] button[onclick*="closeViewModal"]:hover,
+[data-theme="dark"] button[onclick*="closeAddContactModal"]:hover,
+[data-theme="dark"] button[onclick*="close()"]:hover {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.2) !important;
+    box-shadow: 0 0 20px rgba(248, 113, 113, 0.25) !important;
+}
+    </style>
 </body>
 </html>
