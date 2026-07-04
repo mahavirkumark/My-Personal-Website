@@ -515,7 +515,16 @@
             font-size: 14px;
         }
 
-  
+          @keyframes navSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
 
         .nav-link {
             flex: 1;
