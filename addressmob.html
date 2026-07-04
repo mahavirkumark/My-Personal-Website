@@ -435,7 +435,7 @@
     </div>
 
     <!-- ===== SEARCH BAR ===== -->
-    <div class="search-container px-4 pt-2 mt-4" style="max-width: calc(100% - 30px); margin: 0 auto;">
+    <div class="search-container px-4 pt-2 mt-2" style="max-width: calc(100% - 40px); margin: 0 auto;">
         <div id="searchWrapper" class="relative flex items-center">
             <button id="backBtn" onclick="exitSearchFocus()" class="hidden mr-2 text-2xl p-2 rounded-full" style="color: var(--text-search); background: var(--bg-card);">
                 <i class="fas fa-arrow-left"></i>
@@ -458,7 +458,7 @@
     </div>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <div class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8 grid md:grid-cols-2 gap-8">
+    <div class="max-w-7xl mx-auto px-4 py-4 md:px-4 md:py-4 grid md:grid-cols-2 gap-4">
         <!-- LEFT PANEL - SAVE ADDRESS FORM -->
         <div class="p-5 rounded-xl shadow-lg h-fit md:sticky md:top-20 left-container" style="background-color: var(--bg-card);">
             <div class="flex justify-between items-center cursor-pointer border-b pb-2 md:pointer-events-none" style="border-color: var(--border);" onclick="toggleFormMobile()">
@@ -466,7 +466,7 @@
                 <i id="formToggleIcon" class="fas fa-chevron-down md:hidden text-indigo-700"></i>
             </div>
             
-            <div id="addressFormContent" class="md:block hidden space-y-4 mt-4">
+            <div id="addressFormContent" class="md:block hidden space-y-4 mt-2">
                 <div>
                     <label class="block text-sm font-medium mb-1" style="color: var(--text-main);">Place Name (e.g., Home, Office)</label>
                     <input type="text" id="placeInput" placeholder="Enter place name..." 
@@ -503,11 +503,11 @@
 
         <!-- RIGHT PANEL - ADDRESSES LIST -->
         <div class="right-container address-list-container" style="width: calc(100% - 30px); margin-left: auto; margin-right: auto;">
-            <h2 class="text-xl font-bold mb-2 text-indigo-700">🏠 Your Saved Addresses</h2>
+            <h2 class="text-xl font-bold mb-1 text-indigo-700">🏠 Your Saved Addresses</h2>
             <div id="addressList" class="space-y-4">
                 <div id="loadingIndicator" class="text-center p-10" style="color: var(--text-main);">
                     <i class="fas fa-sync fa-2x spinner text-indigo-500 mb-3"></i>
-                    <div class="text-center p-10" style="color: var(--placeholder-color);">
+                    <div class="text-center p-6" style="color: var(--placeholder-color);">
                         <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
                         <p>Your saved locations will appear here.</p>
                     </div>
