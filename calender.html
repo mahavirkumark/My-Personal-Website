@@ -67,12 +67,12 @@
         }
         /* MODAL HEIGHT ADJUSTMENT (Reduced by approx 50px by changing max-height and base padding) */
         #taskModal, #eventModal, #statusPromptModal, #eventTrackingSection {
-            max-height: 80vh; /* Reduced from 85vh */
+            max-height: 90vh; /* Reduced from 85vh */
             padding: 16px !important; /* Reduced padding from p-6 (24px) */
             overflow-y: auto;
         }
         #existingTasks {
-            max-height: 300px !important;
+            max-height: 800px !important;
         }
         
         #taskTitle, #eventTitle, #rescheduleDate, #rescheduleTime {
@@ -113,7 +113,7 @@
         }
         .search-results-panel {
             max-height: calc(100vh - 105px); 
-            width: 100%; 
+            width:420px; 
             margin: 0; 
             border-radius: 0; 
         }
@@ -173,7 +173,7 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 100vw;
+        width: 180vw;
         height: 100vh; 
         background-color: rgba(255, 255, 255, 0.98); 
         z-index: 55; 
@@ -188,7 +188,7 @@
         top: 0;
         left: 0;
         width: 100%;
-        padding: 1rem 1rem; 
+        padding: 3rem 1rem; 
         background-color: white; 
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         z-index: 56; 
@@ -210,13 +210,14 @@
     .search-active #searchResults {
         position: fixed; 
         top: 100px; 
-        left: 0;
-        right: 0;
-        max-width: 1120px; 
-        margin-left: auto;
-        margin-right: auto;
-        padding-left: 1rem;
-        padding-right: 1rem;
+        left: 10;
+        right: 10;
+        max-width: 1520px; 
+        margin-left: 10px;
+        margin-right: 10px;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        gap:10px;
     }
 
     .search-results-panel {
@@ -389,40 +390,39 @@
 
 <div class="search-overlay-background"></div>
 
-<main class="main-content-padding flex flex-col gap-2 mx-auto w-full max-w-7xl mt-2">
+<main class="main-content-padding flex flex-col gap-2 mx-auto w-full max-w-8xl mt-2">
 
-    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-3 md:gap-5 px-4 md:px-0 pt-4 md:pt-0">
-        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-3">
+    <div class="search-container flex flex-col md:flex-row justify-between items-center gap-8 md:gap-9 px-2 md:px-0 pt-4 md:pt-0">
+        <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2">
             <input type="text" id="searchInput" placeholder="Search tasks..."
                 class="p-3 px-6 md:p-4 md:px-6 md:py-3 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base md:text-lg w-full flex-1">
             
             <div class="search-controls-row flex flex-row w-full gap-1 items-center justify-between md:w-auto">
-                <select id="searchTimeframe" class="p-3 md:p-4 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-1/2 text-sm px-2 md:w-auto md:text-base">
+                <select id="searchTimeframe" class="p-3 md:p-4 gap-2 rounded-full border border-gray-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-base w-1/2 text-sm px-2 md:w-auto md:text-base">
                     <option value="1year">Search Last 1 Year</option>
                     <option value="alltime">Search All Time</option>
                 </select>
                 
-                <button id="downloadMonthTasks"
-                    class="px-3 py-2 md:px-3 md:py-1 bg-emerald-600 text-white rounded-full shadow-lg hover:bg-emerald-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap">
-                    <i class="fas fa-download mr-1"></i> Download Data
-                </button>
-                
-                <button id="openEventModalBtn"
-                    class="px-3 py- md:px-3 md:py-1 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap">
-                    <i class="fas fa-plus mr-1"></i> Add Event
-                </button>
+            
+  
+    
+    <button id="openEventModalBtn"
+        class="px-4 py-3 md:px-6 md:py-3 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition flex-1 md:flex-none font-semibold text-lg md:text-lg whitespace-nowrap min-w-[140px]">
+        <i class="fas fa-plus mr-2"></i> Add Event
+    </button>
 
-                 <button id="openCompletedEventsBtn"
-                    class="px-2 py-2 md:px-2 md:py-1 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap"
-                    onclick="openTrackingModal('completed')">
-                    <i class="fas fa-check-circle mr-1"></i> Completed Events
-                </button>
+    <button id="openCompletedEventsBtn"
+        class="px-4 py-3 md:px-6 md:py-3 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 transition flex-1 md:flex-none font-semibold text-lg md:text-lg whitespace-nowrap min-w-[180px]"
+        onclick="openTrackingModal('completed')">
+        <i class="fas fa-check-circle mr-2"></i> Completed Events
+    </button>
 
-                <button id="openIncompleteEventsBtn"
-                    class="px-2 py-1 md:px-2 md:py-1 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition w-1/2 font-semibold text-lg md:text-lg md:w-auto whitespace-nowrap"
-                    onclick="openTrackingModal('incomplete')">
-                    <i class="fas fa-times-circle mr-1"></i> Incomplete Events
-                </button>
+    <button id="openIncompleteEventsBtn"
+        class="px-4 py-3 md:px-6 md:py-3 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 transition flex-1 md:flex-none font-semibold text-lg md:text-lg whitespace-nowrap min-w-[180px]"
+        onclick="openTrackingModal('incomplete')">
+        <i class="fas fa-times-circle mr-2"></i> Incomplete Events
+    </button>
+
             </div>
         </div>
         
@@ -461,26 +461,26 @@
                 class="text-red-500 hover:text-white text-[32px] font-bold transition duration-200 p-1 hover:bg-red-500 rounded-full">&times;</button>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5"> 
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> 
         
         <div class="flex flex-col">
             <input id="taskTitle" type="text" placeholder="Title" 
                 class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg shadow-sm">
             <textarea id="taskDesc" placeholder="Details (optional)" 
-                     class="border border-gray-300 rounded-lg p-3 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
-            <div class="flex gap-3 mt-2">
+                     class="border border-gray-300 rounded-lg p-2 w-full mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200 text-lg flex-1 min-h-[150px] md:min-h-[250px] shadow-sm"></textarea>
+            <div class="flex gap-2 mt-2">
                 <button id="saveTaskBtn" 
-                        class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-indigo-600 text-white px-3 py-2 rounded-xl shadow-lg hover:bg-indigo-700 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Save Task
                 </button>
                 <button id="cancelTaskBtn" 
-                        class="flex-1 bg-gray-400 text-white px-4 py-2 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
+                        class="flex-1 bg-gray-400 text-white px-3 py-1 rounded-xl shadow-lg hover:bg-gray-500 transition duration-200 font-bold text-lg transform hover:scale-[1.01]">
                     Cancel
                 </button>
             </div>
         </div>
 
-        <div id="existingTasks" class="border border-gray-200 rounded-xl p-3 bg-gray-50 shadow-inner">
+        <div id="existingTasks" class="border border-gray-200 rounded-xl p-2 bg-gray-50 shadow-inner">
             <div class="text-center text-gray-500 italic p-3">No tasks or events yet.</div>
         </div>
 
@@ -1626,24 +1626,24 @@ function loadModalTasks(date) {
             const masterBadge = item.isMasterEvent ? `<span class="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full"><i class="fas fa-crown"></i> Original</span>` : '';
             
             contentContainer.innerHTML = `
-                <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center gap-1 flex-wrap">
                     <span class="text-xl">${isEvent ? '🗓️' : '📝'}</span>
                     <strong class="text-xl font-bold text-slate-800 break-words">${item.title}</strong>
                     ${repeatBadge}${masterBadge}
                 </div>
-                ${isEvent ? `<div class="text-sm font-bold text-emerald-600 ml-8 mb-2">🕒 ${item.time}</div>` : ''}
-                ${hasDesc ? `<div class="ml-8 text-gray-600 text-sm md:text-base break-all whitespace-pre-wrap">${item.desc}</div><div class="ml-8">${openLinkHtml}</div>` : ''}
+                ${isEvent ? `<div class="text-sm font-bold text-emerald-600 ml-2 mb-2">🕒 ${item.time}</div>` : ''}
+                ${hasDesc ? `<div class="ml-2 text-gray-600 text-sm md:text-base break-all whitespace-pre-wrap">${item.desc}</div><div class="ml-2">${openLinkHtml}</div>` : ''}
             `;
             
             const actionsSection = document.createElement("div");
             actionsSection.className = "flex flex-col gap-2";
             const editBtn = document.createElement("button");
             editBtn.innerHTML = `<i class="fa-solid fa-pen"></i> EDIT`;
-            editBtn.className = "h-9 bg-indigo-500 text-white text-[15px] font-bold rounded-lg hover:bg-indigo-600 transition shadow-sm";
+            editBtn.className = "h-8 bg-indigo-500 text-white text-[15px] font-bold rounded-lg hover:bg-indigo-600 transition shadow-sm";
             editBtn.onclick = () => handleEdit(item.type, item.id, item.date);
             const delBtn = document.createElement("button");
             delBtn.innerHTML = `<i class="fa-solid fa-trash"></i> DELETE`;
-            delBtn.className = "h-9 bg-pink-600 text-white text-[15px] font-bold rounded-lg hover:bg-red-700 transition shadow-sm";
+            delBtn.className = "h-8 bg-pink-600 text-white text-[15px] font-bold rounded-lg hover:bg-red-700 transition shadow-sm";
             delBtn.onclick = () => handleDelete(item.type, item.id, item.date);
             actionsSection.appendChild(editBtn);
             actionsSection.appendChild(delBtn);
@@ -2146,7 +2146,7 @@ window.closeRepeatModal = closeRepeatModal;
 [data-theme="dark"] #existingTasks .flex-col {
     background-color: var(--bg-card) !important;
 
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 /* 5. EVENT STATUS COLORS */
@@ -2192,8 +2192,6 @@ window.closeRepeatModal = closeRepeatModal;
     border-color: #ffffff !important;
 }
 
-[data-theme="dark"] #theme-toggle-btn {
-}
 
 
 
@@ -2295,7 +2293,7 @@ window.closeRepeatModal = closeRepeatModal;
     /* --- 5. THEME TOGGLE (50px ABOVE NAV) --- */
     #theme-toggle-btn {
         position: fixed;
-        bottom: 115px; /* 65px height + 50px gap */
+        bottom: 65px; /* 65px height + 50px gap */
         right: 20px;
         z-index: 10000;
         width: 52px;
@@ -2407,6 +2405,7 @@ window.closeRepeatModal = closeRepeatModal;
     padding: 16px !important;
     transition: all 0.2s ease;
     cursor: pointer;
+    gap:10px;
 }
 /* Fix for Dark Mode - Next/Previous Button with 2px Border */
 [data-theme='dark'] #calendar-controls button {
@@ -2760,7 +2759,6 @@ window.closeRepeatModal = closeRepeatModal;
 }
 </style>      
 </style>
-
 
 
 
