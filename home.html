@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Savig · Dashboard</title>
+  <title>Savig </title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
@@ -207,41 +207,220 @@
     .toast-warning { border-left-color: #f59e0b; }
     .toast-danger { border-left-color: #ef4444; }
 
+    /* --- NAV LINKS: lifted hover, blue, +2px font, +2px gap --- */
     .desktop-nav {
-      font-size:18px !important; font-weight:700 !important; padding:0.4rem 0.6rem !important;
-      border-radius:9999px; transition:all 0.25s cubic-bezier(0.2,0.9,0.4,1.1);
-      color:var(--text-main); display:inline-flex; align-items:center; gap:3px; text-decoration:none; cursor:pointer;
+      font-size: 20px !important;          /* +2px */
+      font-weight: 700 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      margin: 0 8px;                      /* +2px gap (was 6px) */
     }
-    .desktop-nav:hover { background-color:blue; }
-    .desktop-nav:active { transform:translateY(-2px); color:#1d4ed8; }
+    .desktop-nav:hover {
+      color: #2563eb !important;
+      background: transparent !important;
+      transform: translateY(-4px);
+      box-shadow: none !important;
+    }
+    .desktop-nav:active {
+      transform: translateY(-2px);
+      color: #1d4ed8 !important;
+    }
 
+    /* sidebar nav – +2px font, +2px gap, improved hover color */
     .sidebar-nav-internal a {
-      display:flex; align-items:center; padding:0.6rem 0.6rem !important; margin-bottom:15px !important;
-      border-radius:0.75rem; color:var(--text-main); font-weight:600; font-size:15px !important;
-      transition:all 0.25s cubic-bezier(0.2,0.9,0.4,1.1); gap:10px; background:transparent; border:none; width:100%; cursor:pointer;
+      display: flex;
+      align-items: center;
+      padding: 0.3rem 0.2rem !important;
+      margin-bottom: 12px !important;      /* +2px (was 10px) */
+      border-radius: 0 !important;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 17px !important;          /* +2px (was 15px) */
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+      gap: 10px;                           /* +2px (was 8px) */
+      background: transparent !important;
+      border: none !important;
+      width: 100%;
+      cursor: pointer;
+      text-decoration: none;
     }
-    .sidebar-nav-internal a:hover { background:var(--sidebar-hover); color:#2563eb !important; transform:translateX(4px) translateY(-3px); box-shadow:0 2px 8px rgba(37,99,235,0.12); }
-    .sidebar-nav-internal a:active { transform:translateX(2px) translateY(-1px); color:#1d4ed8; }
+    .sidebar-nav-internal a:hover {
+      color: #2563eb !important;
+      background: rgba(37, 99, 235, 0.08) !important; /* improved hover bg */
+      transform: translateY(-3px) translateX(4px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+      border-radius: 0.5rem !important;    /* subtle rounding on hover */
+    }
+    .sidebar-nav-internal a:active {
+      transform: translateY(-1px) translateX(4px);
+      color: #1d4ed8 !important;
+    }
 
+    /* bottom nav – +2px font (icon size stays, but we can adjust label) */
     .bottom-nav-link {
-      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
-      color:var(--text-main); transition:all 0.25s cubic-bezier(0.2,0.9,0.4,1.1); cursor:pointer;
-      text-decoration:none; padding:4px 0; border-radius:12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+      cursor: pointer;
+      text-decoration: none;
+      padding: 2px 0;
+      border-radius: 0;
+      background: transparent !important;
     }
-    .bottom-nav-link i { font-size:22px; margin-bottom:2px; font-weight:700; }
-    .bottom-nav-link div { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.02em; }
-    .bottom-nav-link:hover { color:#2563eb !important; transform:translateY(-4px); background:rgba(59,130,246,0.08); }
-    .bottom-nav-link:active { transform:translateY(-2px); color:#1d4ed8; }
+    .bottom-nav-link i {
+      font-size: 22px;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+    .bottom-nav-link div {
+      font-size: 12px;                     /* +2px (was 10px) */
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .bottom-nav-link:hover {
+      color: #2563eb !important;
+      background: transparent !important;
+      transform: translateY(-4px);
+      box-shadow: none !important;
+    }
+    .bottom-nav-link:active {
+      transform: translateY(-2px);
+      color: #1d4ed8 !important;
+    }
 
+    /* mobile nav – +2px font */
     .mobile-nav-item {
-      display:flex; align-items:center; gap:12px; padding:0.7rem 1.2rem !important;
-      color:var(--text-main); font-weight:600; font-size:0.95rem;
-      transition:all 0.25s cubic-bezier(0.2,0.9,0.4,1.1); border-radius:0; cursor:pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;                         /* +2px (was 12px) */
+      padding: 0.4rem 1rem !important;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 1rem !important;        /* +2px (was 0.95rem) */
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+      border-radius: 0;
+      cursor: pointer;
+      background: transparent !important;
     }
-    .mobile-nav-item:hover { background:var(--sidebar-hover); color:#2563eb !important; transform:translateX(4px) translateY(-2px); }
-    .mobile-nav-item:active { transform:translateX(2px) translateY(-1px); color:#1d4ed8; }
+    .mobile-nav-item:hover {
+      color: #2563eb !important;
+      background: transparent !important;
+      transform: translateY(-3px) translateX(2px);
+    }
+    .mobile-nav-item:active {
+      transform: translateY(-1px) translateX(2px);
+      color: #1d4ed8 !important;
+    }
 
-    /* ── PROFESSIONAL REMINDER CARD ── */
+    /* --- MODERN CORE DATA SIDEBAR (improved hover) --- */
+    .sidebar-desktop {
+      background: var(--bg-card);
+      border-radius: 1.25rem;
+      border: 1px solid var(--border);
+      padding: 1.5rem 0.75rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.03);
+      transition: all 0.3s ease;
+    }
+    .sidebar-desktop:hover {
+      box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+      border-color: var(--primary);
+    }
+    .sidebar-desktop h3 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 0.5rem 0.8rem 0.5rem;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-desktop h3 i {
+      font-size: 1rem;
+      color: var(--primary);
+      opacity: 0.8;
+    }
+    .sidebar-nav-internal {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .sidebar-nav-internal a {
+      display: flex;
+      align-items: center;
+      gap: 12px;                         /* +2px (was 10px) */
+      padding: 0.6rem 0.8rem !important;
+      border-radius: 0.75rem !important;
+      font-weight: 500;
+      font-size: 1rem !important;        /* +2px (was 0.9rem) */
+      color: var(--text-main);
+      transition: all 0.25s ease;
+      background: transparent;
+      border: none;
+      width: 100%;
+      cursor: pointer;
+      text-decoration: none;
+      position: relative;
+    }
+    .sidebar-nav-internal a i {
+      width: 1.25rem;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+    .sidebar-nav-internal a:hover {
+      background: rgba(37, 99, 235, 0.10) !important; /* richer hover */
+      color: #2563eb !important;
+      transform: translateY(-2px) translateX(4px);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.10);
+      border-radius: 0.75rem !important;
+    }
+    .sidebar-nav-internal a:hover i {
+      color: #2563eb;
+      transform: scale(1.05);
+    }
+    .sidebar-nav-internal a:active {
+      transform: translateY(0px) translateX(4px);
+      color: #1d4ed8 !important;
+    }
+    .sidebar-nav-internal a::after {
+      content: '';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+    .sidebar-nav-internal a:hover::after {
+      opacity: 1;
+      background: #2563eb;
+      box-shadow: 0 0 10px rgba(37, 99, 235, 0.4);
+    }
+
+    /* reminder card etc */
     .reminder-card {
       background: var(--item-bg);
       border-radius: 0.75rem;
@@ -438,7 +617,7 @@
   <!-- MAIN DASHBOARD -->
   <div class="dashboard-wrapper mt-5 flex flex-col md:flex-row gap-6 px-4 pb-8">
     <aside class="sidebar-desktop hidden md:block">
-      <h3 class="text-md font-bold mb-3 border-b pb-2 uppercase tracking-wide" style="color:var(--text-bold); border-color:var(--border);"><i class="fas fa-database mr-2"></i> Core Data</h3>
+      <h3><i class="fas fa-database"></i> Core Data</h3>
       <nav class="sidebar-nav-internal flex flex-col gap-0.5">
         <a href="#" data-page="profile"><i class="fas fa-user-gear"></i> Profile</a>
         <a href="#" data-page="place"><i class="fas fa-map-marker-alt"></i> Tourist Places</a>
@@ -680,7 +859,6 @@
 
   function loadAllData(userId) {
     if (!userId) return;
-    // Load contacts for WhatsApp search
     db.ref(`users/${userId}/contacts`).on('value', snap => {
       allContactsCache = snap.val() || {};
     });
@@ -744,11 +922,8 @@
     toast._timeout = setTimeout(() => toast.classList.remove('show'), autoClose);
   }
 
-  // ✅ FIXED: Improved WhatsApp function with contact search
   window.sendWhatsAppMsg = function(phone, msg, name = '') {
-    // If phone is empty, undefined, or 'undefined', try to find from contacts
     if(!phone || phone === 'undefined' || phone === '') {
-      // Try to find phone from allContacts by name
       if (name && currentUserId) {
         const contacts = allContactsCache || {};
         let foundPhone = null;
@@ -767,7 +942,6 @@
             alert('Invalid phone number found.');
           }
         } else {
-          // Try searching in the database one more time
           db.ref(`users/${currentUserId}/contacts`).once('value', snap => {
             const contacts = snap.val() || {};
             let found = null;
@@ -901,7 +1075,6 @@
     });
   }
 
-  // ── PROFESSIONAL REMINDER RENDER ──
   function renderReminders(reminders) {
     const container = document.getElementById('reminderListContainer');
     const badge = document.getElementById('reminderCountBadge');
@@ -1017,7 +1190,6 @@
     });
   }
 
-  // ✅ FIXED: Corrected anniversary path and improved WhatsApp
   function loadDashboardData(userId) {
     if(!userId) return;
     const now=new Date(); const yyyy=now.getFullYear(); const mm=String(now.getMonth()+1).padStart(2,'0'); const dd=String(now.getDate()).padStart(2,'0'); const dateKey=`${yyyy}-${mm}-${dd}`;
@@ -1038,7 +1210,6 @@
       div.innerHTML=html;
     });
     
-    // ✅ FIXED: Correct path for anniversaries
     Promise.all([
       db.ref(`users/${userId}/birthdays`).once('value'), 
       db.ref(`users/${userId}/anniversaries`).once('value')
@@ -1046,7 +1217,6 @@
       const celebDiv=document.getElementById('dash-celebrations-list'); if(!celebDiv)return;
       let html='', found=false;
       
-      // Process birthdays
       if (bSnap.exists()) {
         bSnap.forEach(child=>{ 
           const b=child.val(); 
@@ -1062,7 +1232,6 @@
         });
       }
       
-      // Process anniversaries
       if (aSnap.exists()) {
         aSnap.forEach(child=>{ 
           const a=child.val(); 
