@@ -1507,7 +1507,7 @@ window.shareVehiclePDF = async () => {
     
     // Vehicle name on the left
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
     const vehicleText = `Vehicle: ${currentVehicleFilter}`;
     doc.text(vehicleText, margin, 10);
@@ -1515,7 +1515,7 @@ window.shareVehiclePDF = async () => {
     // Generated date on the right
 // In your shareVehiclePDF function, replace that section with:
 const dateText = `Generated: ${formatDateToDisplay(getISOStringForStorage())}`;
-doc.setFontSize(13); // Increased from 12 to 13
+doc.setFontSize(11); // Increased from 12 to 13
 doc.setFont("helvetica", "bold"); // Changed from "normal" to "bold" for heavier weight
 doc.setTextColor(255, 255, 255); // Pure white
 doc.text(dateText, pageWidth - margin - doc.getStringUnitWidth(dateText) * 13 / 2.5, 12);
