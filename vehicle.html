@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
     <title>Savig</title>
     <script src="https://cdn.tailwindcss.com">
     </script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js">
@@ -366,694 +368,1013 @@
             <div><h3 class="text-xs font-bold uppercase text-gray-500 mb-3">Transactions</h3><div id="historyEntriesList" class="space-y-3 overflow-y-auto" style="max-height: calc(100vh - 50px); min-height: 500px;"></div></div>
         </div>
     </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, query, orderByChild, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getDatabase, ref, push, onValue, query, orderByChild, remove, update } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+    const firebaseConfig = { 
+        apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", 
+        authDomain: "sk12-58e9e.firebaseapp.com", 
+        databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com", 
+        projectId: "sk12-58e9e", 
+        storageBucket: "sk12-58e9e.firebasestorage.app", 
+        messagingSenderId: "470207874652", 
+        appId: "1:470207874652:web:67ba1cf3629b7e5b144899" 
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const expensesRef = ref(db, 'vehicleExpenses');
+    const remindersRef = ref(db, 'serviceReminders');
 
-        const firebaseConfig = { apiKey: "AIzaSyB78RTVCg0cmSPp7A1RJyyAgBuCeolO0cc", authDomain: "sk12-58e9e.firebaseapp.com", databaseURL: "https://sk12-58e9e-default-rtdb.firebaseio.com", projectId: "sk12-58e9e", storageBucket: "sk12-58e9e.firebasestorage.app", messagingSenderId: "470207874652", appId: "1:470207874652:web:67ba1cf3629b7e5b144899" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        const expensesRef = ref(db, 'vehicleExpenses');
-        const remindersRef = ref(db, 'serviceReminders');
+    let allEntries = [],
+        currentVehicleFilter = '',
+        currentCategoryFilter = 'all',
+        currentSearchTerm = '',
+        historyCurrentVehicle = '',
+        editingId = null,
+        reminders = [],
+        historyCurrentFilter = 'all';
+    let lastNotificationTime = 0;
+    let currentUser = null;
 
-        let allEntries = [],
-            currentVehicleFilter = '',
-            currentCategoryFilter = 'all',
-            currentSearchTerm = '',
-            historyCurrentVehicle = '',
-            editingId = null,
+    // ============ AUTHENTICATION FUNCTIONS ============
+    window.handleFirebaseLogin = async () => {
+        const email = document.getElementById('loginEmailInput').value.trim();
+        const pass = document.getElementById('loginPasswordInput').value.trim();
+        const errEl = document.getElementById('loginError');
+        if (!email || !pass) { 
+            errEl.innerText = 'Enter email and password';
+            errEl.classList.remove('hidden'); 
+            return; 
+        }
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            errEl.classList.add('hidden');
+        } catch (e) {
+            errEl.innerText = e.message;
+            errEl.classList.remove('hidden');
+        }
+    };
+    
+    window.handleFirebaseSignup = async () => {
+        const email = document.getElementById('loginEmailInput').value.trim();
+        const pass = document.getElementById('loginPasswordInput').value.trim();
+        const errEl = document.getElementById('loginError');
+        if (!email || !pass) { 
+            errEl.innerText = 'Enter email and password';
+            errEl.classList.remove('hidden'); 
+            return; 
+        }
+        try {
+            await createUserWithEmailAndPassword(auth, email, pass);
+            errEl.classList.add('hidden');
+        } catch (e) {
+            errEl.innerText = e.message;
+            errEl.classList.remove('hidden');
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('loginOverlay').style.display = 'none';
+            updateUserInfo(user);
+            loadData();
+        } else {
+            currentUser = null;
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('userDisplayName').textContent = 'Sign In';
+            document.getElementById('userEmailDisplay').textContent = 'user@email.com';
+            document.getElementById('userAvatarPlaceholder').textContent = '👤';
+            document.getElementById('userAvatarImg').style.display = 'none';
+            document.getElementById('userAvatarPlaceholder').style.display = 'flex';
+            allEntries = [];
             reminders = [];
-        let lastNotificationTime = 0;
-        let currentUser = null;
+            renderFilteredEntries();
+            loadRemindersList();
+        }
+    });
 
-        window.handleFirebaseLogin = async () => {
-            const email = document.getElementById('loginEmailInput').value.trim();
-            const pass = document.getElementById('loginPasswordInput').value.trim();
-            const errEl = document.getElementById('loginError');
-            if (!email || !pass) { errEl.innerText = 'Enter email and password';
-                errEl.classList.remove('hidden'); return; }
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                errEl.classList.add('hidden');
-            } catch (e) {
-                errEl.innerText = e.message;
-                errEl.classList.remove('hidden');
-            }
-        };
-        window.handleFirebaseSignup = async () => {
-            const email = document.getElementById('loginEmailInput').value.trim();
-            const pass = document.getElementById('loginPasswordInput').value.trim();
-            const errEl = document.getElementById('loginError');
-            if (!email || !pass) { errEl.innerText = 'Enter email and password';
-                errEl.classList.remove('hidden'); return; }
-            try {
-                await createUserWithEmailAndPassword(auth, email, pass);
-                errEl.classList.add('hidden');
-            } catch (e) {
-                errEl.innerText = e.message;
-                errEl.classList.remove('hidden');
-            }
-        };
+    function updateUserInfo(user) {
+        const nameEl = document.getElementById('userDisplayName');
+        const emailEl = document.getElementById('userEmailDisplay');
+        const avatarImg = document.getElementById('userAvatarImg');
+        const avatarPlaceholder = document.getElementById('userAvatarPlaceholder');
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginOverlay').style.display = 'none';
-                updateUserInfo(user);
-                loadData();
-            } else {
-                currentUser = null;
-                document.getElementById('loginOverlay').style.display = 'flex';
-                document.getElementById('userDisplayName').textContent = 'Sign In';
-                document.getElementById('userEmailDisplay').textContent = 'user@email.com';
-                document.getElementById('userAvatarPlaceholder').textContent = '👤';
-                document.getElementById('userAvatarImg').style.display = 'none';
-                document.getElementById('userAvatarPlaceholder').style.display = 'flex';
-                allEntries = [];
-                reminders = [];
-                renderFilteredEntries();
-                loadRemindersList();
-            }
-        });
+        const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+        nameEl.textContent = displayName;
+        emailEl.textContent = user.email || 'user@email.com';
 
-        function updateUserInfo(user) {
-            const nameEl = document.getElementById('userDisplayName');
-            const emailEl = document.getElementById('userEmailDisplay');
-            const avatarImg = document.getElementById('userAvatarImg');
-            const avatarPlaceholder = document.getElementById('userAvatarPlaceholder');
-
-            const displayName = user.displayName || user.email?.split('@')[0] || 'User';
-            nameEl.textContent = displayName;
-            emailEl.textContent = user.email || 'user@email.com';
-
-            if (user.photoURL) {
-                avatarImg.src = user.photoURL;
-                avatarImg.style.display = 'block';
-                avatarPlaceholder.style.display = 'none';
-                avatarImg.onerror = function() {
-                    avatarImg.style.display = 'none';
-                    avatarPlaceholder.style.display = 'flex';
-                    avatarPlaceholder.textContent = displayName.charAt(0).toUpperCase();
-                };
-            } else {
+        if (user.photoURL) {
+            avatarImg.src = user.photoURL;
+            avatarImg.style.display = 'block';
+            avatarPlaceholder.style.display = 'none';
+            avatarImg.onerror = function() {
                 avatarImg.style.display = 'none';
                 avatarPlaceholder.style.display = 'flex';
                 avatarPlaceholder.textContent = displayName.charAt(0).toUpperCase();
-            }
+            };
+        } else {
+            avatarImg.style.display = 'none';
+            avatarPlaceholder.style.display = 'flex';
+            avatarPlaceholder.textContent = displayName.charAt(0).toUpperCase();
         }
+    }
 
-        function loadData() {
-            onValue(query(ref(db, 'vehicleExpenses'), orderByChild('timestamp')), (snap) => { let data = snap.val();
-                allEntries = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a, b) => (b.timestamp ||
-                        0) - (a.timestamp || 0)) : [];
-                renderFilteredEntries();
-                updateTotalInline();
-                populateVehicleSelects();
-                updateServiceCostSummary(); });
-            onValue(ref(db, 'serviceReminders'), (snap) => { let data = snap.val();
-                reminders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-                loadRemindersList();
-                checkDueDatesAndSendNotifications(); });
+    // ============ DATA LOADING FUNCTIONS ============
+    function loadData() {
+        onValue(query(ref(db, 'vehicleExpenses'), orderByChild('timestamp')), (snap) => { 
+            let data = snap.val();
+            allEntries = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)) : [];
+            renderFilteredEntries();
+            updateTotalInline();
+            populateVehicleSelects();
+            updateServiceCostSummary(); 
+        });
+        
+        onValue(ref(db, 'serviceReminders'), (snap) => { 
+            let data = snap.val();
+            reminders = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+            loadRemindersList();
+            checkDueDatesAndSendNotifications(); 
+        });
+    }
+
+    function populateVehicleSelects() {
+        let vehicles = [...new Set(allEntries.map(e => e.name))];
+        ['vehicleList', 'historyVehicleSelect', 'reminderVehicleSelect'].forEach(id => { 
+            let sel = document.getElementById(id); 
+            if (sel) { 
+                let html = '<option value="">—— SELECT VEHICLE ——</option>';
+                vehicles.sort().forEach(v => html += `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`);
+                html += '<option value="NEW" class="text-gold font-bold">+ ADD NEW</option>';
+                sel.innerHTML = html; 
+            } 
+        });
+        document.getElementById('reminderVehicleSelect').addEventListener('change', updateServiceCostSummary);
+    }
+
+    function updateServiceCostSummary() {
+        const vehicle = document.getElementById('reminderVehicleSelect').value;
+        const container = document.getElementById('serviceCostDetails');
+        if (!vehicle) { 
+            container.innerHTML = 'Select a vehicle to see past service expenses.'; 
+            return; 
         }
-
-        function populateVehicleSelects() {
-            let vehicles = [...new Set(allEntries.map(e => e.name))];
-            ['vehicleList', 'historyVehicleSelect', 'reminderVehicleSelect'].forEach(id => { let sel = document
-                    .getElementById(id); if (sel) { let html = '<option value="">—— SELECT VEHICLE ——</option>';
-                    vehicles.sort().forEach(v => html +=
-                        `<option value="${v.replace(/"/g,'&quot;')}">${v}</option>`);
-                    html += '<option value="NEW" class="text-gold font-bold">+ ADD NEW</option>';
-                    sel.innerHTML = html; } });
-            document.getElementById('reminderVehicleSelect').addEventListener('change', updateServiceCostSummary);
+        const serviceEntries = allEntries.filter(e => e.name === vehicle && e.category === 'Servicing');
+        if (serviceEntries.length === 0) { 
+            container.innerHTML = `No previous servicing records for ${vehicle}.`; 
+            return; 
         }
-
-        function updateServiceCostSummary() {
-            const vehicle = document.getElementById('reminderVehicleSelect').value;
-            const container = document.getElementById('serviceCostDetails');
-            if (!vehicle) { container.innerHTML = 'Select a vehicle to see past service expenses.'; return; }
-            const serviceEntries = allEntries.filter(e => e.name === vehicle && e.category === 'Servicing');
-            if (serviceEntries.length === 0) { container.innerHTML =
-                    `No previous servicing records for ${vehicle}.`; return; }
-            const total = serviceEntries.reduce((sum, e) => sum + e.cost, 0);
-            const count = serviceEntries.length;
-            const avg = total / count;
-            let details = `<div class="flex flex-wrap gap-3 text-sm"><span>🧾 Total: ₹${total.toLocaleString('en-IN')}</span><span>📊 Count: ${count}</span><span>📈 Avg: ₹${avg.toFixed(0)}</span></div>`;
-            const sorted = [...serviceEntries].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            const last3 = sorted.slice(0, 3);
-            if (last3.length) {
-                details +=
-                    `<div class="text-xs text-gray-500 mt-1">Last ${last3.length}: ${last3.map(e => `₹${e.cost} (${e.date})`).join(' | ')}</div>`;
-            }
-            container.innerHTML = details;
+        const total = serviceEntries.reduce((sum, e) => sum + e.cost, 0);
+        const count = serviceEntries.length;
+        const avg = total / count;
+        let details = `<div class="flex flex-wrap gap-3 text-sm"><span>🧾 Total: ₹${total}</span><span>📊 Count: ${count}</span><span>📈 Avg: ₹${avg.toFixed(0)}</span></div>`;
+        const sorted = [...serviceEntries].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        const last3 = sorted.slice(0, 3);
+        if (last3.length) {
+            details += `<div class="text-xs text-gray-500 mt-1">Last ${last3.length}: ${last3.map(e => `₹${e.cost} (${e.date})`).join(' | ')}</div>`;
         }
+        container.innerHTML = details;
+    }
 
-        function formatDateToDisplay(dateStr) { if (!dateStr) return getTodayFormatted(); let d = new Date(dateStr); if (isNaN(
-                d.getTime())) return dateStr; const months = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ]; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+    // ============ UTILITY FUNCTIONS ============
+    function formatDateToDisplay(dateStr) { 
+        if (!dateStr) return getTodayFormatted(); 
+        let d = new Date(dateStr); 
+        if (isNaN(d.getTime())) return dateStr; 
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; 
+    }
 
-        function getTodayFormatted() { let d = new Date(); const months = ['January', 'February', 'March', 'April', 'May',
-                'June', 'July', 'August', 'September', 'October', 'November', 'December'
-            ]; return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; }
+    function getTodayFormatted() { 
+        let d = new Date(); 
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`; 
+    }
 
-        function getISOStringForStorage() { let d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function getISOStringForStorage() { 
+        let d = new Date(); 
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; 
+    }
 
-        window.toggleExpenseForm = function() {
-            if (window.innerWidth >= 1024) return;
-            const container = document.getElementById('expenseFormContainer');
-            const icon = document.getElementById('expenseToggleIcon');
-            container.classList.toggle('collapsed');
-            icon.style.transform = container.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+    function escapeHtml(s) { 
+        if (!s) return ''; 
+        return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' } [m])); 
+    }
+
+    function showToast(msg, isError = false) { 
+        let t = document.createElement('div');
+        t.className = `toast ${isError?'bg-red-500':'bg-emerald-500'}`;
+        t.innerHTML = `<i class="fa ${isError?'fa-exclamation-triangle':'fa-check-circle'}"></i>${msg}`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2500); 
+    }
+
+    // ============ UI TOGGLE FUNCTIONS ============
+    window.toggleExpenseForm = function() {
+        if (window.innerWidth >= 1024) return;
+        const container = document.getElementById('expenseFormContainer');
+        const icon = document.getElementById('expenseToggleIcon');
+        container.classList.toggle('collapsed');
+        icon.style.transform = container.classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';
+    };
+
+    window.toggleCollapse = (id) => { 
+        const content = document.getElementById(id); 
+        const icon = document.getElementById(id + 'Icon'); 
+        if (content.classList.contains('collapsed')) { 
+            content.style.maxHeight = content.scrollHeight + 'px';
+            content.classList.remove('collapsed'); 
+            if (icon) icon.style.transform = 'rotate(0deg)'; 
+        } else { 
+            content.style.maxHeight = '0px';
+            content.classList.add('collapsed'); 
+            if (icon) icon.style.transform = 'rotate(-90deg)'; 
+        } 
+    };
+
+    function initCollapsibles() {
+        ['serviceCollapse', 'infoCollapse'].forEach(id => { 
+            const el = document.getElementById(id); 
+            if (el) { 
+                el.classList.add('collapsed');
+                el.style.maxHeight = '0px'; 
+                const icon = document.getElementById(id + 'Icon'); 
+                if (icon) icon.style.transform = 'rotate(-90deg)'; 
+            } 
+        });
+    }
+
+    window.toggleTheme = () => { 
+        let dark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+        document.getElementById('themeIcon').className = dark ? "fa fa-sun text-gold" : "fa fa-moon text-gold"; 
+    };
+
+    window.openHistoryModal = () => { 
+        if (!currentVehicleFilter) { 
+            alert("Select vehicle from 'VIEW DATA FOR'");
+            return; 
+        }
+        historyCurrentVehicle = currentVehicleFilter;
+        document.getElementById('modalVehicleName').innerHTML = `<i class="fa fa-car"></i> ${currentVehicleFilter}`;
+        updateHistoryModal(currentVehicleFilter, 'all');
+        document.getElementById('historyModal').style.display = 'flex'; 
+    };
+    
+    window.closeHistoryModal = () => { 
+        document.getElementById('historyModal').style.display = 'none'; 
+    };
+    
+    window.filterHistoryByCategory = (cat) => { 
+        updateHistoryModal(historyCurrentVehicle, cat);
+        document.querySelectorAll('.history-stat-card').forEach(c => c.classList.remove('active')); 
+        let map = {
+            'all': 'historyAllCard',
+            'Petrol': 'historyPetrolCard',
+            'Part Replacement': 'historyPartCard',
+            'Servicing': 'historyServicingCard',
+            'Modification': 'historyModCard',
+            'Tyre/Air': 'historyTyreCard',
+            'PUC': 'historyPucCard',
+            'Insurance': 'historyInsuranceCard'
         };
-        document.getElementById('expenseFormContainer').classList.add('collapsed');
-        document.getElementById('expenseToggleIcon').style.transform = 'rotate(-90deg)';
+        document.getElementById(map[cat] || 'historyAllCard').classList.add('active'); 
+    };
 
-        window.toggleCollapse = (id) => { const content = document.getElementById(id); const icon = document.getElementById(
-                id + 'Icon'); if (content.classList.contains('collapsed')) { content.style.maxHeight = content
-                    .scrollHeight + 'px';
-                content.classList.remove('collapsed'); if (icon) icon.style.transform = 'rotate(0deg)'; } else { content
-                    .style.maxHeight = '0px';
-                content.classList.add('collapsed'); if (icon) icon.style.transform = 'rotate(-90deg)'; } };
-
-        function initCollapsibles() {
-            ['serviceCollapse', 'infoCollapse'].forEach(id => { const el = document
-                    .getElementById(id); if (el) { el.classList.add('collapsed');
-                    el.style.maxHeight = '0px'; const icon = document.getElementById(id + 'Icon'); if (icon) icon
-                        .style.transform = 'rotate(-90deg)'; } });
+    function updateHistoryModal(vehicle, cat) { 
+        let entries = allEntries.filter(e => e.name === vehicle); 
+        let sums = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, Tyre: 0, PUC: 0, Insurance: 0, total: 0 },
+            cnts = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, Tyre: 0, PUC: 0, Insurance: 0 };
+        entries.forEach(e => { 
+            sums.total += e.cost; 
+            if (e.category === 'Petrol') { sums.Petrol += e.cost; cnts.Petrol++; } 
+            else if (e.category === 'Part Replacement') { sums.Part += e.cost; cnts.Part++; } 
+            else if (e.category === 'Servicing') { sums.Servicing += e.cost; cnts.Servicing++; } 
+            else if (e.category === 'Modification') { sums.Mod += e.cost; cnts.Mod++; } 
+            else if (e.category === 'Tyre/Air') { sums.Tyre += e.cost; cnts.Tyre++; } 
+            else if (e.category === 'PUC') { sums.PUC += e.cost; cnts.PUC++; } 
+            else if (e.category === 'Insurance') { sums.Insurance += e.cost; cnts.Insurance++; } 
+        });
+        
+        document.getElementById('historyTotalAmount').innerHTML = `₹${sums.total.toLocaleString('en-IN')}`;
+        document.getElementById('historyTotalCount').innerText = entries.length;
+        document.getElementById('historyPetrolAmount').innerHTML = `₹${sums.Petrol.toLocaleString('en-IN')}`;
+        document.getElementById('historyPetrolCount').innerText = cnts.Petrol;
+        document.getElementById('historyPartAmount').innerHTML = `₹${sums.Part.toLocaleString('en-IN')}`;
+        document.getElementById('historyPartCount').innerText = cnts.Part;
+        document.getElementById('historyServicingAmount').innerHTML = `₹${sums.Servicing.toLocaleString('en-IN')}`;
+        document.getElementById('historyServicingCount').innerText = cnts.Servicing;
+        document.getElementById('historyModAmount').innerHTML = `₹${sums.Mod.toLocaleString('en-IN')}`;
+        document.getElementById('historyModCount').innerText = cnts.Mod;
+        document.getElementById('historyTyreAmount').innerHTML = `₹${sums.Tyre.toLocaleString('en-IN')}`;
+        document.getElementById('historyTyreCount').innerText = cnts.Tyre;
+        document.getElementById('historyPucAmount').innerHTML = `₹${sums.PUC.toLocaleString('en-IN')}`;
+        document.getElementById('historyPucCount').innerText = cnts.PUC;
+        document.getElementById('historyInsuranceAmount').innerHTML = `₹${sums.Insurance.toLocaleString('en-IN')}`;
+        document.getElementById('historyInsuranceCount').innerText = cnts.Insurance;
+        
+        let filtered = cat === 'all' ? entries : entries.filter(e => e.category === cat);
+        filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        let cont = document.getElementById('historyEntriesList'); 
+        if (!filtered.length) { 
+            cont.innerHTML = '<div class="text-center text-gray-400 text-sm py-5">No records</div>'; 
+            return; 
         }
+        
+        // ============ FIXED: History entries with dark mode support and 13px font ============
+        cont.innerHTML = filtered.map(e => {
+            // Build details string for the transaction
+            let detailTexts = [];
+            if (e.details) detailTexts.push(`📝 ${escapeHtml(e.details)}`);
+            if (e.fuelVolume) {
+                let fuelText = `⛽ ${e.fuelVolume}L`;
+                if (e.fuelRate) fuelText += ` @ ₹${e.fuelRate}/L`;
+                if (e.station) fuelText += ` (${escapeHtml(e.station)})`;
+                detailTexts.push(fuelText);
+            }
+            if (e.tyreBrand) detailTexts.push(`🛞 ${escapeHtml(e.tyreBrand)}`);
+            if (e.tyreSize) detailTexts.push(`📏 ${escapeHtml(e.tyreSize)}`);
+            if (e.partName) detailTexts.push(`🔧 ${escapeHtml(e.partName)}`);
+            if (e.brandName) detailTexts.push(`🏷️ ${escapeHtml(e.brandName)}`);
+            if (e.shopName) detailTexts.push(`🏪 ${escapeHtml(e.shopName)}`);
+            if (e.serviceType) detailTexts.push(`🔩 ${escapeHtml(e.serviceType)}`);
+            if (e.serviceCenter) detailTexts.push(`🏢 ${escapeHtml(e.serviceCenter)}`);
+            if (e.odometer) detailTexts.push(`📊 ${e.odometer} km`);
+            if (e.modPart) detailTexts.push(`🎨 ${escapeHtml(e.modPart)}`);
+            if (e.modBrand) detailTexts.push(`🏷️ ${escapeHtml(e.modBrand)}`);
+            if (e.installerShop) detailTexts.push(`🔧 ${escapeHtml(e.installerShop)}`);
+            if (e.cleaningType) detailTexts.push(`🧹 ${escapeHtml(e.cleaningType)}`);
+            if (e.serviceCenterName) detailTexts.push(`🏢 ${escapeHtml(e.serviceCenterName)}`);
+            if (e.pucCertNo) detailTexts.push(`📄 Cert: ${escapeHtml(e.pucCertNo)}`);
+            if (e.pucShop) detailTexts.push(`🏪 ${escapeHtml(e.pucShop)}`);
+            if (e.insurancePolicyNo) detailTexts.push(`📋 Policy: ${escapeHtml(e.insurancePolicyNo)}`);
+            if (e.insuranceProvider) detailTexts.push(`🏢 ${escapeHtml(e.insuranceProvider)}`);
+            
+            const detailsHtml = detailTexts.length ? 
+                `<div class="text-gray-500 dark:text-gray-300 text-[13px] mt-2">${detailTexts.join(' | ')}</div>` : 
+                '';
 
-        function showToast(msg, isError = false) { let t = document.createElement('div');
-            t.className = `toast ${isError?'bg-red-500':'bg-emerald-500'}`;
-            t.innerHTML = `<i class="fa ${isError?'fa-exclamation-triangle':'fa-check-circle'}"></i>${msg}`;
-            document.body.appendChild(t);
-            setTimeout(() => t.remove(), 2500); }
+            return `<div class="glass-panel p-3 mb-2">
+                <div class="flex flex-wrap justify-between items-start">
+                    <div>
+                        <div class="font-bold text-gold text-base">${e.date}</div>
+                        <span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs inline-block mt-1">${e.category}</span>
+                        ${detailsHtml}
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-gold text-xl">₹${e.cost.toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+            </div>`;
+        }).join(''); 
+    }
+
+    // ============ SHOW HISTORY FUNCTION ============
+    window.showHistory = function() {
+        const vehicleSelect = document.getElementById('historyVehicleSelect');
+        if (!vehicleSelect) {
+            showToast("History selector not found", true);
+            return;
+        }
+        
+        const vehicle = vehicleSelect.value;
+        if (!vehicle) {
+            showToast("Please select a vehicle first", true);
+            return;
+        }
+        
+        currentVehicleFilter = vehicle;
+        renderFilteredEntries();
+        updateTotalInline();
+        window.openHistoryModal();
+    };
+
+    // ============ FILTER FUNCTIONS ============
+    window.filterEntries = () => { 
+        currentSearchTerm = document.getElementById('searchBar').value.toLowerCase();
+        renderFilteredEntries(); 
+    };
+
+    window.startVoiceSearch = () => { 
+        let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition; 
+        if (!SpeechRecognition) return alert("Not supported"); 
+        let rec = new SpeechRecognition();
+        rec.lang = 'en-IN';
+        rec.start();
+        rec.onresult = (e) => { 
+            document.getElementById('searchBar').value = e.results[0][0].transcript;
+            currentSearchTerm = e.results[0][0].transcript.toLowerCase();
+            renderFilteredEntries(); 
+        }; 
+    };
+
+    function renderFilteredEntries() { 
+        let filtered = allEntries.filter(e => !currentVehicleFilter || e.name === currentVehicleFilter); 
+        if (currentCategoryFilter !== 'all') filtered = filtered.filter(e => e.category === currentCategoryFilter); 
+        if (currentSearchTerm) filtered = filtered.filter(e => JSON.stringify(e).toLowerCase().includes(currentSearchTerm));
+        document.getElementById('logCounter').innerText = filtered.length; 
+        let cont = document.getElementById('logsContainer'); 
+        if (!filtered.length) { 
+            cont.innerHTML = `<div class="glass-panel p-6 text-center"><i class="fa fa-receipt text-gray-300 text-2xl"></i><p class="text-sm mt-2">No entries</p></div>`;
+            return; 
+        }
+        cont.innerHTML = filtered.map(d =>
+            `<div class="entry-card"><div class="flex justify-between items-start gap-3"><div><div class="flex gap-2 flex-wrap"><span class="font-bold text-gold date-display">${d.date}</span><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs">${d.category}</span></div><h3 class="font-black mt-1">${escapeHtml(d.name)}</h3>${d.details?`<p class="text-gray-500 text-xs mt-1">${escapeHtml(d.details)}</p>`:''}${d.fuelVolume?`<p class="text-xs text-gray-400 mt-1">⛽ ${d.fuelVolume} L ${d.fuelRate?`@ ₹${d.fuelRate}/L`:''}</p>`:''}${d.tyreBrand?`<p class="text-xs text-gray-400 mt-1">🛞 ${escapeHtml(d.tyreBrand)}</p>`:''}</div><div class="text-right"><span class="font-black text-gold text-lg">₹${d.cost}</span><div class="flex gap-2 mt-2"><button onclick='window.editEntry("${d.id}")' class="text-blue-500 action-btn"><i class="fa-regular fa-pen-to-square"></i></button><button onclick='window.deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 action-btn"><i class="fa-regular fa-trash-can"></i></button></div></div></div></div>`
+        ).join(''); 
+    }
+
+    function updateTotalInline() {
+        let card = document.getElementById('totalExpenditureInline');
+        let amountEl = document.getElementById('totalExpenditureInlineAmount');
+        if (!currentVehicleFilter) {
+            card.classList.add('hidden');
+            return;
+        }
+        let total = allEntries.filter(e => e.name === currentVehicleFilter).reduce((s, e) => s + e.cost, 0);
+        amountEl.innerText = total;
+        card.classList.remove('hidden');
+    }
+
+    // ============ EXPENSE FORM FUNCTIONS ============
+    document.querySelectorAll('input[name="ownershipType"]').forEach(radio => { 
+        radio.addEventListener('change', (e) => { 
+            if (e.target.value === 'Second Hand') { 
+                document.getElementById('secondHandFields').style.display = 'block';
+                document.getElementById('firstHandFields').style.display = 'none'; 
+            } else if (e.target.value === 'First Hand') { 
+                document.getElementById('secondHandFields').style.display = 'none';
+                document.getElementById('firstHandFields').style.display = 'block'; 
+            } 
+        }); 
+    });
+
+    function updateConditionalFields(cat) { 
+        let cont = document.getElementById('conditionalFields'); 
+        if (cat === 'Petrol') cont.innerHTML =
+            `<div><input type="number" step="any" id="fuelVolume" placeholder="Litres" class="modern-input"></div><div><input type="number" step="any" id="fuelRate" placeholder="Rate ₹/L" class="modern-input"></div><div><input type="text" id="station" placeholder="Station" class="modern-input"></div>`;
+        else if (cat === 'Part Replacement') cont.innerHTML =
+            `<div><input placeholder="Part name" id="partName" class="modern-input"></div><div><input placeholder="Brand" id="brandName" class="modern-input"></div><div><input placeholder="Shop" id="shopName" class="modern-input"></div>`;
+        else if (cat === 'Servicing') cont.innerHTML =
+            `<div><input placeholder="Service type" id="serviceType" class="modern-input"></div><div><input placeholder="Service center" id="serviceCenter" class="modern-input"></div><div><input type="number" placeholder="Odometer" id="odometer" class="modern-input"></div>`;
+        else if (cat === 'Modification') cont.innerHTML =
+            `<div><input placeholder="Mod part" id="modPart" class="modern-input"></div><div><input placeholder="Brand" id="modBrand" class="modern-input"></div><div><input placeholder="Installer" id="installerShop" class="modern-input"></div>`;
+        else if (cat === 'Tyre/Air') cont.innerHTML =
+            `<div><input placeholder="Size (e.g. 195/60R15)" id="tyreSize" class="modern-input"></div><div><input placeholder="Brand / Puncture" id="tyreBrand" class="modern-input"></div><div></div>`;
+        else if (cat === 'Cleaning') cont.innerHTML =
+            `<div><input placeholder="Cleaning type" id="cleaningType" class="modern-input"></div><div><input placeholder="Center" id="serviceCenterName" class="modern-input"></div><div></div>`;
+        else if (cat === 'PUC') cont.innerHTML =
+            `<div><input placeholder="Certificate No." id="pucCertNo" class="modern-input"></div><div><input placeholder="Shop" id="pucShop" class="modern-input"></div><div></div>`;
+        else if (cat === 'Insurance') cont.innerHTML =
+            `<div><input placeholder="Policy No." id="insurancePolicyNo" class="modern-input"></div><div><input placeholder="Provider" id="insuranceProvider" class="modern-input"></div><div></div>`;
+        else cont.innerHTML = `<div class="col-span-full text-center text-xs text-gray-400 p-3">Select expense type</div>`; 
+    }
+
+    document.querySelectorAll('.expense-option').forEach(opt => opt.addEventListener('click', function() {
+        document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        document.getElementById('category').value = this.dataset.cat;
+        updateConditionalFields(this.dataset.cat);
+    }));
+
+    document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        currentCategoryFilter = this.dataset.filter;
+        renderFilteredEntries();
+    }));
+
+    document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { 
+        currentVehicleFilter = e.target.value;
+        if (currentVehicleFilter) {
+            renderFilteredEntries();
+            updateTotalInline();
+        }
+    });
+
+    document.getElementById('vehicleList').addEventListener('change', (e) => {
+        document.getElementById('newVehicleWrapper').classList.toggle('hidden', e.target.value !== 'NEW');
+    });
+
+    document.getElementById('expenseDate').value = getISOStringForStorage();
+
+    document.getElementById('cancelEditBtn').addEventListener('click', () => { 
+        editingId = null;
+        document.getElementById('editId').value = '';
+        document.getElementById('expenseForm').reset();
+        document.getElementById('category').value = '';
+        document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
+        updateConditionalFields('');
         document.getElementById('expenseDate').value = getISOStringForStorage();
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        showToast("Edit cancelled"); 
+    });
 
-        window.requestNotificationPermission = async () => { if ("Notification" in window) { const permission =
-                await Notification.requestPermission(); if (permission === "granted") showToast(
-                "Notifications enabled!");
-            else showToast("Permission denied", true); } };
-
-        let sentNotificationsToday = new Set();
-
-        function sendBrowserNotification(title, body, uniqueKey) {
-            if (sentNotificationsToday.has(uniqueKey)) return;
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(title, { body: body, icon: "https://img.icons8.com/color/48/car.png" });
-                sentNotificationsToday.add(uniqueKey);
-                setTimeout(() => sentNotificationsToday.delete(uniqueKey), 12 * 3600000);
-            }
+    document.getElementById('expenseForm').addEventListener('submit', async (e) => { 
+        e.preventDefault(); 
+        let vehicle = document.getElementById('vehicleList').value; 
+        if (vehicle === 'NEW') { 
+            let nn = document.getElementById('newVehicleName').value.trim(); 
+            if (!nn) return alert("Enter vehicle");
+            vehicle = nn.toUpperCase(); 
+        } 
+        if (!vehicle) return alert("Vehicle required"); 
+        let cost = parseFloat(document.getElementById('cost').value); 
+        if (isNaN(cost) || cost <= 0) return alert("Valid amount");
+        let category = document.getElementById('category').value; 
+        if (!category) return alert("Select type"); 
+        let rawDate = document.getElementById('expenseDate').value || getISOStringForStorage(); 
+        let displayDate = formatDateToDisplay(rawDate); 
+        let timestamp = Date.now(); 
+        let entry = { name: vehicle, cost, category, date: displayDate, rawDate, timestamp, details: document.getElementById('details').value || null };
+        
+        if (category === 'Petrol') { 
+            if (document.getElementById('fuelVolume')?.value) entry.fuelVolume = parseFloat(document.getElementById('fuelVolume').value); 
+            if (document.getElementById('fuelRate')?.value) entry.fuelRate = parseFloat(document.getElementById('fuelRate').value); 
+            if (document.getElementById('station')?.value) entry.station = document.getElementById('station').value; 
         }
-
-        function checkDueDatesAndSendNotifications() {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const now = new Date();
-            const hours = now.getHours();
-            const shouldNotify = (hours === 9 || hours === 18) && (now.getMinutes() < 5);
-            if (!shouldNotify && lastNotificationTime > Date.now() - 5 * 3600000) return;
-
-            const upcomingReminders = [];
-            reminders.forEach(reminder => {
-                const vehicle = reminder.vehicle;
-                if (reminder.nextServiceDate) { const dueDate = new Date(reminder.nextServiceDate);
-                    dueDate.setHours(0, 0, 0, 0); const diffDays = Math.ceil((dueDate - today) / (1000 * 3600 *
-                        24)); if (diffDays >= 0 && diffDays <= 7) { upcomingReminders.push({ type: "Service",
-                            daysLeft: diffDays, vehicle }); if (diffDays <= 3 || diffDays === 0)
-                        sendBrowserNotification(`🔧 Service Reminder`,
-                            `${vehicle} - Service due in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`,
-                            `service_${vehicle}_${dueDate.toISOString().slice(0,10)}`); } }
-            });
-            const badge = document.getElementById('notificationBadge');
-            if (upcomingReminders.length > 0) { badge.style.display = 'flex';
-                badge.innerText = upcomingReminders.length; } else { badge.style.display = 'none'; }
-            if (shouldNotify && upcomingReminders.length > 0) lastNotificationTime = Date.now();
-            return upcomingReminders;
+        if (category === 'Part Replacement') { 
+            if (document.getElementById('partName')?.value) entry.partName = document.getElementById('partName').value; 
+            if (document.getElementById('brandName')?.value) entry.brandName = document.getElementById('brandName').value; 
+            if (document.getElementById('shopName')?.value) entry.shopName = document.getElementById('shopName').value; 
         }
-
-        window.showNotificationPanel = () => { const upcoming = checkDueDatesAndSendNotifications(); const container =
-                document.getElementById('notificationList'); if (upcoming.length === 0) container.innerHTML =
-                '<div class="text-center text-gray-400 py-8"><i class="fa fa-check-circle text-3xl"></i><p class="mt-2">No upcoming due dates</p></div>';
-            else container.innerHTML = upcoming.map(r =>
-                `<div class="glass-panel p-3 border-l-4 border-gold"><div class="font-bold text-gold">${r.type} Reminder</div><div class="text-sm">Vehicle: ${r.vehicle}</div><div class="text-xs ${r.daysLeft === 0 ? 'text-red-500 font-bold' : 'text-gray-500'}">Due in ${r.daysLeft === 0 ? 'TODAY' : r.daysLeft + ' day(s)'}</div></div>`
-                ).join('');
-            document.getElementById('notificationPanel').style.display = 'flex'; };
-        window.closeNotificationPanel = () => { document.getElementById('notificationPanel').style.display = 'none'; };
-
-        setInterval(() => checkDueDatesAndSendNotifications(), 3600000);
-        setTimeout(() => checkDueDatesAndSendNotifications(), 5000);
-
-        document.querySelectorAll('input[name="ownershipType"]').forEach(radio => { radio.addEventListener('change', (e) => { if (
-                    e.target.value === 'Second Hand') { document.getElementById('secondHandFields').style.display =
-                    'block';
-                    document.getElementById('firstHandFields').style.display = 'none'; } else if (e.target.value ===
-                    'First Hand') { document.getElementById('secondHandFields').style.display = 'none';
-                    document.getElementById('firstHandFields').style.display = 'block'; } }); });
-        window.toggleTheme = () => { let dark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', dark ? 'dark' : 'light');
-            document.getElementById('themeIcon').className = dark ? "fa fa-sun text-gold" : "fa fa-moon text-gold"; };
-        if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark');
-            document.getElementById('themeIcon').className = "fa fa-sun text-gold"; }
-
-        function updateConditionalFields(cat) { let cont = document.getElementById('conditionalFields'); if (cat ===
-                'Petrol') cont.innerHTML =
-                `<div><input type="number" step="any" id="fuelVolume" placeholder="Litres" class="modern-input"></div><div><input type="number" step="any" id="fuelRate" placeholder="Rate ₹/L" class="modern-input"></div><div><input type="text" id="station" placeholder="Station" class="modern-input"></div>`;
-            else if (cat === 'Part Replacement') cont.innerHTML =
-                `<div><input placeholder="Part name" id="partName" class="modern-input"></div><div><input placeholder="Brand" id="brandName" class="modern-input"></div><div><input placeholder="Shop" id="shopName" class="modern-input"></div>`;
-            else if (cat === 'Servicing') cont.innerHTML =
-                `<div><input placeholder="Service type" id="serviceType" class="modern-input"></div><div><input placeholder="Service center" id="serviceCenter" class="modern-input"></div><div><input type="number" placeholder="Odometer" id="odometer" class="modern-input"></div>`;
-            else if (cat === 'Modification') cont.innerHTML =
-                `<div><input placeholder="Mod part" id="modPart" class="modern-input"></div><div><input placeholder="Brand" id="modBrand" class="modern-input"></div><div><input placeholder="Installer" id="installerShop" class="modern-input"></div>`;
-            else if (cat === 'Tyre/Air') cont.innerHTML =
-                `<div><input placeholder="Size (e.g. 195/60R15)" id="tyreSize" class="modern-input"></div><div><input placeholder="Brand / Puncture" id="tyreBrand" class="modern-input"></div><div></div>`;
-            else if (cat === 'Cleaning') cont.innerHTML =
-                `<div><input placeholder="Cleaning type" id="cleaningType" class="modern-input"></div><div><input placeholder="Center" id="serviceCenterName" class="modern-input"></div><div></div>`;
-            else if (cat === 'PUC') cont.innerHTML =
-                `<div><input placeholder="Certificate No." id="pucCertNo" class="modern-input"></div><div><input placeholder="Shop" id="pucShop" class="modern-input"></div><div></div>`;
-            else if (cat === 'Insurance') cont.innerHTML =
-                `<div><input placeholder="Policy No." id="insurancePolicyNo" class="modern-input"></div><div><input placeholder="Provider" id="insuranceProvider" class="modern-input"></div><div></div>`;
-            else cont.innerHTML =
-                `<div class="col-span-full text-center text-xs text-gray-400 p-3">Select expense type</div>`; }
-
-        document.querySelectorAll('.expense-option').forEach(opt => opt.addEventListener('click', function() {
-            document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
-            this.classList.add('selected');
-            document.getElementById('category').value = this.dataset.cat;
-            updateConditionalFields(this.dataset.cat);
-        }));
-        document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', function() {
-            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            currentCategoryFilter = this.dataset.filter;
-            renderFilteredEntries();
-        }));
-        document.getElementById('historyVehicleSelect').addEventListener('change', (e) => { currentVehicleFilter = e.target
-                .value;
-            renderFilteredEntries();
-            updateTotalInline(); });
-        document.getElementById('vehicleList').addEventListener('change', (e) => document.getElementById(
-            'newVehicleWrapper').classList.toggle('hidden', e.target.value !== 'NEW'));
-
-        function updateTotalInline() {
-            let card = document.getElementById('totalExpenditureInline');
-            let amountEl = document.getElementById('totalExpenditureInlineAmount');
-            if (!currentVehicleFilter) {
-                card.classList.add('hidden');
-                return;
-            }
-            let total = allEntries.filter(e => e.name === currentVehicleFilter).reduce((s, e) => s + e.cost, 0);
-            amountEl.innerText = total.toLocaleString('en-IN');
-            card.classList.remove('hidden');
+        if (category === 'Servicing') { 
+            if (document.getElementById('serviceType')?.value) entry.serviceType = document.getElementById('serviceType').value; 
+            if (document.getElementById('serviceCenter')?.value) entry.serviceCenter = document.getElementById('serviceCenter').value; 
+            if (document.getElementById('odometer')?.value) entry.odometer = parseFloat(document.getElementById('odometer').value); 
         }
-
-        document.getElementById('cancelEditBtn').addEventListener('click', () => { editingId = null;
-            document.getElementById('editId').value = '';
+        if (category === 'Modification') { 
+            if (document.getElementById('modPart')?.value) entry.modPart = document.getElementById('modPart').value; 
+            if (document.getElementById('modBrand')?.value) entry.modBrand = document.getElementById('modBrand').value; 
+            if (document.getElementById('installerShop')?.value) entry.installerShop = document.getElementById('installerShop').value; 
+        }
+        if (category === 'Tyre/Air') { 
+            if (document.getElementById('tyreSize')?.value) entry.tyreSize = document.getElementById('tyreSize').value; 
+            if (document.getElementById('tyreBrand')?.value) entry.tyreBrand = document.getElementById('tyreBrand').value; 
+        }
+        if (category === 'Cleaning') { 
+            if (document.getElementById('cleaningType')?.value) entry.cleaningType = document.getElementById('cleaningType').value; 
+            if (document.getElementById('serviceCenterName')?.value) entry.serviceCenterName = document.getElementById('serviceCenterName').value; 
+        }
+        if (category === 'PUC') { 
+            const pucCert = document.getElementById('pucCertNo');
+            const pucShop = document.getElementById('pucShop');
+            if (pucCert?.value) entry.pucCertNo = pucCert.value;
+            if (pucShop?.value) entry.pucShop = pucShop.value;
+        }
+        if (category === 'Insurance') { 
+            const insPolicy = document.getElementById('insurancePolicyNo');
+            const insProvider = document.getElementById('insuranceProvider');
+            if (insPolicy?.value) entry.insurancePolicyNo = insPolicy.value;
+            if (insProvider?.value) entry.insuranceProvider = insProvider.value;
+        }
+        
+        let editId = document.getElementById('editId').value;
+        try { 
+            if (editId) { 
+                await update(ref(db, `vehicleExpenses/${editId}`), entry);
+                showToast("Updated ✓"); 
+            } else { 
+                await push(expensesRef, entry);
+                showToast("Saved ✓"); 
+            } 
             document.getElementById('expenseForm').reset();
+            document.getElementById('editId').value = '';
             document.getElementById('category').value = '';
             document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
             updateConditionalFields('');
             document.getElementById('expenseDate').value = getISOStringForStorage();
             document.getElementById('cancelEditBtn').classList.add('hidden');
-            showToast("Edit cancelled"); });
-        document.getElementById('expenseForm').addEventListener('submit', async (e) => { e.preventDefault(); let vehicle =
-                document.getElementById('vehicleList').value; if (vehicle === 'NEW') { let nn = document.getElementById(
-                    'newVehicleName').value.trim(); if (!nn) return alert("Enter vehicle");
-                vehicle = nn.toUpperCase(); } if (!vehicle) return alert("Vehicle required"); let cost = parseFloat(
-                document.getElementById('cost').value); if (isNaN(cost) || cost <= 0) return alert("Valid amount");
-            let category = document.getElementById('category').value; if (!category) return alert("Select type"); let
-                rawDate = document.getElementById('expenseDate').value || getISOStringForStorage(); let displayDate =
-                formatDateToDisplay(rawDate); let timestamp = Date.now(); let entry = { name: vehicle, cost, category,
-                date: displayDate, rawDate, timestamp, details: document.getElementById('details').value || null };
-            if (category === 'Petrol') { if (document.getElementById('fuelVolume')?.value) entry.fuelVolume = parseFloat(
-                    document.getElementById('fuelVolume').value); if (document.getElementById('fuelRate')?.value)
-                    entry.fuelRate = parseFloat(document.getElementById('fuelRate').value); if (document.getElementById(
-                        'station')?.value) entry.station = document.getElementById('station').value; }
-            if (category === 'Part Replacement') { if (document.getElementById('partName')?.value) entry.partName =
-                    document.getElementById('partName').value; if (document.getElementById('brandName')?.value) entry
-                    .brandName = document.getElementById('brandName').value; if (document.getElementById('shopName')
-                    ?.value) entry.shopName = document.getElementById('shopName').value; }
-            if (category === 'Servicing') { if (document.getElementById('serviceType')?.value) entry.serviceType =
-                    document.getElementById('serviceType').value; if (document.getElementById('serviceCenter')?.value)
-                    entry.serviceCenter = document.getElementById('serviceCenter').value; if (document.getElementById(
-                    'odometer')?.value) entry.odometer = parseFloat(document.getElementById('odometer').value); }
-            if (category === 'Modification') { if (document.getElementById('modPart')?.value) entry.modPart = document
-                    .getElementById('modPart').value; if (document.getElementById('modBrand')?.value) entry.modBrand =
-                    document.getElementById('modBrand').value; if (document.getElementById('installerShop')?.value)
-                    entry.installerShop = document.getElementById('installerShop').value; }
-            if (category === 'Tyre/Air') { if (document.getElementById('tyreSize')?.value) entry.tyreSize = document
-                    .getElementById('tyreSize').value; if (document.getElementById('tyreBrand')?.value) entry
-                    .tyreBrand = document.getElementById('tyreBrand').value; }
-            if (category === 'Cleaning') { if (document.getElementById('cleaningType')?.value) entry.cleaningType =
-                    document.getElementById('cleaningType').value; if (document.getElementById('serviceCenterName')
-                    ?.value) entry.serviceCenterName = document.getElementById('serviceCenterName').value; }
-            if (category === 'PUC') { 
-                const pucCert = document.getElementById('pucCertNo');
-                const pucShop = document.getElementById('pucShop');
-                if (pucCert?.value) entry.pucCertNo = pucCert.value;
-                if (pucShop?.value) entry.pucShop = pucShop.value;
-            }
-            if (category === 'Insurance') { 
-                const insPolicy = document.getElementById('insurancePolicyNo');
-                const insProvider = document.getElementById('insuranceProvider');
-                if (insPolicy?.value) entry.insurancePolicyNo = insPolicy.value;
-                if (insProvider?.value) entry.insuranceProvider = insProvider.value;
-            }
-            let editId = document.getElementById('editId').value;
-            try { if (editId) { await update(ref(db, `vehicleExpenses/${editId}`), entry);
-                    showToast("Updated ✓"); } else { await push(expensesRef, entry);
-                    showToast("Saved ✓"); } document.getElementById('expenseForm').reset();
-                document.getElementById('editId').value = '';
-                document.getElementById('category').value = '';
-                document.querySelectorAll('.expense-option').forEach(o => o.classList.remove('selected'));
-                updateConditionalFields('');
-                document.getElementById('expenseDate').value = getISOStringForStorage();
-                document.getElementById('cancelEditBtn').classList.add('hidden');
-                editingId = null;
-                updateServiceCostSummary(); } catch (err) { alert("Error"); } });
+            editingId = null;
+            updateServiceCostSummary(); 
+        } catch (err) { 
+            alert("Error"); 
+        } 
+    });
 
-        window.editEntry = (id) => { let entry = allEntries.find(e => e.id === id); if (!entry) return;
-            editingId = id;
-            document.getElementById('editId').value = id;
-            document.getElementById('vehicleList').value = entry.name;
-            document.getElementById('cost').value = entry.cost;
-            document.getElementById('category').value = entry.category;
-            updateConditionalFields(entry.category);
-            document.querySelectorAll('.expense-option').forEach(opt => opt.classList.toggle('selected', opt.dataset.cat ===
-                entry.category));
-            document.getElementById('details').value = entry.details || '';
-            if (entry.rawDate) document.getElementById('expenseDate').value = entry.rawDate;
-            document.getElementById('cancelEditBtn').classList.remove('hidden');
-            window.scrollTo({ top: 0 }); };
-        window.deleteEntry = async (id) => { if (confirm("Delete entry?")) { await remove(ref(db,
-                `vehicleExpenses/${id}`));
-                showToast("Deleted");
-                updateServiceCostSummary(); } };
-        window.filterEntries = () => { currentSearchTerm = document.getElementById('searchBar').value.toLowerCase();
-            renderFilteredEntries(); };
-        window.startVoiceSearch = () => { let SpeechRecognition = window.SpeechRecognition || window
-            .webkitSpeechRecognition; if (!SpeechRecognition) return alert("Not supported"); let rec =
-            new SpeechRecognition();
-            rec.lang = 'en-IN';
-            rec.start();
-            rec.onresult = (e) => { document.getElementById('searchBar').value = e.results[0][0].transcript;
-                currentSearchTerm = e.results[0][0].transcript.toLowerCase();
-                renderFilteredEntries(); }; };
+    window.editEntry = (id) => { 
+        let entry = allEntries.find(e => e.id === id); 
+        if (!entry) return;
+        editingId = id;
+        document.getElementById('editId').value = id;
+        document.getElementById('vehicleList').value = entry.name;
+        document.getElementById('cost').value = entry.cost;
+        document.getElementById('category').value = entry.category;
+        updateConditionalFields(entry.category);
+        document.querySelectorAll('.expense-option').forEach(opt => opt.classList.toggle('selected', opt.dataset.cat === entry.category));
+        document.getElementById('details').value = entry.details || '';
+        if (entry.rawDate) document.getElementById('expenseDate').value = entry.rawDate;
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        window.scrollTo({ top: 0 }); 
+    };
 
-        function renderFilteredEntries() { let filtered = allEntries.filter(e => !currentVehicleFilter || e.name ===
-                currentVehicleFilter); if (currentCategoryFilter !== 'all') filtered = filtered.filter(e => e
-                .category === currentCategoryFilter); if (currentSearchTerm) filtered = filtered.filter(e => JSON
-                .stringify(e).toLowerCase().includes(currentSearchTerm));
-            document.getElementById('logCounter').innerText = filtered.length; let cont = document.getElementById(
-                'logsContainer'); if (!filtered.length) { cont.innerHTML =
-                    `<div class="glass-panel p-6 text-center"><i class="fa fa-receipt text-gray-300 text-2xl"></i><p class="text-sm mt-2">No entries</p></div>`;
-                return; }
-            cont.innerHTML = filtered.map(d =>
-                `<div class="entry-card"><div class="flex justify-between items-start gap-3"><div><div class="flex gap-2 flex-wrap"><span class="font-bold text-gold date-display">${d.date}</span><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs">${d.category}</span></div><h3 class="font-black mt-1">${escapeHtml(d.name)}</h3>${d.details?`<p class="text-gray-500 text-xs mt-1">${escapeHtml(d.details)}</p>`:''}${d.fuelVolume?`<p class="text-xs text-gray-400 mt-1">⛽ ${d.fuelVolume} L ${d.fuelRate?`@ ₹${d.fuelRate}/L`:''}</p>`:''}${d.tyreBrand?`<p class="text-xs text-gray-400 mt-1">🛞 ${escapeHtml(d.tyreBrand)}</p>`:''}</div><div class="text-right"><span class="font-black text-gold text-lg">₹${d.cost.toLocaleString('en-IN')}</span><div class="flex gap-2 mt-2"><button onclick='window.editEntry("${d.id}")' class="text-blue-500 action-btn"><i class="fa-regular fa-pen-to-square"></i></button><button onclick='window.deleteEntry("${d.id}")' class="text-gray-400 hover:text-red-500 action-btn"><i class="fa-regular fa-trash-can"></i></button></div></div></div></div>`
-            ).join(''); }
+    window.deleteEntry = async (id) => { 
+        if (confirm("Delete entry?")) { 
+            await remove(ref(db, `vehicleExpenses/${id}`));
+            showToast("Deleted");
+            updateServiceCostSummary(); 
+        } 
+    };
 
-        function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;',
-                '>': '&gt;' } [m])); }
+    // ============ NOTIFICATION FUNCTIONS ============
+    window.requestNotificationPermission = async () => { 
+        if ("Notification" in window) { 
+            const permission = await Notification.requestPermission(); 
+            if (permission === "granted") showToast("Notifications enabled!");
+            else showToast("Permission denied", true); 
+        } 
+    };
 
-        function getServiceDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.serviceStartDate)
-                html += `<div>📅 Start: ${formatDateToDisplay(r.serviceStartDate)}</div>`; if (r.nextServiceDate) html +=
-                `<div>⏰ Next Service: ${formatDateToDisplay(r.nextServiceDate)}</div>`; if (r.nextServiceKM) html +=
-                `<div>📊 Next KM: ${r.nextServiceKM.toLocaleString()} km</div>`; if (r.currentOdometer) html +=
-                `<div>📍 Current Odometer: ${r.currentOdometer.toLocaleString()} km</div>`; if (r.serviceNotes) html +=
-                `<div>📝 Notes: ${escapeHtml(r.serviceNotes)}</div>`; html += '</div>'; return html; }
+    let sentNotificationsToday = new Set();
 
-        function getVehicleInfoDetailsHTML(r) { let html = '<div class="reminder-detail-card">'; if (r.regNumber) html +=
-                `<div>🚗 Reg No: ${escapeHtml(r.regNumber)}</div>`; if (r.chassisNo) html +=
-                `<div>🔢 Chassis: ${escapeHtml(r.chassisNo)}</div>`; if (r.engineNo) html +=
-                `<div>⚙️ Engine: ${escapeHtml(r.engineNo)}</div>`; if (r.modelYear) html +=
-                `<div>📅 Model Year: ${escapeHtml(r.modelYear)}</div>`; if (r.ownershipType) html +=
-                `<div>👑 Ownership: ${escapeHtml(r.ownershipType)}</div>`; if (r.prevOwnerName) html +=
-                `<div>👤 Previous Owner: ${escapeHtml(r.prevOwnerName)}</div>`; if (r.showroomName) html +=
-                `<div>🏬 Showroom: ${escapeHtml(r.showroomName)}</div>`; if (r.purchasePrice) html +=
-                `<div>💰 Purchase Price: ₹${r.purchasePrice.toLocaleString()}</div>`; html += '</div>'; return html; }
-
-        let currentReminderFilterTab = 'service';
-
-        function loadRemindersList() {
-            let filteredReminders = reminders.filter(r => {
-                if (currentReminderFilterTab === 'service') return r.nextServiceDate || r.serviceStartDate || r
-                    .serviceNotes || r.nextServiceKM;
-                if (currentReminderFilterTab === 'vehicleInfo') return r.regNumber || r.chassisNo || r.engineNo || r
-                    .ownershipType;
-                return true;
-            });
-            let cont = document.getElementById('remindersList');
-            if (!filteredReminders.length) { cont.innerHTML =
-                    '<div class="text-center text-gray-400 py-5">No records for this category</div>'; return; }
-            cont.innerHTML = filteredReminders.map(r => {
-                let detailsHtml = '';
-                if (currentReminderFilterTab === 'service') detailsHtml = getServiceDetailsHTML(r);
-                else if (currentReminderFilterTab === 'vehicleInfo') detailsHtml = getVehicleInfoDetailsHTML(r);
-                return `<div class="glass-panel p-3"><div class="flex justify-between items-start"><div><div class="font-bold text-gold text-base">${escapeHtml(r.vehicle)}</div>${detailsHtml}</div><button onclick='window.deleteReminder("${r.id}")' class="text-red-400 hover:text-red-600 transition ml-2"><i class="fa fa-trash"></i></button></div></div>`;
-            }).join('');
+    function sendBrowserNotification(title, body, uniqueKey) {
+        if (sentNotificationsToday.has(uniqueKey)) return;
+        if ("Notification" in window && Notification.permission === "granted") {
+            new Notification(title, { body: body, icon: "https://img.icons8.com/color/48/car.png" });
+            sentNotificationsToday.add(uniqueKey);
+            setTimeout(() => sentNotificationsToday.delete(uniqueKey), 12 * 3600000);
         }
+    }
 
-        window.saveComprehensiveReminder = async () => { let vehicle = document.getElementById('reminderVehicleSelect')
-                .value; if (!vehicle) { alert("Select vehicle"); return; } let ownershipType = document.querySelector(
-                'input[name="ownershipType"]:checked')?.value || ''; let data = { vehicle, serviceStartDate: document
-                    .getElementById('serviceStartDate').value || null, nextServiceDate: document.getElementById(
-                    'nextServiceDate').value || null, nextServiceKM: document.getElementById('nextServiceKM')
-                    .value || null, currentOdometer: document.getElementById('currentOdometer').value || null,
-                serviceNotes: document.getElementById('serviceNotes').value || null, regNumber: document.getElementById(
-                    'regNumber').value ||
-                    null, chassisNo: document.getElementById('chassisNo').value || null, engineNo: document
-                    .getElementById('engineNo').value || null, modelYear: document.getElementById('modelYear')
-                    .value || null, ownershipType, prevOwnerName: document.getElementById('prevOwnerName').value ||
-                    null, prevOwnerPhone: document.getElementById('prevOwnerPhone').value || null, showroomName: document
-                    .getElementById('showroomName').value || null, purchasePrice: document.getElementById(
-                    'purchasePrice').value || null, firstHandShowroom: document.getElementById(
-                    'firstHandShowroom').value || null, firstHandPrice: document.getElementById('firstHandPrice')
-                    .value || null, invoiceNo: document.getElementById('invoiceNo').value || null,
-                updatedAt: Date.now() };
-            let existing = reminders.find(r => r.vehicle === vehicle); if (existing) await update(ref(db,
-                `serviceReminders/${existing.id}`), data); else await push(remindersRef, data);
-            showToast(`Saved all details for ${vehicle}`);
-            loadRemindersList();
-            checkDueDatesAndSendNotifications(); };
-        window.deleteReminder = async (id) => { if (confirm("Delete record?")) { await remove(ref(db,
-                `serviceReminders/${id}`));
-                showToast("Deleted");
-                checkDueDatesAndSendNotifications(); } };
+    function checkDueDatesAndSendNotifications() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const hours = now.getHours();
+        const shouldNotify = (hours === 9 || hours === 18) && (now.getMinutes() < 5);
+        if (!shouldNotify && lastNotificationTime > Date.now() - 5 * 3600000) return;
 
-        window.openServiceReminderModal = () => {
-            document.getElementById('serviceReminderModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-            document.getElementById('serviceStartDate').value = getISOStringForStorage();
-            document.getElementById('secondHandFields').style.display = 'none';
-            document.getElementById('firstHandFields').style.display = 'none';
-            document.querySelectorAll('input[name="ownershipType"]').forEach(r => r.checked = false);
+        const upcomingReminders = [];
+        reminders.forEach(reminder => {
+            const vehicle = reminder.vehicle;
+            if (reminder.nextServiceDate) { 
+                const dueDate = new Date(reminder.nextServiceDate);
+                dueDate.setHours(0, 0, 0, 0); 
+                const diffDays = Math.ceil((dueDate - today) / (1000 * 3600 * 24)); 
+                if (diffDays >= 0 && diffDays <= 7) { 
+                    upcomingReminders.push({ type: "Service", daysLeft: diffDays, vehicle }); 
+                    if (diffDays <= 3 || diffDays === 0)
+                        sendBrowserNotification(`🔧 Service Reminder`, `${vehicle} - Service due in ${diffDays===0 ? 'TODAY' : diffDays+' day(s)'}!`, `service_${vehicle}_${dueDate.toISOString().slice(0,10)}`); 
+                } 
+            }
+        });
+        const badge = document.getElementById('notificationBadge');
+        if (upcomingReminders.length > 0) { 
+            badge.style.display = 'flex';
+            badge.innerText = upcomingReminders.length; 
+        } else { 
+            badge.style.display = 'none'; 
+        }
+        if (shouldNotify && upcomingReminders.length > 0) lastNotificationTime = Date.now();
+        return upcomingReminders;
+    }
+
+    window.showNotificationPanel = () => { 
+        const upcoming = checkDueDatesAndSendNotifications(); 
+        const container = document.getElementById('notificationList'); 
+        if (!upcoming || upcoming.length === 0) container.innerHTML = '<div class="text-center text-gray-400 py-8"><i class="fa fa-check-circle text-3xl"></i><p class="mt-2">No upcoming due dates</p></div>';
+        else container.innerHTML = upcoming.map(r => `<div class="glass-panel p-3 border-l-4 border-gold"><div class="font-bold text-gold">${r.type} Reminder</div><div class="text-sm">Vehicle: ${r.vehicle}</div><div class="text-xs ${r.daysLeft === 0 ? 'text-red-500 font-bold' : 'text-gray-500'}">Due in ${r.daysLeft === 0 ? 'TODAY' : r.daysLeft + ' day(s)'}</div></div>`).join('');
+        document.getElementById('notificationPanel').style.display = 'flex'; 
+    };
+
+    window.closeNotificationPanel = () => { 
+        document.getElementById('notificationPanel').style.display = 'none'; 
+    };
+
+    // ============ REMINDER FUNCTIONS ============
+    function getServiceDetailsHTML(r) { 
+        let html = '<div class="reminder-detail-card">'; 
+        if (r.serviceStartDate) html += `<div>📅 Start: ${formatDateToDisplay(r.serviceStartDate)}</div>`; 
+        if (r.nextServiceDate) html += `<div>⏰ Next Service: ${formatDateToDisplay(r.nextServiceDate)}</div>`; 
+        if (r.nextServiceKM) html += `<div>📊 Next KM: ${r.nextServiceKM} km</div>`; 
+        if (r.currentOdometer) html += `<div>📍 Current Odometer: ${r.currentOdometer} km</div>`; 
+        if (r.serviceNotes) html += `<div>📝 Notes: ${escapeHtml(r.serviceNotes)}</div>`; 
+        html += '</div>'; 
+        return html; 
+    }
+
+    function getVehicleInfoDetailsHTML(r) { 
+        let html = '<div class="reminder-detail-card">'; 
+        if (r.regNumber) html += `<div>🚗 Reg No: ${escapeHtml(r.regNumber)}</div>`; 
+        if (r.chassisNo) html += `<div>🔢 Chassis: ${escapeHtml(r.chassisNo)}</div>`; 
+        if (r.engineNo) html += `<div>⚙️ Engine: ${escapeHtml(r.engineNo)}</div>`; 
+        if (r.modelYear) html += `<div>📅 Model Year: ${escapeHtml(r.modelYear)}</div>`; 
+        if (r.ownershipType) html += `<div>👑 Ownership: ${escapeHtml(r.ownershipType)}</div>`; 
+        if (r.prevOwnerName) html += `<div>👤 Previous Owner: ${escapeHtml(r.prevOwnerName)}</div>`; 
+        if (r.showroomName) html += `<div>🏬 Showroom: ${escapeHtml(r.showroomName)}</div>`; 
+        if (r.purchasePrice) html += `<div>💰 Purchase Price: ₹${r.purchasePrice}</div>`; 
+        html += '</div>'; 
+        return html; 
+    }
+
+    let currentReminderFilterTab = 'service';
+
+    function loadRemindersList() {
+        let filteredReminders = reminders.filter(r => {
+            if (currentReminderFilterTab === 'service') return r.nextServiceDate || r.serviceStartDate || r.serviceNotes || r.nextServiceKM;
+            if (currentReminderFilterTab === 'vehicleInfo') return r.regNumber || r.chassisNo || r.engineNo || r.ownershipType;
+            return true;
+        });
+        let cont = document.getElementById('remindersList');
+        if (!filteredReminders.length) { 
+            cont.innerHTML = '<div class="text-center text-gray-400 py-5">No records for this category</div>'; 
+            return; 
+        }
+        cont.innerHTML = filteredReminders.map(r => {
+            let detailsHtml = '';
+            if (currentReminderFilterTab === 'service') detailsHtml = getServiceDetailsHTML(r);
+            else if (currentReminderFilterTab === 'vehicleInfo') detailsHtml = getVehicleInfoDetailsHTML(r);
+            return `<div class="glass-panel p-3"><div class="flex justify-between items-start"><div><div class="font-bold text-gold text-base">${escapeHtml(r.vehicle)}</div>${detailsHtml}</div><button onclick='window.deleteReminder("${r.id}")' class="text-red-400 hover:text-red-600 transition ml-2"><i class="fa fa-trash"></i></button></div></div>`;
+        }).join('');
+    }
+
+    window.saveComprehensiveReminder = async () => { 
+        let vehicle = document.getElementById('reminderVehicleSelect').value; 
+        if (!vehicle) { alert("Select vehicle"); return; } 
+        let ownershipType = document.querySelector('input[name="ownershipType"]:checked')?.value || ''; 
+        let data = { 
+            vehicle, 
+            serviceStartDate: document.getElementById('serviceStartDate').value || null, 
+            nextServiceDate: document.getElementById('nextServiceDate').value || null, 
+            nextServiceKM: document.getElementById('nextServiceKM').value || null, 
+            currentOdometer: document.getElementById('currentOdometer').value || null,
+            serviceNotes: document.getElementById('serviceNotes').value || null, 
+            regNumber: document.getElementById('regNumber').value || null, 
+            chassisNo: document.getElementById('chassisNo').value || null, 
+            engineNo: document.getElementById('engineNo').value || null, 
+            modelYear: document.getElementById('modelYear').value || null, 
+            ownershipType, 
+            prevOwnerName: document.getElementById('prevOwnerName').value || null, 
+            prevOwnerPhone: document.getElementById('prevOwnerPhone').value || null, 
+            showroomName: document.getElementById('showroomName').value || null, 
+            purchasePrice: document.getElementById('purchasePrice').value || null, 
+            firstHandShowroom: document.getElementById('firstHandShowroom').value || null, 
+            firstHandPrice: document.getElementById('firstHandPrice').value || null, 
+            invoiceNo: document.getElementById('invoiceNo').value || null,
+            updatedAt: Date.now() 
+        };
+        let existing = reminders.find(r => r.vehicle === vehicle); 
+        if (existing) await update(ref(db, `serviceReminders/${existing.id}`), data); 
+        else await push(remindersRef, data);
+        showToast(`Saved all details for ${vehicle}`);
+        loadRemindersList();
+        checkDueDatesAndSendNotifications(); 
+    };
+
+    window.deleteReminder = async (id) => { 
+        if (confirm("Delete record?")) { 
+            await remove(ref(db, `serviceReminders/${id}`));
+            showToast("Deleted");
+            checkDueDatesAndSendNotifications(); 
+        } 
+    };
+
+    window.openServiceReminderModal = () => {
+        document.getElementById('serviceReminderModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        document.getElementById('serviceStartDate').value = getISOStringForStorage();
+        document.getElementById('secondHandFields').style.display = 'none';
+        document.getElementById('firstHandFields').style.display = 'none';
+        document.querySelectorAll('input[name="ownershipType"]').forEach(r => r.checked = false);
+        initCollapsibles();
+        currentReminderFilterTab = 'service';
+        document.getElementById('recordFilterBadge').innerText = 'SERVICE';
+        loadRemindersList();
+        updateServiceCostSummary();
+    };
+
+    window.closeServiceReminderModal = () => {
+        document.getElementById('serviceReminderModal').style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    window.switchServiceTab = (tab) => {
+        document.getElementById('serviceTabPanel').style.display = 'none';
+        document.getElementById('infoTabPanel').style.display = 'none';
+        document.getElementById('tabServiceBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold';
+        document.getElementById('tabInfoBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold';
+        if (tab === 'service') { 
+            document.getElementById('serviceTabPanel').style.display = 'block';
+            document.getElementById('tabServiceBtn').className = 'service-tab-active px-4 py-2 text-sm font-bold';
             initCollapsibles();
             currentReminderFilterTab = 'service';
             document.getElementById('recordFilterBadge').innerText = 'SERVICE';
             loadRemindersList();
-            updateServiceCostSummary();
-        };
-        window.closeServiceReminderModal = () => {
-            document.getElementById('serviceReminderModal').style.display = 'none';
-            document.body.style.overflow = '';
-        };
+            updateServiceCostSummary(); 
+        }
+        if (tab === 'vehicleInfo') { 
+            document.getElementById('infoTabPanel').style.display = 'block';
+            document.getElementById('tabInfoBtn').className = 'service-tab-active px-4 py-2 text-sm font-bold';
+            initCollapsibles();
+            currentReminderFilterTab = 'vehicleInfo';
+            document.getElementById('recordFilterBadge').innerText = 'VEHICLE INFO';
+            loadRemindersList();
+        }
+    };
 
-        window.switchServiceTab = (tab) => {
-            document.getElementById('serviceTabPanel').style.display = 'none';
-            document.getElementById('infoTabPanel').style.display = 'none';
-            document.getElementById('tabServiceBtn').className =
-            'service-tab-inactive px-4 py-2 text-sm font-bold';
-            document.getElementById('tabInfoBtn').className = 'service-tab-inactive px-4 py-2 text-sm font-bold';
-            if (tab === 'service') { document.getElementById('serviceTabPanel').style.display = 'block';
-                document.getElementById('tabServiceBtn').className =
-                    'service-tab-active px-4 py-2 text-sm font-bold';
-                initCollapsibles();
-                currentReminderFilterTab = 'service';
-                document.getElementById('recordFilterBadge').innerText = 'SERVICE';
-                loadRemindersList();
-                updateServiceCostSummary(); }
-            if (tab === 'vehicleInfo') { document.getElementById('infoTabPanel').style.display = 'block';
-                document.getElementById('tabInfoBtn').className =
-                    'service-tab-active px-4 py-2 text-sm font-bold';
-                initCollapsibles();
-                currentReminderFilterTab = 'vehicleInfo';
-                document.getElementById('recordFilterBadge').innerText = 'VEHICLE INFO';
-                loadRemindersList(); }
-        };
+    // ============ PDF EXPORT FUNCTION - WITH SAVIG LOGO ============
+  // ============ PDF EXPORT FUNCTION - WITHOUT LOGO ============
+window.shareVehiclePDF = async () => {
+    if (!currentVehicleFilter) { 
+        alert("Please select a vehicle from the dropdown above"); 
+        return; 
+    }
+    let entries = allEntries.filter(e => e.name === currentVehicleFilter);
+    if (!entries.length) { 
+        alert("No data available for this vehicle"); 
+        return; 
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageWidth = 210;
+    const margin = 14;
 
-        window.openHistoryModal = () => { if (!currentVehicleFilter) { alert("Select vehicle from 'VIEW DATA FOR'");
-                return; }
-            historyCurrentVehicle = currentVehicleFilter;
-            document.getElementById('modalVehicleName').innerHTML =
-                `<i class="fa fa-car"></i> ${currentVehicleFilter}`;
-            updateHistoryModal(currentVehicleFilter, 'all');
-            document.getElementById('historyModal').style.display = 'flex'; };
-        window.closeHistoryModal = () => { document.getElementById('historyModal').style.display = 'none'; };
-        window.filterHistoryByCategory = (cat) => { updateHistoryModal(historyCurrentVehicle, cat);
-            document.querySelectorAll('.history-stat-card').forEach(c => c.classList.remove('active')); let map = {
-                'all': 'historyAllCard',
-                'Petrol': 'historyPetrolCard',
-                'Part Replacement': 'historyPartCard',
-                'Servicing': 'historyServicingCard',
-                'Modification': 'historyModCard',
-                'Tyre/Air': 'historyTyreCard',
-                'PUC': 'historyPucCard',
-                'Insurance': 'historyInsuranceCard'
-            };
-            document.getElementById(map[cat] || 'historyAllCard').classList.add('active'); };
+    // Header
+    doc.setFillColor(218, 165, 32);
+    doc.rect(0, 0, pageWidth, 25, 'F');
+    
+    // Vehicle name on the left
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    const vehicleText = `Vehicle: ${currentVehicleFilter}`;
+    doc.text(vehicleText, margin, 10);
+    
+    // Generated date on the right
+// In your shareVehiclePDF function, replace that section with:
+const dateText = `Generated: ${formatDateToDisplay(getISOStringForStorage())}`;
+doc.setFontSize(13); // Increased from 12 to 13
+doc.setFont("helvetica", "bold"); // Changed from "normal" to "bold" for heavier weight
+doc.setTextColor(255, 255, 255); // Pure white
+doc.text(dateText, pageWidth - margin - doc.getStringUnitWidth(dateText) * 13 / 2.5, 12);
+    
+    // Main title
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    doc.text("VEHICLE EXPENSE REPORT", pageWidth / 2, 20, { align: 'center' });
 
-        function updateHistoryModal(vehicle, cat) { let entries = allEntries.filter(e => e.name === vehicle); let sums = {
-                Petrol: 0, Part: 0, Servicing: 0, Mod: 0, Tyre: 0, PUC: 0, Insurance: 0, total: 0
-            },
-            cnts = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, Tyre: 0, PUC: 0, Insurance: 0 };
-            entries.forEach(e => { sums.total += e.cost; if (e.category === 'Petrol') { sums.Petrol += e.cost;
-                    cnts.Petrol++; } else if (e.category === 'Part Replacement') { sums.Part += e.cost;
-                    cnts.Part++; } else if (e.category === 'Servicing') { sums.Servicing += e.cost;
-                    cnts.Servicing++; } else if (e.category === 'Modification') { sums.Mod += e.cost;
-                    cnts.Mod++; } else if (e.category === 'Tyre/Air') { sums.Tyre += e.cost;
-                    cnts.Tyre++; } else if (e.category === 'PUC') { sums.PUC += e.cost;
-                    cnts.PUC++; } else if (e.category === 'Insurance') { sums.Insurance += e.cost;
-                    cnts.Insurance++; } });
-            document.getElementById('historyTotalAmount').innerHTML = `₹${sums.total.toLocaleString('en-IN')}`;
-            document.getElementById('historyTotalCount').innerText = entries.length;
-            document.getElementById('historyPetrolAmount').innerHTML = `₹${sums.Petrol.toLocaleString('en-IN')}`;
-            document.getElementById('historyPetrolCount').innerText = cnts.Petrol;
-            document.getElementById('historyPartAmount').innerHTML = `₹${sums.Part.toLocaleString('en-IN')}`;
-            document.getElementById('historyPartCount').innerText = cnts.Part;
-            document.getElementById('historyServicingAmount').innerHTML = `₹${sums.Servicing.toLocaleString('en-IN')}`;
-            document.getElementById('historyServicingCount').innerText = cnts.Servicing;
-            document.getElementById('historyModAmount').innerHTML = `₹${sums.Mod.toLocaleString('en-IN')}`;
-            document.getElementById('historyModCount').innerText = cnts.Mod;
-            document.getElementById('historyTyreAmount').innerHTML = `₹${sums.Tyre.toLocaleString('en-IN')}`;
-            document.getElementById('historyTyreCount').innerText = cnts.Tyre;
-            document.getElementById('historyPucAmount').innerHTML = `₹${sums.PUC.toLocaleString('en-IN')}`;
-            document.getElementById('historyPucCount').innerText = cnts.PUC;
-            document.getElementById('historyInsuranceAmount').innerHTML = `₹${sums.Insurance.toLocaleString('en-IN')}`;
-            document.getElementById('historyInsuranceCount').innerText = cnts.Insurance;
-            let filtered = cat === 'all' ? entries : entries.filter(e => e.category === cat);
-            filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-            let cont = document.getElementById('historyEntriesList'); if (!filtered.length) { cont.innerHTML =
-                    '<div class="text-center text-gray-400 text-sm py-5">No records</div>'; return; }
-            cont.innerHTML = filtered.map(e =>
-                `<div class="glass-panel p-3"><div class="flex flex-wrap justify-between items-start"><div><div class="font-bold text-gold text-base">${e.date}</div><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs inline-block mt-1">${e.category}</span>${e.details?`<div class="text-gray-500 text-xs mt-2">📝 ${escapeHtml(e.details)}</div>`:''}</div><div class="text-right"><span class="font-black text-gold text-xl">₹${e.cost.toLocaleString('en-IN')}</span></div></div></div>`
-            ).join(''); }
+    // Calculate sums
+    let sums = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, TyreAir: 0, PUC: 0, Insurance: 0, total: 0 };
+    entries.forEach(e => {
+        sums.total += e.cost;
+        if (e.category === 'Petrol') sums.Petrol += e.cost;
+        else if (e.category === 'Part Replacement') sums.Part += e.cost;
+        else if (e.category === 'Servicing') sums.Servicing += e.cost;
+        else if (e.category === 'Modification') sums.Mod += e.cost;
+        else if (e.category === 'Tyre/Air') sums.TyreAir += e.cost;
+        else if (e.category === 'PUC') sums.PUC += e.cost;
+        else if (e.category === 'Insurance') sums.Insurance += e.cost;
+    });
+    
+    // Summary section
+    const summaryY = 32;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    
+    // Draw border box for summary
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    const summaryHeight = 32;
+    doc.rect(margin, summaryY - 3, pageWidth - 2 * margin, summaryHeight, 'S');
+    
+    // Row spacing
+    const row1Y = summaryY + 4;
+    const row2Y = summaryY + 11;
+    const row3Y = summaryY + 18;
+    
+    // Column widths - 3 columns with proper spacing
+    const col1Width = 50;
+    const col2Width = 50;
+    const startX = margin + 5;
+    
+    // Draw vertical borders for columns
+    doc.setLineWidth(0.2);
+    doc.line(margin + col1Width + 3, summaryY - 3, margin + col1Width + 3, summaryY + summaryHeight - 3);
+    doc.line(margin + col1Width + col2Width + 6, summaryY - 3, margin + col1Width + col2Width + 6, summaryY + summaryHeight - 3);
+    
+    // Row 1
+    doc.text(`Total: ${sums.total} Rs`, startX, row1Y);
+    doc.text(`Petrol: ${sums.Petrol} Rs`, startX + col1Width + 5, row1Y);
+    doc.text(`Part: ${sums.Part} Rs`, startX + col1Width + col2Width + 10, row1Y);
+    
+    // Row 2
+    doc.text(`Servicing: ${sums.Servicing} Rs`, startX, row2Y);
+    doc.text(`Modification: ${sums.Mod} Rs`, startX + col1Width + 5, row2Y);
+    doc.text(`Tyre/Air: ${sums.TyreAir} Rs`, startX + col1Width + col2Width + 10, row2Y);
+    
+    // Row 3
+    doc.text(`PUC: ${sums.PUC} Rs`, startX, row3Y);
+    doc.text(`Insurance: ${sums.Insurance} Rs`, startX + col1Width + 5, row3Y);
+    doc.text(`Transactions: ${entries.length}`, startX + col1Width + col2Width + 10, row3Y);
 
-        window.shareVehiclePDF = async () => {
-            if (!currentVehicleFilter) { alert("Select vehicle"); return; }
-            let entries = allEntries.filter(e => e.name === currentVehicleFilter);
-            if (!entries.length) { alert("No data"); return; }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-            const pageWidth = 210;
-            const margin = 14;
+    // Prepare table data
+    const rows = entries.map(e => {
+        let detailParts = [];
+        if (e.details) detailParts.push(`Notes: ${e.details}`);
+        if (e.fuelVolume) { 
+            let fuelStr = `Fuel: ${e.fuelVolume}L`; 
+            if (e.fuelRate) fuelStr += ` | Rate: ${e.fuelRate}/L`; 
+            if (e.station) fuelStr += ` (${e.station})`; 
+            detailParts.push(fuelStr); 
+        }
+        if (e.tyreBrand) detailParts.push(`Tyre: ${e.tyreBrand}`);
+        if (e.tyreSize) detailParts.push(`Size: ${e.tyreSize}`);
+        if (e.partName) detailParts.push(`Part: ${e.partName}`);
+        if (e.brandName) detailParts.push(`Brand: ${e.brandName}`);
+        if (e.shopName) detailParts.push(`Shop: ${e.shopName}`);
+        if (e.serviceType) detailParts.push(`Service: ${e.serviceType}`);
+        if (e.serviceCenter) detailParts.push(`Center: ${e.serviceCenter}`);
+        if (e.odometer) detailParts.push(`Odometer: ${e.odometer} km`);
+        if (e.modPart) detailParts.push(`Mod: ${e.modPart}`);
+        if (e.modBrand) detailParts.push(`Brand: ${e.modBrand}`);
+        if (e.installerShop) detailParts.push(`Installer: ${e.installerShop}`);
+        if (e.cleaningType) detailParts.push(`Clean: ${e.cleaningType}`);
+        if (e.serviceCenterName) detailParts.push(`Center: ${e.serviceCenterName}`);
+        if (e.pucCertNo) detailParts.push(`PUC Cert: ${e.pucCertNo}`);
+        if (e.pucShop) detailParts.push(`PUC Shop: ${e.pucShop}`);
+        if (e.insurancePolicyNo) detailParts.push(`Policy: ${e.insurancePolicyNo}`);
+        if (e.insuranceProvider) detailParts.push(`Provider: ${e.insuranceProvider}`);
+        const detailStr = detailParts.length ? detailParts.join(' | ') : '-';
+        return [e.date, e.category, e.cost.toString(), detailStr];
+    });
+    rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
 
-            doc.setFillColor(218, 165, 32);
-            doc.rect(0, 0, pageWidth, 32, 'F');
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(12);
-            doc.setTextColor(255, 255, 255);
-            doc.text(`Vehicle: ${currentVehicleFilter}`, margin, 12);
-            const dateStr = `Generated: ${formatDateToDisplay(getISOStringForStorage())}`;
-            doc.text(dateStr, pageWidth - margin - doc.getStringUnitWidth(dateStr) * 12 / 2.5, 12);
-            doc.setFontSize(16);
-            doc.text("VEHICLE EXPENSE REPORT", pageWidth / 2, 24, { align: 'center' });
+    // Auto table
+    doc.autoTable({
+        startY: summaryY + summaryHeight + 2,
+        head: [['Date', 'Category', 'Amount', 'Details']],
+        body: rows,
+        theme: 'grid',
+        headStyles: { 
+            fillColor: [218, 165, 32], 
+            textColor: [255, 255, 255], 
+            fontStyle: 'bold', 
+            halign: 'center', 
+            fontSize: 11
+        },
+        bodyStyles: { 
+            fontSize: 11, 
+            cellPadding: 3, 
+            valign: 'middle',
+            textColor: [0, 0, 0],
+            fontStyle: 'normal',
+            halign: 'left'
+        },
+        columnStyles: { 
+            0: { cellWidth: 30, halign: 'center', textColor: [0, 0, 0], fontStyle: 'normal' },
+            1: { cellWidth: 26, halign: 'center', textColor: [0, 0, 0], fontStyle: 'normal' },
+            2: { cellWidth: 26, halign: 'right', textColor: [0, 0, 0], fontStyle: 'normal' },
+            3: { cellWidth: 'auto', halign: 'left', textColor: [0, 0, 0], fontStyle: 'normal' }
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: 'auto',
+        styles: { 
+            lineColor: [80, 80, 80], 
+            lineWidth: 0.1,
+            textColor: [0, 0, 0],
+            fontStyle: 'normal'
+        },
+        didDrawPage: function(data) {
+            const pageCount = doc.internal.getNumberOfPages();
+            const currentPage = data.pageNumber;
+            if (pageCount > 1) {
+                doc.setFontSize(10);
+                doc.setTextColor(150);
+                doc.text(`Page ${currentPage} of ${pageCount}`, pageWidth - margin - 20, 285);
+            }
+        }
+    });
 
-            let sums = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, TyreAir: 0, PUC: 0, Insurance: 0, total: 0 };
-            entries.forEach(e => {
-                sums.total += e.cost;
-                if (e.category === 'Petrol') sums.Petrol += e.cost;
-                else if (e.category === 'Part Replacement') sums.Part += e.cost;
-                else if (e.category === 'Servicing') sums.Servicing += e.cost;
-                else if (e.category === 'Modification') sums.Mod += e.cost;
-                else if (e.category === 'Tyre/Air') sums.TyreAir += e.cost;
-                else if (e.category === 'PUC') sums.PUC += e.cost;
-                else if (e.category === 'Insurance') sums.Insurance += e.cost;
-            });
-            
-            const summaryY = 40;
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0, 0, 0);
-            doc.setFillColor(248, 248, 248);
-            doc.roundedRect(margin, summaryY-3, pageWidth - 2*margin, 11, 2, 2, 'F');
-            doc.setDrawColor(200, 200, 200);
-            doc.roundedRect(margin, summaryY-3, pageWidth - 2*margin, 11, 2, 2, 'S');
-            
-            const row1Y = summaryY + 2;
-            const row2Y = summaryY + 6;
-            const colWidth = (pageWidth - 2*margin - 10) / 6;
-            const startX = margin + 3;
-            
-            doc.text(`Total Bill: ${sums.total}Rs`, startX, row1Y);
-            doc.text(`Petrol Bill: ${sums.Petrol}Rs`, startX + colWidth * 1.2, row1Y);
-            doc.text(`Part Replacement: ${sums.Part}Rs`, startX + colWidth * 2.4, row1Y);
-            doc.text(`Servicing: ${sums.Servicing}Rs`, startX, row2Y);
-            doc.text(`Modification: ${sums.Mod}Rs`, startX + colWidth * 1.2, row2Y);
-            doc.text(`Tyre/Air: ${sums.TyreAir}Rs`, startX + colWidth * 2.4, row2Y);
-            doc.text(`PUC: ${sums.PUC}Rs`, startX + colWidth * 3.6, row2Y);
-            doc.text(`Insurance: ${sums.Insurance}Rs`, startX + colWidth * 4.8, row2Y);
-
-            const rows = entries.map(e => {
-                let detailParts = [];
-                if (e.details) detailParts.push(`Notes: ${e.details}`);
-                if (e.fuelVolume) { let fuelStr = `Fuel: ${e.fuelVolume}L`; if (e.fuelRate) fuelStr += ` @₹${e.fuelRate}/L`; if (e.station) fuelStr += ` (${e.station})`; detailParts.push(fuelStr); }
-                if (e.tyreBrand) detailParts.push(`Tyre: ${e.tyreBrand}`);
-                if (e.tyreSize) detailParts.push(`Size: ${e.tyreSize}`);
-                if (e.partName) detailParts.push(`Part: ${e.partName}`);
-                if (e.brandName) detailParts.push(`Brand: ${e.brandName}`);
-                if (e.shopName) detailParts.push(`Shop: ${e.shopName}`);
-                if (e.serviceType) detailParts.push(`Service: ${e.serviceType}`);
-                if (e.serviceCenter) detailParts.push(`Center: ${e.serviceCenter}`);
-                if (e.odometer) detailParts.push(`Odometer: ${e.odometer} km`);
-                if (e.modPart) detailParts.push(`Mod: ${e.modPart}`);
-                if (e.modBrand) detailParts.push(`Brand: ${e.modBrand}`);
-                if (e.installerShop) detailParts.push(`Installer: ${e.installerShop}`);
-                if (e.cleaningType) detailParts.push(`Clean: ${e.cleaningType}`);
-                if (e.serviceCenterName) detailParts.push(`Center: ${e.serviceCenterName}`);
-                if (e.pucCertNo) detailParts.push(`PUC Cert: ${e.pucCertNo}`);
-                if (e.pucShop) detailParts.push(`PUC Shop: ${e.pucShop}`);
-                if (e.insurancePolicyNo) detailParts.push(`Policy: ${e.insurancePolicyNo}`);
-                if (e.insuranceProvider) detailParts.push(`Provider: ${e.insuranceProvider}`);
-                const detailStr = detailParts.length ? detailParts.join(' | ') : '-';
-                return [e.date, e.category, e.cost.toString(), detailStr];
-            });
-            rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
-
-            doc.autoTable({
-                startY: summaryY + 14,
-                head: [['Date', 'Category', 'Amount', 'Details']],
-                body: rows,
-                theme: 'grid',
-                headStyles: { fillColor: [218, 165, 32], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center', fontSize: 9 },
-                bodyStyles: { fontSize: 8, cellPadding: 2.5, valign: 'middle' },
-                columnStyles: { 0: { cellWidth: 28, halign: 'center' }, 1: { cellWidth: 22, halign: 'center' }, 2: { cellWidth: 22, halign: 'right' }, 3: { cellWidth: 'auto', halign: 'left' } },
-                margin: { left: margin, right: margin },
-                tableWidth: 'auto',
-                styles: { lineColor: [80, 80, 80], lineWidth: 0.1 },
-                didDrawPage: function(data) {
-                    const pageCount = doc.internal.getNumberOfPages();
-                    const currentPage = data.pageNumber;
-                    if (pageCount > 1) {
-                        doc.setFontSize(8);
-                        doc.setTextColor(150);
-                        doc.text(`Page ${currentPage} of ${pageCount}`, pageWidth - margin - 20, 285);
-                    }
-                }
-            });
-
-            const finalY = doc.lastAutoTable.finalY || 80;
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "bold");
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Total Expenditure: ${sums.total}`, margin, finalY + 10);
-            doc.setFont("helvetica", "normal");
-            doc.text(`Total Transactions: ${entries.length}`, margin, finalY + 18);
-
-            doc.save(`${currentVehicleFilter}_Expense_Report.pdf`);
-            showToast("PDF with detailed history ready!");
-        };
-    </script>
+    doc.save(`${currentVehicleFilter}_Expense_Report.pdf`);
+    showToast("PDF with detailed history ready!");
+};
+// Add this after your window.toggleTheme function or at the bottom of the script
+(function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) {
+            themeIcon.className = "fa fa-sun text-gold";
+        }
+    } else if (savedTheme === 'light') {
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+        const themeIcon = document.getElementById('themeIcon');
+        if (themeIcon) {
+            themeIcon.className = "fa fa-moon text-gold";
+        }
+    }
+    // If no saved theme, default to light (which is already set in HTML)
+})();
+</script>
 </body>
 </html>
