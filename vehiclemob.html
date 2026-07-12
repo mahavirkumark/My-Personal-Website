@@ -1483,32 +1483,185 @@
                 `<div class="glass-panel p-3"><div class="flex flex-wrap justify-between"><div><div class="font-bold text-gold text-base">${e.date}</div><span class="bg-gold/10 px-2 py-0.5 rounded-full text-xs inline-block mt-1">${e.category}</span></div><div class="text-right"><span class="font-black text-gold text-xl">₹${e.cost.toLocaleString('en-IN')}</span></div></div>${e.details?`<div class="text-gray-500 text-xs mt-2">📝 ${escapeHtml(e.details)}</div>`:''}</div>`
             ).join(''); }
 
-        window.shareVehiclePDF = async () => { if (!currentVehicleFilter) { alert("Select vehicle"); return; } let entries =
-                allEntries.filter(e => e.name === currentVehicleFilter); if (!entries.length) { alert("No data");
-                return; } let { jsPDF } = window.jspdf; let doc = new jsPDF();
-            doc.setFillColor(218, 165, 32);
-            doc.rect(0, 0, 210, 45, 'F');
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(22);
-            doc.setTextColor(255, 255, 255);
-            doc.text("VEHICLE EXPENSE REPORT", 105, 20, { align: 'center' });
-            doc.setFontSize(11);
-            doc.text(`Vehicle: ${currentVehicleFilter}`, 105, 30, { align: 'center' });
-            doc.text(`Generated: ${formatDateToDisplay(getISOStringForStorage())}`, 105, 38, { align: 'center' });
-            let total = entries.reduce((s, e) => s + e.cost, 0);
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            doc.text("FINANCIAL SUMMARY", 14, 60);
-            doc.setFontSize(10);
-            doc.text(`Total Expenditure: ₹${total.toLocaleString('en-IN')}`, 14, 70);
-            let rows = entries.map(e => [e.date, e.category, `₹${e.cost.toLocaleString('en-IN')}`, e.details || '-']);
-            doc.autoTable({ startY: 85, head: [
-                    ['Date', 'Category', 'Amount', 'Description']
-                ], body: rows, theme: 'striped', headStyles: { fillColor: [218, 165, 32], textColor: [255, 255,
-                        255
-                    ], fontStyle: 'bold' }, bodyStyles: { fontSize: 8 }, margin: { left: 14, right: 14 } });
-            doc.save(`${currentVehicleFilter}_Expense_Report.pdf`);
-            showToast("PDF Ready!"); };
+      // ============ PDF EXPORT FUNCTION - WITH SAVIG LOGO ============
+  // ============ PDF EXPORT FUNCTION - WITHOUT LOGO ============
+window.shareVehiclePDF = async () => {
+    if (!currentVehicleFilter) { 
+        alert("Please select a vehicle from the dropdown above"); 
+        return; 
+    }
+    let entries = allEntries.filter(e => e.name === currentVehicleFilter);
+    if (!entries.length) { 
+        alert("No data available for this vehicle"); 
+        return; 
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageWidth = 210;
+    const margin = 14;
+
+    // Header
+    doc.setFillColor(218, 165, 32);
+    doc.rect(0, 0, pageWidth, 25, 'F');
+    
+    // Vehicle name on the left
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    const vehicleText = `Vehicle: ${currentVehicleFilter}`;
+    doc.text(vehicleText, margin, 10);
+    
+    // Generated date on the right
+// In your shareVehiclePDF function, replace that section with:
+const dateText = `Generated: ${formatDateToDisplay(getISOStringForStorage())}`;
+doc.setFontSize(13); // Increased from 12 to 13
+doc.setFont("helvetica", "bold"); // Changed from "normal" to "bold" for heavier weight
+doc.setTextColor(255, 255, 255); // Pure white
+doc.text(dateText, pageWidth - margin - doc.getStringUnitWidth(dateText) * 13 / 2.5, 12);
+    
+    // Main title
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    doc.text("VEHICLE EXPENSE REPORT", pageWidth / 2, 20, { align: 'center' });
+
+    // Calculate sums
+    let sums = { Petrol: 0, Part: 0, Servicing: 0, Mod: 0, TyreAir: 0, PUC: 0, Insurance: 0, total: 0 };
+    entries.forEach(e => {
+        sums.total += e.cost;
+        if (e.category === 'Petrol') sums.Petrol += e.cost;
+        else if (e.category === 'Part Replacement') sums.Part += e.cost;
+        else if (e.category === 'Servicing') sums.Servicing += e.cost;
+        else if (e.category === 'Modification') sums.Mod += e.cost;
+        else if (e.category === 'Tyre/Air') sums.TyreAir += e.cost;
+        else if (e.category === 'PUC') sums.PUC += e.cost;
+        else if (e.category === 'Insurance') sums.Insurance += e.cost;
+    });
+    
+    // Summary section
+    const summaryY = 32;
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    
+    // Draw border box for summary
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    const summaryHeight = 32;
+    doc.rect(margin, summaryY - 3, pageWidth - 2 * margin, summaryHeight, 'S');
+    
+    // Row spacing
+    const row1Y = summaryY + 4;
+    const row2Y = summaryY + 11;
+    const row3Y = summaryY + 18;
+    
+    // Column widths - 3 columns with proper spacing
+    const col1Width = 50;
+    const col2Width = 50;
+    const startX = margin + 5;
+    
+    // Draw vertical borders for columns
+    doc.setLineWidth(0.2);
+    doc.line(margin + col1Width + 3, summaryY - 3, margin + col1Width + 3, summaryY + summaryHeight - 3);
+    doc.line(margin + col1Width + col2Width + 6, summaryY - 3, margin + col1Width + col2Width + 6, summaryY + summaryHeight - 3);
+    
+    // Row 1
+    doc.text(`Total: ${sums.total} Rs`, startX, row1Y);
+    doc.text(`Petrol: ${sums.Petrol} Rs`, startX + col1Width + 5, row1Y);
+    doc.text(`Part: ${sums.Part} Rs`, startX + col1Width + col2Width + 10, row1Y);
+    
+    // Row 2
+    doc.text(`Servicing: ${sums.Servicing} Rs`, startX, row2Y);
+    doc.text(`Modification: ${sums.Mod} Rs`, startX + col1Width + 5, row2Y);
+    doc.text(`Tyre/Air: ${sums.TyreAir} Rs`, startX + col1Width + col2Width + 10, row2Y);
+    
+    // Row 3
+    doc.text(`PUC: ${sums.PUC} Rs`, startX, row3Y);
+    doc.text(`Insurance: ${sums.Insurance} Rs`, startX + col1Width + 5, row3Y);
+    doc.text(`Transactions: ${entries.length}`, startX + col1Width + col2Width + 10, row3Y);
+
+    // Prepare table data
+    const rows = entries.map(e => {
+        let detailParts = [];
+        if (e.details) detailParts.push(`Notes: ${e.details}`);
+        if (e.fuelVolume) { 
+            let fuelStr = `Fuel: ${e.fuelVolume}L`; 
+            if (e.fuelRate) fuelStr += ` | Rate: ${e.fuelRate}/L`; 
+            if (e.station) fuelStr += ` (${e.station})`; 
+            detailParts.push(fuelStr); 
+        }
+        if (e.tyreBrand) detailParts.push(`Tyre: ${e.tyreBrand}`);
+        if (e.tyreSize) detailParts.push(`Size: ${e.tyreSize}`);
+        if (e.partName) detailParts.push(`Part: ${e.partName}`);
+        if (e.brandName) detailParts.push(`Brand: ${e.brandName}`);
+        if (e.shopName) detailParts.push(`Shop: ${e.shopName}`);
+        if (e.serviceType) detailParts.push(`Service: ${e.serviceType}`);
+        if (e.serviceCenter) detailParts.push(`Center: ${e.serviceCenter}`);
+        if (e.odometer) detailParts.push(`Odometer: ${e.odometer} km`);
+        if (e.modPart) detailParts.push(`Mod: ${e.modPart}`);
+        if (e.modBrand) detailParts.push(`Brand: ${e.modBrand}`);
+        if (e.installerShop) detailParts.push(`Installer: ${e.installerShop}`);
+        if (e.cleaningType) detailParts.push(`Clean: ${e.cleaningType}`);
+        if (e.serviceCenterName) detailParts.push(`Center: ${e.serviceCenterName}`);
+        if (e.pucCertNo) detailParts.push(`PUC Cert: ${e.pucCertNo}`);
+        if (e.pucShop) detailParts.push(`PUC Shop: ${e.pucShop}`);
+        if (e.insurancePolicyNo) detailParts.push(`Policy: ${e.insurancePolicyNo}`);
+        if (e.insuranceProvider) detailParts.push(`Provider: ${e.insuranceProvider}`);
+        const detailStr = detailParts.length ? detailParts.join(' | ') : '-';
+        return [e.date, e.category, e.cost.toString(), detailStr];
+    });
+    rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+    // Auto table
+    doc.autoTable({
+        startY: summaryY + summaryHeight + 2,
+        head: [['Date', 'Category', 'Amount', 'Details']],
+        body: rows,
+        theme: 'grid',
+        headStyles: { 
+            fillColor: [218, 165, 32], 
+            textColor: [255, 255, 255], 
+            fontStyle: 'bold', 
+            halign: 'center', 
+            fontSize: 11
+        },
+        bodyStyles: { 
+            fontSize: 11, 
+            cellPadding: 3, 
+            valign: 'middle',
+            textColor: [0, 0, 0],
+            fontStyle: 'normal',
+            halign: 'left'
+        },
+        columnStyles: { 
+            0: { cellWidth: 30, halign: 'center', textColor: [0, 0, 0], fontStyle: 'normal' },
+            1: { cellWidth: 26, halign: 'center', textColor: [0, 0, 0], fontStyle: 'normal' },
+            2: { cellWidth: 26, halign: 'right', textColor: [0, 0, 0], fontStyle: 'normal' },
+            3: { cellWidth: 'auto', halign: 'left', textColor: [0, 0, 0], fontStyle: 'normal' }
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: 'auto',
+        styles: { 
+            lineColor: [80, 80, 80], 
+            lineWidth: 0.1,
+            textColor: [0, 0, 0],
+            fontStyle: 'normal'
+        },
+        didDrawPage: function(data) {
+            const pageCount = doc.internal.getNumberOfPages();
+            const currentPage = data.pageNumber;
+            if (pageCount > 1) {
+                doc.setFontSize(10);
+                doc.setTextColor(150);
+                doc.text(`Page ${currentPage} of ${pageCount}`, pageWidth - margin - 20, 285);
+            }
+        }
+    });
+
+    doc.save(`${currentVehicleFilter}_Expense_Report.pdf`);
+    showToast("PDF with detailed history ready!");
+};
     </script>
 </body>
 </html>
